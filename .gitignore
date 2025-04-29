@@ -56,7 +56,7 @@ alembic_versions_backup
 **/.virtual_documents
 /.nvmrc
 **/build/test-results/test/TEST*.xml
-src/graph-sitter/__init__.py
+src/graph_sitter/__init__.py
 src/**/*.html
 .ccache/
 uv-*.tar.gz
