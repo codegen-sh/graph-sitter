@@ -46,7 +46,7 @@ async def test_sandbox_runner_warmup_starts_with_default_branch(mock_executor, r
 @pytest.mark.asyncio
 @patch("codegen.runner.sandbox.runner.logger")
 @patch("codegen.runner.sandbox.runner.SandboxExecutor")
-@patch("codegen.sdk.core.codebase.Codebase.default_branch", new_callable=PropertyMock)
+@patch("graph_sitter.core.codebase.Codebase.default_branch", new_callable=PropertyMock)
 async def test_sandbox_runner_reset_runner_deletes_branches(mock_branch, mock_executor, mock_logger, runner: SandboxRunner):
     mock_branch.return_value = "main"
     await runner.warmup()

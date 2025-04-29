@@ -63,7 +63,7 @@ def import_all_codegen_sdk_modules():
         # ignore braintrust_evaluator because it runs stuff on import
         if "__init__" in file.name or "braintrust_evaluator" in file.name:
             continue
-        module_name = "codegen.sdk." + str(relative_path).replace("/", ".").removesuffix(".py")
+        module_name = "graph_sitter." + str(relative_path).replace("/", ".").removesuffix(".py")
         try:
             importlib.import_module(module_name)
         except Exception as e:
@@ -86,9 +86,9 @@ def get_documented_objects() -> DocumentedObjects:
     from graph_sitter.core.codebase import CodebaseType, PyCodebaseType, TSCodebaseType
 
     if PyCodebaseType not in apidoc_objects:
-        apidoc_objects.append(DocumentedObject(name="PyCodebaseType", module="codegen.sdk.core.codebase", object=PyCodebaseType))
+        apidoc_objects.append(DocumentedObject(name="PyCodebaseType", module="graph_sitter.core.codebase", object=PyCodebaseType))
     if TSCodebaseType not in apidoc_objects:
-        apidoc_objects.append(DocumentedObject(name="TSCodebaseType", module="codegen.sdk.core.codebase", object=TSCodebaseType))
+        apidoc_objects.append(DocumentedObject(name="TSCodebaseType", module="graph_sitter.core.codebase", object=TSCodebaseType))
     if CodebaseType not in apidoc_objects:
-        apidoc_objects.append(DocumentedObject(name="CodebaseType", module="codegen.sdk.core.codebase", object=CodebaseType))
+        apidoc_objects.append(DocumentedObject(name="CodebaseType", module="graph_sitter.core.codebase", object=CodebaseType))
     return {"apidoc": apidoc_objects, "py_apidoc": py_apidoc_objects, "ts_apidoc": ts_apidoc_objects, "no_apidoc": no_apidoc_objects}

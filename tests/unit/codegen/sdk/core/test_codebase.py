@@ -14,7 +14,7 @@ def context_mock():
     for attr in CodebaseContext.__annotations__:
         if not hasattr(mock_context, attr):
             setattr(mock_context, attr, MagicMock(name=attr))
-    with patch("codegen.sdk.core.codebase.CodebaseContext", return_value=mock_context):
+    with patch("graph_sitter.core.codebase.CodebaseContext", return_value=mock_context):
         yield mock_context
 
 

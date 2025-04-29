@@ -163,7 +163,7 @@ def test_remove_unpacking_assignment_num(tmpdir) -> None:
         assert file2.source == """"""
 
 
-@patch("codegen.sdk.python.assignment.logger")
+@patch("graph_sitter.python.assignment.logger")
 def test_unpacking_function_with_underscore_removal(mock_logger, tmpdir: str) -> None:
     # language=python
     content1 = """
