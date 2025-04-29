@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, TypeVar
+from typing import TypeVar
 
 import numpy as np
 
@@ -34,9 +34,9 @@ class CodeIndex(ABC):
             codebase: The codebase to index
         """
         self.codebase = codebase
-        self.E: Optional[np.ndarray] = None
-        self.items: Optional[np.ndarray] = None
-        self.commit_hash: Optional[str] = None
+        self.E: np.ndarray | None = None
+        self.items: np.ndarray | None = None
+        self.commit_hash: str | None = None
 
     @property
     @abstractmethod
@@ -151,7 +151,7 @@ class CodeIndex(ABC):
         # Update commit hash
         self.commit_hash = self._get_current_commit()
 
-    def save(self, save_path: Optional[str] = None) -> None:
+    def save(self, save_path: str | None = None) -> None:
         """Save the index to disk."""
         if self.E is None or self.items is None:
             msg = "No embeddings to save. Call create() first."
@@ -162,7 +162,7 @@ class CodeIndex(ABC):
 
         self._save_index(save_path)
 
-    def load(self, load_path: Optional[str] = None) -> None:
+    def load(self, load_path: str | None = None) -> None:
         """Load the index from disk."""
         load_path = Path(load_path) if load_path else self._get_default_save_path()
 

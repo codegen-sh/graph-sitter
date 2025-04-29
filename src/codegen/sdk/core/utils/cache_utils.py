@@ -1,6 +1,6 @@
 import functools
-from collections.abc import Iterator
-from typing import Callable, Generic, ParamSpec, TypeVar
+from collections.abc import Callable, Iterator
+from typing import Generic, ParamSpec, TypeVar
 
 from codegen.sdk.extensions.utils import lru_cache
 

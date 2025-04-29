@@ -2,7 +2,6 @@
 
 import pickle
 from pathlib import Path
-from typing import Optional
 
 import modal
 import numpy as np
@@ -87,7 +86,7 @@ class FileIndex(CodeIndex):
             logger.exception(f"Failed to delete Modal Dict: {e}")
             return False
 
-    def modal_dict_exists(self, commit_hash: Optional[str] = None) -> bool:
+    def modal_dict_exists(self, commit_hash: str | None = None) -> bool:
         """Check if a Modal Dict exists for a specific commit.
 
         Args:

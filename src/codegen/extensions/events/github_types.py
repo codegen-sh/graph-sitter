@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 
 class GitHubRepository:
@@ -37,11 +36,11 @@ class GitHubInstallation:
     events: list[str]
     created_at: datetime
     updated_at: datetime
-    single_file_name: Optional[str]
+    single_file_name: str | None
     has_multiple_single_files: bool
     single_file_paths: list[str]
-    suspended_by: Optional[str]
-    suspended_at: Optional[datetime]
+    suspended_by: str | None
+    suspended_at: datetime | None
 
 
 class GitHubUser:
@@ -58,5 +57,5 @@ class GitHubInstallationEvent:
     action: str
     installation: GitHubInstallation
     repositories: list[GitHubRepository]
-    requester: Optional[dict]
+    requester: dict | None
     sender: GitHubUser

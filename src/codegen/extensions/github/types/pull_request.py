@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -47,30 +47,30 @@ class PullRequest(BaseModel):
     locked: bool
     title: str
     user: GitHubUser
-    body: Optional[str]
+    body: str | None
     created_at: str
     updated_at: str
-    closed_at: Optional[str]
-    merged_at: Optional[str]
-    merge_commit_sha: Optional[str]
-    assignee: Optional[GitHubUser]
+    closed_at: str | None
+    merged_at: str | None
+    merge_commit_sha: str | None
+    assignee: GitHubUser | None
     assignees: list[GitHubUser]
     requested_reviewers: list[GitHubUser]
     requested_teams: list[dict]
     labels: list[Label]
-    milestone: Optional[dict]
+    milestone: dict | None
     draft: bool
     head: PullRequestRef
     base: PullRequestRef
     _links: PullRequestLinks
     author_association: str
-    auto_merge: Optional[dict]
-    active_lock_reason: Optional[str]
+    auto_merge: dict | None
+    active_lock_reason: str | None
     merged: bool
-    mergeable: Optional[bool]
-    rebaseable: Optional[bool]
+    mergeable: bool | None
+    rebaseable: bool | None
     mergeable_state: str
-    merged_by: Optional[GitHubUser]
+    merged_by: GitHubUser | None
     comments: int
     review_comments: int
     maintainer_can_modify: bool

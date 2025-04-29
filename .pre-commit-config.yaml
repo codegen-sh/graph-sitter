@@ -7,7 +7,7 @@ repos:
     hooks:
       - id: taplo-format
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.6
+    rev: v0.11.7
     hooks:
       # Run the linter.
       - id: ruff
@@ -19,7 +19,7 @@ repos:
         types_or: [python, jupyter, pyi]
 
   - repo: https://github.com/biomejs/pre-commit
-    rev: "v0.6.1"
+    rev: "v2.0.0-beta.1"
     hooks:
       - id: biome-check
         language: node
@@ -48,7 +48,7 @@ repos:
       - id: check-merge-conflict
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.31.1
+    rev: 0.33.0
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
@@ -77,12 +77,12 @@ repos:
         entry: bash -c "uv run --frozen --all-extras --dev deptry src --ignore DEP001 --extend-exclude 'codegen-examples/.*'"
 
   - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 39.169.3
+    rev: 39.263.1
     hooks:
       - id: renovate-config-validator
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: "0.5.31"
+    rev: "0.6.17"
     hooks:
       - id: uv-sync
         args: ["--frozen", "--all-packages", "--all-extras"]

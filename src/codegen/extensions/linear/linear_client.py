@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -15,7 +14,7 @@ class LinearClient:
     api_headers: dict
     api_endpoint = "https://api.linear.app/graphql"
 
-    def __init__(self, access_token: Optional[str] = None, team_id: Optional[str] = None, max_retries: int = 3, backoff_factor: float = 0.5):
+    def __init__(self, access_token: str | None = None, team_id: str | None = None, max_retries: int = 3, backoff_factor: float = 0.5):
         if not access_token:
             access_token = os.getenv("LINEAR_ACCESS_TOKEN")
             if not access_token:

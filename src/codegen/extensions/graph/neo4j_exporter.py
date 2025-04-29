@@ -26,7 +26,7 @@ class Neo4jExporter:
         with self.driver.session() as session:
             # Create nodes
             for node in graph.nodes.values():
-                properties = {"name": node.name, "full_name": node.full_name, **{k: str(v) if isinstance(v, (dict, list)) else v for k, v in node.properties.items()}}
+                properties = {"name": node.name, "full_name": node.full_name, **{k: str(v) if isinstance(v, dict | list) else v for k, v in node.properties.items()}}
 
                 query = f"CREATE (n:{node.label} {{{', '.join(f'{k}: ${k}' for k in properties.keys())}}})"
                 session.run(query, properties)
@@ -36,7 +36,7 @@ class Neo4jExporter:
                 source_node = graph.nodes[relation.source_id]
                 target_node = graph.nodes[relation.target_id]
 
-                properties = {**{k: str(v) if isinstance(v, (dict, list)) else v for k, v in relation.properties.items()}}
+                properties = {**{k: str(v) if isinstance(v, dict | list) else v for k, v in relation.properties.items()}}
 
                 query = (
                     f"MATCH (source:{source_node.label} {{full_name: $source_name}}), "

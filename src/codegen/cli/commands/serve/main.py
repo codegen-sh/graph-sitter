@@ -4,7 +4,6 @@ import socket
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 import rich
 import rich_click as click
@@ -89,7 +88,7 @@ app = app.app  # Get the FastAPI instance from the CodegenApp
     return f"{module_name}:app"
 
 
-def start_ngrok(port: int) -> Optional[str]:
+def start_ngrok(port: int) -> str | None:
     """Start ngrok and return the public URL"""
     try:
         import requests

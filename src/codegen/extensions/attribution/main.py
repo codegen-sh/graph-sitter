@@ -1,10 +1,8 @@
-from typing import Optional
-
 from codegen.extensions.attribution.git_history import GitAttributionTracker
 from codegen.sdk.core.codebase import Codebase
 
 
-def analyze_ai_impact(codebase: Codebase, ai_authors: Optional[list[str]] = None, max_commits: Optional[int] = None) -> dict:
+def analyze_ai_impact(codebase: Codebase, ai_authors: list[str] | None = None, max_commits: int | None = None) -> dict:
     """Analyze the impact of AI on a codebase.
 
     Args:
@@ -57,7 +55,7 @@ def analyze_ai_impact(codebase: Codebase, ai_authors: Optional[list[str]] = None
     }
 
 
-def add_attribution_to_symbols(codebase: Codebase, ai_authors: Optional[list[str]] = None) -> None:
+def add_attribution_to_symbols(codebase: Codebase, ai_authors: list[str] | None = None) -> None:
     """Add attribution information to symbols in the codebase.
 
     This adds the following attributes to each symbol:

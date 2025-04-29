@@ -1,5 +1,5 @@
 import json
-from typing import Annotated, Optional
+from typing import Annotated
 
 from mcp.server.fastmcp import FastMCP
 
@@ -18,12 +18,12 @@ mcp = FastMCP(
 @mcp.tool(name="reveal_symbol", description="Reveal the dependencies and usages of a symbol up to N degrees")
 def reveal_symbol_tool(
     symbol_name: Annotated[str, "Name of the symbol to inspect"],
-    target_file: Annotated[Optional[str], "The file path of the file containing the symbol to inspect"],
+    target_file: Annotated[str | None, "The file path of the file containing the symbol to inspect"],
     codebase_dir: Annotated[str, "The root directory of your codebase"],
     codebase_language: Annotated[ProgrammingLanguage, "The language the codebase is written in"],
-    max_depth: Annotated[Optional[int], "depth up to which symbol information is retrieved"],
-    collect_dependencies: Annotated[Optional[bool], "includes dependencies of symbol"],
-    collect_usages: Annotated[Optional[bool], "includes usages of symbol"],
+    max_depth: Annotated[int | None, "depth up to which symbol information is retrieved"],
+    collect_dependencies: Annotated[bool | None, "includes dependencies of symbol"],
+    collect_usages: Annotated[bool | None, "includes usages of symbol"],
 ):
     codebase = Codebase(repo_path=codebase_dir, language=codebase_language)
     result = reveal_symbol(
@@ -42,8 +42,8 @@ def search_codebase_tool(
     query: Annotated[str, "The search query to find in the codebase. When ripgrep is available, this will be passed as a ripgrep pattern. For regex searches, set use_regex=True."],
     codebase_dir: Annotated[str, "The root directory of your codebase"],
     codebase_language: Annotated[ProgrammingLanguage, "The language the codebase is written in"],
-    target_directories: Annotated[Optional[list[str]], "list of directories to search within"] = None,
-    file_extensions: Annotated[Optional[list[str]], "list of file extensions to search (e.g. ['.py', '.ts'])"] = None,
+    target_directories: Annotated[list[str] | None, "list of directories to search within"] = None,
+    file_extensions: Annotated[list[str] | None, "list of file extensions to search (e.g. ['.py', '.ts'])"] = None,
     page: Annotated[int, "page number to return (1-based)"] = 1,
     files_per_page: Annotated[int, "number of files to return per page"] = 10,
     use_regex: Annotated[bool, "use regex for the search query"] = False,

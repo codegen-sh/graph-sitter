@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from lsprotocol import types
 from lsprotocol.types import Position, Range
@@ -21,9 +21,9 @@ logger = get_logger(__name__)
 
 
 class CodegenLanguageServer(LanguageServer):
-    codebase: Optional[Codebase]
-    io: Optional[LSPIO]
-    progress_manager: Optional[LSPProgress]
+    codebase: Codebase | None
+    io: LSPIO | None
+    progress_manager: LSPProgress | None
     actions: dict[str, CodeAction]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

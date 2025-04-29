@@ -1,5 +1,5 @@
 import os
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -23,7 +23,7 @@ class CodegenApp:
     linear: Linear
     slack: Slack
 
-    def __init__(self, name: str, repo: Optional[str] = None, tmp_dir: str = "/tmp/codegen", commit: str | None = "latest"):
+    def __init__(self, name: str, repo: str | None = None, tmp_dir: str = "/tmp/codegen", commit: str | None = "latest"):
         self.name = name
         self.tmp_dir = tmp_dir
 

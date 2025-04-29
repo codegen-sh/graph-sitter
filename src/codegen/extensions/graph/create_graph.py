@@ -1,5 +1,3 @@
-from typing import Optional
-
 from codegen.extensions.graph.utils import Node, NodeLabel, Relation, RelationLabel, SimpleGraph
 from codegen.sdk.code_generation.doc_utils.utils import safe_get_class
 from codegen.sdk.core.class_definition import Class
@@ -16,7 +14,7 @@ def create_codebase_graph(codebase):
     # Track existing nodes by name to prevent duplicates
     node_registry = {}  # name -> node_id mapping
 
-    def get_or_create_node(name: str, label: NodeLabel, parent_name: Optional[str] = None, properties: dict | None = None):
+    def get_or_create_node(name: str, label: NodeLabel, parent_name: str | None = None, properties: dict | None = None):
         """Get existing node or create new one if it doesn't exist."""
         full_name = f"{parent_name}.{name}" if parent_name and parent_name != "Class" else name
         if full_name in node_registry:

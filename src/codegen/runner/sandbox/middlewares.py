@@ -1,6 +1,7 @@
 import traceback
+from collections.abc import Callable
 from http import HTTPStatus
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request

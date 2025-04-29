@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from pprint import pprint
-from typing import Literal, Optional
+from typing import Literal
 
 from datasets import load_dataset
 
@@ -21,13 +21,13 @@ class SweBenchExample:
     patch: str
     test_patch: str
     problem_statement: str
-    hints_text: Optional[str]
+    hints_text: str | None
     created_at: str
     version: str
     fail_to_pass: str
-    pass_to_pass: Optional[str]
-    environment_setup_commit: Optional[str]
-    difficulty: Optional[int]
+    pass_to_pass: str | None
+    environment_setup_commit: str | None
+    difficulty: int | None
 
 
 def load_predictions(paths):

@@ -1,5 +1,5 @@
-from collections.abc import Iterable, Iterator
-from typing import Callable, Generic, Literal
+from collections.abc import Callable, Iterable, Iterator
+from typing import Generic, Literal
 
 from codeowners import CodeOwners as CodeOwnersParser
 

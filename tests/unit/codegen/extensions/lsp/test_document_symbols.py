@@ -1,5 +1,4 @@
-from collections.abc import Sequence
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from lsprotocol.types import (
@@ -13,6 +12,9 @@ from lsprotocol.types import (
 from pytest_lsp import LanguageClient
 
 from codegen.sdk.core.codebase import Codebase
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 @pytest.mark.parametrize(
@@ -227,7 +229,7 @@ async def test_document_symbols(
     result = await client.text_document_document_symbol_async(params=DocumentSymbolParams(text_document=TextDocumentIdentifier(uri=f"file://{codebase.repo_path}/test.py")))
 
     assert result is not None
-    symbols = cast(Sequence[DocumentSymbol], result)
+    symbols = cast("Sequence[DocumentSymbol]", result)
     assert len(symbols) == len(expected_symbols)
     for actual, expected in zip(symbols, expected_symbols):
         assert actual.name == expected.name

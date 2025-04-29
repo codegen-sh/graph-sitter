@@ -1,7 +1,6 @@
 import time
 from collections import defaultdict, deque
 from datetime import datetime
-from typing import Optional
 
 import pygit2
 from intervaltree import IntervalTree
@@ -16,7 +15,7 @@ from codegen.sdk.core.symbol import Symbol
 class GitAttributionTracker:
     """Tracks attribution information for code symbols based on git history."""
 
-    def __init__(self, codebase: Codebase, ai_authors: Optional[list[str]] = None):
+    def __init__(self, codebase: Codebase, ai_authors: list[str] | None = None):
         """Initialize the attribution tracker.
 
         Args:
@@ -43,7 +42,7 @@ class GitAttributionTracker:
 
         self._commits: deque[Commit]
 
-    def build_history(self, max_commits: Optional[int] = None) -> None:
+    def build_history(self, max_commits: int | None = None) -> None:
         """Build the git history for the codebase.
 
         Args:
@@ -206,7 +205,7 @@ class GitAttributionTracker:
         start_time = time.time()
 
         print("Stashing any working directory changes...")
-        stash_msg = f"Codegen Attribution Stash @ {datetime.now().timestamp()}"
+        stash_msg = f"Codegen Attribution Stash @ {datetime.now().timestamp()}"  # noqa: DTZ005
         stash_id = None
         try:
             stash_id = self.repo.stash(self.repo.default_signature, stash_msg, include_untracked=True)
@@ -325,7 +324,7 @@ class GitAttributionTracker:
         symbol_id = f"{symbol.filepath}:{symbol.name}"
         return self._symbol_history.get(symbol_id, [])
 
-    def get_symbol_last_editor(self, symbol: Symbol) -> Optional[str]:
+    def get_symbol_last_editor(self, symbol: Symbol) -> str | None:
         """Get the last person who edited a symbol.
 
         Args:
@@ -423,7 +422,7 @@ class GitAttributionTracker:
             if any(name in author for name in self.ai_authors):
                 for commit in commits:
                     # Convert timestamp to year-month
-                    dt = datetime.fromtimestamp(commit["timestamp"])
+                    dt = datetime.fromtimestamp(commit["timestamp"])  # noqa: DTZ006
                     month_key = f"{dt.year}-{dt.month:02d}"
                     monthly_counts[month_key] += 1
 
@@ -431,4 +430,4 @@ class GitAttributionTracker:
         timeline = sorted(monthly_counts.items())
 
         # Convert to datetime objects
-        return [(datetime.strptime(month, "%Y-%m"), count) for month, count in timeline]
+        return [(datetime.strptime(month, "%Y-%m"), count) for month, count in timeline]  # noqa: DTZ007

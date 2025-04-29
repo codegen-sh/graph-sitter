@@ -28,7 +28,7 @@ def go_to_definition(node: Editable | None, uri: str, position: Position) -> Edi
     if resolved is None:
         logger.warning(f"No resolved value found for {node.name} at {uri}:{position}")
         return None
-    if isinstance(resolved, (HasName,)):
+    if isinstance(resolved, HasName):
         resolved = resolved.get_name()
     if isinstance(resolved.parent, Assignment) and resolved.parent.value == resolved:
         resolved = resolved.parent.get_name()

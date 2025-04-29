@@ -1,6 +1,7 @@
 import logging
 import os
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from fastapi import Request
 from github import Github
