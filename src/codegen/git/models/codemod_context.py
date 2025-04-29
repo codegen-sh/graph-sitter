@@ -11,7 +11,7 @@ logger = get_logger(__name__)
 
 
 class CodemodContext(BaseModel):
-    CODEGEN_VERSION: str = version("codegen")
+    GRAPH_SITTER_VERSION: str = version("graph-sitter")
     CODEMOD_ID: int | None = None
     CODEMOD_LINK: str | None = None
     CODEMOD_AUTHOR: str | None = None
