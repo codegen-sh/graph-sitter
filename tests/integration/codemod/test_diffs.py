@@ -7,7 +7,6 @@ from graph_sitter.codebase.diff_lite import DiffLite
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.output.utils import stylize_error
 from graph_sitter.tree_sitter_parser import print_errors
-
 from tests.shared.codemod.codebase_comparison_utils import gather_modified_files
 from tests.shared.codemod.models import BASE_PATH
 

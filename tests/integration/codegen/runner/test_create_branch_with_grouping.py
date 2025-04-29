@@ -2,13 +2,13 @@ import uuid
 from http import HTTPStatus
 
 import pytest
-from graph_sitter.codebase.flagging.groupers.enums import GroupBy
 
 from codegen.git.clients.git_repo_client import GitRepoClient
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.runner.clients.codebase_client import CodebaseClient
 from codegen.runner.models.apis import BRANCH_ENDPOINT, CreateBranchRequest, CreateBranchResponse
 from codegen.runner.models.codemod import BranchConfig, Codemod, GroupingConfig
+from graph_sitter.codebase.flagging.groupers.enums import GroupBy
 
 
 @pytest.mark.timeout(120)

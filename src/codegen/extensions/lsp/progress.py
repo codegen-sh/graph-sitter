@@ -1,11 +1,12 @@
 import uuid
 
-from graph_sitter.codebase.progress.progress import Progress
-from graph_sitter.codebase.progress.stub_task import StubTask
-from graph_sitter.codebase.progress.task import Task
 from lsprotocol import types
 from lsprotocol.types import ProgressToken
 from pygls.lsp.server import LanguageServer
+
+from graph_sitter.codebase.progress.progress import Progress
+from graph_sitter.codebase.progress.stub_task import StubTask
+from graph_sitter.codebase.progress.task import Task
 
 
 class LSPTask(Task):

@@ -5,11 +5,11 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from graph_sitter.core.codebase import Codebase
 from Levenshtein import distance as levenshtein_distance
 from pytest_snapshot.plugin import Snapshot
 
 from codegen.git.schemas.enums import DiffChangeType
+from graph_sitter.core.codebase import Codebase
 from tests.shared.codemod.constants import DIFF_FILEPATH
 
 logger = logging.getLogger(__name__)

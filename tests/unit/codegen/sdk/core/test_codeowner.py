@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
+
 from graph_sitter.core.codeowner import CodeOwner
 
 

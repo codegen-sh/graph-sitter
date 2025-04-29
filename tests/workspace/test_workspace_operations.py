@@ -1,6 +1,5 @@
-from graph_sitter.codebase.factory.get_session import get_codebase_session
-
 from codegen.workspace import Workspace
+from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 
 def test_view_file(tmpdir) -> None:

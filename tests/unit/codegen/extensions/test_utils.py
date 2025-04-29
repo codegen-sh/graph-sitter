@@ -1,6 +1,7 @@
 from threading import Event
 
 import pytest
+
 from graph_sitter.extensions.utils import lru_cache, uncache_all
 
 

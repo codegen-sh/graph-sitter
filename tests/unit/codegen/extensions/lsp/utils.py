@@ -1,7 +1,7 @@
-from graph_sitter.core.codebase import Codebase
 from lsprotocol.types import CreateFile, TextDocumentEdit, WorkspaceEdit
 
 from codegen.extensions.lsp.utils import get_path
+from graph_sitter.core.codebase import Codebase
 
 
 def apply_edit(codebase: Codebase, edit: WorkspaceEdit):

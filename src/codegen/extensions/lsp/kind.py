@@ -1,3 +1,5 @@
+from lsprotocol.types import SymbolKind
+
 from graph_sitter.core.assignment import Assignment
 from graph_sitter.core.class_definition import Class
 from graph_sitter.core.file import File
@@ -6,7 +8,6 @@ from graph_sitter.core.interface import Interface
 from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.statements.attribute import Attribute
 from graph_sitter.typescript.namespace import TSNamespace
-from lsprotocol.types import SymbolKind
 
 kinds = {
     File: SymbolKind.File,

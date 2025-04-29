@@ -1,6 +1,5 @@
-from graph_sitter.core.codebase import Codebase
-
 from codegen.extensions.attribution.git_history import GitAttributionTracker
+from graph_sitter.core.codebase import Codebase
 
 
 def analyze_ai_impact(codebase: Codebase, ai_authors: list[str] | None = None, max_commits: int | None = None) -> dict:

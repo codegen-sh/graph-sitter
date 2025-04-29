@@ -1,9 +1,8 @@
 import os
 
+import codegen
 from graph_sitter.code_generation.current_code_codebase import get_graphsitter_repo_path
 from graph_sitter.core.codebase import Codebase
-
-import codegen
 
 
 def test_codegen_imports():

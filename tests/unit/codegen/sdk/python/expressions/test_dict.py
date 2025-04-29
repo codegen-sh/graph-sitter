@@ -2,6 +2,7 @@ from itertools import product
 from typing import TYPE_CHECKING
 
 import pytest
+
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 if TYPE_CHECKING:

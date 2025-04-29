@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar
 
-from graph_sitter.core.interfaces.editable import Editable
 from lsprotocol import types
+
+from graph_sitter.core.interfaces.editable import Editable
 
 if TYPE_CHECKING:
     from codegen.extensions.lsp.server import CodegenLanguageServer

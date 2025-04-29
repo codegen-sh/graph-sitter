@@ -1,6 +1,6 @@
 import pytest
-from graph_sitter.codebase.factory.get_session import get_codebase_session
 
+from graph_sitter.codebase.factory.get_session import get_codebase_session
 from tests.shared.skills.skill_implementation import SkillImplementation
 from tests.shared.skills.skill_test import SkillTestCase
 from tests.shared.skills.utils import get_all_skill_implementations
