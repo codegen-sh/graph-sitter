@@ -6,18 +6,17 @@ from collections import Counter, defaultdict
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
+from graph_sitter.enums import NodeType
+from graph_sitter.utils import truncate_line
 from tabulate import tabulate
 
-from codegen.sdk.enums import NodeType
-from codegen.sdk.utils import truncate_line
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
+    from graph_sitter.core.codebase import CodebaseType
     from rustworkx import PyDiGraph
-
-    from codegen.sdk.core.codebase import CodebaseType
 
 
 class PostInitValidationStatus(StrEnum):
@@ -30,7 +29,7 @@ class PostInitValidationStatus(StrEnum):
 
 def post_init_validation(codebase: CodebaseType) -> PostInitValidationStatus:
     """Post codebase._init_graph verifies that the built graph is valid."""
-    from codegen.sdk.codebase.codebase_context import GLOBAL_FILE_IGNORE_LIST
+    from graph_sitter.codebase.codebase_context import GLOBAL_FILE_IGNORE_LIST
 
     # Verify the graph has nodes
     if len(codebase.ctx.nodes) == 0:
@@ -137,7 +136,7 @@ Missing nodes
 ```
 """
     for node in set_nodes - set_init_nodes:
-        from codegen.sdk.core.external_module import ExternalModule
+        from graph_sitter.core.external_module import ExternalModule
 
         if isinstance(node, ExternalModule):
             message += "External Module persisted with following dependencies: " + str(list((node.ctx.get_node(source), edge) for source, _, edge in node.ctx.in_edges(node.node_id)))

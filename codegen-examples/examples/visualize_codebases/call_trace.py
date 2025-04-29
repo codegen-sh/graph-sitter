@@ -1,10 +1,10 @@
 import codegen
 import networkx as nx
 from codegen import Codebase
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.external_module import ExternalModule
-from codegen.sdk.core.function import Function
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.external_module import ExternalModule
+from graph_sitter.core.function import Function
 
 G = nx.DiGraph()
 

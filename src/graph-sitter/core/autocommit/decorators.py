@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, ParamSpec, TypeVar, Union, overload
 
 import wrapt
 
-from codegen.sdk.core.autocommit.constants import AutoCommitState, enabled
-from codegen.sdk.core.node_id_factory import NodeId
+from graph_sitter.core.autocommit.constants import AutoCommitState, enabled
+from graph_sitter.core.node_id_factory import NodeId
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.symbol import Symbol
 
 
 logger = get_logger(__name__)

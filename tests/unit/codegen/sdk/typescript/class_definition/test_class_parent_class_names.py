@@ -1,5 +1,6 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.interfaces.editable import Editable
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.interfaces.editable import Editable
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

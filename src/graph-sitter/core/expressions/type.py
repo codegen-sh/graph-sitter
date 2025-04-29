@@ -2,18 +2,18 @@ import itertools
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.extensions.autocommit import reader
 from typing_extensions import deprecated
 
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.extensions.autocommit import reader
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.symbol import Symbol
 
 
 Parent = TypeVar("Parent", bound="Editable")
@@ -34,7 +34,7 @@ class Type(Expression[Parent], Chainable, ABC, Generic[Parent]):
     @noapidoc
     @reader
     def resolved_symbol(self) -> "Symbol | str | None":
-        from codegen.sdk.core.symbol import Symbol
+        from graph_sitter.core.symbol import Symbol
 
         for resolved in self.resolved_types:
             if isinstance(resolved, Symbol):

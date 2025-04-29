@@ -1,9 +1,10 @@
 from functools import cached_property
 from typing import Self, TypeVar
 
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.expressions.binary_expression import BinaryExpression
-from codegen.sdk.core.symbol_groups.expression_group import ExpressionGroup
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.expressions.binary_expression import BinaryExpression
+from graph_sitter.core.symbol_groups.expression_group import ExpressionGroup
+
 from codegen.shared.decorators.docs import apidoc
 
 Parent = TypeVar("Parent")

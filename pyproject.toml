@@ -1,5 +1,5 @@
 [project]
-name = "codegen"
+name = "graph-sitter"
 dynamic = ["version", "urls"]
 description = "Scriptable interface to a powerful, multi-lingual language server built on top of Tree-sitter"
 readme = "README.md"
@@ -230,6 +230,7 @@ build-backend = "hatchling.build"
 [tool.deptry]
 extend_exclude = [".*/eval/test_files/.*.py", ".*conftest.py"]
 pep621_dev_dependency_groups = ["types"]
+known_first_party = ["graph_sitter"]
 [tool.deptry.per_rule_ignores]
 DEP002 = [
   "pyright",

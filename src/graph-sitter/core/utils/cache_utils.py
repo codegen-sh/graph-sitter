@@ -2,7 +2,7 @@ import functools
 from collections.abc import Callable, Iterator
 from typing import Generic, ParamSpec, TypeVar
 
-from codegen.sdk.extensions.utils import lru_cache
+from graph_sitter.extensions.utils import lru_cache
 
 ItemType = TypeVar("ItemType")
 GenParamSpec = ParamSpec("GenParamSpec")

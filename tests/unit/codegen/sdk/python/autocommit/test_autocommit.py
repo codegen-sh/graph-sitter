@@ -1,8 +1,7 @@
 import pytest
-
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.autocommit.constants import NodeNotFoundError, OutdatedNodeError
-from codegen.sdk.core.statements.statement import StatementType
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.autocommit.constants import NodeNotFoundError, OutdatedNodeError
+from graph_sitter.core.statements.statement import StatementType
 
 
 @pytest.mark.skip("No Autocommit")

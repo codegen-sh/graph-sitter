@@ -4,23 +4,23 @@ from enum import StrEnum
 from functools import cached_property
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.extensions.autocommit import commiter
-from codegen.sdk.output.constants import ANGULAR_STYLE
-from codegen.sdk.utils import find_all_descendants
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.expressions import Expression
+from graph_sitter.extensions.autocommit import commiter
+from graph_sitter.output.constants import ANGULAR_STYLE
+from graph_sitter.utils import find_all_descendants
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
     import rich.repr
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.symbol_groups.multi_line_collection import MultiLineCollection
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.symbol_groups.multi_line_collection import MultiLineCollection
 
 
 @apidoc
@@ -152,7 +152,7 @@ class Statement(Expression[Parent], Generic[Parent]):
         return nested_statements
 
     def _get_indent(self) -> int:
-        from codegen.sdk.core.detached_symbols.code_block import CodeBlock
+        from graph_sitter.core.detached_symbols.code_block import CodeBlock
 
         if isinstance(self.parent, CodeBlock):
             return self.parent.level * 4

@@ -1,7 +1,8 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.dataclasses.usage import UsageType
-from codegen.sdk.core.expressions import String
-from codegen.sdk.typescript.expressions.undefined_type import TSUndefinedType
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.dataclasses.usage import UsageType
+from graph_sitter.core.expressions import String
+from graph_sitter.typescript.expressions.undefined_type import TSUndefinedType
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

@@ -8,7 +8,7 @@ from codegen.git.models.pull_request_context import PullRequestContext
 from codegen.git.repo_operator.repo_operator import RepoOperator
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.codebase import Codebase, Editable, File
+    from graph_sitter.core.codebase import Codebase, Editable, File
 
 
 def get_merge_base(git_repo_client: Repository, pull: PullRequest | PullRequestContext) -> str:
@@ -129,7 +129,7 @@ class CodegenPR:
     @property
     def modified_symbols(self) -> list[str]:
         # Import SourceFile locally to avoid circular dependencies
-        from codegen.sdk.core.file import SourceFile
+        from graph_sitter.core.file import SourceFile
 
         all_modified = []
         for file in self.modified_files:

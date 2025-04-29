@@ -4,28 +4,28 @@ import os
 from collections import deque
 from typing import TYPE_CHECKING, Self, override
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.expressions import Name
-from codegen.sdk.core.import_resolution import Import, ImportResolution, WildcardImport
-from codegen.sdk.core.interfaces.exportable import Exportable
-from codegen.sdk.enums import ImportType, NodeType, SymbolType
-from codegen.sdk.utils import find_all_descendants, find_first_ancestor, find_first_descendant
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.expressions import Name
+from graph_sitter.core.import_resolution import Import, ImportResolution, WildcardImport
+from graph_sitter.core.interfaces.exportable import Exportable
+from graph_sitter.enums import ImportType, NodeType, SymbolType
+from graph_sitter.utils import find_all_descendants, find_first_ancestor, find_first_descendant
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.external_module import ExternalModule
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.import_statement import ImportStatement
+    from graph_sitter.core.symbol import Symbol
+    from graph_sitter.typescript.file import TSFile
+    from graph_sitter.typescript.namespace import TSNamespace
+    from graph_sitter.typescript.statements.import_statement import TSImportStatement
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.external_module import ExternalModule
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.import_statement import ImportStatement
-    from codegen.sdk.core.symbol import Symbol
-    from codegen.sdk.typescript.file import TSFile
-    from codegen.sdk.typescript.namespace import TSNamespace
-    from codegen.sdk.typescript.statements.import_statement import TSImportStatement
 
 
 @ts_apidoc
@@ -592,7 +592,7 @@ class TSImport(Import["TSFile"], Exportable):
         if not self.is_namespace_import():
             return []
 
-        from codegen.sdk.typescript.namespace import TSNamespace
+        from graph_sitter.typescript.namespace import TSNamespace
 
         resolved = self.resolved_symbol
         if resolved is None or not isinstance(resolved, TSNamespace):

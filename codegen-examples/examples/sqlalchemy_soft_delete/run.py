@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 import codegen
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
 
 
 def should_process_join_call(call, soft_delete_models, join_methods):

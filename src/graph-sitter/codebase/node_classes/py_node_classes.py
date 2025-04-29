@@ -1,42 +1,41 @@
+from graph_sitter.codebase.node_classes.node_classes import NodeClasses
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions import String, Type
+from graph_sitter.core.expressions.await_expression import AwaitExpression
+from graph_sitter.core.expressions.binary_expression import BinaryExpression
+from graph_sitter.core.expressions.boolean import Boolean
+from graph_sitter.core.expressions.comparison_expression import ComparisonExpression
+from graph_sitter.core.expressions.name import Name
+from graph_sitter.core.expressions.none_type import NoneType
+from graph_sitter.core.expressions.number import Number
+from graph_sitter.core.expressions.parenthesized_expression import ParenthesizedExpression
+from graph_sitter.core.expressions.subscript_expression import SubscriptExpression
+from graph_sitter.core.expressions.unary_expression import UnaryExpression
+from graph_sitter.core.expressions.unpack import Unpack
+from graph_sitter.core.function import Function
+from graph_sitter.core.statements.comment import Comment
+from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
+from graph_sitter.core.statements.if_block_statement import IfBlockStatement
+from graph_sitter.core.statements.switch_statement import SwitchStatement
+from graph_sitter.core.statements.try_catch_statement import TryCatchStatement
+from graph_sitter.core.statements.while_statement import WhileStatement
+from graph_sitter.core.symbol_groups.dict import Dict
+from graph_sitter.core.symbol_groups.list import List
+from graph_sitter.core.symbol_groups.tuple import Tuple
+from graph_sitter.core.symbol_groups.type_parameters import TypeParameters
+from graph_sitter.python import PyClass, PyFile, PyFunction, PyImport, PySymbol
+from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
+from graph_sitter.python.detached_symbols.parameter import PyParameter
+from graph_sitter.python.expressions.chained_attribute import PyChainedAttribute
+from graph_sitter.python.expressions.conditional_expression import PyConditionalExpression
+from graph_sitter.python.expressions.generic_type import PyGenericType
+from graph_sitter.python.expressions.named_type import PyNamedType
+from graph_sitter.python.expressions.string import PyString
+from graph_sitter.python.expressions.union_type import PyUnionType
+from graph_sitter.python.statements.import_statement import PyImportStatement
+from graph_sitter.python.statements.match_case import PyMatchCase
+from graph_sitter.python.statements.with_statement import WithStatement
 from tree_sitter import Node as TSNode
-
-from codegen.sdk.codebase.node_classes.node_classes import NodeClasses
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions import String, Type
-from codegen.sdk.core.expressions.await_expression import AwaitExpression
-from codegen.sdk.core.expressions.binary_expression import BinaryExpression
-from codegen.sdk.core.expressions.boolean import Boolean
-from codegen.sdk.core.expressions.comparison_expression import ComparisonExpression
-from codegen.sdk.core.expressions.name import Name
-from codegen.sdk.core.expressions.none_type import NoneType
-from codegen.sdk.core.expressions.number import Number
-from codegen.sdk.core.expressions.parenthesized_expression import ParenthesizedExpression
-from codegen.sdk.core.expressions.subscript_expression import SubscriptExpression
-from codegen.sdk.core.expressions.unary_expression import UnaryExpression
-from codegen.sdk.core.expressions.unpack import Unpack
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.statements.comment import Comment
-from codegen.sdk.core.statements.for_loop_statement import ForLoopStatement
-from codegen.sdk.core.statements.if_block_statement import IfBlockStatement
-from codegen.sdk.core.statements.switch_statement import SwitchStatement
-from codegen.sdk.core.statements.try_catch_statement import TryCatchStatement
-from codegen.sdk.core.statements.while_statement import WhileStatement
-from codegen.sdk.core.symbol_groups.dict import Dict
-from codegen.sdk.core.symbol_groups.list import List
-from codegen.sdk.core.symbol_groups.tuple import Tuple
-from codegen.sdk.core.symbol_groups.type_parameters import TypeParameters
-from codegen.sdk.python import PyClass, PyFile, PyFunction, PyImport, PySymbol
-from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
-from codegen.sdk.python.detached_symbols.parameter import PyParameter
-from codegen.sdk.python.expressions.chained_attribute import PyChainedAttribute
-from codegen.sdk.python.expressions.conditional_expression import PyConditionalExpression
-from codegen.sdk.python.expressions.generic_type import PyGenericType
-from codegen.sdk.python.expressions.named_type import PyNamedType
-from codegen.sdk.python.expressions.string import PyString
-from codegen.sdk.python.expressions.union_type import PyUnionType
-from codegen.sdk.python.statements.import_statement import PyImportStatement
-from codegen.sdk.python.statements.match_case import PyMatchCase
-from codegen.sdk.python.statements.with_statement import WithStatement
 
 
 def parse_subscript(node: TSNode, file_node_id, ctx, parent):

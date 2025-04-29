@@ -1,17 +1,18 @@
 from collections.abc import Generator
 from typing import Generic, Self, TypeVar, override
 
-from codegen.sdk.codebase.codebase_context import CodebaseContext
-from codegen.sdk.core.autocommit import writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.extensions.autocommit import commiter, reader
-from codegen.sdk.extensions.resolution import ResolutionStack
-from codegen.sdk.extensions.utils import TSNode
+from graph_sitter.codebase.codebase_context import CodebaseContext
+from graph_sitter.core.autocommit import writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.extensions.autocommit import commiter, reader
+from graph_sitter.extensions.resolution import ResolutionStack
+from graph_sitter.extensions.utils import TSNode
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 Parent = TypeVar("Parent", bound="Expression")

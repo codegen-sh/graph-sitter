@@ -3,23 +3,23 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.transactions import RemoveTransaction, TransactionPriority
-from codegen.sdk.core.assignment import Assignment
-from codegen.sdk.core.autocommit.decorators import remover
-from codegen.sdk.core.expressions.multi_expression import MultiExpression
-from codegen.sdk.core.statements.assignment_statement import AssignmentStatement
-from codegen.sdk.extensions.autocommit import reader
-from codegen.sdk.python.symbol import PySymbol
-from codegen.sdk.python.symbol_groups.comment_group import PyCommentGroup
+from graph_sitter.codebase.transactions import RemoveTransaction, TransactionPriority
+from graph_sitter.core.assignment import Assignment
+from graph_sitter.core.autocommit.decorators import remover
+from graph_sitter.core.expressions.multi_expression import MultiExpression
+from graph_sitter.core.statements.assignment_statement import AssignmentStatement
+from graph_sitter.extensions.autocommit import reader
+from graph_sitter.python.symbol import PySymbol
+from graph_sitter.python.symbol_groups.comment_group import PyCommentGroup
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.python.statements.assignment_statement import PyAssignmentStatement
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.python.statements.assignment_statement import PyAssignmentStatement
 
 logger = get_logger(__name__)
 

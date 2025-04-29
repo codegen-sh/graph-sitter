@@ -2,9 +2,8 @@ from collections.abc import Callable, Iterable, Iterator
 from typing import Generic, Literal
 
 from codeowners import CodeOwners as CodeOwnersParser
-
-from codegen.sdk._proxy import proxy_property
-from codegen.sdk.core.interfaces.has_symbols import (
+from graph_sitter._proxy import proxy_property
+from graph_sitter.core.interfaces.has_symbols import (
     FilesParam,
     HasSymbols,
     TClass,
@@ -15,7 +14,8 @@ from codegen.sdk.core.interfaces.has_symbols import (
     TImportStatement,
     TSymbol,
 )
-from codegen.sdk.core.utils.cache_utils import cached_generator
+from graph_sitter.core.utils.cache_utils import cached_generator
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 from codegen.shared.logging.get_logger import get_logger
 

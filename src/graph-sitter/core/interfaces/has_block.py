@@ -3,19 +3,19 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.statements.comment import Comment
-from codegen.sdk.extensions.sort import sort_editables
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.statements.comment import Comment
+from graph_sitter.extensions.sort import sort_editables
+
 from codegen.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.detached_symbols.decorator import Decorator
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.symbol_groups.comment_group import CommentGroup
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.detached_symbols.decorator import Decorator
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.symbol_groups.comment_group import CommentGroup
 
 TCodeBlock = TypeVar("TCodeBlock", bound="CodeBlock")
 TDecorator = TypeVar("TDecorator", bound="Decorator")

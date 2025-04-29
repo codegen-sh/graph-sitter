@@ -3,14 +3,15 @@ from __future__ import annotations
 from abc import ABC
 from typing import TYPE_CHECKING, Generic, TypeVar, override
 
-from codegen.sdk.core.interfaces.conditional_block import ConditionalBlock
-from codegen.sdk.core.interfaces.has_block import HasBlock
-from codegen.sdk.core.statements.block_statement import BlockStatement
-from codegen.sdk.core.statements.statement import StatementType
+from graph_sitter.core.interfaces.conditional_block import ConditionalBlock
+from graph_sitter.core.interfaces.has_block import HasBlock
+from graph_sitter.core.statements.block_statement import BlockStatement
+from graph_sitter.core.statements.statement import StatementType
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
 
 
 Parent = TypeVar("Parent", bound="CodeBlock")

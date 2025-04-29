@@ -1,6 +1,6 @@
 import codegen
 from codegen import Codebase
-from codegen.sdk.typescript.file import TSFile
+from graph_sitter.typescript.file import TSFile
 
 
 @codegen.function("remove-default-exports")

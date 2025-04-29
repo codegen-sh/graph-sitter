@@ -1,9 +1,9 @@
 import codegen
 import networkx as nx
 from codegen import Codebase
-from codegen.sdk.core.dataclasses.usage import Usage
-from codegen.sdk.python.function import PyFunction
-from codegen.sdk.python.symbol import PySymbol
+from graph_sitter.core.dataclasses.usage import Usage
+from graph_sitter.python.function import PyFunction
+from graph_sitter.python.symbol import PySymbol
 
 # Create a directed graph for visualizing relationships between code elements
 G = nx.DiGraph()

@@ -9,9 +9,9 @@ from enum import Enum
 
 import pyjson5
 import requests
+from graph_sitter.core.external.dependency_manager import DependencyManager
+from graph_sitter.utils import shadow_files
 
-from codegen.sdk.core.external.dependency_manager import DependencyManager
-from codegen.sdk.utils import shadow_files
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

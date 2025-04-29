@@ -6,7 +6,7 @@ from codegen.extensions.attribution.cli import run
 from codegen.extensions.attribution.main import add_attribution_to_symbols
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.repo_config import RepoConfig
-from codegen.sdk.codebase.config import ProjectConfig
+from graph_sitter.codebase.config import ProjectConfig
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

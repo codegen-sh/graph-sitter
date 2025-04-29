@@ -1,7 +1,7 @@
-from codegen.sdk.codebase.flagging.groupers.all_grouper import AllGrouper
-from codegen.sdk.codebase.flagging.groupers.base_grouper import BaseGrouper
-from codegen.sdk.codebase.flagging.groupers.constants import ALL_GROUPERS
-from codegen.sdk.codebase.flagging.groupers.enums import GroupBy
+from graph_sitter.codebase.flagging.groupers.all_grouper import AllGrouper
+from graph_sitter.codebase.flagging.groupers.base_grouper import BaseGrouper
+from graph_sitter.codebase.flagging.groupers.constants import ALL_GROUPERS
+from graph_sitter.codebase.flagging.groupers.enums import GroupBy
 
 
 def get_grouper_by_group_by(group_by: GroupBy | None) -> type[BaseGrouper]:

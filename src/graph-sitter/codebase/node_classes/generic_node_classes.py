@@ -1,12 +1,12 @@
-from codegen.sdk.codebase.node_classes.node_classes import NodeClasses
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.detached_symbols.parameter import Parameter
-from codegen.sdk.core.file import File
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.import_resolution import Import
-from codegen.sdk.core.statements.comment import Comment
+from graph_sitter.codebase.node_classes.node_classes import NodeClasses
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.detached_symbols.code_block import CodeBlock
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.detached_symbols.parameter import Parameter
+from graph_sitter.core.file import File
+from graph_sitter.core.function import Function
+from graph_sitter.core.import_resolution import Import
+from graph_sitter.core.statements.comment import Comment
 
 GenericNodeClasses = NodeClasses(
     file_cls=File,

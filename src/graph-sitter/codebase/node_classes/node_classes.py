@@ -4,21 +4,21 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.interfaces.resolvable import Resolvable
+from graph_sitter.core.interfaces.resolvable import Resolvable
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.class_definition import Class
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.detached_symbols.parameter import Parameter
-    from codegen.sdk.core.expressions import Expression
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.file import SourceFile
-    from codegen.sdk.core.function import Function
-    from codegen.sdk.core.import_resolution import Import
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.statements.comment import Comment
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.core.class_definition import Class
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.detached_symbols.parameter import Parameter
+    from graph_sitter.core.expressions import Expression
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.file import SourceFile
+    from graph_sitter.core.function import Function
+    from graph_sitter.core.import_resolution import Import
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.statements.comment import Comment
+    from graph_sitter.core.symbol import Symbol
 
 
 @dataclass

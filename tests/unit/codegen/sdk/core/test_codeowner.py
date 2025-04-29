@@ -1,8 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-
-from codegen.sdk.core.codeowner import CodeOwner
+from graph_sitter.core.codeowner import CodeOwner
 
 
 # Dummy file objects used for testing CodeOwner.

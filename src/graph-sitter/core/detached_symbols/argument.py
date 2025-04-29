@@ -2,24 +2,24 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar, override
 
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.expressions.multi_expression import MultiExpression
-from codegen.sdk.core.expressions.name import Name
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.interfaces.has_value import HasValue
-from codegen.sdk.extensions.autocommit import commiter
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.expressions.multi_expression import MultiExpression
+from graph_sitter.core.expressions.name import Name
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.interfaces.has_value import HasValue
+from graph_sitter.extensions.autocommit import commiter
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.detached_symbols.parameter import Parameter
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.detached_symbols.parameter import Parameter
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
 
 
 Parent = TypeVar("Parent", bound="FunctionCall")

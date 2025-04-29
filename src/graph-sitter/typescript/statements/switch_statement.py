@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
-from codegen.sdk.core.statements.switch_statement import SwitchStatement
-from codegen.sdk.typescript.statements.switch_case import TSSwitchCase
+from graph_sitter.core.statements.switch_statement import SwitchStatement
+from graph_sitter.typescript.statements.switch_case import TSSwitchCase
+
 from codegen.shared.decorators.docs import ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
 
 
 @ts_apidoc

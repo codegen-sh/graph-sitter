@@ -3,8 +3,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.diff_lite import ChangeType, DiffLite
-from codegen.sdk.codebase.transactions import (
+from graph_sitter.codebase.diff_lite import ChangeType, DiffLite
+from graph_sitter.codebase.transactions import (
     EditTransaction,
     FileAddTransaction,
     FileRemoveTransaction,
@@ -13,11 +13,12 @@ from codegen.sdk.codebase.transactions import (
     Transaction,
     TransactionPriority,
 )
+
 from codegen.shared.exceptions.control_flow import MaxPreviewTimeExceeded, MaxTransactionsExceeded
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.file import File
+    from graph_sitter.core.file import File
 
 
 logger = get_logger(__name__)

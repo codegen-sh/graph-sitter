@@ -1,16 +1,15 @@
 from typing import TYPE_CHECKING
 
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.core.statements.switch_case import SwitchCase
+from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
+from graph_sitter.typescript.statements.block_statement import TSBlockStatement
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.core.statements.switch_case import SwitchCase
-from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-from codegen.sdk.typescript.statements.block_statement import TSBlockStatement
 from codegen.shared.decorators.docs import ts_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.typescript.statements.switch_statement import TSSwitchStatement
+    from graph_sitter.codebase.codebase_context import CodebaseContext
 
 
 @ts_apidoc

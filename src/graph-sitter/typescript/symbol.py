@@ -2,34 +2,32 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, Self, Unpack
 
-from codegen.sdk.core.assignment import Assignment
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.dataclasses.usage import UsageKind, UsageType
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions import Value
-from codegen.sdk.core.expressions.chained_attribute import ChainedAttribute
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.interfaces.exportable import Exportable
-from codegen.sdk.core.symbol import Symbol
-from codegen.sdk.core.type_alias import TypeAlias
-from codegen.sdk.enums import ImportType, NodeType
-from codegen.sdk.typescript.import_resolution import TSImport
-from codegen.sdk.typescript.statements.comment import TSComment, TSCommentType
-from codegen.sdk.typescript.symbol_groups.comment_group import TSCommentGroup
+from graph_sitter.core.assignment import Assignment
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions import Value
+from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.interfaces.exportable import Exportable
+from graph_sitter.core.symbol import Symbol
+from graph_sitter.core.type_alias import TypeAlias
+from graph_sitter.enums import ImportType, NodeType
+from graph_sitter.typescript.import_resolution import TSImport
+from graph_sitter.typescript.statements.comment import TSComment, TSCommentType
+from graph_sitter.typescript.symbol_groups.comment_group import TSCommentGroup
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.flagging.code_flag import CodeFlag
+    from graph_sitter.codebase.flagging.enums import FlagKwargs
+    from graph_sitter.core.detached_symbols.parameter import Parameter
+    from graph_sitter.core.file import SourceFile
+    from graph_sitter.core.import_resolution import Import
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.node_id_factory import NodeId
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.flagging.code_flag import CodeFlag
-    from codegen.sdk.codebase.flagging.enums import FlagKwargs
-    from codegen.sdk.core.detached_symbols.parameter import Parameter
-    from codegen.sdk.core.file import SourceFile
-    from codegen.sdk.core.import_resolution import Import
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-    from codegen.sdk.typescript.interfaces.has_block import TSHasBlock
 
 
 @ts_apidoc

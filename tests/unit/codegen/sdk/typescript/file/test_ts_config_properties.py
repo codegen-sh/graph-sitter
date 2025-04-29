@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.typescript.ts_config import TSConfig
+    from graph_sitter.typescript.ts_config import TSConfig
 
 
 def test_file_get_config(tmpdir) -> None:

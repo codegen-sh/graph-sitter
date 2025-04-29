@@ -1,10 +1,10 @@
 import uuid
 
 import pytest
+from graph_sitter.core.codebase import Codebase
 from lsprotocol import types
 from pytest_lsp import LanguageClient, client_capabilities
 
-from codegen.sdk.core.codebase import Codebase
 from tests.unit.codegen.extensions.lsp.utils import apply_edit
 
 

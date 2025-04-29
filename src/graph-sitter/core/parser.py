@@ -3,25 +3,23 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Generic, Protocol, Self, TypeVar
 
+from graph_sitter.core.expressions.placeholder_type import PlaceholderType
+from graph_sitter.core.expressions.value import Value
+from graph_sitter.core.statements.symbol_statement import SymbolStatement
+from graph_sitter.utils import find_first_function_descendant, find_import_node
 from rich.console import Console
 
-from codegen.sdk.core.expressions.placeholder_type import PlaceholderType
-from codegen.sdk.core.expressions.value import Value
-from codegen.sdk.core.statements.symbol_statement import SymbolStatement
-from codegen.sdk.utils import find_first_function_descendant, find_import_node
-
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.node_classes.node_classes import NodeClasses
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.statement import Statement
+    from graph_sitter.core.symbol import Symbol
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.codebase.node_classes.node_classes import NodeClasses
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.statement import Statement
-    from codegen.sdk.core.symbol import Symbol
-    from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
 
 
 Parent = TypeVar("Parent", bound="Editable")
@@ -92,27 +90,27 @@ class Parser(Generic[Expression]):
             expr_type, node = self._process_type(expr_type, node)
             return expr_type(node, file_node_id, ctx, parent)
         self.log_unparsed(node)
-        from codegen.sdk.core.expressions.placeholder_type import PlaceholderType
+        from graph_sitter.core.expressions.placeholder_type import PlaceholderType
 
         return PlaceholderType(node, file_node_id, ctx, parent)
 
     def parse_ts_statements(self, node: TSNode, file_node_id: NodeId, ctx: CodebaseContext, parent: TSCodeBlock) -> list[Statement]:
-        from codegen.sdk.core.statements.export_statement import ExportStatement
-        from codegen.sdk.core.statements.expression_statement import ExpressionStatement
-        from codegen.sdk.core.statements.return_statement import ReturnStatement
-        from codegen.sdk.core.statements.statement import Statement
-        from codegen.sdk.core.statements.symbol_statement import SymbolStatement
-        from codegen.sdk.typescript.function import _VALID_TYPE_NAMES
-        from codegen.sdk.typescript.statements.assignment_statement import TSAssignmentStatement
-        from codegen.sdk.typescript.statements.attribute import TSAttribute
-        from codegen.sdk.typescript.statements.comment import TSComment
-        from codegen.sdk.typescript.statements.for_loop_statement import TSForLoopStatement
-        from codegen.sdk.typescript.statements.if_block_statement import TSIfBlockStatement
-        from codegen.sdk.typescript.statements.import_statement import TSImportStatement
-        from codegen.sdk.typescript.statements.labeled_statement import TSLabeledStatement
-        from codegen.sdk.typescript.statements.switch_statement import TSSwitchStatement
-        from codegen.sdk.typescript.statements.try_catch_statement import TSTryCatchStatement
-        from codegen.sdk.typescript.statements.while_statement import TSWhileStatement
+        from graph_sitter.core.statements.export_statement import ExportStatement
+        from graph_sitter.core.statements.expression_statement import ExpressionStatement
+        from graph_sitter.core.statements.return_statement import ReturnStatement
+        from graph_sitter.core.statements.statement import Statement
+        from graph_sitter.core.statements.symbol_statement import SymbolStatement
+        from graph_sitter.typescript.function import _VALID_TYPE_NAMES
+        from graph_sitter.typescript.statements.assignment_statement import TSAssignmentStatement
+        from graph_sitter.typescript.statements.attribute import TSAttribute
+        from graph_sitter.typescript.statements.comment import TSComment
+        from graph_sitter.typescript.statements.for_loop_statement import TSForLoopStatement
+        from graph_sitter.typescript.statements.if_block_statement import TSIfBlockStatement
+        from graph_sitter.typescript.statements.import_statement import TSImportStatement
+        from graph_sitter.typescript.statements.labeled_statement import TSLabeledStatement
+        from graph_sitter.typescript.statements.switch_statement import TSSwitchStatement
+        from graph_sitter.typescript.statements.try_catch_statement import TSTryCatchStatement
+        from graph_sitter.typescript.statements.while_statement import TSWhileStatement
 
         statements = []
 
@@ -200,22 +198,22 @@ class Parser(Generic[Expression]):
         return statements
 
     def parse_py_statements(self, node: TSNode, file_node_id: NodeId, ctx: CodebaseContext, parent: PyCodeBlock) -> list[Statement]:
-        from codegen.sdk.core.statements.expression_statement import ExpressionStatement
-        from codegen.sdk.core.statements.raise_statement import RaiseStatement
-        from codegen.sdk.core.statements.return_statement import ReturnStatement
-        from codegen.sdk.core.statements.statement import Statement
-        from codegen.sdk.python.statements.assignment_statement import PyAssignmentStatement
-        from codegen.sdk.python.statements.attribute import PyAttribute
-        from codegen.sdk.python.statements.break_statement import PyBreakStatement
-        from codegen.sdk.python.statements.comment import PyComment
-        from codegen.sdk.python.statements.for_loop_statement import PyForLoopStatement
-        from codegen.sdk.python.statements.if_block_statement import PyIfBlockStatement
-        from codegen.sdk.python.statements.import_statement import PyImportStatement
-        from codegen.sdk.python.statements.match_statement import PyMatchStatement
-        from codegen.sdk.python.statements.pass_statement import PyPassStatement
-        from codegen.sdk.python.statements.try_catch_statement import PyTryCatchStatement
-        from codegen.sdk.python.statements.while_statement import PyWhileStatement
-        from codegen.sdk.python.statements.with_statement import WithStatement
+        from graph_sitter.core.statements.expression_statement import ExpressionStatement
+        from graph_sitter.core.statements.raise_statement import RaiseStatement
+        from graph_sitter.core.statements.return_statement import ReturnStatement
+        from graph_sitter.core.statements.statement import Statement
+        from graph_sitter.python.statements.assignment_statement import PyAssignmentStatement
+        from graph_sitter.python.statements.attribute import PyAttribute
+        from graph_sitter.python.statements.break_statement import PyBreakStatement
+        from graph_sitter.python.statements.comment import PyComment
+        from graph_sitter.python.statements.for_loop_statement import PyForLoopStatement
+        from graph_sitter.python.statements.if_block_statement import PyIfBlockStatement
+        from graph_sitter.python.statements.import_statement import PyImportStatement
+        from graph_sitter.python.statements.match_statement import PyMatchStatement
+        from graph_sitter.python.statements.pass_statement import PyPassStatement
+        from graph_sitter.python.statements.try_catch_statement import PyTryCatchStatement
+        from graph_sitter.python.statements.while_statement import PyWhileStatement
+        from graph_sitter.python.statements.with_statement import WithStatement
 
         statements = []
 
@@ -273,7 +271,7 @@ class Parser(Generic[Expression]):
                     if var.type == "string":
                         statements.append(PyComment.from_code_block(var, parent, pos=len(statements)))
                     elif var.type in ["assignment", "augmented_assignment"]:
-                        from codegen.sdk.core.class_definition import Class
+                        from graph_sitter.core.class_definition import Class
 
                         if isinstance(parent.parent, Class):
                             statements.append(PyAttribute(child, file_node_id, ctx, parent, len(statements), var))

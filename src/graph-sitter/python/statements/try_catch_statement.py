@@ -2,25 +2,25 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, override
 
-from codegen.sdk.core.statements.try_catch_statement import TryCatchStatement
-from codegen.sdk.extensions.autocommit import commiter, reader
-from codegen.sdk.python.statements.block_statement import PyBlockStatement
-from codegen.sdk.python.statements.catch_statement import PyCatchStatement
+from graph_sitter.core.statements.try_catch_statement import TryCatchStatement
+from graph_sitter.extensions.autocommit import commiter, reader
+from graph_sitter.python.statements.block_statement import PyBlockStatement
+from graph_sitter.python.statements.catch_statement import PyCatchStatement
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.interfaces.conditional_block import ConditionalBlock
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
     from tree_sitter import Node as PyNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.interfaces.conditional_block import ConditionalBlock
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
 
 
 @py_apidoc

@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from graph_sitter.core.codebase import Codebase
 from lsprotocol.types import INITIALIZE, InitializeParams, InitializeResult
 from pygls.protocol import LanguageServerProtocol, lsp_method
 
@@ -9,7 +10,6 @@ from codegen.configs.models.codebase import CodebaseConfig
 from codegen.extensions.lsp.io import LSPIO
 from codegen.extensions.lsp.progress import LSPProgress
 from codegen.extensions.lsp.utils import get_path
-from codegen.sdk.core.codebase import Codebase
 
 if TYPE_CHECKING:
     from codegen.extensions.lsp.server import CodegenLanguageServer

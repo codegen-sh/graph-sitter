@@ -1,9 +1,9 @@
 import codegen
 from codegen import Codebase
-from codegen.sdk.core.statements.for_loop_statement import ForLoopStatement
-from codegen.sdk.core.statements.if_block_statement import IfBlockStatement
-from codegen.sdk.core.statements.try_catch_statement import TryCatchStatement
-from codegen.sdk.core.statements.while_statement import WhileStatement
+from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
+from graph_sitter.core.statements.if_block_statement import IfBlockStatement
+from graph_sitter.core.statements.try_catch_statement import TryCatchStatement
+from graph_sitter.core.statements.while_statement import WhileStatement
 
 
 @codegen.function("cyclomatic-complexity")

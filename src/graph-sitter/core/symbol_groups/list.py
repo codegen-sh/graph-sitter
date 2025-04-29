@@ -1,16 +1,16 @@
 from typing import TYPE_CHECKING, TypeVar
 
+from graph_sitter.core.expressions.builtin import Builtin
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.core.symbol_groups.collection import Collection
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.core.expressions.builtin import Builtin
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.core.symbol_groups.collection import Collection
 from codegen.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.codebase_context import CodebaseContext
 Parent = TypeVar("Parent", bound=Editable)
 
 

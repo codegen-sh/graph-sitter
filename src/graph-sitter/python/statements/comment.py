@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from codegen.sdk.core.autocommit import commiter, reader
-from codegen.sdk.core.statements.comment import Comment, lowest_indentation
+from graph_sitter.core.autocommit import commiter, reader
+from graph_sitter.core.statements.comment import Comment, lowest_indentation
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 
 

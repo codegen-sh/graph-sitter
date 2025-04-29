@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from codegen.sdk.core.codebase import Codebase
-from codegen.sdk.writer_decorators import canonical
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.writer_decorators import canonical
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codemods.codemod import Codemod
 from tests.shared.skills.decorators import skill, skill_impl

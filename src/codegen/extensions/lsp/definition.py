@@ -1,12 +1,12 @@
+from graph_sitter.core.assignment import Assignment
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.core.expressions.name import Name
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_name import HasName
 from lsprotocol.types import Position
 
-from codegen.sdk.core.assignment import Assignment
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions.chained_attribute import ChainedAttribute
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.core.expressions.name import Name
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_name import HasName
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

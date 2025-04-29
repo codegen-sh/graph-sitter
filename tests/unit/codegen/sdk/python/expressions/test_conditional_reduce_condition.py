@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING, Any
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.python.file import PyFile
+    from graph_sitter.python.file import PyFile
 
 
 def test_reduce_ternary_condition_to_true(tmpdir: Any) -> None:

@@ -9,13 +9,13 @@ from dataclasses_json import dataclass_json
 from codegen.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.export import Export
-    from codegen.sdk.core.expressions import Name
-    from codegen.sdk.core.expressions.chained_attribute import ChainedAttribute
-    from codegen.sdk.core.file import SourceFile
-    from codegen.sdk.core.import_resolution import Import
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.export import Export
+    from graph_sitter.core.expressions import Name
+    from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
+    from graph_sitter.core.file import SourceFile
+    from graph_sitter.core.import_resolution import Import
+    from graph_sitter.core.symbol import Symbol
 
 
 @apidoc

@@ -3,32 +3,31 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.dataclasses.usage import UsageType
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.expressions.name import Name
+from graph_sitter.core.interfaces.has_value import HasValue
+from graph_sitter.core.interfaces.typeable import Typeable
+from graph_sitter.core.interfaces.usable import Usable
+from graph_sitter.extensions.autocommit import commiter
+from graph_sitter.extensions.resolution import UsageKind
+from graph_sitter.utils import find_first_descendant
 from typing_extensions import deprecated
 
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.dataclasses.usage import UsageType
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.expressions.name import Name
-from codegen.sdk.core.interfaces.has_value import HasValue
-from codegen.sdk.core.interfaces.typeable import Typeable
-from codegen.sdk.core.interfaces.usable import Usable
-from codegen.sdk.extensions.autocommit import commiter
-from codegen.sdk.extensions.resolution import UsageKind
-from codegen.sdk.utils import find_first_descendant
 from codegen.shared.decorators.docs import apidoc, noapidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from graph_sitter.codebase.resolution_stack import ResolutionStack
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.function import Function
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.symbol_groups.collection import Collection
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.resolution_stack import ResolutionStack
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.function import Function
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.symbol_groups.collection import Collection
 
 
 logger = get_logger(__name__)

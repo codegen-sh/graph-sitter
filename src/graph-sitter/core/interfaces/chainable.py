@@ -2,13 +2,14 @@ from abc import abstractmethod
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.extensions.utils import cached_property
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.extensions.utils import cached_property
+
 from codegen.shared.decorators.docs import noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.interfaces.has_attribute import HasAttribute
+    from graph_sitter.core.interfaces.has_attribute import HasAttribute
 
 Parent = TypeVar("Parent", bound="Editable")
 
@@ -40,7 +41,7 @@ class Chainable(Editable[Parent], Generic[Parent]):
     def with_resolution(
         self, resolution: ResolutionStack["Self"], *args, generic_parameters: list | None = None, generics: dict | None = None, **kwargs
     ) -> Generator[ResolutionStack["Self"], None, None]:
-        from codegen.sdk.core.interfaces.supports_generic import SupportsGenerics
+        from graph_sitter.core.interfaces.supports_generic import SupportsGenerics
 
         assert resolution is not self
         generics = generics or resolution.generics

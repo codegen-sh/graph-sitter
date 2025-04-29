@@ -1,6 +1,7 @@
 import sys
 
 import pytest_lsp
+from graph_sitter.core.codebase import Codebase
 from lsprotocol.types import (
     InitializeParams,
 )
@@ -9,8 +10,6 @@ from pytest_lsp import (
     LanguageClient,
     client_capabilities,
 )
-
-from codegen.sdk.core.codebase import Codebase
 
 
 @pytest_lsp.fixture(

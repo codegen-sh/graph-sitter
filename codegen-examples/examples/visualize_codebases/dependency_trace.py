@@ -1,9 +1,9 @@
 import codegen
 import networkx as nx
 from codegen import Codebase
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.import_resolution import Import
-from codegen.sdk.core.symbol import Symbol
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.import_resolution import Import
+from graph_sitter.core.symbol import Symbol
 
 G = nx.DiGraph()
 

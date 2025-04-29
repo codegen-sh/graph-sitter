@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 if TYPE_CHECKING:
-    from codegen.sdk.python import PyFunction
+    from graph_sitter.python import PyFunction
 
 
 def test_function_calls(tmpdir) -> None:

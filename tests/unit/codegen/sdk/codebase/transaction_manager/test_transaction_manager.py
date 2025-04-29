@@ -1,12 +1,12 @@
 from os import PathLike
 from pathlib import Path
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.codebase.transaction_manager import (
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.transaction_manager import (
     TransactionError,
     TransactionManager,
 )
-from codegen.sdk.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction
+from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction
 
 
 class MockFile:

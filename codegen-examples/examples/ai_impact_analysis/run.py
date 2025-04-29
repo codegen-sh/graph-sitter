@@ -6,7 +6,7 @@ from codegen import Codebase
 from codegen.extensions.attribution.cli import run
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.repo_config import RepoConfig
-from codegen.sdk.codebase.config import ProjectConfig
+from graph_sitter.codebase.config import ProjectConfig
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if __name__ == "__main__":

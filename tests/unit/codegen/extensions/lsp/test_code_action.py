@@ -2,6 +2,7 @@ import logging
 from collections import deque
 
 import pytest
+from graph_sitter.core.codebase import Codebase
 from lsprotocol import types
 from lsprotocol.types import (
     CodeActionContext,
@@ -15,7 +16,6 @@ from pytest_lsp import (
     LanguageClient,
 )
 
-from codegen.sdk.core.codebase import Codebase
 from tests.unit.codegen.extensions.lsp.utils import apply_edit
 
 logger = logging.getLogger(__name__)

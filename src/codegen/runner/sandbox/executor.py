@@ -2,6 +2,11 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 
 from github.PullRequest import PullRequest
+from graph_sitter.codebase.config import SessionOptions
+from graph_sitter.codebase.factory.codebase_factory import CodebaseType
+from graph_sitter.codebase.flagging.code_flag import CodeFlag
+from graph_sitter.codebase.flagging.group import Group
+from graph_sitter.codebase.flagging.groupers.utils import get_grouper_by_group_by
 
 from codegen.git.models.pr_options import PROptions
 from codegen.runner.diff.get_raw_diff import get_raw_diff
@@ -9,11 +14,6 @@ from codegen.runner.models.codemod import BranchConfig, CodemodRunResult, Create
 from codegen.runner.sandbox.repo import SandboxRepo
 from codegen.runner.utils.branch_name import get_head_branch_name
 from codegen.runner.utils.exception_utils import update_observation_meta
-from codegen.sdk.codebase.config import SessionOptions
-from codegen.sdk.codebase.factory.codebase_factory import CodebaseType
-from codegen.sdk.codebase.flagging.code_flag import CodeFlag
-from codegen.sdk.codebase.flagging.group import Group
-from codegen.sdk.codebase.flagging.groupers.utils import get_grouper_by_group_by
 from codegen.shared.exceptions.control_flow import StopCodemodException
 from codegen.shared.logging.get_logger import get_logger
 from codegen.shared.performance.stopwatch_utils import stopwatch

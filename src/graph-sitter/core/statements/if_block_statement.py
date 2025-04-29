@@ -4,24 +4,25 @@ from abc import abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
-from codegen.sdk._proxy import proxy_property
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.interfaces.conditional_block import ConditionalBlock
-from codegen.sdk.core.statements.statement import Statement, StatementType
-from codegen.sdk.extensions.autocommit import commiter
+from graph_sitter._proxy import proxy_property
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.function import Function
+from graph_sitter.core.interfaces.conditional_block import ConditionalBlock
+from graph_sitter.core.statements.statement import Statement, StatementType
+from graph_sitter.extensions.autocommit import commiter
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.expressions import Expression
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.expressions import Expression
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
 
 
 TIfBlockStatement = TypeVar("TIfBlockStatement", bound="IfBlockStatement")

@@ -1,14 +1,15 @@
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Self, override
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.has_attribute import HasAttribute
-from codegen.sdk.extensions.autocommit import reader
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.has_attribute import HasAttribute
+from graph_sitter.extensions.autocommit import reader
+
 from codegen.shared.decorators.docs import noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.external_module import ExternalModule
+    from graph_sitter.core.external_module import ExternalModule
 
 
 @noapidoc

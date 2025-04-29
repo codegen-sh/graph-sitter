@@ -2,7 +2,8 @@ import os
 import shutil
 import subprocess
 
-from codegen.sdk.core.external.external_process import ExternalProcess
+from graph_sitter.core.external.external_process import ExternalProcess
+
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

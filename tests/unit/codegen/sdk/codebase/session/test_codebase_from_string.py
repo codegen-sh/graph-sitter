@@ -1,6 +1,6 @@
 import pytest
+from graph_sitter.core.codebase import Codebase
 
-from codegen.sdk.core.codebase import Codebase
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

@@ -1,6 +1,6 @@
 import codegen
 from codegen import Codebase
-from codegen.sdk.core.statements.statement import StatementType
+from graph_sitter.core.statements.statement import StatementType
 
 
 @codegen.function("promises-to-async-await")

@@ -2,22 +2,22 @@ from abc import abstractmethod
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.autocommit import commiter, reader, writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions import Name, String
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.interfaces.importable import Importable
+from graph_sitter.core.interfaces.resolvable import Resolvable
+from graph_sitter.core.node_id_factory import NodeId
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.autocommit import commiter, reader, writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions import Name, String
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.interfaces.importable import Importable
-from codegen.sdk.core.interfaces.resolvable import Resolvable
-from codegen.sdk.core.node_id_factory import NodeId
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.interfaces.editable import Editable
 
 Parent = TypeVar("Parent", bound="Editable")
 
@@ -31,7 +31,7 @@ class NamedType(Resolvable, Type[Parent], HasName, Generic[Parent]):
         self._name_node = self._parse_expression(self._get_name_node(), default=Name)
 
     def __eq__(self, other: object) -> bool:
-        from codegen.sdk.core.symbol import Symbol
+        from graph_sitter.core.symbol import Symbol
 
         if isinstance(other, Symbol):
             for resolved in self.resolved_types:

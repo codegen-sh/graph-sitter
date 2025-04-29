@@ -2,44 +2,44 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Literal, Self, TypeVar, override
 
-from codegen.sdk.core.autocommit import commiter, reader
-from codegen.sdk.core.autocommit.decorators import writer
-from codegen.sdk.core.dataclasses.usage import UsageKind, UsageType
-from codegen.sdk.core.export import Export
-from codegen.sdk.core.expressions.name import Name
-from codegen.sdk.core.external_module import ExternalModule
-from codegen.sdk.core.import_resolution import Import
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.has_value import HasValue
-from codegen.sdk.core.interfaces.importable import Importable
-from codegen.sdk.enums import EdgeType, ImportType, NodeType
-from codegen.sdk.extensions.utils import cached_property
-from codegen.sdk.typescript.assignment import TSAssignment
-from codegen.sdk.typescript.class_definition import TSClass
-from codegen.sdk.typescript.enum_definition import TSEnum
-from codegen.sdk.typescript.enums import TSFunctionTypeNames
-from codegen.sdk.typescript.function import TSFunction
-from codegen.sdk.typescript.import_resolution import TSImport
-from codegen.sdk.typescript.interface import TSInterface
-from codegen.sdk.typescript.namespace import TSNamespace
-from codegen.sdk.typescript.statements.assignment_statement import TSAssignmentStatement
-from codegen.sdk.typescript.type_alias import TSTypeAlias
-from codegen.sdk.utils import find_all_descendants
+from graph_sitter.core.autocommit import commiter, reader
+from graph_sitter.core.autocommit.decorators import writer
+from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
+from graph_sitter.core.export import Export
+from graph_sitter.core.expressions.name import Name
+from graph_sitter.core.external_module import ExternalModule
+from graph_sitter.core.import_resolution import Import
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.has_value import HasValue
+from graph_sitter.core.interfaces.importable import Importable
+from graph_sitter.enums import EdgeType, ImportType, NodeType
+from graph_sitter.extensions.utils import cached_property
+from graph_sitter.typescript.assignment import TSAssignment
+from graph_sitter.typescript.class_definition import TSClass
+from graph_sitter.typescript.enum_definition import TSEnum
+from graph_sitter.typescript.enums import TSFunctionTypeNames
+from graph_sitter.typescript.function import TSFunction
+from graph_sitter.typescript.import_resolution import TSImport
+from graph_sitter.typescript.interface import TSInterface
+from graph_sitter.typescript.namespace import TSNamespace
+from graph_sitter.typescript.statements.assignment_statement import TSAssignmentStatement
+from graph_sitter.typescript.type_alias import TSTypeAlias
+from graph_sitter.utils import find_all_descendants
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.resolution_stack import ResolutionStack
+    from graph_sitter.core.interfaces.exportable import Exportable
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.export_statement import ExportStatement
+    from graph_sitter.core.symbol_groups.collection import Collection
+    from graph_sitter.typescript.symbol import TSSymbol
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.codebase.resolution_stack import ResolutionStack
-    from codegen.sdk.core.interfaces.exportable import Exportable
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.export_statement import ExportStatement
-    from codegen.sdk.core.symbol_groups.collection import Collection
-    from codegen.sdk.typescript.symbol import TSSymbol
 
 
 @ts_apidoc

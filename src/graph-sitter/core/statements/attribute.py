@@ -4,25 +4,25 @@ import itertools
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
-from codegen.sdk.core.autocommit import writer
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.usable import Usable
-from codegen.sdk.core.statements.assignment_statement import AssignmentStatement
-from codegen.sdk.core.statements.statement import StatementType
-from codegen.sdk.extensions.autocommit import reader
+from graph_sitter.core.autocommit import writer
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.usable import Usable
+from graph_sitter.core.statements.assignment_statement import AssignmentStatement
+from graph_sitter.core.statements.statement import StatementType
+from graph_sitter.extensions.autocommit import reader
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.assignment import Assignment
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.extensions.resolution import ResolutionStack
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.assignment import Assignment
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.extensions.resolution import ResolutionStack
 
 TCodeBlock = TypeVar("TCodeBlock", bound="CodeBlock | None")
 TAssignment = TypeVar("TAssignment", bound="Assignment")

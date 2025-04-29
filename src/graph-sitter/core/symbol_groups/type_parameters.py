@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from codegen.sdk.core.symbol_groups.collection import Collection
+from graph_sitter.core.symbol_groups.collection import Collection
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.interfaces.supports_generic import SupportsGenerics
+    from graph_sitter.core.node_id_factory import NodeId
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.interfaces.supports_generic import SupportsGenerics
-    from codegen.sdk.core.node_id_factory import NodeId
 
 
 TType = TypeVar("TType", bound="Type")

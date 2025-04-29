@@ -1,10 +1,11 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.expressions.boolean import Boolean
-from codegen.sdk.core.expressions.number import Number
-from codegen.sdk.core.expressions.string import String
-from codegen.sdk.core.symbol_groups.dict import Dict
-from codegen.sdk.core.symbol_groups.list import List
-from codegen.sdk.core.symbol_groups.tuple import Tuple
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.expressions.boolean import Boolean
+from graph_sitter.core.expressions.number import Number
+from graph_sitter.core.expressions.string import String
+from graph_sitter.core.symbol_groups.dict import Dict
+from graph_sitter.core.symbol_groups.list import List
+from graph_sitter.core.symbol_groups.tuple import Tuple
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

@@ -3,20 +3,20 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-from codegen.sdk.core.interfaces.has_block import HasBlock
-from codegen.sdk.core.statements.statement import StatementType
-from codegen.sdk.extensions.utils import find_all_descendants
-from codegen.sdk.typescript.detached_symbols.decorator import TSDecorator
-from codegen.sdk.typescript.statements.comment import TSComment, TSCommentType
-from codegen.sdk.typescript.symbol_groups.comment_group import TSCommentGroup
-from codegen.sdk.utils import find_index
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.detached_symbols.code_block import CodeBlock
+from graph_sitter.core.interfaces.has_block import HasBlock
+from graph_sitter.core.statements.statement import StatementType
+from graph_sitter.extensions.utils import find_all_descendants
+from graph_sitter.typescript.detached_symbols.decorator import TSDecorator
+from graph_sitter.typescript.statements.comment import TSComment, TSCommentType
+from graph_sitter.typescript.symbol_groups.comment_group import TSCommentGroup
+from graph_sitter.utils import find_index
+
 from codegen.shared.decorators.docs import ts_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-    from codegen.sdk.typescript.detached_symbols.jsx.element import JSXElement
+    from graph_sitter.typescript.detached_symbols.jsx.element import JSXElement
 
 
 @ts_apidoc

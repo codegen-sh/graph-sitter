@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions import Name, Value
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions import Name, Value
 
 if TYPE_CHECKING:
-    from codegen.sdk.python import PyFile
+    from graph_sitter.python import PyFile
 
 
 def test_with_statement_single_var(tmpdir):

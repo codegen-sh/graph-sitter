@@ -1,19 +1,19 @@
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.extensions.autocommit import reader
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.extensions.autocommit import reader
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.interfaces.importable import Importable
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.importable import Importable
 
 
 TType = TypeVar("TType", bound="Type")

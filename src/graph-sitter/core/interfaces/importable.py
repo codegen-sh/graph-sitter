@@ -1,24 +1,24 @@
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, Union
 
+from graph_sitter._proxy import proxy_property
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.dataclasses.usage import UsageType
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.enums import EdgeType
+from graph_sitter.extensions.autocommit import commiter
+from graph_sitter.extensions.sort import sort_editables
 from tree_sitter import Node as TSNode
 
-from codegen.sdk._proxy import proxy_property
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.dataclasses.usage import UsageType
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.enums import EdgeType
-from codegen.sdk.extensions.autocommit import commiter
-from codegen.sdk.extensions.sort import sort_editables
 from codegen.shared.decorators.docs import apidoc, noapidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.import_resolution import Import
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.import_resolution import Import
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.symbol import Symbol
 
 Parent = TypeVar("Parent", bound="Editable")
 

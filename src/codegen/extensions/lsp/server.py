@@ -1,5 +1,9 @@
 from typing import Any
 
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.core.file import File, SourceFile
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.symbol import Symbol
 from lsprotocol import types
 from lsprotocol.types import Position, Range
 from pygls.lsp.server import LanguageServer
@@ -11,10 +15,6 @@ from codegen.extensions.lsp.io import LSPIO
 from codegen.extensions.lsp.progress import LSPProgress
 from codegen.extensions.lsp.range import get_tree_sitter_range
 from codegen.extensions.lsp.utils import get_path
-from codegen.sdk.core.codebase import Codebase
-from codegen.sdk.core.file import File, SourceFile
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.symbol import Symbol
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

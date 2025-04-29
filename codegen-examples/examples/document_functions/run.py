@@ -1,8 +1,8 @@
 import codegen
 from codegen import Codebase
-from codegen.sdk.core.external_module import ExternalModule
-from codegen.sdk.core.import_resolution import Import
-from codegen.sdk.core.symbol import Symbol
+from graph_sitter.core.external_module import ExternalModule
+from graph_sitter.core.import_resolution import Import
+from graph_sitter.core.symbol import Symbol
 
 
 def hop_through_imports(imp: Import) -> Symbol | ExternalModule:

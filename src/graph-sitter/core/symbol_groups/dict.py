@@ -1,24 +1,24 @@
 from collections.abc import Iterator, MutableMapping
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions.builtin import Builtin
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.core.expressions.string import String
+from graph_sitter.core.expressions.unpack import Unpack
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.interfaces.has_value import HasValue
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.extensions.autocommit import commiter
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions.builtin import Builtin
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.core.expressions.string import String
-from codegen.sdk.core.expressions.unpack import Unpack
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.interfaces.has_value import HasValue
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.extensions.autocommit import commiter
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.interfaces.importable import Importable
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.interfaces.importable import Importable
 
 
 TExpression = TypeVar("TExpression", bound="Expression")

@@ -2,14 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.extensions.autocommit import commiter
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.extensions.autocommit import commiter
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.interfaces.has_name import HasName
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.has_name import HasName
 
 Parent = TypeVar("Parent", bound="Editable")
 

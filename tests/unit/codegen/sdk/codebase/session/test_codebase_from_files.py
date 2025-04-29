@@ -1,6 +1,5 @@
 import pytest
-
-from codegen.sdk.core.codebase import Codebase
+from graph_sitter.core.codebase import Codebase
 
 
 def test_from_files_python():

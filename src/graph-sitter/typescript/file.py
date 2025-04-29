@@ -3,33 +3,34 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.autocommit import mover, reader, writer
-from codegen.sdk.core.file import SourceFile
-from codegen.sdk.core.interfaces.exportable import Exportable
-from codegen.sdk.enums import ImportType, NodeType, SymbolType
-from codegen.sdk.extensions.sort import sort_editables
-from codegen.sdk.extensions.utils import cached_property
-from codegen.sdk.typescript.assignment import TSAssignment
-from codegen.sdk.typescript.class_definition import TSClass
-from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-from codegen.sdk.typescript.export import TSExport
-from codegen.sdk.typescript.function import TSFunction
-from codegen.sdk.typescript.import_resolution import TSImport
-from codegen.sdk.typescript.interface import TSInterface
-from codegen.sdk.typescript.interfaces.has_block import TSHasBlock
-from codegen.sdk.typescript.namespace import TSNamespace
-from codegen.sdk.utils import calculate_base_path
+from graph_sitter.core.autocommit import mover, reader, writer
+from graph_sitter.core.file import SourceFile
+from graph_sitter.core.interfaces.exportable import Exportable
+from graph_sitter.enums import ImportType, NodeType, SymbolType
+from graph_sitter.extensions.sort import sort_editables
+from graph_sitter.extensions.utils import cached_property
+from graph_sitter.typescript.assignment import TSAssignment
+from graph_sitter.typescript.class_definition import TSClass
+from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
+from graph_sitter.typescript.export import TSExport
+from graph_sitter.typescript.function import TSFunction
+from graph_sitter.typescript.import_resolution import TSImport
+from graph_sitter.typescript.interface import TSInterface
+from graph_sitter.typescript.interfaces.has_block import TSHasBlock
+from graph_sitter.typescript.namespace import TSNamespace
+from graph_sitter.utils import calculate_base_path
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.statements.export_statement import ExportStatement
-    from codegen.sdk.core.symbol import Symbol
-    from codegen.sdk.typescript.detached_symbols.promise_chain import TSPromiseChain
-    from codegen.sdk.typescript.symbol import TSSymbol
-    from codegen.sdk.typescript.ts_config import TSConfig
-    from codegen.sdk.typescript.type_alias import TSTypeAlias
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.statements.export_statement import ExportStatement
+    from graph_sitter.core.symbol import Symbol
+    from graph_sitter.typescript.detached_symbols.promise_chain import TSPromiseChain
+    from graph_sitter.typescript.symbol import TSSymbol
+    from graph_sitter.typescript.ts_config import TSConfig
+    from graph_sitter.typescript.type_alias import TSTypeAlias
 
 
 @ts_apidoc

@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
-from codegen.sdk.core.statements.statement import Statement
+from graph_sitter.core.statements.statement import Statement
+
 from codegen.shared.decorators.docs import noapidoc
 
 

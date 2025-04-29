@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.expressions.expression import Expression
-from codegen.sdk.core.expressions.name import Name
-from codegen.sdk.core.expressions.string import String
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.expressions.value import Value
-from codegen.sdk.core.symbol_groups.dict import Dict
-from codegen.sdk.core.symbol_groups.list import List
+from graph_sitter.core.expressions.expression import Expression
+from graph_sitter.core.expressions.name import Name
+from graph_sitter.core.expressions.string import String
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.expressions.value import Value
+from graph_sitter.core.symbol_groups.dict import Dict
+from graph_sitter.core.symbol_groups.list import List
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall  # noqa: TC004
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall  # noqa: TC004
 
 __all__ = ["Dict", "Expression", "FunctionCall", "List", "Name", "String", "Type", "Value"]

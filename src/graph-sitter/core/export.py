@@ -3,17 +3,17 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
-from codegen.sdk.core.interfaces.exportable import Exportable
-from codegen.sdk.extensions.autocommit import commiter
+from graph_sitter.core.interfaces.exportable import Exportable
+from graph_sitter.extensions.autocommit import commiter
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.export_statement import ExportStatement
+    from graph_sitter.core.symbol_groups.collection import Collection
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.export_statement import ExportStatement
-    from codegen.sdk.core.symbol_groups.collection import Collection
 
 
 Parent = TypeVar("Parent", bound="Collection[Export, ExportStatement]")
@@ -85,7 +85,7 @@ class Export(Exportable[Parent], Generic[Parent]):
         Returns:
             bool: True if the exported symbol has a different name than the name it is exported as, False otherwise.
         """
-        from codegen.sdk.core.import_resolution import Import
+        from graph_sitter.core.import_resolution import Import
 
         if self.exported_symbol is None:
             return False

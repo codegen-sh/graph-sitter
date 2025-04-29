@@ -1,11 +1,11 @@
 from unittest.mock import MagicMock, create_autospec, patch
 
 import pytest
+from graph_sitter.codebase.codebase_context import CodebaseContext
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.codebase import Codebase
 
 from codegen.configs.models.secrets import SecretsConfig
-from codegen.sdk.codebase.codebase_context import CodebaseContext
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.codebase import Codebase
 
 
 @pytest.fixture(autouse=True)

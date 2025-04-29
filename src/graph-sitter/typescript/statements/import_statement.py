@@ -2,19 +2,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.expressions.builtin import Builtin
-from codegen.sdk.core.statements.import_statement import ImportStatement
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.typescript.import_resolution import TSImport
+from graph_sitter.core.expressions.builtin import Builtin
+from graph_sitter.core.statements.import_statement import ImportStatement
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.typescript.import_resolution import TSImport
+
 from codegen.shared.decorators.docs import ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-    from codegen.sdk.typescript.file import TSFile
 
 
 @ts_apidoc

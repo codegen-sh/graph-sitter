@@ -1,14 +1,14 @@
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.config_parser import ConfigParser
-from codegen.sdk.core.file import File
-from codegen.sdk.enums import NodeType
-from codegen.sdk.typescript.ts_config import TSConfig
+from graph_sitter.codebase.config_parser import ConfigParser
+from graph_sitter.core.file import File
+from graph_sitter.enums import NodeType
+from graph_sitter.typescript.ts_config import TSConfig
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.typescript.file import TSFile
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.typescript.file import TSFile
 
 import os
 from functools import cache

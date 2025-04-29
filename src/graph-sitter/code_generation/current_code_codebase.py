@@ -4,12 +4,13 @@ import importlib
 from pathlib import Path
 from typing import TypedDict
 
+from graph_sitter.codebase.config import ProjectConfig
+from graph_sitter.core.codebase import Codebase, CodebaseType
+
 from codegen.configs.models.codebase import CodebaseConfig
 from codegen.configs.models.secrets import SecretsConfig
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.repo_config import RepoConfig
-from codegen.sdk.codebase.config import ProjectConfig
-from codegen.sdk.core.codebase import Codebase, CodebaseType
 from codegen.shared.decorators.docs import DocumentedObject, apidoc_objects, no_apidoc_objects, py_apidoc_objects, ts_apidoc_objects
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codegen.shared.logging.get_logger import get_logger
@@ -83,7 +84,7 @@ def get_documented_objects() -> DocumentedObjects:
     the respective decorators
     """
     import_all_codegen_sdk_modules()
-    from codegen.sdk.core.codebase import CodebaseType, PyCodebaseType, TSCodebaseType
+    from graph_sitter.core.codebase import CodebaseType, PyCodebaseType, TSCodebaseType
 
     if PyCodebaseType not in apidoc_objects:
         apidoc_objects.append(DocumentedObject(name="PyCodebaseType", module="codegen.sdk.core.codebase", object=PyCodebaseType))

@@ -1,6 +1,6 @@
 import re
 
-from codegen.sdk.code_generation.doc_utils.schemas import ParameterDoc
+from graph_sitter.code_generation.doc_utils.schemas import ParameterDoc
 
 SECTION_PATTERN = re.compile(r"(Args|Returns|Raises|Note):\s*(.+?)(?=(?:Args|Returns|Raises|Note):|$)", re.DOTALL)
 ARG_PATTERN = re.compile(r"\s*(\w+)\s*\(([^)]+)\):\s*([^\n]+)")

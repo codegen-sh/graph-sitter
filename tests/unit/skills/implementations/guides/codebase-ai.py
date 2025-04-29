@@ -1,14 +1,15 @@
 from abc import ABC
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.codebase import CodebaseType
+from graph_sitter.core.codebase import CodebaseType
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill
 from tests.shared.skills.skill_test import SkillTestCase, SkillTestCasePyFile
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.function import Function
+    from graph_sitter.core.function import Function
 
 MethodSummaryGeneratorPyTestCase = SkillTestCase(
     [

@@ -1,5 +1,6 @@
-from codegen.sdk.core.codebase import PyCodebaseType
-from codegen.sdk.core.symbol_groups.dict import Dict
+from graph_sitter.core.codebase import PyCodebaseType
+from graph_sitter.core.symbol_groups.dict import Dict
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill

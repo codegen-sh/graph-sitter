@@ -1,5 +1,5 @@
 DEFAULT_CODEMOD = '''import codegen
-from codegen.sdk.core.codebase import Codebase
+from graph_sitter.core.codebase import Codebase
 
 
 @codegen.function("{name}")

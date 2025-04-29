@@ -2,10 +2,10 @@
 
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.file import SourceFile
+    from graph_sitter.core.file import SourceFile
 
 
 def test_local_import(tmpdir) -> None:

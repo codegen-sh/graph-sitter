@@ -1,12 +1,13 @@
-from codegen.sdk.core.autocommit import commiter, reader
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.type_alias import TypeAlias
-from codegen.sdk.enums import SymbolType
-from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-from codegen.sdk.typescript.interfaces.has_block import TSHasBlock
-from codegen.sdk.typescript.statements.attribute import TSAttribute
-from codegen.sdk.typescript.symbol import TSSymbol
+from graph_sitter.core.autocommit import commiter, reader
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.type_alias import TypeAlias
+from graph_sitter.enums import SymbolType
+from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
+from graph_sitter.typescript.interfaces.has_block import TSHasBlock
+from graph_sitter.typescript.statements.attribute import TSAttribute
+from graph_sitter.typescript.symbol import TSSymbol
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 

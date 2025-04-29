@@ -3,12 +3,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from attr import asdict
+from graph_sitter.codebase.io.file_io import FileIO
+from graph_sitter.codebase.io.io import IO
 from lsprotocol import types
 from lsprotocol.types import CreateFile, CreateFileOptions, DeleteFile, Position, Range, RenameFile, TextEdit
 from pygls.workspace import TextDocument, Workspace
 
-from codegen.sdk.codebase.io.file_io import FileIO
-from codegen.sdk.codebase.io.io import IO
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

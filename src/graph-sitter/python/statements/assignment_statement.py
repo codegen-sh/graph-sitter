@@ -2,20 +2,20 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.expressions.multi_expression import MultiExpression
-from codegen.sdk.core.statements.assignment_statement import AssignmentStatement
-from codegen.sdk.extensions.utils import find_all_descendants
-from codegen.sdk.python.assignment import PyAssignment
+from graph_sitter.core.expressions.multi_expression import MultiExpression
+from graph_sitter.core.statements.assignment_statement import AssignmentStatement
+from graph_sitter.extensions.utils import find_all_descendants
+from graph_sitter.python.assignment import PyAssignment
+
 from codegen.shared.decorators.docs import py_apidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
+    from graph_sitter.python.interfaces.has_block import PyHasBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
-    from codegen.sdk.python.interfaces.has_block import PyHasBlock
 
 
 logger = get_logger(__name__)
@@ -60,10 +60,10 @@ class PyAssignmentStatement(AssignmentStatement["PyCodeBlock", PyAssignment]):
             msg = f"Invalid assignment node type: {assignment_node.type}"
             raise ValueError(msg)
 
-        from codegen.sdk.python.class_definition import PyClass
+        from graph_sitter.python.class_definition import PyClass
 
         if isinstance(parent, PyClass):
-            from codegen.sdk.python.statements.attribute import PyAttribute
+            from graph_sitter.python.statements.attribute import PyAttribute
 
             return PyAttribute(ts_node, file_node_id, ctx, parent, pos, assignment_node=assignment_node)
         return cls(ts_node, file_node_id, ctx, parent, pos, assignment_node=assignment_node)

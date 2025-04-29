@@ -3,8 +3,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Literal, Self
 
-from codegen.sdk._proxy import proxy_property
-from codegen.sdk.core.interfaces.has_symbols import (
+from graph_sitter._proxy import proxy_property
+from graph_sitter.core.interfaces.has_symbols import (
     FilesParam,
     HasSymbols,
     TClass,
@@ -15,9 +15,10 @@ from codegen.sdk.core.interfaces.has_symbols import (
     TImportStatement,
     TSymbol,
 )
-from codegen.sdk.core.utils.cache_utils import cached_generator
-from codegen.sdk.enums import NodeType
-from codegen.sdk.extensions.sort import sort_editables
+from graph_sitter.core.utils.cache_utils import cached_generator
+from graph_sitter.enums import NodeType
+from graph_sitter.extensions.sort import sort_editables
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 from codegen.shared.logging.get_logger import get_logger
 
@@ -25,7 +26,7 @@ logger = get_logger(__name__)
 
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.codebase_context import CodebaseContext
 
 
 @apidoc
@@ -69,7 +70,7 @@ class Directory(
         return self.parent._is_a_subdirectory_of(target_directory=target_directory)
 
     def __contains__(self, item: str | TFile | Self) -> bool:
-        from codegen.sdk.core.file import File
+        from graph_sitter.core.file import File
 
         # Try to match all file and subdirectory names
         if isinstance(item, str):

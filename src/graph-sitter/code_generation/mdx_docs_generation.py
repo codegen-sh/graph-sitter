@@ -1,7 +1,7 @@
 import re
 
-from codegen.sdk.code_generation.doc_utils.schemas import ClassDoc, MethodDoc, ParameterDoc
-from codegen.sdk.code_generation.doc_utils.utils import sanitize_html_for_mdx, sanitize_mdx_mintlify_description
+from graph_sitter.code_generation.doc_utils.schemas import ClassDoc, MethodDoc, ParameterDoc
+from graph_sitter.code_generation.doc_utils.utils import sanitize_html_for_mdx, sanitize_mdx_mintlify_description
 
 
 def render_mdx_page_for_class(cls_doc: ClassDoc) -> str:

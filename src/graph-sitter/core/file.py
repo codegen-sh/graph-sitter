@@ -9,40 +9,40 @@ from os import PathLike
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Literal, Self, TypeVar, override
 
+from graph_sitter._proxy import proxy_property
+from graph_sitter.codebase.codebase_context import CodebaseContext
+from graph_sitter.codebase.range_index import RangeIndex
+from graph_sitter.codebase.span import Range
+from graph_sitter.core.autocommit import commiter, mover, reader, remover, writer
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.dataclasses.usage import UsageType
+from graph_sitter.core.directory import Directory
+from graph_sitter.core.import_resolution import Import, WildcardImport
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_attribute import HasAttribute
+from graph_sitter.core.interfaces.has_block import HasBlock
+from graph_sitter.core.interfaces.importable import Importable
+from graph_sitter.core.interfaces.usable import Usable
+from graph_sitter.core.statements.import_statement import ImportStatement
+from graph_sitter.core.symbol import Symbol
+from graph_sitter.enums import EdgeType, ImportType, NodeType, SymbolType
+from graph_sitter.extensions.sort import sort_editables
+from graph_sitter.topological_sort import pseudo_topological_sort
+from graph_sitter.tree_sitter_parser import get_parser_by_filepath_or_extension, parse_file
+from graph_sitter.typescript.function import TSFunction
+from graph_sitter.utils import is_minified_js
 from tree_sitter import Node as TSNode
 from typing_extensions import deprecated
 
-from codegen.sdk._proxy import proxy_property
-from codegen.sdk.codebase.codebase_context import CodebaseContext
-from codegen.sdk.codebase.range_index import RangeIndex
-from codegen.sdk.codebase.span import Range
-from codegen.sdk.core.autocommit import commiter, mover, reader, remover, writer
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.dataclasses.usage import UsageType
-from codegen.sdk.core.directory import Directory
-from codegen.sdk.core.import_resolution import Import, WildcardImport
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_attribute import HasAttribute
-from codegen.sdk.core.interfaces.has_block import HasBlock
-from codegen.sdk.core.interfaces.importable import Importable
-from codegen.sdk.core.interfaces.usable import Usable
-from codegen.sdk.core.statements.import_statement import ImportStatement
-from codegen.sdk.core.symbol import Symbol
-from codegen.sdk.enums import EdgeType, ImportType, NodeType, SymbolType
-from codegen.sdk.extensions.sort import sort_editables
-from codegen.sdk.topological_sort import pseudo_topological_sort
-from codegen.sdk.tree_sitter_parser import get_parser_by_filepath_or_extension, parse_file
-from codegen.sdk.typescript.function import TSFunction
-from codegen.sdk.utils import is_minified_js
 from codegen.shared.decorators.docs import apidoc, noapidoc
 from codegen.shared.logging.get_logger import get_logger
 from codegen.visualizations.enums import VizNode
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.assignment import Assignment
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.function import Function
-    from codegen.sdk.core.interface import Interface
+    from graph_sitter.core.assignment import Assignment
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.function import Function
+    from graph_sitter.core.interface import Interface
 
 logger = get_logger(__name__)
 

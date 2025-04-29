@@ -2,23 +2,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, Unpack
 
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.symbol import Symbol
-from codegen.sdk.enums import ImportType
-from codegen.sdk.python.statements.comment import PyComment, PyCommentType
-from codegen.sdk.python.symbol_groups.comment_group import PyCommentGroup
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.symbol import Symbol
+from graph_sitter.enums import ImportType
+from graph_sitter.python.statements.comment import PyComment, PyCommentType
+from graph_sitter.python.symbol_groups.comment_group import PyCommentGroup
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.flagging.code_flag import CodeFlag
+    from graph_sitter.codebase.flagging.enums import FlagKwargs
+    from graph_sitter.core.interfaces.has_block import HasBlock
+    from graph_sitter.core.node_id_factory import NodeId
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.codebase.flagging.code_flag import CodeFlag
-    from codegen.sdk.codebase.flagging.enums import FlagKwargs
-    from codegen.sdk.core.interfaces.has_block import HasBlock
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
-    from codegen.sdk.python.interfaces.has_block import PyHasBlock
 
 
 @py_apidoc

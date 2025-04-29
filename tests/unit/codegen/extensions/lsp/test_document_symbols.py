@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, cast
 
 import pytest
+from graph_sitter.core.codebase import Codebase
 from lsprotocol.types import (
     DocumentSymbol,
     DocumentSymbolParams,
@@ -10,8 +11,6 @@ from lsprotocol.types import (
     TextDocumentIdentifier,
 )
 from pytest_lsp import LanguageClient
-
-from codegen.sdk.core.codebase import Codebase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

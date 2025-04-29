@@ -4,23 +4,23 @@ import os
 import sys
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.expressions import Name
-from codegen.sdk.core.import_resolution import ExternalImportResolver, Import, ImportResolution
-from codegen.sdk.enums import ImportType, NodeType
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.expressions import Name
+from graph_sitter.core.import_resolution import ExternalImportResolver, Import, ImportResolution
+from graph_sitter.enums import ImportType, NodeType
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.file import SourceFile
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.exportable import Exportable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.import_statement import ImportStatement
+    from graph_sitter.python.file import PyFile
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.file import SourceFile
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.interfaces.exportable import Exportable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.import_statement import ImportStatement
-    from codegen.sdk.python.file import PyFile
 
 
 logger = get_logger(__name__)

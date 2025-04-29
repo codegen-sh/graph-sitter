@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
+from graph_sitter.codebase.config import SessionOptions
+from graph_sitter.codebase.flagging.code_flag import CodeFlag
+from graph_sitter.codebase.flagging.groupers.enums import GroupBy
 
 from codegen.git.models.codemod_context import CodemodContext
 from codegen.runner.models.codemod import GroupingConfig
-from codegen.sdk.codebase.config import SessionOptions
-from codegen.sdk.codebase.flagging.code_flag import CodeFlag
-from codegen.sdk.codebase.flagging.groupers.enums import GroupBy
 from codegen.shared.compilation.string_to_code import create_execute_function_from_codeblock
 
 if TYPE_CHECKING:

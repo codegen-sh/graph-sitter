@@ -1,7 +1,7 @@
 import pytest
+from graph_sitter.codebase.config import SessionOptions
+from graph_sitter.codebase.factory.get_session import get_codebase_session
 
-from codegen.sdk.codebase.config import SessionOptions
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codegen.shared.exceptions.control_flow import MaxPreviewTimeExceeded, MaxTransactionsExceeded
 

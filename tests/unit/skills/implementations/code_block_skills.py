@@ -1,9 +1,10 @@
 from abc import ABC
 
-from codegen.sdk.core.codebase import CodebaseType
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions.chained_attribute import ChainedAttribute
-from codegen.sdk.core.statements.expression_statement import ExpressionStatement
+from graph_sitter.core.codebase import CodebaseType
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
+from graph_sitter.core.statements.expression_statement import ExpressionStatement
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill

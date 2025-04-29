@@ -1,6 +1,7 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.assignment import Assignment
-from codegen.sdk.typescript.function import TSFunction
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.assignment import Assignment
+from graph_sitter.typescript.function import TSFunction
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

@@ -1,4 +1,4 @@
-from codegen.sdk.ai.helpers import AbstractAIHelper
+from graph_sitter.ai.helpers import AbstractAIHelper
 
 
 class MockAIHelper(AbstractAIHelper):

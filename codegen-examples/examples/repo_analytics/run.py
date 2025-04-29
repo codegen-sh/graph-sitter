@@ -1,12 +1,12 @@
 from typing import Dict, Any
 from codegen import Codebase
-from codegen.sdk.core.statements.for_loop_statement import ForLoopStatement
-from codegen.sdk.core.statements.if_block_statement import IfBlockStatement
-from codegen.sdk.core.statements.try_catch_statement import TryCatchStatement
-from codegen.sdk.core.statements.while_statement import WhileStatement
-from codegen.sdk.core.expressions.binary_expression import BinaryExpression
-from codegen.sdk.core.expressions.unary_expression import UnaryExpression
-from codegen.sdk.core.expressions.comparison_expression import ComparisonExpression
+from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
+from graph_sitter.core.statements.if_block_statement import IfBlockStatement
+from graph_sitter.core.statements.try_catch_statement import TryCatchStatement
+from graph_sitter.core.statements.while_statement import WhileStatement
+from graph_sitter.core.expressions.binary_expression import BinaryExpression
+from graph_sitter.core.expressions.unary_expression import UnaryExpression
+from graph_sitter.core.expressions.comparison_expression import ComparisonExpression
 import math
 import re
 import requests

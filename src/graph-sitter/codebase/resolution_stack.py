@@ -1,3 +1,3 @@
-from codegen.sdk.extensions.resolution import ResolutionStack
+from graph_sitter.extensions.resolution import ResolutionStack
 
 __all__ = ["ResolutionStack"]

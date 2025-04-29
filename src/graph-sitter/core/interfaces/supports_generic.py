@@ -1,15 +1,15 @@
 from typing import TYPE_CHECKING, Generic, Self
 
+from graph_sitter.core.expressions.named_type import NamedType
+from graph_sitter.core.symbol import Symbol
+from graph_sitter.core.symbol_groups.type_parameters import TypeParameters
+from graph_sitter.extensions.utils import cached_property
 from typing_extensions import TypeVar
 
-from codegen.sdk.core.expressions.named_type import NamedType
-from codegen.sdk.core.symbol import Symbol
-from codegen.sdk.core.symbol_groups.type_parameters import TypeParameters
-from codegen.sdk.extensions.utils import cached_property
 from codegen.shared.decorators.docs import noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.expressions import Type
+    from graph_sitter.core.expressions import Type
 
 TType = TypeVar("TType", bound="Type")
 

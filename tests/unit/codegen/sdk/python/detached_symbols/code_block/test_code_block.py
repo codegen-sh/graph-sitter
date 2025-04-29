@@ -1,12 +1,13 @@
 import re
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.statements.statement import StatementType
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.statements.statement import StatementType
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.python import PyFile
+    from graph_sitter.python import PyFile
 
 
 def test_code_block(tmpdir) -> None:

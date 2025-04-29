@@ -1,7 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from codegen.sdk.codebase.io.io import IO, BadWriteError
+from graph_sitter.codebase.io.io import IO, BadWriteError
+
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.assignment import Assignment
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.codebase import CodebaseType, PyCodebaseType, TSCodebaseType
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.symbol_groups.dict import Dict
+from graph_sitter.core.assignment import Assignment
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.codebase import CodebaseType, PyCodebaseType, TSCodebaseType
+from graph_sitter.core.function import Function
+from graph_sitter.core.symbol_groups.dict import Dict
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill
@@ -13,8 +14,8 @@ from tests.shared.skills.skill_test import SkillTestCase, SkillTestCaseTSFile
 if TYPE_CHECKING:
     from collections.abc import MutableMapping
 
-    from codegen.sdk.core.symbol import Symbol
-    from codegen.sdk.core.type_alias import TypeAlias
+    from graph_sitter.core.symbol import Symbol
+    from graph_sitter.core.type_alias import TypeAlias
 
 ts_input1 = """
 export type MyMapper<K,V> = {

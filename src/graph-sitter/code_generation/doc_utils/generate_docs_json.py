@@ -1,11 +1,10 @@
+from graph_sitter.code_generation.doc_utils.parse_docstring import parse_docstring
+from graph_sitter.code_generation.doc_utils.schemas import ClassDoc, GSDocs, MethodDoc
+from graph_sitter.code_generation.doc_utils.utils import create_path, extract_class_description, get_type, get_type_str, has_documentation, is_settter, replace_multiple_types
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.core.placeholder.placeholder_type import TypePlaceholder
 from tqdm import tqdm
-
-from codegen.sdk.code_generation.doc_utils.parse_docstring import parse_docstring
-from codegen.sdk.code_generation.doc_utils.schemas import ClassDoc, GSDocs, MethodDoc
-from codegen.sdk.code_generation.doc_utils.utils import create_path, extract_class_description, get_type, get_type_str, has_documentation, is_settter, replace_multiple_types
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.codebase import Codebase
-from codegen.sdk.core.placeholder.placeholder_type import TypePlaceholder
 
 ATTRIBUTES_TO_IGNORE = [
     "ctx",

@@ -1,14 +1,15 @@
 import re
 import textwrap
 
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.codebase import Codebase
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.interfaces.callable import Callable
-from codegen.sdk.core.symbol import Symbol
-from codegen.sdk.python.statements.attribute import PyAttribute
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.function import Function
+from graph_sitter.core.interfaces.callable import Callable
+from graph_sitter.core.symbol import Symbol
+from graph_sitter.python.statements.attribute import PyAttribute
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codegen.shared.logging.get_logger import get_logger
 

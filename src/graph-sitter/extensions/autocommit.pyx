@@ -4,14 +4,14 @@ from typing import Any, ParamSpec, TypeVar, Union, overload
 
 import wrapt
 
-from codegen.sdk.core.autocommit.constants import AutoCommitState, OutdatedNodeError, enabled
+from graph_sitter.core.autocommit.constants import AutoCommitState, OutdatedNodeError, enabled
 
 P = ParamSpec("P")
 T = TypeVar("T")
 
 
 def is_outdated(c) -> bool:
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.editable import Editable
 
     if isinstance(c, Editable):
         return c.is_outdated
@@ -120,7 +120,7 @@ def _delay_update(new_value) -> bool:
 
 
 def update_dict(seen: set["Editable"], obj: "Editable", new_obj: "Editable"):
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.editable import Editable
 
     if obj in seen or obj.removed:
         return
@@ -199,7 +199,7 @@ def commiter(wrapped: Callable[P, T] | None = None, *, reset: bool = False) -> C
     def wrapper(wrapped: Callable[P, T], instance: Union["Editable", "CodebaseContext", None] = None, args: P.args = None, kwargs: P.kwargs = None) -> T:
         if instance is None:
             instance = args[0]
-        from codegen.sdk.codebase.codebase_context import CodebaseContext
+        from graph_sitter.codebase.codebase_context import CodebaseContext
 
         if isinstance(instance, CodebaseContext):
             autocommit = instance._autocommit

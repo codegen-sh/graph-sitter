@@ -1,11 +1,12 @@
 from logging import getLogger
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.plugins.plugin import Plugin
+from graph_sitter.core.plugins.plugin import Plugin
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.codebase import PyCodebaseType
+    from graph_sitter.core.codebase import PyCodebaseType
 logger = getLogger(__name__)
 
 

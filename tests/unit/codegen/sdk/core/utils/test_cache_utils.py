@@ -1,6 +1,6 @@
 from threading import Event
 
-from codegen.sdk.core.utils.cache_utils import cached_generator
+from graph_sitter.core.utils.cache_utils import cached_generator
 
 
 def test_cached_generator():

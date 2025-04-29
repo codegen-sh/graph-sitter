@@ -2,17 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.detached_symbols.decorator import Decorator
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.detached_symbols.decorator import Decorator
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+
 from codegen.shared.decorators.docs import ts_apidoc
 
 if TYPE_CHECKING:
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.typescript.class_definition import TSClass
-    from codegen.sdk.typescript.detached_symbols.parameter import TSParameter
-    from codegen.sdk.typescript.function import TSFunction
 
 
 @ts_apidoc

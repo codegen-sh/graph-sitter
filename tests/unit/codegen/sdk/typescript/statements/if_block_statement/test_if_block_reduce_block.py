@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING
 
 import pytest
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.statements.statement import StatementType
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.statements.statement import StatementType
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.typescript.file import TSFile
+    from graph_sitter.typescript.file import TSFile
 
 
 def test_reduce_condition_to_true_elif(tmpdir):

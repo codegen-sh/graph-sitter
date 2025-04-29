@@ -1,4 +1,5 @@
 import pytest
+from graph_sitter.core.codebase import Codebase
 from lsprotocol.types import (
     DefinitionParams,
     Location,
@@ -7,8 +8,6 @@ from lsprotocol.types import (
     TextDocumentIdentifier,
 )
 from pytest_lsp import LanguageClient
-
-from codegen.sdk.core.codebase import Codebase
 
 
 @pytest.mark.parametrize(

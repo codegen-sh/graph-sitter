@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING, TypeVar
 
-from codegen.sdk.core.expressions.ternary_expression import TernaryExpression
+from graph_sitter.core.expressions.ternary_expression import TernaryExpression
+
 from codegen.shared.decorators.docs import py_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.editable import Editable
 
 Parent = TypeVar("Parent", bound="Editable")
 

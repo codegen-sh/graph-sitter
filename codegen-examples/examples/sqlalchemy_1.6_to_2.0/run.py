@@ -1,7 +1,7 @@
 import codegen
 from codegen import Codebase
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions.chained_attribute import ChainedAttribute
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
 
 
 @codegen.function("sqlalchemy-1.4-to-2.0")

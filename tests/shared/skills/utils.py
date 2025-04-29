@@ -2,7 +2,8 @@ import importlib
 from collections.abc import Callable
 from pathlib import Path
 
-from codegen.sdk.core.codebase import CodebaseType
+from graph_sitter.core.codebase import CodebaseType
+
 from tests.shared.skills.skill import Skill
 from tests.shared.skills.skill_implementation import SkillImplementation
 

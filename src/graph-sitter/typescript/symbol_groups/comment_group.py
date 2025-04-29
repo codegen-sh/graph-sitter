@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.symbol_groups.comment_group import CommentGroup
-from codegen.sdk.typescript.statements.comment import TSComment, TSCommentType
+from graph_sitter.core.symbol_groups.comment_group import CommentGroup
+from graph_sitter.typescript.statements.comment import TSComment, TSCommentType
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.typescript.symbol import TSSymbol
+    from graph_sitter.typescript.symbol import TSSymbol
 
 
 @ts_apidoc

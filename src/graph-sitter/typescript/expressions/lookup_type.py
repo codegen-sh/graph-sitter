@@ -1,20 +1,20 @@
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.interfaces.importable import Importable
+from graph_sitter.core.node_id_factory import NodeId
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.interfaces.importable import Importable
-from codegen.sdk.core.node_id_factory import NodeId
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.typescript.expressions.type import TSType
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.typescript.expressions.type import TSType
 
 
 Parent = TypeVar("Parent")

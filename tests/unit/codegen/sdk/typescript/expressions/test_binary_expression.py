@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.expressions.binary_expression import BinaryExpression
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.expressions.binary_expression import BinaryExpression
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.typescript.file import TSFile
+    from graph_sitter.typescript.file import TSFile
 
 
 def test_binary_expressions(tmpdir):

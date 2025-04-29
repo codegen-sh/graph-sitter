@@ -1,8 +1,9 @@
 import logging
 import textwrap
 
-from codegen.sdk.core.codebase import PyCodebaseType
-from codegen.sdk.writer_decorators import canonical
+from graph_sitter.core.codebase import PyCodebaseType
+from graph_sitter.writer_decorators import canonical
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codemods.codemod import Codemod
 from tests.shared.skills.decorators import skill, skill_impl

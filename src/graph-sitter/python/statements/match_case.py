@@ -1,17 +1,16 @@
 from typing import TYPE_CHECKING
 
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.core.statements.switch_case import SwitchCase
+from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
+from graph_sitter.python.statements.block_statement import PyBlockStatement
 from tree_sitter import Node as PyNode
 
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.core.statements.switch_case import SwitchCase
-from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
-from codegen.sdk.python.statements.block_statement import PyBlockStatement
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.interfaces.conditional_block import ConditionalBlock
-    from codegen.sdk.python.statements.match_statement import PyMatchStatement
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.interfaces.conditional_block import ConditionalBlock
 
 
 @py_apidoc

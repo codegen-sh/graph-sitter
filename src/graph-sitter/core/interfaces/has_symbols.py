@@ -2,24 +2,25 @@ from collections.abc import Iterator
 from itertools import chain
 from typing import TYPE_CHECKING, Generic, ParamSpec, TypeVar
 
-from codegen.sdk.core.utils.cache_utils import cached_generator
+from graph_sitter.core.utils.cache_utils import cached_generator
+
 from codegen.shared.decorators.docs import py_noapidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.assignment import Assignment
-    from codegen.sdk.core.class_definition import Class
-    from codegen.sdk.core.file import SourceFile
-    from codegen.sdk.core.function import Function
-    from codegen.sdk.core.import_resolution import Import, ImportStatement
-    from codegen.sdk.core.symbol import Symbol
-    from codegen.sdk.typescript.class_definition import TSClass
-    from codegen.sdk.typescript.export import TSExport
-    from codegen.sdk.typescript.file import TSFile
-    from codegen.sdk.typescript.function import TSFunction
-    from codegen.sdk.typescript.import_resolution import TSImport
-    from codegen.sdk.typescript.statements.import_statement import TSImportStatement
-    from codegen.sdk.typescript.symbol import TSSymbol
+    from graph_sitter.core.assignment import Assignment
+    from graph_sitter.core.class_definition import Class
+    from graph_sitter.core.file import SourceFile
+    from graph_sitter.core.function import Function
+    from graph_sitter.core.import_resolution import Import, ImportStatement
+    from graph_sitter.core.symbol import Symbol
+    from graph_sitter.typescript.class_definition import TSClass
+    from graph_sitter.typescript.export import TSExport
+    from graph_sitter.typescript.file import TSFile
+    from graph_sitter.typescript.function import TSFunction
+    from graph_sitter.typescript.import_resolution import TSImport
+    from graph_sitter.typescript.statements.import_statement import TSImportStatement
+    from graph_sitter.typescript.symbol import TSSymbol
 
 logger = get_logger(__name__)
 

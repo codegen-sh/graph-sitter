@@ -8,10 +8,10 @@ from xml.dom.minidom import parseString
 
 import dicttoxml
 import xmltodict
+from graph_sitter.extensions.utils import find_all_descendants, find_first_descendant, get_all_identifiers
+from graph_sitter.typescript.enums import TSFunctionTypeNames
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.extensions.utils import find_all_descendants, find_first_descendant, get_all_identifiers
-from codegen.sdk.typescript.enums import TSFunctionTypeNames
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 """
@@ -269,8 +269,8 @@ __all__ = [
 
 def get_language_file_extensions(language: ProgrammingLanguage):
     """Returns the file extensions for the given language."""
-    from codegen.sdk.python import PyFile
-    from codegen.sdk.typescript.file import TSFile
+    from graph_sitter.python import PyFile
+    from graph_sitter.typescript.file import TSFile
 
     if language == ProgrammingLanguage.PYTHON:
         return set(PyFile.get_extensions())

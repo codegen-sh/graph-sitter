@@ -1,16 +1,17 @@
 from logging import getLogger
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.detached_symbols.argument import Argument
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions import String
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.plugins.plugin import Plugin
-from codegen.sdk.core.symbol_groups.dict import Dict
+from graph_sitter.core.detached_symbols.argument import Argument
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions import String
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.plugins.plugin import Plugin
+from graph_sitter.core.symbol_groups.dict import Dict
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.codebase import TSCodebaseType
+    from graph_sitter.core.codebase import TSCodebaseType
 
 
 logger = getLogger(__name__)

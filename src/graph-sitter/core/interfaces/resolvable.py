@@ -1,11 +1,11 @@
 from abc import abstractmethod
 from typing import Generic
 
+from graph_sitter.core.autocommit import writer
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.editable import Editable
 from typing_extensions import TypeVar
 
-from codegen.sdk.core.autocommit import writer
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.editable import Editable
 from codegen.shared.decorators.docs import noapidoc
 
 Parent = TypeVar("Parent", bound=Editable)

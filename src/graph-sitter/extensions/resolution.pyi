@@ -2,12 +2,11 @@ from dataclasses import dataclass, field
 from functools import cached_property as cached_property
 from typing import Generic
 
+from graph_sitter.codebase.codebase_context import CodebaseContext
+from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_name import HasName
 from typing_extensions import TypeVar
-
-from codegen.sdk.codebase.codebase_context import CodebaseContext
-from codegen.sdk.core.dataclasses.usage import UsageKind, UsageType
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_name import HasName
 
 NodeType = TypeVar("NodeType")
 

@@ -1,11 +1,12 @@
 from collections.abc import Generator
 from typing import Generic, Self, TypeVar, override
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.interfaces.importable import Importable
-from codegen.sdk.extensions.autocommit import reader
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.interfaces.importable import Importable
+from graph_sitter.extensions.autocommit import reader
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 Parent = TypeVar("Parent")

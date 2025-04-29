@@ -1,7 +1,6 @@
 import pytest
-
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.expressions import String
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.expressions import String
 
 
 @pytest.mark.skip(reason="CG-9463: Fix resolved types to be start byte aware")

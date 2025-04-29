@@ -1,8 +1,9 @@
-from codegen.sdk.core.codebase import Codebase
-from codegen.sdk.core.expressions import Type
-from codegen.sdk.core.expressions.generic_type import GenericType
-from codegen.sdk.core.expressions.union_type import UnionType
-from codegen.sdk.writer_decorators import canonical
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.core.expressions import Type
+from graph_sitter.core.expressions.generic_type import GenericType
+from graph_sitter.core.expressions.union_type import UnionType
+from graph_sitter.writer_decorators import canonical
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codemods.codemod import Codemod
 from tests.shared.skills.decorators import skill, skill_impl

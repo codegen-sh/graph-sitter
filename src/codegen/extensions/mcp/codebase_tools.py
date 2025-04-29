@@ -1,11 +1,11 @@
 import json
 from typing import Annotated
 
+from graph_sitter.core.codebase import Codebase
 from mcp.server.fastmcp import FastMCP
 
 from codegen.extensions.tools import reveal_symbol
 from codegen.extensions.tools.search import search
-from codegen.sdk.core.codebase import Codebase
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 mcp = FastMCP(

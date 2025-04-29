@@ -3,31 +3,30 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Self
 
-from codegen.sdk.core.autocommit import commiter, reader, writer
-from codegen.sdk.core.class_definition import Class
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions.generic_type import GenericType
-from codegen.sdk.core.expressions.placeholder_type import PlaceholderType
-from codegen.sdk.core.external_module import ExternalModule
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.symbol_group import SymbolGroup
-from codegen.sdk.core.symbol_groups.multi_line_collection import MultiLineCollection
-from codegen.sdk.core.symbol_groups.parents import Parents
-from codegen.sdk.typescript.detached_symbols.decorator import TSDecorator
-from codegen.sdk.typescript.detached_symbols.parameter import TSParameter
-from codegen.sdk.typescript.expressions.type import TSType
-from codegen.sdk.typescript.function import TSFunction
-from codegen.sdk.typescript.interfaces.has_block import TSHasBlock
-from codegen.sdk.typescript.symbol import TSSymbol
+from graph_sitter.core.autocommit import commiter, reader, writer
+from graph_sitter.core.class_definition import Class
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions.generic_type import GenericType
+from graph_sitter.core.expressions.placeholder_type import PlaceholderType
+from graph_sitter.core.external_module import ExternalModule
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.symbol_group import SymbolGroup
+from graph_sitter.core.symbol_groups.multi_line_collection import MultiLineCollection
+from graph_sitter.core.symbol_groups.parents import Parents
+from graph_sitter.typescript.detached_symbols.decorator import TSDecorator
+from graph_sitter.typescript.detached_symbols.parameter import TSParameter
+from graph_sitter.typescript.expressions.type import TSType
+from graph_sitter.typescript.function import TSFunction
+from graph_sitter.typescript.interfaces.has_block import TSHasBlock
+from graph_sitter.typescript.symbol import TSSymbol
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.symbol_statement import SymbolStatement
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.symbol_statement import SymbolStatement
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
 
 
 @ts_apidoc

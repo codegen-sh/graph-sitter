@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+from graph_sitter.core.expressions import Expression, String
+from graph_sitter.core.node_id_factory import NodeId
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.core.expressions import Expression, String
-from codegen.sdk.core.node_id_factory import NodeId
 from codegen.shared.decorators.docs import py_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.codebase_context import CodebaseContext
 
 
 Parent = TypeVar("Parent", bound="Expression")

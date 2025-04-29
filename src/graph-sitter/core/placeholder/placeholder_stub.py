@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from codegen.sdk.core.placeholder.placeholder import Placeholder
+from graph_sitter.core.placeholder.placeholder import Placeholder
+
 from codegen.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.editable import Editable
 
 Parent = TypeVar("Parent", bound="Editable")
 

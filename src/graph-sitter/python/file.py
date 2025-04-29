@@ -2,27 +2,28 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.file import SourceFile
-from codegen.sdk.core.interface import Interface
-from codegen.sdk.core.symbol import Symbol
-from codegen.sdk.enums import ImportType
-from codegen.sdk.extensions.utils import cached_property
-from codegen.sdk.python import PyAssignment
-from codegen.sdk.python.class_definition import PyClass
-from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
-from codegen.sdk.python.expressions.type import PyType
-from codegen.sdk.python.function import PyFunction
-from codegen.sdk.python.import_resolution import PyImport
-from codegen.sdk.python.interfaces.has_block import PyHasBlock
-from codegen.sdk.python.statements.attribute import PyAttribute
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.file import SourceFile
+from graph_sitter.core.interface import Interface
+from graph_sitter.core.symbol import Symbol
+from graph_sitter.enums import ImportType
+from graph_sitter.extensions.utils import cached_property
+from graph_sitter.python import PyAssignment
+from graph_sitter.python.class_definition import PyClass
+from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
+from graph_sitter.python.expressions.type import PyType
+from graph_sitter.python.function import PyFunction
+from graph_sitter.python.import_resolution import PyImport
+from graph_sitter.python.interfaces.has_block import PyHasBlock
+from graph_sitter.python.statements.attribute import PyAttribute
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.import_resolution import Import, WildcardImport
-    from codegen.sdk.python.symbol import PySymbol
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.import_resolution import Import, WildcardImport
+    from graph_sitter.python.symbol import PySymbol
 
 
 @py_apidoc

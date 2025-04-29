@@ -1,6 +1,5 @@
 import pytest
-
-from codegen.sdk.codebase.io.file_io import BadWriteError, FileIO
+from graph_sitter.codebase.io.file_io import BadWriteError, FileIO
 
 
 @pytest.fixture

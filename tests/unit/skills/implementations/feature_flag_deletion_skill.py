@@ -1,10 +1,11 @@
 from abc import ABC
 
-from codegen.sdk.core.codebase import PyCodebaseType, TSCodebaseType
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.import_resolution import Import
-from codegen.sdk.core.statements.if_block_statement import IfBlockStatement
-from codegen.sdk.python.statements.with_statement import WithStatement
+from graph_sitter.core.codebase import PyCodebaseType, TSCodebaseType
+from graph_sitter.core.function import Function
+from graph_sitter.core.import_resolution import Import
+from graph_sitter.core.statements.if_block_statement import IfBlockStatement
+from graph_sitter.python.statements.with_statement import WithStatement
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill

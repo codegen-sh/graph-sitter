@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.typescript.function import TSFunction
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.typescript.function import TSFunction
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.typescript.namespace import TSNamespace
+    from graph_sitter.typescript.namespace import TSNamespace
 
 
 def test_namespace_math_operations(tmpdir) -> None:

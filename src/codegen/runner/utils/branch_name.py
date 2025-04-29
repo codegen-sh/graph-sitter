@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from codegen.sdk.codebase.flagging.group import Group
+from graph_sitter.codebase.flagging.group import Group
 
 
 def get_head_branch_name(branch_name: str | None, group: Group | None = None) -> str:

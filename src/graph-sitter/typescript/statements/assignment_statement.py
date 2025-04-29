@@ -3,20 +3,20 @@ from __future__ import annotations
 from collections import deque
 from typing import TYPE_CHECKING, Self
 
-from codegen.sdk.core.expressions.multi_expression import MultiExpression
-from codegen.sdk.core.statements.assignment_statement import AssignmentStatement
-from codegen.sdk.extensions.autocommit import reader
-from codegen.sdk.typescript.assignment import TSAssignment
+from graph_sitter.core.expressions.multi_expression import MultiExpression
+from graph_sitter.core.statements.assignment_statement import AssignmentStatement
+from graph_sitter.extensions.autocommit import reader
+from graph_sitter.typescript.assignment import TSAssignment
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
+    from graph_sitter.typescript.interfaces.has_block import TSHasBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-    from codegen.sdk.typescript.interfaces.has_block import TSHasBlock
 
 
 logger = get_logger(__name__)

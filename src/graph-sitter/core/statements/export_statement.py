@@ -2,23 +2,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.statements.statement import Statement, StatementType
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.extensions.autocommit import commiter
-from codegen.sdk.typescript.export import TSExport
-from codegen.sdk.typescript.statements.import_statement import TSImportStatement
-from codegen.sdk.utils import find_first_ancestor
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.statements.statement import Statement, StatementType
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.extensions.autocommit import commiter
+from graph_sitter.typescript.export import TSExport
+from graph_sitter.typescript.statements.import_statement import TSImportStatement
+from graph_sitter.utils import find_first_ancestor
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.export import Export
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.export import Export
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
 
 TExport = TypeVar("TExport", bound="Export")
 

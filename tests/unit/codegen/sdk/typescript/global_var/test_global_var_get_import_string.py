@@ -1,5 +1,6 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.enums import ImportType
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.enums import ImportType
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

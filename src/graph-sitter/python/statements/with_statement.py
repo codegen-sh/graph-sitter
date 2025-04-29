@@ -3,23 +3,23 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.statements.statement import Statement, StatementType
-from codegen.sdk.core.symbol_groups.expression_group import ExpressionGroup
-from codegen.sdk.extensions.autocommit import commiter
-from codegen.sdk.extensions.sort import sort_editables
-from codegen.sdk.python.interfaces.has_block import PyHasBlock
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.statements.statement import Statement, StatementType
+from graph_sitter.core.symbol_groups.expression_group import ExpressionGroup
+from graph_sitter.extensions.autocommit import commiter
+from graph_sitter.extensions.sort import sort_editables
+from graph_sitter.python.interfaces.has_block import PyHasBlock
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
 
 
 @apidoc

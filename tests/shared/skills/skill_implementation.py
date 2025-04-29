@@ -3,8 +3,9 @@ import inspect
 import textwrap
 from collections.abc import Callable
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.codebase import CodebaseType
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.codebase import CodebaseType
+
 from codegen.shared.compilation.string_to_code import create_execute_function_from_codeblock
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.skill_test import SkillTestCase

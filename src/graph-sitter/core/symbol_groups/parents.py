@@ -2,24 +2,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.enums import EdgeType
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.enums import EdgeType
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.resolution_stack import ResolutionStack
+    from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
+    from graph_sitter.core.expressions.name import Name
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.interfaces.inherits import Inherits
+    from graph_sitter.core.node_id_factory import NodeId
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.codebase.resolution_stack import ResolutionStack
-    from codegen.sdk.core.expressions.chained_attribute import ChainedAttribute
-    from codegen.sdk.core.expressions.name import Name
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.interfaces.inherits import Inherits
-    from codegen.sdk.core.node_id_factory import NodeId
 
 
 TType = TypeVar("TType", bound="Type")
@@ -60,8 +59,8 @@ class Parents(Collection["TType", Parent], Generic[TType, Parent]):
     @reader
     def is_subclass_of(self, parent: str | HasName, max_depth: int | None = None) -> bool:
         """Returns True if the class is a subclass of the given parent class."""
-        from codegen.sdk.core.class_definition import Class
-        from codegen.sdk.core.interface import Interface
+        from graph_sitter.core.class_definition import Class
+        from graph_sitter.core.interface import Interface
 
         if isinstance(parent, HasName):
             parent = parent.name

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Generic, TypeVar
 
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.enums import NodeType
-from codegen.sdk.extensions.autocommit import reader
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.enums import NodeType
+from graph_sitter.extensions.autocommit import reader
+
 from codegen.shared.decorators.docs import apidoc
 
 Parent = TypeVar("Parent", bound="Editable")

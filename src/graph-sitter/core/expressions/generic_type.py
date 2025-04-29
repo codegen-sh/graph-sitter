@@ -2,21 +2,21 @@ from abc import abstractmethod
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
+from graph_sitter.core.autocommit import commiter, reader
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions.named_type import NamedType
+from graph_sitter.core.interfaces.importable import Importable
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.extensions.resolution import ResolutionStack
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.core.autocommit import commiter, reader
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions.named_type import NamedType
-from codegen.sdk.core.interfaces.importable import Importable
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.extensions.resolution import ResolutionStack
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.interfaces.editable import Editable
 
 Parent = TypeVar("Parent")
 

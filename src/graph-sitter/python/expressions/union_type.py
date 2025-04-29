@@ -1,10 +1,8 @@
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import Generic, TypeVar
 
-from codegen.sdk.core.expressions.union_type import UnionType
+from graph_sitter.core.expressions.union_type import UnionType
+
 from codegen.shared.decorators.docs import py_apidoc
-
-if TYPE_CHECKING:
-    from codegen.sdk.python.expressions.type import PyType
 
 Parent = TypeVar("Parent")
 

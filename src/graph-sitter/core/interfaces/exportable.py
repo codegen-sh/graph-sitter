@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.interfaces.usable import Usable
+from graph_sitter.enums import EdgeType, ImportType, NodeType
 from rustworkx import NoSuitableNeighbors
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.interfaces.usable import Usable
-from codegen.sdk.enums import EdgeType, ImportType, NodeType
 from codegen.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.export import Export
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.export import Export
+    from graph_sitter.core.interfaces.editable import Editable
 Parent = TypeVar("Parent", bound="Editable")
 
 

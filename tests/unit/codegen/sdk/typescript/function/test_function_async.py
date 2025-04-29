@@ -1,5 +1,6 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.typescript.placeholder.placeholder_return_type import TSReturnTypePlaceholder
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.typescript.placeholder.placeholder_return_type import TSReturnTypePlaceholder
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

@@ -1,7 +1,8 @@
 import textwrap
 from abc import ABC
 
-from codegen.sdk.core.codebase import CodebaseType
+from graph_sitter.core.codebase import CodebaseType
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill

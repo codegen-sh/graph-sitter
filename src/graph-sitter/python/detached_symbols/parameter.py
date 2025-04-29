@@ -1,15 +1,10 @@
-from typing import TYPE_CHECKING
-
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.detached_symbols.parameter import Parameter
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.python.expressions.type import PyType
 from typing_extensions import deprecated
 
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.detached_symbols.parameter import Parameter
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.python.expressions.type import PyType
 from codegen.shared.decorators.docs import py_apidoc
-
-if TYPE_CHECKING:
-    from codegen.sdk.python.function import PyFunction
 
 
 @py_apidoc

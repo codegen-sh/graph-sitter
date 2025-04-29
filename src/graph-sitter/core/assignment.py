@@ -2,41 +2,41 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
-from codegen.sdk._proxy import proxy_property
-from codegen.sdk.core.autocommit import writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions import Expression, Name
-from codegen.sdk.core.expressions.chained_attribute import ChainedAttribute
-from codegen.sdk.core.expressions.multi_expression import MultiExpression
-from codegen.sdk.core.expressions.subscript_expression import SubscriptExpression
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.has_value import HasValue
-from codegen.sdk.core.interfaces.typeable import Typeable
-from codegen.sdk.core.symbol import Symbol
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.core.symbol_groups.dict import Dict
-from codegen.sdk.enums import SymbolType
-from codegen.sdk.extensions.autocommit import commiter, reader
-from codegen.sdk.extensions.sort import sort_editables
-from codegen.sdk.typescript.expressions.object_type import TSObjectType
-from codegen.sdk.utils import find_index
+from graph_sitter._proxy import proxy_property
+from graph_sitter.core.autocommit import writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions import Expression, Name
+from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
+from graph_sitter.core.expressions.multi_expression import MultiExpression
+from graph_sitter.core.expressions.subscript_expression import SubscriptExpression
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.has_value import HasValue
+from graph_sitter.core.interfaces.typeable import Typeable
+from graph_sitter.core.symbol import Symbol
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.core.symbol_groups.dict import Dict
+from graph_sitter.enums import SymbolType
+from graph_sitter.extensions.autocommit import commiter, reader
+from graph_sitter.extensions.sort import sort_editables
+from graph_sitter.typescript.expressions.object_type import TSObjectType
+from graph_sitter.utils import find_index
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.resolution_stack import ResolutionStack
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.assignment_statement import AssignmentStatement
+    from graph_sitter.core.statements.export_statement import ExportStatement
+    from graph_sitter.core.statements.statement import Statement
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.codebase.resolution_stack import ResolutionStack
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.interfaces.editable import Editable
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.assignment_statement import AssignmentStatement
-    from codegen.sdk.core.statements.export_statement import ExportStatement
-    from codegen.sdk.core.statements.statement import Statement
 
 Parent = TypeVar("Parent", bound="AssignmentStatement | ExportStatement")
 
@@ -139,7 +139,7 @@ class Assignment(Symbol[Parent, ...], Typeable[Parent, ...], HasValue, Generic[P
         Returns:
             bool: True if the assignment is a local variable, False otherwise.
         """
-        from codegen.sdk.core.file import File
+        from graph_sitter.core.file import File
 
         if isinstance(self._left, ChainedAttribute):
             return False
@@ -222,7 +222,7 @@ class Assignment(Symbol[Parent, ...], Typeable[Parent, ...], HasValue, Generic[P
             yield from self.with_resolution_frame(self.type, direct=False)
         elif self.value:
             resolved = False
-            from codegen.sdk.core.statements.assignment_statement import AssignmentStatement
+            from graph_sitter.core.statements.assignment_statement import AssignmentStatement
 
             if self.parent_of_type(AssignmentStatement) and len(self.parent_of_type(AssignmentStatement).assignments) > 0:
                 name_node = self._name_node.ts_node

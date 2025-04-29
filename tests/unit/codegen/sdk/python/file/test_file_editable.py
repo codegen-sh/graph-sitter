@@ -1,4 +1,4 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 
 def test_file_find_string_literals_fuzzy_match(tmpdir) -> None:

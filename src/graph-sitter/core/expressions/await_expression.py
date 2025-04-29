@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.interfaces.has_value import HasValue
-from codegen.sdk.core.interfaces.wrapper_expression import IWrapper
-from codegen.sdk.extensions.autocommit import reader
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.interfaces.has_value import HasValue
+from graph_sitter.core.interfaces.wrapper_expression import IWrapper
+from graph_sitter.extensions.autocommit import reader
+
 from codegen.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.editable import Editable
 
 Parent = TypeVar("Parent", bound="Editable")
 

@@ -3,31 +3,31 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, override
 
-from codegen.sdk.core.autocommit import commiter, reader, writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.extensions.utils import cached_property
-from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
-from codegen.sdk.python.detached_symbols.decorator import PyDecorator
-from codegen.sdk.python.detached_symbols.parameter import PyParameter
-from codegen.sdk.python.expressions.type import PyType
-from codegen.sdk.python.interfaces.has_block import PyHasBlock
-from codegen.sdk.python.placeholder.placeholder_return_type import PyReturnTypePlaceholder
-from codegen.sdk.python.symbol import PySymbol
+from graph_sitter.core.autocommit import commiter, reader, writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.function import Function
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.extensions.utils import cached_property
+from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
+from graph_sitter.python.detached_symbols.decorator import PyDecorator
+from graph_sitter.python.detached_symbols.parameter import PyParameter
+from graph_sitter.python.expressions.type import PyType
+from graph_sitter.python.interfaces.has_block import PyHasBlock
+from graph_sitter.python.placeholder.placeholder_return_type import PyReturnTypePlaceholder
+from graph_sitter.python.symbol import PySymbol
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.import_resolution import Import, WildcardImport
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.symbol import Symbol
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.import_resolution import Import, WildcardImport
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.symbol import Symbol
 
 logger = get_logger(__name__)
 

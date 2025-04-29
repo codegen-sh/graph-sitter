@@ -4,12 +4,12 @@ import pickle
 from pathlib import Path
 
 import tiktoken
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.core.symbol import Symbol
 from openai import OpenAI
 from tqdm import tqdm
 
 from codegen.extensions.index.code_index import CodeIndex
-from codegen.sdk.core.codebase import Codebase
-from codegen.sdk.core.symbol import Symbol
 from codegen.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

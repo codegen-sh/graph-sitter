@@ -1,20 +1,21 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-from codegen.sdk.core.interfaces.usable import Usable
-from codegen.sdk.core.placeholder.placeholder import Placeholder
-from codegen.sdk.core.symbol_group import SymbolGroup
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.interfaces.usable import Usable
+from graph_sitter.core.placeholder.placeholder import Placeholder
+from graph_sitter.core.symbol_group import SymbolGroup
+
 from codegen.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.class_definition import Class
-    from codegen.sdk.core.detached_symbols.parameter import Parameter
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.external_module import ExternalModule
-    from codegen.sdk.core.function import Function
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.core.class_definition import Class
+    from graph_sitter.core.detached_symbols.parameter import Parameter
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.external_module import ExternalModule
+    from graph_sitter.core.function import Function
+    from graph_sitter.core.symbol import Symbol
 
 
 @dataclass

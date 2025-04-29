@@ -11,7 +11,7 @@ from constants import DATASET_DICT
 from codegen.extensions.swebench.harness import run_agent_on_entry
 from codegen.extensions.swebench.utils import SweBenchExample, get_swe_bench_examples
 from codegen.extensions.swebench.report import generate_report
-from codegen.sdk.core.codebase import Codebase
+from graph_sitter.core.codebase import Codebase
 
 PREDS_DNAME = Path(__file__).parent / "predictions"
 LOG_DIR = Path(__file__).parent / "logs"

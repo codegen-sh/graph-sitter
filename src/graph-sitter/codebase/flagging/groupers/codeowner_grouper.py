@@ -1,8 +1,9 @@
+from graph_sitter.codebase.flagging.code_flag import CodeFlag
+from graph_sitter.codebase.flagging.group import Group
+from graph_sitter.codebase.flagging.groupers.base_grouper import BaseGrouper
+from graph_sitter.codebase.flagging.groupers.enums import GroupBy
+
 from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.sdk.codebase.flagging.code_flag import CodeFlag
-from codegen.sdk.codebase.flagging.group import Group
-from codegen.sdk.codebase.flagging.groupers.base_grouper import BaseGrouper
-from codegen.sdk.codebase.flagging.groupers.enums import GroupBy
 
 DEFAULT_CHUNK_SIZE = 5
 

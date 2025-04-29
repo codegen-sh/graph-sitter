@@ -1,9 +1,9 @@
 from pathlib import Path
 
 import pytest
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.codebase import Codebase
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.codebase import Codebase
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

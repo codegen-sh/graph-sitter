@@ -3,35 +3,35 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, Self, override
 
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.autocommit import reader, writer
+from graph_sitter.core.detached_symbols.code_block import CodeBlock
+from graph_sitter.core.detached_symbols.decorator import Decorator
+from graph_sitter.core.detached_symbols.parameter import Parameter
+from graph_sitter.core.expressions.type import Type
+from graph_sitter.core.interfaces.callable import Callable
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.has_block import HasBlock
+from graph_sitter.core.interfaces.supports_generic import SupportsGenerics
+from graph_sitter.core.statements.statement import StatementType
+from graph_sitter.enums import SymbolType
+from graph_sitter.extensions.sort import sort_editables
+from graph_sitter.extensions.utils import cached_property
 from typing_extensions import TypeVar
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.autocommit import reader, writer
-from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-from codegen.sdk.core.detached_symbols.decorator import Decorator
-from codegen.sdk.core.detached_symbols.parameter import Parameter
-from codegen.sdk.core.expressions.type import Type
-from codegen.sdk.core.interfaces.callable import Callable
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.has_block import HasBlock
-from codegen.sdk.core.interfaces.supports_generic import SupportsGenerics
-from codegen.sdk.core.statements.statement import StatementType
-from codegen.sdk.enums import SymbolType
-from codegen.sdk.extensions.sort import sort_editables
-from codegen.sdk.extensions.utils import cached_property
 from codegen.shared.decorators.docs import apidoc, noapidoc
 from codegen.visualizations.enums import VizNode
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.export import Export
-    from codegen.sdk.core.file import File
-    from codegen.sdk.core.import_resolution import Import, WildcardImport
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.statements.return_statement import ReturnStatement
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.export import Export
+    from graph_sitter.core.file import File
+    from graph_sitter.core.import_resolution import Import, WildcardImport
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.statements.return_statement import ReturnStatement
+    from graph_sitter.core.symbol import Symbol
 
 
 TDecorator = TypeVar("TDecorator", bound="Decorator", default=Decorator)
@@ -112,7 +112,7 @@ class Function(
         Returns:
             bool: True if the function is a method within a class, False otherwise.
         """
-        from codegen.sdk.core.class_definition import Class
+        from graph_sitter.core.class_definition import Class
 
         return isinstance(self.parent.parent.parent, Class)
 
@@ -142,7 +142,7 @@ class Function(
     @noapidoc
     @reader
     def resolve_name(self, name: str, start_byte: int | None = None, strict: bool = True) -> Generator[Symbol | Import | WildcardImport]:
-        from codegen.sdk.core.class_definition import Class
+        from graph_sitter.core.class_definition import Class
 
         for symbol in self.valid_symbol_names:
             if symbol.name == name and (start_byte is None or (symbol.start_byte if isinstance(symbol, Class | Function) else symbol.end_byte) <= start_byte):
@@ -161,7 +161,7 @@ class Function(
     # def resolve_name(self, name: str, start_byte: int | None = None) -> Symbol | Import | WildcardImport | None:
     #     if symbols := self.valid_symbol_names.get(name, None):
     #         for symbol in symbols:
-    #             from codegen.sdk.core.class_definition import Class
+    #             from graph_sitter.core.class_definition import Class
     #
     #             if (symbol.start_byte if isinstance(symbol, Class | Function) else symbol.end_byte) <= start_byte:
     #                 return symbol

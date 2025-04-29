@@ -2,26 +2,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar
 
-from codegen.sdk.core.autocommit import commiter, reader
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.interface import Interface
-from codegen.sdk.core.symbol_groups.parents import Parents
-from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-from codegen.sdk.typescript.expressions.type import TSType
-from codegen.sdk.typescript.function import TSFunction
-from codegen.sdk.typescript.interfaces.has_block import TSHasBlock
-from codegen.sdk.typescript.statements.attribute import TSAttribute
-from codegen.sdk.typescript.symbol import TSSymbol
+from graph_sitter.core.autocommit import commiter, reader
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.interface import Interface
+from graph_sitter.core.symbol_groups.parents import Parents
+from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
+from graph_sitter.typescript.expressions.type import TSType
+from graph_sitter.typescript.function import TSFunction
+from graph_sitter.typescript.interfaces.has_block import TSHasBlock
+from graph_sitter.typescript.statements.attribute import TSAttribute
+from graph_sitter.typescript.symbol import TSSymbol
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.statement import Statement
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.statement import Statement
 
 Parent = TypeVar("Parent", bound="TSHasBlock")
 
@@ -42,7 +42,7 @@ class TSInterface(Interface[TSCodeBlock, TSAttribute, TSFunction, TSType], TSSym
         ctx: CodebaseContext,
         parent: Statement[CodeBlock[Parent, ...]],
     ) -> None:
-        from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
+        from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
 
         super().__init__(ts_node, file_id, ctx, parent)
         body_node = ts_node.child_by_field_name("body")

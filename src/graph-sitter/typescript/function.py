@@ -3,35 +3,34 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.autocommit import commiter, reader, writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.symbol_groups.collection import Collection
-from codegen.sdk.typescript.detached_symbols.decorator import TSDecorator
-from codegen.sdk.typescript.detached_symbols.parameter import TSParameter
-from codegen.sdk.typescript.enums import TSFunctionTypeNames
-from codegen.sdk.typescript.expressions.type import TSType
-from codegen.sdk.typescript.interfaces.has_block import TSHasBlock
-from codegen.sdk.typescript.placeholder.placeholder_return_type import TSReturnTypePlaceholder
-from codegen.sdk.typescript.symbol import TSSymbol
-from codegen.sdk.utils import find_all_descendants
+from graph_sitter.core.autocommit import commiter, reader, writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.function import Function
+from graph_sitter.core.symbol_groups.collection import Collection
+from graph_sitter.typescript.detached_symbols.decorator import TSDecorator
+from graph_sitter.typescript.detached_symbols.parameter import TSParameter
+from graph_sitter.typescript.enums import TSFunctionTypeNames
+from graph_sitter.typescript.expressions.type import TSType
+from graph_sitter.typescript.interfaces.has_block import TSHasBlock
+from graph_sitter.typescript.placeholder.placeholder_return_type import TSReturnTypePlaceholder
+from graph_sitter.typescript.symbol import TSSymbol
+from graph_sitter.utils import find_all_descendants
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.import_resolution import Import, WildcardImport
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.export_statement import ExportStatement
+    from graph_sitter.core.statements.symbol_statement import SymbolStatement
+    from graph_sitter.core.symbol import Symbol
+    from graph_sitter.typescript.detached_symbols.promise_chain import TSPromiseChain
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.import_resolution import Import, WildcardImport
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.export_statement import ExportStatement
-    from codegen.sdk.core.statements.symbol_statement import SymbolStatement
-    from codegen.sdk.core.symbol import Symbol
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
-    from codegen.sdk.typescript.detached_symbols.promise_chain import TSPromiseChain
 _VALID_TYPE_NAMES = {function_type.value for function_type in TSFunctionTypeNames}
 logger = get_logger(__name__)
 

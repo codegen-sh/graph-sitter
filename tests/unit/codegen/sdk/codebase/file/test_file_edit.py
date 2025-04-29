@@ -1,7 +1,6 @@
 import pytest
-
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
-from codegen.sdk.core.file import SourceFile
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.file import SourceFile
 
 
 def test_codebase_edit_mdx(tmpdir) -> None:

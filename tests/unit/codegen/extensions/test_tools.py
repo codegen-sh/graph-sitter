@@ -22,7 +22,7 @@
 #     view_file,
 #     view_pr,
 # )
-# from codegen.sdk.codebase.factory.get_session import get_codebase_session
+# from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 
 # @pytest.fixture

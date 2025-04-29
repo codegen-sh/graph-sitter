@@ -1,6 +1,6 @@
 import codegen
 from codegen import Codebase
-from codegen.sdk.core.detached_symbols.function_call import FunctionCall
+from graph_sitter.core.detached_symbols.function_call import FunctionCall
 
 
 @codegen.function("useSuspenseQuery-to-useSuspenseQueries")

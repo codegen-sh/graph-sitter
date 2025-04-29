@@ -1,7 +1,7 @@
 import os.path
 
-from codegen.sdk.code_generation.current_code_codebase import get_codegen_codebase_base_path, get_current_code_codebase
-from codegen.sdk.core.codebase import Codebase
+from graph_sitter.code_generation.current_code_codebase import get_codegen_codebase_base_path, get_current_code_codebase
+from graph_sitter.core.codebase import Codebase
 
 
 def get_codegen_sdk_subdirectories() -> list[str]:

@@ -2,10 +2,9 @@ import itertools
 from collections import defaultdict
 from functools import cached_property
 
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.extensions.sort import sort_editables
 from tree_sitter import Range
-
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.extensions.sort import sort_editables
 
 
 class RangeIndex:

@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 
 from dataclasses_json import dataclass_json
-
-from codegen.sdk.codebase.flagging.code_flag import CodeFlag
-from codegen.sdk.codebase.flagging.groupers.enums import GroupBy
+from graph_sitter.codebase.flagging.code_flag import CodeFlag
+from graph_sitter.codebase.flagging.groupers.enums import GroupBy
 
 DEFAULT_GROUP_ID = 0
 

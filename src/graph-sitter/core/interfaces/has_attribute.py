@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.interfaces.editable import Editable
 
 
 Attribute = TypeVar("Attribute", bound="Editable")

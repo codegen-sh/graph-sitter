@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-from codegen.sdk.core.statements.block_statement import BlockStatement
-from codegen.sdk.core.statements.import_statement import ImportStatement
-from codegen.sdk.core.statements.statement import Statement, StatementType
-from codegen.sdk.core.symbol_groups.multi_line_collection import MultiLineCollection
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.detached_symbols.code_block import CodeBlock
+from graph_sitter.core.statements.block_statement import BlockStatement
+from graph_sitter.core.statements.import_statement import ImportStatement
+from graph_sitter.core.statements.statement import Statement, StatementType
+from graph_sitter.core.symbol_groups.multi_line_collection import MultiLineCollection
+
 from codegen.shared.decorators.docs import noapidoc, py_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.python.assignment import PyAssignment
-    from codegen.sdk.python.interfaces.has_block import PyHasBlock
-    from codegen.sdk.python.statements.with_statement import WithStatement
+    from graph_sitter.python.interfaces.has_block import PyHasBlock
+    from graph_sitter.python.statements.with_statement import WithStatement
 
 
 Parent = TypeVar("Parent", bound="PyHasBlock")

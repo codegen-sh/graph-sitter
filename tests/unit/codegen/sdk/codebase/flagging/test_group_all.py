@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
-from codegen.sdk.codebase.flagging.code_flag import CodeFlag, MessageType
-from codegen.sdk.codebase.flagging.groupers.all_grouper import AllGrouper
+from graph_sitter.codebase.flagging.code_flag import CodeFlag, MessageType
+from graph_sitter.codebase.flagging.groupers.all_grouper import AllGrouper
 
 
 def test_group_all():

@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.file import SourceFile
-    from codegen.sdk.core.function import Function
+    from graph_sitter.core.file import SourceFile
+    from graph_sitter.core.function import Function
 
 
 def test_edit_arg_in_function_call(tmpdir) -> None:

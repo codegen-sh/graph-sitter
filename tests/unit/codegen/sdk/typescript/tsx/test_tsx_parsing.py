@@ -1,5 +1,6 @@
-from codegen.sdk.codebase.factory.get_session import get_codebase_graph_session
-from codegen.sdk.typescript.detached_symbols.jsx.element import JSXElement
+from graph_sitter.codebase.factory.get_session import get_codebase_graph_session
+from graph_sitter.typescript.detached_symbols.jsx.element import JSXElement
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

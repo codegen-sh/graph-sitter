@@ -2,16 +2,17 @@ import itertools
 from collections.abc import Generator
 from typing import Generic, Self, TypeVar, override
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.core.autocommit import writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_name import HasName
-from codegen.sdk.core.interfaces.importable import Importable
-from codegen.sdk.core.interfaces.unwrappable import Unwrappable
-from codegen.sdk.extensions.autocommit import commiter, reader
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.core.autocommit import writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_name import HasName
+from graph_sitter.core.interfaces.importable import Importable
+from graph_sitter.core.interfaces.unwrappable import Unwrappable
+from graph_sitter.extensions.autocommit import commiter, reader
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 Parent = TypeVar("Parent", bound="Editable")

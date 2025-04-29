@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
+from graph_sitter.core.function import Function
+from graph_sitter.core.interfaces.editable import Editable
+
 from codegen.extensions.lsp.codemods.base import CodeAction
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.interfaces.editable import Editable
 
 if TYPE_CHECKING:
     from codegen.extensions.lsp.server import CodegenLanguageServer

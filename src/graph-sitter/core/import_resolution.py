@@ -4,20 +4,21 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Generic, Literal, Self, TypeVar, override
 
-from codegen.sdk.codebase.resolution_stack import ResolutionStack
-from codegen.sdk.codebase.transactions import TransactionPriority
-from codegen.sdk.core.autocommit import commiter, reader, remover, writer
-from codegen.sdk.core.dataclasses.usage import UsageKind
-from codegen.sdk.core.expressions.name import Name
-from codegen.sdk.core.external_module import ExternalModule
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_attribute import HasAttribute
-from codegen.sdk.core.interfaces.usable import Usable
-from codegen.sdk.core.statements.import_statement import ImportStatement
-from codegen.sdk.enums import EdgeType, ImportType, NodeType
-from codegen.sdk.extensions.utils import cached_property
-from codegen.sdk.output.constants import ANGULAR_STYLE
+from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.codebase.transactions import TransactionPriority
+from graph_sitter.core.autocommit import commiter, reader, remover, writer
+from graph_sitter.core.dataclasses.usage import UsageKind
+from graph_sitter.core.expressions.name import Name
+from graph_sitter.core.external_module import ExternalModule
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_attribute import HasAttribute
+from graph_sitter.core.interfaces.usable import Usable
+from graph_sitter.core.statements.import_statement import ImportStatement
+from graph_sitter.enums import EdgeType, ImportType, NodeType
+from graph_sitter.extensions.utils import cached_property
+from graph_sitter.output.constants import ANGULAR_STYLE
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 from codegen.visualizations.enums import VizNode
 
@@ -25,15 +26,14 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
     import rich.repr
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.file import SourceFile
+    from graph_sitter.core.interfaces.exportable import Exportable
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.symbol import Symbol
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.file import SourceFile
-    from codegen.sdk.core.interfaces.exportable import Exportable
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.symbol import Symbol
 
 
 TSourceFile = TypeVar("TSourceFile", bound="SourceFile")
@@ -324,8 +324,8 @@ class Import(Usable[ImportStatement], Chainable, Generic[TSourceFile], HasAttrib
         """Returns the symbol directly being imported, including an indirect import and an External
         Module.
         """
-        from codegen.sdk.python.file import PyFile
-        from codegen.sdk.typescript.file import TSFile
+        from graph_sitter.python.file import PyFile
+        from graph_sitter.typescript.file import TSFile
 
         symbol = next(iter(self.ctx.successors(self.node_id, edge_type=EdgeType.IMPORT_SYMBOL_RESOLUTION, sort=False)), None)
         if symbol is None:
@@ -583,7 +583,7 @@ class Import(Usable[ImportStatement], Chainable, Generic[TSourceFile], HasAttrib
     @reader
     def _wildcards(self) -> dict[str, WildcardImport[Self]]:
         """A list of all imports or wildcard imports."""
-        from codegen.sdk.core.file import SourceFile
+        from graph_sitter.core.file import SourceFile
 
         res = {}
         if self.is_wildcard_import():

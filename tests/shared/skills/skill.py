@@ -3,7 +3,8 @@ from abc import ABC
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.codebase import Codebase, CodebaseType, PyCodebaseType, TSCodebaseType
+from graph_sitter.core.codebase import Codebase, CodebaseType, PyCodebaseType, TSCodebaseType
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:

@@ -7,17 +7,17 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from graph_sitter.core.external.language_engine import LanguageEngine
+from graph_sitter.typescript.external.mega_racer import MegaRacer
 from py_mini_racer import MiniRacer
 from py_mini_racer._objects import JSMappedObject
 from py_mini_racer._types import JSEvalException
 
-from codegen.sdk.core.external.language_engine import LanguageEngine
-from codegen.sdk.typescript.external.mega_racer import MegaRacer
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.external.dependency_manager import DependencyManager
-    from codegen.sdk.core.interfaces.editable import Editable
+    from graph_sitter.core.external.dependency_manager import DependencyManager
+    from graph_sitter.core.interfaces.editable import Editable
 
 
 logger = get_logger(__name__)

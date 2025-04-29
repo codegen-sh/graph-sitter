@@ -1,4 +1,5 @@
 import pytest
+from graph_sitter.core.codebase import Codebase
 from lsprotocol.types import (
     Position,
     RenameParams,
@@ -8,7 +9,6 @@ from pytest_lsp import (
     LanguageClient,
 )
 
-from codegen.sdk.core.codebase import Codebase
 from tests.unit.codegen.extensions.lsp.utils import apply_edit
 
 

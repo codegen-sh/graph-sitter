@@ -9,26 +9,26 @@ from os import PathLike
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from graph_sitter.codebase.config import ProjectConfig, SessionOptions
+from graph_sitter.codebase.config_parser import ConfigParser, get_config_parser_for_language
+from graph_sitter.codebase.diff_lite import ChangeType, DiffLite
+from graph_sitter.codebase.flagging.flags import Flags
+from graph_sitter.codebase.io.file_io import FileIO
+from graph_sitter.codebase.progress.stub_progress import StubProgress
+from graph_sitter.codebase.transaction_manager import TransactionManager
+from graph_sitter.codebase.validation import get_edges, post_reset_validation
+from graph_sitter.core.autocommit import AutoCommit, commiter
+from graph_sitter.core.directory import Directory
+from graph_sitter.core.external.dependency_manager import DependencyManager, get_dependency_manager
+from graph_sitter.core.external.language_engine import LanguageEngine, get_language_engine
+from graph_sitter.enums import Edge, EdgeType, NodeType
+from graph_sitter.extensions.sort import sort_editables
+from graph_sitter.extensions.utils import uncache_all
+from graph_sitter.typescript.external.ts_declassify.ts_declassify import TSDeclassify
 from rustworkx import PyDiGraph, WeightedEdgeList
 
 from codegen.configs.models.codebase import CodebaseConfig, PinkMode
 from codegen.configs.models.secrets import SecretsConfig
-from codegen.sdk.codebase.config import ProjectConfig, SessionOptions
-from codegen.sdk.codebase.config_parser import ConfigParser, get_config_parser_for_language
-from codegen.sdk.codebase.diff_lite import ChangeType, DiffLite
-from codegen.sdk.codebase.flagging.flags import Flags
-from codegen.sdk.codebase.io.file_io import FileIO
-from codegen.sdk.codebase.progress.stub_progress import StubProgress
-from codegen.sdk.codebase.transaction_manager import TransactionManager
-from codegen.sdk.codebase.validation import get_edges, post_reset_validation
-from codegen.sdk.core.autocommit import AutoCommit, commiter
-from codegen.sdk.core.directory import Directory
-from codegen.sdk.core.external.dependency_manager import DependencyManager, get_dependency_manager
-from codegen.sdk.core.external.language_engine import LanguageEngine, get_language_engine
-from codegen.sdk.enums import Edge, EdgeType, NodeType
-from codegen.sdk.extensions.sort import sort_editables
-from codegen.sdk.extensions.utils import uncache_all
-from codegen.sdk.typescript.external.ts_declassify.ts_declassify import TSDeclassify
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codegen.shared.exceptions.control_flow import StopCodemodException
 from codegen.shared.logging.get_logger import get_logger
@@ -39,18 +39,18 @@ if TYPE_CHECKING:
 
     from codeowners import CodeOwners as CodeOwnersParser
     from git import Commit as GitCommit
+    from graph_sitter.codebase.io.io import IO
+    from graph_sitter.codebase.node_classes.node_classes import NodeClasses
+    from graph_sitter.codebase.progress.progress import Progress
+    from graph_sitter.core.dataclasses.usage import Usage
+    from graph_sitter.core.expressions import Expression
+    from graph_sitter.core.external_module import ExternalModule
+    from graph_sitter.core.file import File, SourceFile
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.parser import Parser
 
     from codegen.git.repo_operator.repo_operator import RepoOperator
-    from codegen.sdk.codebase.io.io import IO
-    from codegen.sdk.codebase.node_classes.node_classes import NodeClasses
-    from codegen.sdk.codebase.progress.progress import Progress
-    from codegen.sdk.core.dataclasses.usage import Usage
-    from codegen.sdk.core.expressions import Expression
-    from codegen.sdk.core.external_module import ExternalModule
-    from codegen.sdk.core.file import File, SourceFile
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.parser import Parser
 
 logger = get_logger(__name__)
 
@@ -81,15 +81,15 @@ class SyncType(IntEnum):
 
 def get_node_classes(programming_language: ProgrammingLanguage) -> NodeClasses:
     if programming_language == ProgrammingLanguage.PYTHON:
-        from codegen.sdk.codebase.node_classes.py_node_classes import PyNodeClasses
+        from graph_sitter.codebase.node_classes.py_node_classes import PyNodeClasses
 
         return PyNodeClasses
     elif programming_language == ProgrammingLanguage.TYPESCRIPT:
-        from codegen.sdk.codebase.node_classes.ts_node_classes import TSNodeClasses
+        from graph_sitter.codebase.node_classes.ts_node_classes import TSNodeClasses
 
         return TSNodeClasses
     else:
-        from codegen.sdk.codebase.node_classes.generic_node_classes import GenericNodeClasses
+        from graph_sitter.codebase.node_classes.generic_node_classes import GenericNodeClasses
 
         return GenericNodeClasses
 
@@ -140,7 +140,7 @@ class CodebaseContext:
         progress: Progress | None = None,
     ) -> None:
         """Initializes codebase graph and TransactionManager"""
-        from codegen.sdk.core.parser import Parser
+        from graph_sitter.core.parser import Parser
 
         self.progress = progress or StubProgress()
         self.__graph = PyDiGraph()
@@ -565,7 +565,7 @@ class CodebaseContext:
                             to_resolve.extend(node.symbol_usages)
                     task.end()
                 if counter[NodeType.SYMBOL] > 0:
-                    from codegen.sdk.core.interfaces.inherits import Inherits
+                    from graph_sitter.core.interfaces.inherits import Inherits
 
                     logger.info("> Computing superclass dependencies")
                     task = self.progress.begin("Computing superclass dependencies", count=counter[NodeType.SYMBOL])
@@ -641,7 +641,7 @@ class CodebaseContext:
                     return self.get_file(file, ignore_case=False)
 
     def _get_raw_file_from_path(self, path: Path) -> File | None:
-        from codegen.sdk.core.file import File
+        from graph_sitter.core.file import File
 
         try:
             return File.from_content(path, self.io.read_text(path), self, sync=False)

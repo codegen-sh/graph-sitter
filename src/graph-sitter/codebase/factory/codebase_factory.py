@@ -1,11 +1,12 @@
-from codegen.configs.models.codebase import CodebaseConfig
-from codegen.configs.models.secrets import SecretsConfig
-from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.sdk.codebase.config import ProjectConfig
-from codegen.sdk.core.codebase import (
+from graph_sitter.codebase.config import ProjectConfig
+from graph_sitter.core.codebase import (
     Codebase,
     CodebaseType,
 )
+
+from codegen.configs.models.codebase import CodebaseConfig
+from codegen.configs.models.secrets import SecretsConfig
+from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

@@ -17,10 +17,10 @@ Edge Cases:
 - We skip commits when you do raw edits and inserts, but will fall back to autocommit if needed
 """
 
-from codegen.sdk.core.autocommit.constants import enabled
-from codegen.sdk.core.autocommit.decorators import mover, remover, repr_func, writer
-from codegen.sdk.core.autocommit.manager import AutoCommit
-from codegen.sdk.extensions.autocommit import commiter, reader
+from graph_sitter.core.autocommit.constants import enabled
+from graph_sitter.core.autocommit.decorators import mover, remover, repr_func, writer
+from graph_sitter.core.autocommit.manager import AutoCommit
+from graph_sitter.extensions.autocommit import commiter, reader
 
 __all__ = [
     "AutoCommit",

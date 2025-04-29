@@ -2,6 +2,7 @@ import tempfile
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 from codegen.runner.enums.warmup_state import WarmupState
 from codegen.runner.models.apis import (
@@ -11,7 +12,6 @@ from codegen.runner.models.apis import (
     ServerInfo,
 )
 from codegen.runner.sandbox.executor import SandboxExecutor
-from codegen.sdk.codebase.factory.get_session import get_codebase_session
 from codegen.shared.compilation.string_to_code import create_execute_function_from_codeblock
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codegen.shared.logging.get_logger import get_logger

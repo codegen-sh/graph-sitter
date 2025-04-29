@@ -1,20 +1,20 @@
 from typing import TYPE_CHECKING, Self, TypeVar, override
 
+from graph_sitter.core.autocommit import writer
+from graph_sitter.core.expressions import Expression
+from graph_sitter.core.expressions.string import String
+from graph_sitter.core.interfaces.editable import Editable
+from graph_sitter.core.interfaces.has_attribute import HasAttribute
+from graph_sitter.core.node_id_factory import NodeId
+from graph_sitter.core.symbol_groups.dict import Dict, Pair
+from graph_sitter.extensions.autocommit import reader
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.core.autocommit import writer
-from codegen.sdk.core.expressions import Expression
-from codegen.sdk.core.expressions.string import String
-from codegen.sdk.core.interfaces.editable import Editable
-from codegen.sdk.core.interfaces.has_attribute import HasAttribute
-from codegen.sdk.core.node_id_factory import NodeId
-from codegen.sdk.core.symbol_groups.dict import Dict, Pair
-from codegen.sdk.extensions.autocommit import reader
 from codegen.shared.decorators.docs import apidoc, noapidoc, ts_apidoc
 from codegen.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.codebase_context import CodebaseContext
 
 Parent = TypeVar("Parent", bound="Editable")
 TExpression = TypeVar("TExpression", bound=Expression)
@@ -42,7 +42,7 @@ class TSPair(Pair):
         self.shorthand = ts_node.type == "shorthand_property_identifier"
 
     def _get_key_value(self) -> tuple[Expression[Self] | None, Expression[Self] | None]:
-        from codegen.sdk.typescript.function import TSFunction
+        from graph_sitter.typescript.function import TSFunction
 
         key, value = None, None
 

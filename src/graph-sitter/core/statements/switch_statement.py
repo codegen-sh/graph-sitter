@@ -2,18 +2,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
-from codegen.sdk.core.statements.statement import Statement, StatementType
-from codegen.sdk.extensions.autocommit import commiter, reader
+from graph_sitter.core.statements.statement import Statement, StatementType
+from graph_sitter.extensions.autocommit import commiter, reader
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.expressions import Expression
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.statements.switch_case import SwitchCase
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.expressions import Expression
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.statements.switch_case import SwitchCase
 
 
 Parent = TypeVar("Parent", bound="CodeBlock")

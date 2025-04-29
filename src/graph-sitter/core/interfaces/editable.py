@@ -6,49 +6,49 @@ from abc import abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, Unpack, final, overload
 
+from graph_sitter.codebase.span import Span
+from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction, TransactionPriority
+from graph_sitter.core.autocommit import commiter, reader, remover, repr_func, writer
+from graph_sitter.core.placeholder.placeholder import Placeholder
+from graph_sitter.extensions.utils import get_all_identifiers
+from graph_sitter.output.ast import AST
+from graph_sitter.output.constants import ANGULAR_STYLE, MAX_STRING_LENGTH
+from graph_sitter.output.jsonable import JSONable
+from graph_sitter.output.utils import style_editable
+from graph_sitter.utils import descendant_for_byte_range, find_all_descendants, find_first_ancestor, find_index, truncate_line
 from rich.markup import escape
 from rich.pretty import Pretty
 
-from codegen.sdk.codebase.span import Span
-from codegen.sdk.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction, TransactionPriority
-from codegen.sdk.core.autocommit import commiter, reader, remover, repr_func, writer
-from codegen.sdk.core.placeholder.placeholder import Placeholder
-from codegen.sdk.extensions.utils import get_all_identifiers
-from codegen.sdk.output.ast import AST
-from codegen.sdk.output.constants import ANGULAR_STYLE, MAX_STRING_LENGTH
-from codegen.sdk.output.jsonable import JSONable
-from codegen.sdk.output.utils import style_editable
-from codegen.sdk.utils import descendant_for_byte_range, find_all_descendants, find_first_ancestor, find_index, truncate_line
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator, Iterable, Sequence
 
     import rich.repr
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.codebase.flagging.code_flag import CodeFlag
+    from graph_sitter.codebase.flagging.enums import FlagKwargs
+    from graph_sitter.codebase.transaction_manager import TransactionManager
+    from graph_sitter.core.class_definition import Class
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.export import Export
+    from graph_sitter.core.expressions import Expression
+    from graph_sitter.core.expressions.type import Type
+    from graph_sitter.core.file import File, SourceFile
+    from graph_sitter.core.function import Function
+    from graph_sitter.core.import_resolution import Import, WildcardImport
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.statement import Statement
+    from graph_sitter.core.symbol import Symbol
+    from graph_sitter.core.symbol_group import SymbolGroup
+    from graph_sitter.enums import NodeType
     from rich.console import Console, ConsoleOptions, RenderResult
     from tree_sitter import Node as TSNode
     from tree_sitter import Point, Range
 
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.codebase.flagging.code_flag import CodeFlag
-    from codegen.sdk.codebase.flagging.enums import FlagKwargs
-    from codegen.sdk.codebase.transaction_manager import TransactionManager
-    from codegen.sdk.core.class_definition import Class
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.export import Export
-    from codegen.sdk.core.expressions import Expression
-    from codegen.sdk.core.expressions.type import Type
-    from codegen.sdk.core.file import File, SourceFile
-    from codegen.sdk.core.function import Function
-    from codegen.sdk.core.import_resolution import Import, WildcardImport
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.core.statements.statement import Statement
-    from codegen.sdk.core.symbol import Symbol
-    from codegen.sdk.core.symbol_group import SymbolGroup
-    from codegen.sdk.enums import NodeType
     from codegen.visualizations.enums import VizNode
 CONTAINER_CHARS = (b"(", b")", b"{", b"}", b"[", b"]", b"<", b">", b"import")
 MAX_REPR_LEN: int = 200
@@ -285,7 +285,7 @@ class Editable(JSONable, Generic[Parent]):
             SymbolGroup: A group containing this node and its extended nodes that allows
             batch modification through a common interface.
         """
-        from codegen.sdk.core.symbol_group import SymbolGroup
+        from graph_sitter.core.symbol_group import SymbolGroup
 
         return SymbolGroup(self.file_node_id, self.ctx, self.parent, children=self.extended_nodes)
 
@@ -959,8 +959,8 @@ class Editable(JSONable, Generic[Parent]):
     @commiter
     @noapidoc
     def _add_symbol_usages(self: HasName, identifiers: list[TSNode], usage_type: UsageKind, dest: HasName | None = None) -> None:
-        from codegen.sdk.core.expressions import Name
-        from codegen.sdk.core.interfaces.resolvable import Resolvable
+        from graph_sitter.core.expressions import Name
+        from graph_sitter.core.interfaces.resolvable import Resolvable
 
         if dest is None:
             dest = self
@@ -993,7 +993,8 @@ class Editable(JSONable, Generic[Parent]):
     @property
     @noapidoc
     def viz(self) -> VizNode:
-        from codegen.sdk.core.interfaces.has_name import HasName
+        from graph_sitter.core.interfaces.has_name import HasName
+
         from codegen.visualizations.enums import VizNode
 
         if isinstance(self, HasName):
@@ -1067,7 +1068,7 @@ class Editable(JSONable, Generic[Parent]):
     @noapidoc
     def self_dest(self) -> Importable:
         """Returns the symbol usage resolution destination node for the symbol."""
-        from codegen.sdk.core.interfaces.importable import Importable
+        from graph_sitter.core.interfaces.importable import Importable
 
         dest = self
         while dest and not isinstance(dest, Importable):
@@ -1136,7 +1137,7 @@ class Editable(JSONable, Generic[Parent]):
     @reader
     def parent_statement(self) -> Statement | None:
         """Find the statement this node is contained in"""
-        from codegen.sdk.core.statements.statement import Statement
+        from graph_sitter.core.statements.statement import Statement
 
         return self.parent_of_type(Statement)
 
@@ -1144,7 +1145,7 @@ class Editable(JSONable, Generic[Parent]):
     @reader
     def parent_function(self) -> Function | None:
         """Find the function this node is contained in"""
-        from codegen.sdk.core.function import Function
+        from graph_sitter.core.function import Function
 
         return self.parent_of_type(Function)
 
@@ -1152,7 +1153,7 @@ class Editable(JSONable, Generic[Parent]):
     @reader
     def parent_class(self) -> Class | None:
         """Find the class this node is contained in"""
-        from codegen.sdk.core.class_definition import Class
+        from graph_sitter.core.class_definition import Class
 
         return self.parent_of_type(Class)
 

@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from codegen.sdk.core.statements.block_statement import BlockStatement
-from codegen.sdk.extensions.autocommit import reader
-from codegen.sdk.python.interfaces.has_block import PyHasBlock
+from graph_sitter.core.statements.block_statement import BlockStatement
+from graph_sitter.extensions.autocommit import reader
+from graph_sitter.python.interfaces.has_block import PyHasBlock
+
 from codegen.shared.decorators.docs import py_apidoc
 
 if TYPE_CHECKING:
-    from codegen.sdk.python.detached_symbols.code_block import PyCodeBlock
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
 
 Parent = TypeVar("Parent", bound="PyCodeBlock")
 

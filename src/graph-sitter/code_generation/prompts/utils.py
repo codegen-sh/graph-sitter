@@ -1,7 +1,8 @@
-from codegen.sdk.code_generation.enums import DocumentationDecorators
-from codegen.sdk.core.codebase import Codebase
-from codegen.sdk.enums import NodeType
-from codegen.sdk.python.class_definition import PyClass
+from graph_sitter.code_generation.enums import DocumentationDecorators
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.enums import NodeType
+from graph_sitter.python.class_definition import PyClass
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 

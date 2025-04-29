@@ -1,8 +1,8 @@
 from typing import TypeVar
 
+from graph_sitter.typescript.expressions.named_type import TSNamedType
 from tree_sitter import Node as TSNode
 
-from codegen.sdk.typescript.expressions.named_type import TSNamedType
 from codegen.shared.decorators.docs import ts_apidoc
 
 Parent = TypeVar("Parent")

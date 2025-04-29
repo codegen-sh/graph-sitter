@@ -2,22 +2,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from codegen.sdk.core.statements.for_loop_statement import ForLoopStatement
-from codegen.sdk.extensions.autocommit import commiter, reader
-from codegen.sdk.typescript.statements.block_statement import TSBlockStatement
+from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
+from graph_sitter.extensions.autocommit import commiter, reader
+from graph_sitter.typescript.statements.block_statement import TSBlockStatement
+
 from codegen.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.core.dataclasses.usage import UsageKind
+    from graph_sitter.core.detached_symbols.function_call import FunctionCall
+    from graph_sitter.core.expressions import Expression
+    from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.core.interfaces.importable import Importable
+    from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
     from tree_sitter import Node as TSNode
-
-    from codegen.sdk.codebase.codebase_context import CodebaseContext
-    from codegen.sdk.core.dataclasses.usage import UsageKind
-    from codegen.sdk.core.detached_symbols.function_call import FunctionCall
-    from codegen.sdk.core.expressions import Expression
-    from codegen.sdk.core.interfaces.has_name import HasName
-    from codegen.sdk.core.interfaces.importable import Importable
-    from codegen.sdk.core.node_id_factory import NodeId
-    from codegen.sdk.typescript.detached_symbols.code_block import TSCodeBlock
 
 
 @ts_apidoc

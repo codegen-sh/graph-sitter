@@ -3,21 +3,22 @@ from __future__ import annotations
 from abc import ABC
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
-from codegen.sdk.core.autocommit import reader
-from codegen.sdk.core.interfaces.chainable import Chainable
-from codegen.sdk.core.interfaces.has_block import HasBlock
-from codegen.sdk.core.statements.block_statement import BlockStatement
-from codegen.sdk.core.statements.statement import StatementType
-from codegen.sdk.core.symbol_groups.collection import Collection
+from graph_sitter.core.autocommit import reader
+from graph_sitter.core.interfaces.chainable import Chainable
+from graph_sitter.core.interfaces.has_block import HasBlock
+from graph_sitter.core.statements.block_statement import BlockStatement
+from graph_sitter.core.statements.statement import StatementType
+from graph_sitter.core.symbol_groups.collection import Collection
+
 from codegen.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    from codegen.sdk.core.detached_symbols.code_block import CodeBlock
-    from codegen.sdk.core.expressions import Expression
-    from codegen.sdk.core.import_resolution import Import, WildcardImport
-    from codegen.sdk.core.symbol import Symbol
+    from graph_sitter.core.detached_symbols.code_block import CodeBlock
+    from graph_sitter.core.expressions import Expression
+    from graph_sitter.core.import_resolution import Import, WildcardImport
+    from graph_sitter.core.symbol import Symbol
 
 
 Parent = TypeVar("Parent", bound="CodeBlock")

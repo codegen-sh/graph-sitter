@@ -1,9 +1,8 @@
 from typing import Self
 
+from graph_sitter.codebase.span import Span
 from openai import BaseModel
 from pydantic.config import ConfigDict
-
-from codegen.sdk.codebase.span import Span
 
 
 class AST(BaseModel):

@@ -1,5 +1,5 @@
-from codegen.sdk.codebase.progress.progress import Progress
-from codegen.sdk.codebase.progress.stub_task import StubTask
+from graph_sitter.codebase.progress.progress import Progress
+from graph_sitter.codebase.progress.stub_task import StubTask
 
 
 class StubProgress(Progress[StubTask]):

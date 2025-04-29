@@ -1,6 +1,7 @@
-from codegen.sdk.code_generation.codegen_sdk_codebase import get_codegen_sdk_codebase
-from codegen.sdk.code_generation.prompts.utils import get_api_classes_by_decorator, get_codegen_sdk_class_docstring
-from codegen.sdk.core.codebase import Codebase
+from graph_sitter.code_generation.codegen_sdk_codebase import get_codegen_sdk_codebase
+from graph_sitter.code_generation.prompts.utils import get_api_classes_by_decorator, get_codegen_sdk_class_docstring
+from graph_sitter.core.codebase import Codebase
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codegen.shared.logging.get_logger import get_logger
 

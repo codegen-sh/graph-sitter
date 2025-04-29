@@ -1,7 +1,8 @@
 from enum import IntEnum, auto
 from typing import NamedTuple
 
-from codegen.sdk.core.dataclasses.usage import Usage
+from graph_sitter.core.dataclasses.usage import Usage
+
 from codegen.shared.decorators.docs import apidoc
 
 

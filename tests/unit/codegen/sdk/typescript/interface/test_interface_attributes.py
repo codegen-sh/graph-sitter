@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 
-from codegen.sdk.codebase.factory.get_session import get_codebase_graph_session, get_codebase_session
+from graph_sitter.codebase.factory.get_session import get_codebase_graph_session, get_codebase_session
+
 from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
-    from codegen.sdk.core.statements.attribute import Attribute
+    from graph_sitter.core.statements.attribute import Attribute
 
 
 def test_interface_attributes_finds_correct_number(tmpdir) -> None:

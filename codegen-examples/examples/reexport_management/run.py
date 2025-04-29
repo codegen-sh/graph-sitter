@@ -1,6 +1,6 @@
 import codegen
 from codegen import Codebase
-from codegen.sdk.typescript.file import TSImport
+from graph_sitter.typescript.file import TSImport
 
 processed_imports = set()
 
