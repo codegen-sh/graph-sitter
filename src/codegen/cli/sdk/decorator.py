@@ -2,7 +2,7 @@ from collections.abc import Callable, Sequence
 from functools import wraps
 from typing import Literal, ParamSpec, TypeVar, get_type_hints
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 P = ParamSpec("P")
 T = TypeVar("T")

@@ -1,9 +1,9 @@
 import os
 
 import pytest
-from graph_sitter.codebase.factory.get_session import get_codebase_session
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 @pytest.mark.parametrize("commit, sync", [(True, True), (True, False), (False, False)])

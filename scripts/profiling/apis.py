@@ -4,10 +4,10 @@ import pickle
 from pathlib import Path
 
 import networkx as nx
-from graph_sitter.codebase.factory.get_dev_customer_codebase import get_codebase_codegen
 from tabulate import tabulate
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.codebase.factory.get_dev_customer_codebase import get_codebase_codegen
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 logging.basicConfig(level=logging.INFO)
 codegen = get_codebase_codegen("../codegen", ".")

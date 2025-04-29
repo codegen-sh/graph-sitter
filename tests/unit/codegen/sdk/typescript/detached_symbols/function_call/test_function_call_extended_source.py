@@ -1,6 +1,5 @@
 from graph_sitter.codebase.factory.get_session import get_codebase_graph_session
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 def test_function_call_extended_source_in_chain(tmpdir) -> None:

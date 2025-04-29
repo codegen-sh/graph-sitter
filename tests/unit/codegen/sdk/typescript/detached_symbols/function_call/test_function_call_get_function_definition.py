@@ -1,7 +1,7 @@
 import pytest
-from graph_sitter.codebase.factory.get_session import get_codebase_graph_session
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.codebase.factory.get_session import get_codebase_graph_session
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 # ED_TODO: Requires fix to get_function_definition. Check if that is possible

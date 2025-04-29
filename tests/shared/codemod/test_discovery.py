@@ -10,8 +10,8 @@ import emoji
 from loguru import logger
 
 from codegen.gscli.generate.runner_imports import get_runner_imports
-from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codemods.codemod import Codemod
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.codemod.constants import DIFF_FILEPATH
 from tests.shared.codemod.models import BASE_PATH, CODEMOD_PATH, REPO_ID_TO_URL, TEST_DIR, VERIFIED_CODEMOD_DATA_DIR, VERIFIED_CODEMOD_DIFFS, ClonedRepoTestCase, CodemodMetadata, Repo, Size
 from tests.shared.codemod.verified_codemod_utils import CodemodAPI, RepoCodemodMetadata, SkillTestConfig, anonymize_id

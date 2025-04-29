@@ -8,8 +8,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from codegen.runner.sandbox.runner import SandboxRunner
-from codegen.shared.exceptions.compilation import UserCodeException
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.shared.exceptions.compilation import UserCodeException
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 

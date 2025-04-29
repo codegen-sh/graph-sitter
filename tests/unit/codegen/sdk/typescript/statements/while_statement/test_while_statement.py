@@ -3,8 +3,7 @@ from graph_sitter.core.expressions.binary_expression import BinaryExpression
 from graph_sitter.core.expressions.boolean import Boolean
 from graph_sitter.core.statements.statement import StatementType
 from graph_sitter.core.statements.while_statement import WhileStatement
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 def test_while_statement_parse(tmpdir) -> None:

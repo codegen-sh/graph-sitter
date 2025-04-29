@@ -1,7 +1,6 @@
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.core.statements.statement import StatementType
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 def test_switch_statement_parse(tmpdir) -> None:

@@ -1,7 +1,7 @@
 import pytest
 
-from codegen.shared.compilation.function_compilation import safe_compile_function_string
-from codegen.shared.exceptions.compilation import InvalidUserCodeException
+from graph_sitter.shared.compilation.function_compilation import safe_compile_function_string
+from graph_sitter.shared.exceptions.compilation import InvalidUserCodeException
 
 
 def test_valid_func_str_should_not_raise():

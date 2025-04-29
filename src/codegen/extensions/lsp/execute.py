@@ -5,7 +5,7 @@ from lsprotocol import types
 from lsprotocol.types import Position, Range
 
 from codegen.extensions.lsp.codemods.base import CodeAction
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.shared.logging.get_logger import get_logger
 
 if TYPE_CHECKING:
     from codegen.extensions.lsp.server import CodegenLanguageServer

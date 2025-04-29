@@ -8,8 +8,8 @@ from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.enums import SetupOption
 from codegen.git.schemas.repo_config import RepoConfig
 from codegen.runner.clients.codebase_client import CodebaseClient
-from codegen.shared.enums.programming_language import ProgrammingLanguage
-from codegen.shared.network.port import get_free_port
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.network.port import get_free_port
 
 
 @pytest.fixture()

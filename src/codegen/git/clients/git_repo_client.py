@@ -15,11 +15,11 @@ from github.Repository import Repository
 from github.Tag import Tag
 from github.Workflow import Workflow
 
-from codegen.configs.models.secrets import SecretsConfig
 from codegen.git.clients.github_client import GithubClient
 from codegen.git.schemas.repo_config import RepoConfig
 from codegen.git.utils.format import format_comparison
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.configs.models.secrets import SecretsConfig
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -98,7 +98,7 @@ class GitRepoClient:
             return last_modified_date
         else:
             print("Directory has not been modified or does not exist.")
-            return datetime.min
+            return datetime.min  # noqa: DTZ901
 
     ####################################################################################################################
     # COMMENTS

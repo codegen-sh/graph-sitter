@@ -7,7 +7,7 @@ from codegen.extensions.attribution.main import add_attribution_to_symbols
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.repo_config import RepoConfig
 from graph_sitter.codebase.config import ProjectConfig
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 def print_symbol_attribution(codebase):

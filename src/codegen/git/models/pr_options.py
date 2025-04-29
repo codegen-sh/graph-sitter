@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from codegen.shared.decorators.docs import apidoc
+from graph_sitter.shared.decorators.docs import apidoc
 
 
 @apidoc

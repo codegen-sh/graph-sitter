@@ -1,8 +1,8 @@
 import pytest
-from graph_sitter.codebase.factory.get_session import get_codebase_session
 
 from codegen.git.utils.language import determine_project_language
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 @pytest.mark.parametrize(

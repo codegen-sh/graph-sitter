@@ -4,8 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from graph_sitter.core.codebase import Codebase, CodebaseType, PyCodebaseType, TSCodebaseType
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
     from tests.shared.skills.skill_implementation import SkillImplementation

@@ -5,7 +5,7 @@ import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 @dataclass

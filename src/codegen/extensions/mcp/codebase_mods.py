@@ -2,10 +2,10 @@ import json
 import os
 from typing import Annotated
 
-from graph_sitter.core.codebase import Codebase
 from mcp.server.fastmcp import FastMCP
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 mcp = FastMCP(
     "codebase-mods-mcp",

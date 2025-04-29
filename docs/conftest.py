@@ -8,7 +8,7 @@ from doctest import ELLIPSIS
 
 from graph_sitter.code_generation.current_code_codebase import get_documented_objects
 from graph_sitter.codebase.factory.get_session import get_codebase_session
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.typescript.class_definition import TSClass
 from graph_sitter.typescript.file import TSFile
 from codegen.gscli.generate.runner_imports import EXTERNAL_IMPORTS

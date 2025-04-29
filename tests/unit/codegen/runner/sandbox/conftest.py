@@ -2,13 +2,13 @@ from collections.abc import Generator
 from unittest.mock import patch
 
 import pytest
-from graph_sitter.codebase.config import ProjectConfig
-from graph_sitter.core.codebase import Codebase
 
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.runner.sandbox.executor import SandboxExecutor
 from codegen.runner.sandbox.runner import SandboxRunner
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.codebase.config import ProjectConfig
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 @pytest.fixture

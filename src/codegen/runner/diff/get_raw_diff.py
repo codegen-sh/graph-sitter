@@ -1,10 +1,10 @@
 import io
 
-from graph_sitter.core.codebase import Codebase
 from unidiff import LINE_TYPE_CONTEXT, Hunk, PatchedFile, PatchSet
 from unidiff.patch import Line
 
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 

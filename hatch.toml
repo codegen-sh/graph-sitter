@@ -1,6 +1,6 @@
 [build.hooks.vcs]
 dependencies = ["hatch-vcs>=0.4.0"]
-version-file = "src/graph-sitter/__init__.py"
+version-file = "src/graph_sitter/__init__.py"
 
 [metadata]
 allow-direct-references = true
@@ -77,7 +77,7 @@ exclude = [
 macos-max-compat = false
 
 [build]
-packages = ["src/graph-sitter", "src/codegen"]
+packages = ["src/graph_sitter", "src/codegen"]
 
 [metadata.hooks.vcs.urls]
 Homepage = "https://www.codegen.com/"

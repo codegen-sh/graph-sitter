@@ -1,3 +1,5 @@
+from lsprotocol.types import Position
+
 from graph_sitter.core.assignment import Assignment
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
@@ -5,9 +7,7 @@ from graph_sitter.core.expressions.expression import Expression
 from graph_sitter.core.expressions.name import Name
 from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.has_name import HasName
-from lsprotocol.types import Position
-
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from codegen.configs.models.codebase import DefaultCodebaseConfig
 from codegen.git.configs.constants import CODEGEN_BOT_EMAIL, CODEGEN_BOT_NAME
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.enums import SetupOption
@@ -17,7 +16,8 @@ from codegen.runner.models.apis import (
 )
 from codegen.runner.models.codemod import Codemod, CodemodRunResult
 from codegen.runner.sandbox.runner import SandboxRunner
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.configs.models.codebase import DefaultCodebaseConfig
+from graph_sitter.shared.logging.get_logger import get_logger
 
 # Configure logging at module level
 logging.basicConfig(

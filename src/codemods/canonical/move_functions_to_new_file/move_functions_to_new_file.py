@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING
 
-from graph_sitter.core.codebase import Codebase
-from graph_sitter.writer_decorators import canonical
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
 from codemods.codemod import Codemod
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.writer_decorators import canonical
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill
 

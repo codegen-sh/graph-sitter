@@ -1,7 +1,7 @@
 import pytest
 
-from codegen.shared.compilation.codeblock_validation import check_for_dangerous_operations
-from codegen.shared.exceptions.compilation import DangerousUserCodeException
+from graph_sitter.shared.compilation.codeblock_validation import check_for_dangerous_operations
+from graph_sitter.shared.exceptions.compilation import DangerousUserCodeException
 
 
 def test_no_dangerous_operations():

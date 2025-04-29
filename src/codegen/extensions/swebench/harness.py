@@ -11,12 +11,12 @@ from pathlib import Path
 import lox
 
 from codegen import Codebase
-from codegen.configs.models.codebase import CodebaseConfig
 from codegen.extensions.swebench.utils import (
     SweBenchExample,
     get_swe_bench_examples,
     load_predictions,
 )
+from graph_sitter.configs.models.codebase import CodebaseConfig
 
 PARENT_DIR = Path(__file__).parent
 

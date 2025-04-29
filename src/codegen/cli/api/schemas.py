@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from pydantic.fields import Field
 
 from codegen.cli.utils.schema import SafeBaseModel
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 T = TypeVar("T")
 

@@ -4,7 +4,7 @@ from github.MainClass import Github
 from github.Organization import Organization
 from github.Repository import Repository
 
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 

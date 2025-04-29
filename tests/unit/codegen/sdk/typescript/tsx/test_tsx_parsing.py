@@ -1,7 +1,6 @@
 from graph_sitter.codebase.factory.get_session import get_codebase_graph_session
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.typescript.detached_symbols.jsx.element import JSXElement
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 
 def test_basic_component_parsing(tmpdir) -> None:

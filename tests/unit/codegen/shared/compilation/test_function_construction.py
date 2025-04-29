@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from codegen.shared.compilation.function_construction import create_function_str_from_codeblock
+from graph_sitter.shared.compilation.function_construction import create_function_str_from_codeblock
 
 
 def test_no_execute_func_wraps():

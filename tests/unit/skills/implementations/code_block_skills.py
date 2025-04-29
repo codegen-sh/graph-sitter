@@ -4,8 +4,7 @@ from graph_sitter.core.codebase import CodebaseType
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
 from graph_sitter.core.statements.expression_statement import ExpressionStatement
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill
 from tests.shared.skills.skill_test import SkillTestCase, SkillTestCasePyFile, SkillTestCaseTSFile

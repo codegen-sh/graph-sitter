@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from codegen.configs.models.repository import RepositoryConfig
 from codegen.git.schemas.repo_config import RepoConfig
 from codegen.runner.enums.warmup_state import WarmupState
 from codegen.runner.models.apis import (
@@ -17,8 +16,9 @@ from codegen.runner.models.apis import (
 )
 from codegen.runner.sandbox.middlewares import CodemodRunMiddleware
 from codegen.runner.sandbox.runner import SandboxRunner
-from codegen.shared.enums.programming_language import ProgrammingLanguage
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.configs.models.repository import RepositoryConfig
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -1,14 +1,14 @@
 from abc import ABC
 
 import networkx as nx
+
 from graph_sitter.core.class_definition import Class
 from graph_sitter.core.codebase import CodebaseType
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 from graph_sitter.core.external_module import ExternalModule
 from graph_sitter.core.function import Function
 from graph_sitter.core.interfaces.callable import Callable
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill
 from tests.shared.skills.skill_test import SkillTestCase, SkillTestCasePyFile

@@ -4,9 +4,9 @@ import rich
 import rich_click as click
 from rich.table import Table
 
-from codegen.configs.constants import ENV_FILENAME, GLOBAL_ENV_FILE
-from codegen.configs.user_config import UserConfig
-from codegen.shared.path import get_git_root_path
+from graph_sitter.configs.constants import ENV_FILENAME, GLOBAL_ENV_FILE
+from graph_sitter.configs.user_config import UserConfig
+from graph_sitter.shared.path import get_git_root_path
 
 
 @click.group(name="config")

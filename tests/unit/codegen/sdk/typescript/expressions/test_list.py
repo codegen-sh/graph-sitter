@@ -2,9 +2,9 @@ from itertools import product
 from typing import TYPE_CHECKING
 
 import pytest
-from graph_sitter.codebase.factory.get_session import get_codebase_session
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 if TYPE_CHECKING:
     from graph_sitter.core.symbol_groups.list import List

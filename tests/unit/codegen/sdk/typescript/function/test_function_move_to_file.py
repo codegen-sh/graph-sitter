@@ -1,10 +1,10 @@
 import platform
 
 import pytest
+
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.core.function import Function
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.utils.normalize import normalize_imports
 
 # All the diff types of JS/TS imports:

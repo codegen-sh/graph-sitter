@@ -3,9 +3,9 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import inflection
-from graph_sitter.core.codebase import CodebaseType
 
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.core.codebase import CodebaseType
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.skill_implementation import SkillImplementation
 from tests.shared.skills.skill_test import SkillTestCase
 from tests.shared.skills.utils import skill_name_to_skill_implementations, skills

@@ -1,12 +1,12 @@
 from itertools import product
 
 import pytest
+
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.core.expressions.unpack import Unpack
 from graph_sitter.core.symbol_groups.dict import Dict
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.typescript.function import TSFunction
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
 
 
 def test_dict_basic(tmpdir):

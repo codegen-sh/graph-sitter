@@ -5,8 +5,7 @@ from graph_sitter.core.function import Function
 from graph_sitter.core.import_resolution import Import
 from graph_sitter.core.statements.if_block_statement import IfBlockStatement
 from graph_sitter.python.statements.with_statement import WithStatement
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.skills.decorators import skill, skill_impl
 from tests.shared.skills.skill import Skill
 from tests.shared.skills.skill_test import SkillTestCase, SkillTestCasePyFile, SkillTestCaseTSFile

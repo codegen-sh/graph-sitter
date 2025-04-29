@@ -6,13 +6,13 @@ from pathlib import Path
 import modal
 import numpy as np
 import tiktoken
-from graph_sitter.core.codebase import Codebase
-from graph_sitter.core.file import File
 from openai import OpenAI
 from tqdm import tqdm
 
 from codegen.extensions.index.code_index import CodeIndex
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.core.codebase import Codebase
+from graph_sitter.core.file import File
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 

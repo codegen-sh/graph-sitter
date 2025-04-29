@@ -16,7 +16,6 @@ from git.remote import PushInfoList
 from github.IssueComment import IssueComment
 from github.PullRequest import PullRequest
 
-from codegen.configs.models.secrets import SecretsConfig
 from codegen.git.clients.git_repo_client import GitRepoClient
 from codegen.git.configs.constants import CODEGEN_BOT_EMAIL, CODEGEN_BOT_NAME
 from codegen.git.repo_operator.local_git_repo import LocalGitRepo
@@ -27,9 +26,10 @@ from codegen.git.utils.clone_url import add_access_token_to_url, get_authenticat
 from codegen.git.utils.codeowner_utils import create_codeowners_parser_for_repo
 from codegen.git.utils.file_utils import create_files
 from codegen.git.utils.remote_progress import CustomRemoteProgress
-from codegen.shared.logging.get_logger import get_logger
-from codegen.shared.performance.stopwatch_utils import stopwatch
-from codegen.shared.performance.time_utils import humanize_duration
+from graph_sitter.configs.models.secrets import SecretsConfig
+from graph_sitter.shared.logging.get_logger import get_logger
+from graph_sitter.shared.performance.stopwatch_utils import stopwatch
+from graph_sitter.shared.performance.time_utils import humanize_duration
 
 logger = get_logger(__name__)
 

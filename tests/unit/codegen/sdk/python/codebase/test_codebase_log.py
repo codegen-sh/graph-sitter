@@ -1,11 +1,11 @@
 from unittest.mock import patch
 
 import pytest
+
 from graph_sitter.codebase.config import SessionOptions
 from graph_sitter.codebase.factory.get_session import get_codebase_session
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
-from codegen.shared.exceptions.control_flow import MaxPreviewTimeExceeded
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.exceptions.control_flow import MaxPreviewTimeExceeded
 
 
 def test_log_writes_to_console(tmpdir) -> None:

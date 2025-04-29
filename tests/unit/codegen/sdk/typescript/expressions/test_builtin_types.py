@@ -4,8 +4,7 @@ from graph_sitter.core.expressions.number import Number
 from graph_sitter.core.expressions.string import String
 from graph_sitter.core.symbol_groups.dict import Dict
 from graph_sitter.core.symbol_groups.list import List
-
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 def test_builtin_types(tmpdir):

@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from pydantic import BaseModel, ConfigDict
 
-from codegen.configs.models.codebase import CodebaseConfig
 from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.configs.models.codebase import CodebaseConfig
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from tests.shared.codemod.constants import DIFF_FILEPATH
 from tests.shared.codemod.verified_codemod_utils import CodemodAPI
 

@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Literal
 
 from codegen.git.utils.file_utils import split_git_path
-from codegen.shared.enums.programming_language import ProgrammingLanguage
-from codegen.shared.logging.get_logger import get_logger
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -107,12 +107,11 @@ def _determine_language_by_git_file_count(folder_path: str) -> ProgrammingLangua
         ProgrammingLanguage: The dominant programming language, or OTHER if no matching files found
         or if less than MIN_LANGUAGE_RATIO of files match the dominant language
     """
+    from codegen.git.repo_operator.repo_operator import RepoOperator
+    from codegen.git.schemas.repo_config import RepoConfig
     from graph_sitter.codebase.codebase_context import GLOBAL_FILE_IGNORE_LIST
     from graph_sitter.python import PyFile
     from graph_sitter.typescript.file import TSFile
-
-    from codegen.git.repo_operator.repo_operator import RepoOperator
-    from codegen.git.schemas.repo_config import RepoConfig
 
     EXTENSIONS = {
         ProgrammingLanguage.PYTHON: PyFile.get_extensions(),
