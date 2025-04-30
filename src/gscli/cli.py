@@ -2,7 +2,7 @@
 
 import click
 
-from codegen.gscli.generate.commands import generate
+from gscli.generate.commands import generate
 
 
 @click.group()

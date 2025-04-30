@@ -22,10 +22,10 @@ jobs:
         uses: ./.github/actions/setup-environment
 
       - name: Generate API reference
-        run: uv run python src/codegen/gscli/cli.py generate docs
+        run: uv run python src/gscli/cli.py generate docs
 
       - name: Generate System Prompt
-        run: uv run python src/codegen/gscli/cli.py generate system-prompt
+        run: uv run python src/gscli/cli.py generate system-prompt
 
       - name: Commit changes
         run: |

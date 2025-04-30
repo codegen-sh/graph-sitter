@@ -11,7 +11,7 @@ from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.typescript.class_definition import TSClass
 from graph_sitter.typescript.file import TSFile
-from codegen.gscli.generate.runner_imports import EXTERNAL_IMPORTS
+from gscli.generate.runner_imports import EXTERNAL_IMPORTS
 
 SAMPLE_FILENAME = {
     ProgrammingLanguage.PYTHON: "sample.py",

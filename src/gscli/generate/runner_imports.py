@@ -41,7 +41,7 @@ IMPORT_STRING_TEMPLATE = """
 
 IMPORT_FILE_TEMPLATE = (
     '''
-# This file is auto-generated, do not modify manually. Edit this in src/codegen/gscli/generate/runner_imports.py.
+# This file is auto-generated, do not modify manually. Edit this in src/gscli/generate/runner_imports.py.
 def get_generated_imports():
     return """
 {import_str}
