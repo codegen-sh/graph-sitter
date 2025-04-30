@@ -32,15 +32,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-          ubuntu-latest,
-          ubuntu-22.04-arm, # https://github.com/actions/partner-runner-images/issues/37 https://github.com/orgs/community/discussions/148648#discussioncomment-12099554
-          macos-latest,
-          macos-14-large
-        ]
-        python: [
-          12,
-          13,
-        ]
+            ubuntu-latest,
+            ubuntu-22.04-arm, # https://github.com/actions/partner-runner-images/issues/37 https://github.com/orgs/community/discussions/148648#discussioncomment-12099554
+            macos-latest,
+            macos-14-large,
+          ]
+        python: [12, 13]
 
     steps:
       - name: Github context
@@ -61,7 +58,7 @@ jobs:
           enable-cache: false
           prune-cache: false
           python-version: 3.${{ matrix.python }}
-          version: '0.5.24'
+          version: "0.5.24"
           cache-suffix: 3.${{ matrix.python }}
 
       - name: Fetch tags
@@ -103,8 +100,6 @@ jobs:
 
       - name: Release PyPI
         uses: ./.github/actions/release-pypi
-        with:
-          pypi-token: ${{ secrets.PYPI_TOKEN }}
 
       - name: Github release
         id: github-release
