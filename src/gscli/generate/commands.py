@@ -6,7 +6,7 @@ import shutil
 import click
 from termcolor import colored
 
-import codegen.sdk as sdk
+import graph_sitter as sdk
 from graph_sitter.ai.client import get_openai_client
 from graph_sitter.code_generation.changelog_generation import generate_changelog
 from graph_sitter.code_generation.codegen_sdk_codebase import get_codegen_sdk_codebase
@@ -77,7 +77,7 @@ def _generate_codebase_typestubs() -> None:
         # remove typings dir if it exists
         shutil.rmtree(frontend_typestubs_dir)
     # generate typestubs in codegen-frontend/assets/typestubs/graphsitter  using pyright
-    os.system("uv run pyright -p . --createstub codegen.sdk.core.codebase")
+    os.system("uv run pyright -p . --createstub graph_sitter.core.codebase")
     os.system("uv run pyright -p . --createstub graph_sitter.git")
     os.system("uv run pyright -p . --createstub networkx")
     # also generate for codemod context model and all its nested models
