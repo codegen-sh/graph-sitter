@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated, Any, Dict, List, Optional
 
 import requests
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.cli.api.client import RestAPI
 from codegen.cli.api.endpoints import CODEGEN_SYSTEM_PROMPT_URL
 from codegen.cli.auth.token_manager import get_current_token
@@ -168,7 +168,7 @@ It provides a scriptable interface to a powerful, multi-lingual language server 
 For example, consider the following script:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Codegen builds a complete graph connecting
 # functions, classes, imports and their relationships
@@ -195,7 +195,7 @@ Codegen codemods are functions that take a `Codebase` as input and manipulate it
 
 They live in the `.codegen/codemods/{name}/{name.py}` directory, and take the following form:
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 @codegen.function('{name}')
 def codemod(codebase: Codebase):

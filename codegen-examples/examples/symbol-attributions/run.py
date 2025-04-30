@@ -1,7 +1,7 @@
 import os
 import sys
 
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.cli import run
 from codegen.extensions.attribution.main import add_attribution_to_symbols
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator

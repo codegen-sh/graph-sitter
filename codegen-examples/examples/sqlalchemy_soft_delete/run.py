@@ -90,7 +90,7 @@ def process_soft_deletes(codebase):
 
 
 if __name__ == "__main__":
-    from codegen import Codebase
+    from graph_sitter import Codebase
     from graph_sitter.configs.models.codebase import CodebaseConfig
 
     repo_path = Path("/tmp/core")

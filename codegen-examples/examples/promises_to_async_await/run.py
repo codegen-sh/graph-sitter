@@ -1,5 +1,5 @@
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 from graph_sitter.core.statements.statement import StatementType
 
 

@@ -1,4 +1,4 @@
-from codegen import Codebase
+from graph_sitter import Codebase
 import modal
 
 image = modal.Image.debian_slim(python_version="3.13").apt_install("git").pip_install("fastapi[standard]").run_commands("pip install codegen")

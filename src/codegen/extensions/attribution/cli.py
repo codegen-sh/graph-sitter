@@ -4,8 +4,8 @@ import os
 import pygit2
 
 import codegen
-from codegen import Codebase
 from codegen.extensions.attribution.main import add_attribution_to_symbols, analyze_ai_impact
+from graph_sitter import Codebase
 
 
 def diagnose_repository(codebase):

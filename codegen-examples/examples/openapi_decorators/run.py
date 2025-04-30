@@ -1,5 +1,5 @@
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 
 
 def analyze_model_fields(method) -> dict:

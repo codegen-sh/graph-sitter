@@ -3,7 +3,7 @@ import shutil
 import subprocess
 
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 
 

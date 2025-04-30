@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from codegen import Codebase
+from graph_sitter import Codebase
 from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
 from graph_sitter.core.statements.if_block_statement import IfBlockStatement
 from graph_sitter.core.statements.try_catch_statement import TryCatchStatement

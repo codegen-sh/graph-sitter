@@ -1,6 +1,6 @@
 import codegen
 import networkx as nx
-from codegen import Codebase
+from graph_sitter import Codebase
 from graph_sitter.core.dataclasses.usage import Usage
 from graph_sitter.python.function import PyFunction
 from graph_sitter.python.symbol import PySymbol

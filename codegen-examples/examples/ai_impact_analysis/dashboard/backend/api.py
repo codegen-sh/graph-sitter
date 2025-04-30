@@ -1,4 +1,4 @@
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.main import (
     add_attribution_to_symbols,
     analyze_ai_impact,

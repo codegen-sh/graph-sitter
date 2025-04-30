@@ -1,7 +1,7 @@
 """Modal API endpoint for repository analysis."""
 
 import modal  # deptry: ignore
-from codegen import Codebase
+from graph_sitter import Codebase
 from pydantic import BaseModel
 
 # Create image with dependencies

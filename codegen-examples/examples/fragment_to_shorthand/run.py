@@ -1,5 +1,5 @@
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 
 
 @codegen.function("fragment_to_shorthand")

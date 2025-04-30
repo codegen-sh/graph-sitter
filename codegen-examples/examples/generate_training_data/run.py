@@ -1,7 +1,7 @@
 import json
 
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 from graph_sitter.core.external_module import ExternalModule
 from graph_sitter.core.import_resolution import Import
 from graph_sitter.core.symbol import Symbol

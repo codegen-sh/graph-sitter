@@ -4,7 +4,7 @@ import os
 from typing import Any
 
 import modal
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions import VectorIndex
 from fastapi import FastAPI, Request
 from openai import OpenAI

@@ -1,6 +1,6 @@
 import codegen
 import networkx as nx
-from codegen import Codebase
+from graph_sitter import Codebase
 from graph_sitter.core.class_definition import Class
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 from graph_sitter.core.external_module import ExternalModule

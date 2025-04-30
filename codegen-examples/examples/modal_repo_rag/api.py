@@ -1,7 +1,7 @@
 """Modal API endpoint for RAG-based code Q&A using Codegen's VectorIndex."""
 
 import modal
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions import VectorIndex
 from pydantic import BaseModel
 
