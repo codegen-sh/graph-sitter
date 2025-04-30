@@ -84,6 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     permissions:
+      id-token: write
       contents: write # grants permission to create a release on github
     steps:
       - uses: actions/checkout@v4
