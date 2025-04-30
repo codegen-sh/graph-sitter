@@ -4,12 +4,12 @@ import importlib
 from pathlib import Path
 from typing import TypedDict
 
-from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.git.schemas.repo_config import RepoConfig
 from graph_sitter.codebase.config import ProjectConfig
 from graph_sitter.configs.models.codebase import CodebaseConfig
 from graph_sitter.configs.models.secrets import SecretsConfig
 from graph_sitter.core.codebase import Codebase, CodebaseType
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
+from graph_sitter.git.schemas.repo_config import RepoConfig
 from graph_sitter.shared.decorators.docs import DocumentedObject, apidoc_objects, no_apidoc_objects, py_apidoc_objects, ts_apidoc_objects
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.shared.logging.get_logger import get_logger

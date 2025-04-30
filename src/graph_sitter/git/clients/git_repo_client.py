@@ -15,10 +15,10 @@ from github.Repository import Repository
 from github.Tag import Tag
 from github.Workflow import Workflow
 
-from codegen.git.clients.github_client import GithubClient
-from codegen.git.schemas.repo_config import RepoConfig
-from codegen.git.utils.format import format_comparison
 from graph_sitter.configs.models.secrets import SecretsConfig
+from graph_sitter.git.clients.github_client import GithubClient
+from graph_sitter.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.utils.format import format_comparison
 from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

@@ -3,8 +3,8 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from codegen.git.schemas.enums import RepoVisibility
 from graph_sitter.configs.models.repository import RepositoryConfig
+from graph_sitter.git.schemas.enums import RepoVisibility
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.shared.logging.get_logger import get_logger
 

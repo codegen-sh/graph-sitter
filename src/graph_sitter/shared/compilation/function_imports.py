@@ -10,11 +10,11 @@ import plotly
 
 # GraphSitter imports (private)
 
-from codegen.git.models.codemod_context import CodemodContext
-from codegen.git.models.github_named_user_context import GithubNamedUserContext
-from codegen.git.models.pr_options import PROptions
-from codegen.git.models.pr_part_context import PRPartContext
-from codegen.git.models.pull_request_context import PullRequestContext
+from graph_sitter.git.models.codemod_context import CodemodContext
+from graph_sitter.git.models.github_named_user_context import GithubNamedUserContext
+from graph_sitter.git.models.pr_options import PROptions
+from graph_sitter.git.models.pr_part_context import PRPartContext
+from graph_sitter.git.models.pull_request_context import PullRequestContext
 
 from graph_sitter.shared.exceptions.control_flow import StopCodemodException
 

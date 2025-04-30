@@ -6,11 +6,11 @@ from rich.status import Status
 
 from codegen.cli.auth.session import CodegenSession
 from codegen.cli.utils.function_finder import DecoratedFunction
-from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.git.schemas.repo_config import RepoConfig
-from codegen.git.utils.language import determine_project_language
 from graph_sitter.codebase.config import ProjectConfig
 from graph_sitter.core.codebase import Codebase
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
+from graph_sitter.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.utils.language import determine_project_language
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 

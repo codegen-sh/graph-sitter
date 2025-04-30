@@ -78,7 +78,7 @@ def _generate_codebase_typestubs() -> None:
         shutil.rmtree(frontend_typestubs_dir)
     # generate typestubs in codegen-frontend/assets/typestubs/graphsitter  using pyright
     os.system("uv run pyright -p . --createstub codegen.sdk.core.codebase")
-    os.system("uv run pyright -p . --createstub codegen.git")
+    os.system("uv run pyright -p . --createstub graph_sitter.git")
     os.system("uv run pyright -p . --createstub networkx")
     # also generate for codemod context model and all its nested models
     os.system("uv run pyright -p . --createstub app.codemod.compilation.models.context")

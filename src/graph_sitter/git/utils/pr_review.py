@@ -4,8 +4,8 @@ from github import Repository
 from github.PullRequest import PullRequest
 from unidiff import PatchSet
 
-from codegen.git.models.pull_request_context import PullRequestContext
-from codegen.git.repo_operator.repo_operator import RepoOperator
+from graph_sitter.git.models.pull_request_context import PullRequestContext
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 
 if TYPE_CHECKING:
     from graph_sitter.core.codebase import Codebase, Editable, File

@@ -1,8 +1,8 @@
 from codeowners import CodeOwners
 from github.PullRequest import PullRequest
 
-from codegen.git.clients.git_repo_client import GitRepoClient
-from codegen.git.configs.constants import CODEOWNERS_FILEPATHS
+from graph_sitter.git.clients.git_repo_client import GitRepoClient
+from graph_sitter.git.configs.constants import CODEOWNERS_FILEPATHS
 from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

@@ -1,6 +1,6 @@
 import pytest
 
-from codegen.git.utils.clone_url import add_access_token_to_url
+from graph_sitter.git.utils.clone_url import add_access_token_to_url
 
 
 @pytest.mark.parametrize(

@@ -4,7 +4,6 @@ from collections.abc import Generator
 from contextlib import AbstractContextManager, contextmanager
 from typing import Literal, overload
 
-from codegen.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.codebase.codebase_context import CodebaseContext
 from graph_sitter.codebase.config import ProjectConfig, SessionOptions, TestFlags
 from graph_sitter.codebase.factory.codebase_factory import CodebaseFactory
@@ -12,6 +11,7 @@ from graph_sitter.configs.models.codebase import CodebaseConfig
 from graph_sitter.configs.models.secrets import SecretsConfig
 from graph_sitter.core.codebase import Codebase, PyCodebaseType, TSCodebaseType
 from graph_sitter.core.file import SourceFile
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.tree_sitter_parser import print_errors
 

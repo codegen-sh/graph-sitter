@@ -7,8 +7,8 @@ from fastapi import Request
 
 from codegen.extensions.events.codegen_app import CodegenApp
 from codegen.extensions.events.modal.request_util import fastapi_request_adapter
-from codegen.git.clients.git_repo_client import GitRepoClient
-from codegen.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.clients.git_repo_client import GitRepoClient
+from graph_sitter.git.schemas.repo_config import RepoConfig
 
 logging.basicConfig(level=logging.INFO, force=True)
 logger = logging.getLogger(__name__)

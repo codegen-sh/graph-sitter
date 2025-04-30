@@ -4,9 +4,9 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from codegen.git.models.codemod_context import CodemodContext
-from codegen.git.models.pr_options import PROptions
 from graph_sitter.codebase.flagging.groupers.enums import GroupBy
+from graph_sitter.git.models.codemod_context import CodemodContext
+from graph_sitter.git.models.pr_options import PROptions
 
 
 class Codemod(BaseModel):

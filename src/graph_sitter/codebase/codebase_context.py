@@ -40,7 +40,6 @@ if TYPE_CHECKING:
     from codeowners import CodeOwners as CodeOwnersParser
     from git import Commit as GitCommit
 
-    from codegen.git.repo_operator.repo_operator import RepoOperator
     from graph_sitter.codebase.io.io import IO
     from graph_sitter.codebase.node_classes.node_classes import NodeClasses
     from graph_sitter.codebase.progress.progress import Progress
@@ -51,6 +50,7 @@ if TYPE_CHECKING:
     from graph_sitter.core.interfaces.importable import Importable
     from graph_sitter.core.node_id_factory import NodeId
     from graph_sitter.core.parser import Parser
+    from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 
 logger = get_logger(__name__)
 

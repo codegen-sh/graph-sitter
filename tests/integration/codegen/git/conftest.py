@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from codegen.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.schemas.repo_config import RepoConfig
 
 
 @pytest.fixture()

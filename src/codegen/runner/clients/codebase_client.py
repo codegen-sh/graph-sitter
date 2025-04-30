@@ -4,10 +4,10 @@ import os
 import subprocess
 import time
 
-from codegen.git.schemas.repo_config import RepoConfig
 from codegen.runner.clients.client import Client
 from codegen.runner.models.apis import SANDBOX_SERVER_PORT
 from graph_sitter.configs.models.secrets import SecretsConfig
+from graph_sitter.git.schemas.repo_config import RepoConfig
 from graph_sitter.shared.logging.get_logger import get_logger
 
 DEFAULT_SERVER_PORT = 4002

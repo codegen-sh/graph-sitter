@@ -16,17 +16,17 @@ from git.remote import PushInfoList
 from github.IssueComment import IssueComment
 from github.PullRequest import PullRequest
 
-from codegen.git.clients.git_repo_client import GitRepoClient
-from codegen.git.configs.constants import CODEGEN_BOT_EMAIL, CODEGEN_BOT_NAME
-from codegen.git.repo_operator.local_git_repo import LocalGitRepo
-from codegen.git.schemas.enums import CheckoutResult, FetchResult, RepoVisibility, SetupOption
-from codegen.git.schemas.repo_config import RepoConfig
-from codegen.git.utils.clone import clone_or_pull_repo, clone_repo, pull_repo
-from codegen.git.utils.clone_url import add_access_token_to_url, get_authenticated_clone_url_for_repo_config, get_clone_url_for_repo_config, url_to_github
-from codegen.git.utils.codeowner_utils import create_codeowners_parser_for_repo
-from codegen.git.utils.file_utils import create_files
-from codegen.git.utils.remote_progress import CustomRemoteProgress
 from graph_sitter.configs.models.secrets import SecretsConfig
+from graph_sitter.git.clients.git_repo_client import GitRepoClient
+from graph_sitter.git.configs.constants import CODEGEN_BOT_EMAIL, CODEGEN_BOT_NAME
+from graph_sitter.git.repo_operator.local_git_repo import LocalGitRepo
+from graph_sitter.git.schemas.enums import CheckoutResult, FetchResult, RepoVisibility, SetupOption
+from graph_sitter.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.utils.clone import clone_or_pull_repo, clone_repo, pull_repo
+from graph_sitter.git.utils.clone_url import add_access_token_to_url, get_authenticated_clone_url_for_repo_config, get_clone_url_for_repo_config, url_to_github
+from graph_sitter.git.utils.codeowner_utils import create_codeowners_parser_for_repo
+from graph_sitter.git.utils.file_utils import create_files
+from graph_sitter.git.utils.remote_progress import CustomRemoteProgress
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.shared.performance.stopwatch_utils import stopwatch
 from graph_sitter.shared.performance.time_utils import humanize_duration

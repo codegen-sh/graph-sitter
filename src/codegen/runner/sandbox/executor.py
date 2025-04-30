@@ -3,7 +3,6 @@ from datetime import UTC, datetime
 
 from github.PullRequest import PullRequest
 
-from codegen.git.models.pr_options import PROptions
 from codegen.runner.diff.get_raw_diff import get_raw_diff
 from codegen.runner.models.codemod import BranchConfig, CodemodRunResult, CreatedBranch, GroupingConfig
 from codegen.runner.sandbox.repo import SandboxRepo
@@ -15,6 +14,7 @@ from graph_sitter.codebase.factory.codebase_factory import CodebaseType
 from graph_sitter.codebase.flagging.code_flag import CodeFlag
 from graph_sitter.codebase.flagging.group import Group
 from graph_sitter.codebase.flagging.groupers.utils import get_grouper_by_group_by
+from graph_sitter.git.models.pr_options import PROptions
 from graph_sitter.shared.exceptions.control_flow import StopCodemodException
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.shared.performance.stopwatch_utils import stopwatch

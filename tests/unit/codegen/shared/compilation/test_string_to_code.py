@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from codegen.git.models.pr_options import PROptions
+from graph_sitter.git.models.pr_options import PROptions
 from graph_sitter.shared.compilation.string_to_code import create_execute_function_from_codeblock
 from graph_sitter.shared.exceptions.compilation import DangerousUserCodeException, InvalidUserCodeException
 from graph_sitter.shared.exceptions.control_flow import StopCodemodException

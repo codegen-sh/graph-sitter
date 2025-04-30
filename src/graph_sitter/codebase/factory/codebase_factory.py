@@ -1,4 +1,3 @@
-from codegen.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.codebase.config import ProjectConfig
 from graph_sitter.configs.models.codebase import CodebaseConfig
 from graph_sitter.configs.models.secrets import SecretsConfig
@@ -6,6 +5,7 @@ from graph_sitter.core.codebase import (
     Codebase,
     CodebaseType,
 )
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 

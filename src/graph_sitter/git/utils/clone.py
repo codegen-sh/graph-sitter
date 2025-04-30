@@ -3,7 +3,7 @@ import subprocess
 
 from git import Repo as GitRepo
 
-from codegen.git.utils.remote_progress import CustomRemoteProgress
+from graph_sitter.git.utils.remote_progress import CustomRemoteProgress
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.shared.performance.stopwatch_utils import subprocess_with_stopwatch
 

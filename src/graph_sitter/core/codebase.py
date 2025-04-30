@@ -22,10 +22,6 @@ from openai import OpenAI
 from rich.console import Console
 from typing_extensions import TypeVar, deprecated
 
-from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.git.schemas.enums import CheckoutResult
-from codegen.git.schemas.repo_config import RepoConfig
-from codegen.git.utils.pr_review import CodegenPR
 from codegen.visualizations.visualization_manager import VisualizationManager
 from graph_sitter._proxy import proxy_property
 from graph_sitter.ai.client import get_openai_client
@@ -63,6 +59,10 @@ from graph_sitter.core.type_alias import TypeAlias
 from graph_sitter.enums import NodeType, SymbolType
 from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.extensions.utils import uncache_all
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
+from graph_sitter.git.schemas.enums import CheckoutResult
+from graph_sitter.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.utils.pr_review import CodegenPR
 from graph_sitter.output.constants import ANGULAR_STYLE
 from graph_sitter.python.assignment import PyAssignment
 from graph_sitter.python.class_definition import PyClass

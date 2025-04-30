@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 
-from codegen.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.schemas.repo_config import RepoConfig
 
 
 # TODO: move out doesn't belong here

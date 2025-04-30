@@ -32,11 +32,11 @@ def generate_builtins_file(path_to_builtins: str, language_type: LanguageType):
 # This file is auto-generated, do not modify manually
 
 {{all_imports}}
-from codegen.git.models.codemod_context import CodemodContext
-from codegen.git.models.pr_options import PROptions
-from codegen.git.models.github_named_user_context import GithubNamedUserContext
-from codegen.git.models.pr_part_context import PRPartContext
-from codegen.git.models.pull_request_context import PullRequestContext
+from graph_sitter.git.models.codemod_context import CodemodContext
+from graph_sitter.git.models.pr_options import PROptions
+from graph_sitter.git.models.github_named_user_context import GithubNamedUserContext
+from graph_sitter.git.models.pr_part_context import PRPartContext
+from graph_sitter.git.models.pull_request_context import PullRequestContext
 from graph_sitter.codebase.flagging.code_flag import MessageType as MessageType
 
 {"\n".join(inspect.getsource(codebase).splitlines()[-2:])}

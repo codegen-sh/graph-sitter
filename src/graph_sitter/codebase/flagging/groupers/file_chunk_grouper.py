@@ -1,8 +1,8 @@
-from codegen.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.codebase.flagging.code_flag import CodeFlag
 from graph_sitter.codebase.flagging.group import Group
 from graph_sitter.codebase.flagging.groupers.base_grouper import BaseGrouper
 from graph_sitter.codebase.flagging.groupers.enums import GroupBy
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.shared.string.csv_utils import comma_separated_to_list, list_to_comma_separated
 

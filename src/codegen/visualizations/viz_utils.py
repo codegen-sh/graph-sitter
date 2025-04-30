@@ -12,7 +12,7 @@ from graph_sitter.core.interfaces.importable import Importable
 from graph_sitter.output.utils import DeterministicJSONEncoder
 
 if TYPE_CHECKING:
-    from codegen.git.repo_operator.repo_operator import RepoOperator
+    from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 
 ####################################################################################################################
 # READING GRAPH VISUALIZATION DATA

@@ -5,11 +5,11 @@ import os
 import psutil
 import pytest
 
-from codegen.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.codebase.config import ProjectConfig
 from graph_sitter.codebase.validation import PostInitValidationStatus, post_init_validation
 from graph_sitter.configs.models.codebase import CodebaseConfig
 from graph_sitter.core.codebase import Codebase
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from tests.shared.codemod.models import Repo
 from tests.shared.utils.recursion import set_recursion_limit
 

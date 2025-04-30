@@ -6,7 +6,7 @@ from pygit2.repository import Repository
 from codegen.cli.git.folder import get_git_folder
 
 
-# TODO: move to codegen.git module
+# TODO: move to graph_sitter.git module
 def get_git_repo(path: os.PathLike | None = None) -> Repository | None:
     if path is None:
         path = Path.cwd()

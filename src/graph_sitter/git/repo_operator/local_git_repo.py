@@ -6,9 +6,9 @@ import giturlparse
 from git import Repo
 from git.remote import Remote
 
-from codegen.git.clients.git_repo_client import GitRepoClient
-from codegen.git.schemas.repo_config import RepoConfig
-from codegen.git.utils.language import determine_project_language
+from graph_sitter.git.clients.git_repo_client import GitRepoClient
+from graph_sitter.git.schemas.repo_config import RepoConfig
+from graph_sitter.git.utils.language import determine_project_language
 
 
 # TODO: merge this with RepoOperator

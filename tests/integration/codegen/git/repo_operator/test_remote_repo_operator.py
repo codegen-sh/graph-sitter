@@ -3,9 +3,9 @@ from unittest.mock import patch
 import pytest
 from github.MainClass import Github
 
-from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.git.schemas.enums import CheckoutResult, SetupOption
-from codegen.git.utils.file_utils import create_files
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
+from graph_sitter.git.schemas.enums import CheckoutResult, SetupOption
+from graph_sitter.git.utils.file_utils import create_files
 
 shallow_options = [True, False]
 
@@ -17,7 +17,7 @@ def op(repo_config, request):
 
 
 @pytest.mark.parametrize("op", shallow_options, ids=lambda x: f"shallow={x}", indirect=True)
-@patch("codegen.git.clients.github_client.Github")
+@patch("graph_sitter.git.clients.github_client.Github")
 def test_checkout_branch(mock_git_client, op: RepoOperator):
     mock_git_client.return_value = Github("test_token", "https://api.github.com")
     op.pull_repo()
@@ -39,7 +39,7 @@ def test_checkout_branch(mock_git_client, op: RepoOperator):
 
 
 @pytest.mark.parametrize("op", [True], ids=lambda x: f"shallow={x}", indirect=True)
-@patch("codegen.git.clients.github_client.Github")
+@patch("graph_sitter.git.clients.github_client.Github")
 def test_checkout_branch_local_already_checked_out(mock_git_client, op: RepoOperator):
     mock_git_client.return_value = Github("test_token", "https://api.github.com")
 
@@ -59,7 +59,7 @@ def test_checkout_branch_local_already_checked_out(mock_git_client, op: RepoOper
 
 
 @pytest.mark.parametrize("op", [True], ids=lambda x: f"shallow={x}", indirect=True)
-@patch("codegen.git.clients.github_client.Github")
+@patch("graph_sitter.git.clients.github_client.Github")
 def test_checkout_branch_remote_already_checked_out_resets_branch(mock_git_client, op: RepoOperator):
     mock_git_client.return_value = Github("test_token", "https://api.github.com")
 

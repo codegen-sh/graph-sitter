@@ -4,8 +4,8 @@ from pathlib import Path
 import tomlkit
 from termcolor import colored
 
-from codegen.git.utils.file_utils import split_git_path
 from graph_sitter.code_generation.current_code_codebase import get_documented_objects
+from graph_sitter.git.utils.file_utils import split_git_path
 from graph_sitter.shared.decorators.docs import DocumentedObject
 
 EXTERNAL_IMPORTS = """
@@ -16,11 +16,11 @@ import networkx as nx
 import plotly
 """.strip()
 CODEGEN_IMPORTS = """
-from codegen.git.models.codemod_context import CodemodContext
-from codegen.git.models.github_named_user_context import GithubNamedUserContext
-from codegen.git.models.pr_options import PROptions
-from codegen.git.models.pr_part_context import PRPartContext
-from codegen.git.models.pull_request_context import PullRequestContext
+from graph_sitter.git.models.codemod_context import CodemodContext
+from graph_sitter.git.models.github_named_user_context import GithubNamedUserContext
+from graph_sitter.git.models.pr_options import PROptions
+from graph_sitter.git.models.pr_part_context import PRPartContext
+from graph_sitter.git.models.pull_request_context import PullRequestContext
 """
 # TODO: these should also be made public (i.e. included in the docs site)
 GS_PRIVATE_IMPORTS = """

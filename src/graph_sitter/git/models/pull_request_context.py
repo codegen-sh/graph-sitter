@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from codegen.git.models.github_named_user_context import GithubNamedUserContext
-from codegen.git.models.pr_part_context import PRPartContext
+from graph_sitter.git.models.github_named_user_context import GithubNamedUserContext
+from graph_sitter.git.models.pr_part_context import PRPartContext
 
 
 class PullRequestContext(BaseModel):

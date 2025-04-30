@@ -3,10 +3,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from codegen.git.configs.constants import CODEGEN_BOT_EMAIL, CODEGEN_BOT_NAME
-from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.git.schemas.enums import SetupOption
-from codegen.git.schemas.repo_config import RepoConfig
 from codegen.runner.enums.warmup_state import WarmupState
 from codegen.runner.models.apis import (
     RUN_FUNCTION_ENDPOINT,
@@ -17,6 +13,10 @@ from codegen.runner.models.apis import (
 from codegen.runner.models.codemod import Codemod, CodemodRunResult
 from codegen.runner.sandbox.runner import SandboxRunner
 from graph_sitter.configs.models.codebase import DefaultCodebaseConfig
+from graph_sitter.git.configs.constants import CODEGEN_BOT_EMAIL, CODEGEN_BOT_NAME
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
+from graph_sitter.git.schemas.enums import SetupOption
+from graph_sitter.git.schemas.repo_config import RepoConfig
 from graph_sitter.shared.logging.get_logger import get_logger
 
 # Configure logging at module level
