@@ -6,7 +6,7 @@ from graph_sitter.core.codebase import Codebase
 
 def get_codegen_sdk_subdirectories() -> list[str]:
     base = get_codegen_codebase_base_path()
-    return [os.path.join(base, "codegen/sdk"), os.path.join(base, "codemods")]
+    return [os.path.join(base, "graph_sitter"), os.path.join(base, "codemods")]
 
 
 def get_codegen_sdk_codebase() -> Codebase:

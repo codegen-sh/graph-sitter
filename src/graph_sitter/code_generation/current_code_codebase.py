@@ -19,19 +19,19 @@ logger = get_logger(__name__)
 
 def get_graphsitter_repo_path() -> str:
     """Points to base directory of the Codegen repo (.git) that is currently running"""
-    import codegen.sdk as sdk
+    import graph_sitter as sdk
 
     filepath = sdk.__file__
-    codegen_base_dir = filepath.replace("/codegen/sdk/__init__.py", "")
+    codegen_base_dir = filepath.replace("/graph_sitter/__init__.py", "")
     codegen_base_dir = codegen_base_dir.replace("/src", "")
     return codegen_base_dir
 
 
 def get_codegen_codebase_base_path() -> str:
-    import codegen.sdk as sdk
+    import graph_sitter as sdk
 
     filepath = sdk.__file__
-    codegen_base_dir = filepath.replace("/codegen/sdk/__init__.py", "")
+    codegen_base_dir = filepath.replace("/graph_sitter/__init__.py", "")
     return "src" if "src" in codegen_base_dir else ""
 
 
@@ -57,7 +57,7 @@ def import_all_codegen_sdk_modules():
     CODEGEN_SDK_DIR = Path(get_graphsitter_repo_path())
     if base := get_codegen_codebase_base_path():
         CODEGEN_SDK_DIR /= base
-    CODEGEN_SDK_DIR /= "codegen/sdk"
+    CODEGEN_SDK_DIR /= "graph_sitter"
     for file in CODEGEN_SDK_DIR.rglob("*.py"):
         relative_path = file.relative_to(CODEGEN_SDK_DIR)
         # ignore braintrust_evaluator because it runs stuff on import
