@@ -7,7 +7,7 @@ import rich
 import rich_click as click
 from packaging.version import Version
 
-import codegen
+import graph_sitter
 
 
 def fetch_pypi_releases(package: str) -> list[str]:
@@ -49,7 +49,7 @@ def update_command(list_: bool = False, version: str | None = None):
         msg = "Cannot specify both --list and --version"
         raise click.ClickException(msg)
 
-    package_info = distribution(codegen.__package__)
+    package_info = distribution(graph_sitter.__package__)
     current_version = Version(package_info.version)
 
     if list_:
