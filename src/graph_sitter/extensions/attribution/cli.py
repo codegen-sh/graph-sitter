@@ -68,7 +68,7 @@ def run(codebase: Codebase):
     3. Determines the impact of AI-written code
     4. Generates a report with statistics and visualizations
 
-    Run the analysis using the codegen CLI:
+    Run the analysis using the graph_sitter.cli:
     codegen analyze-ai-impact
 
     Or from script:

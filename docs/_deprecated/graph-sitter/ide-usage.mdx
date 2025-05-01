@@ -65,11 +65,11 @@ Add this to your cline_mcp_settings.json:
 ```json
 {
   "mcpServers": {
-    "codegen-cli": {
+    "graph_sitter.cli": {
         "command": "uv",
         "args": [
             "--directory",
-            "<path to codegen installation>/codegen-sdk/src/codegen/cli/mcp",
+            "<path to codegen installation>/codegen-sdk/src/graph_sitter.cli/mcp",
             "run",
             "server.py"
         ]
@@ -85,7 +85,7 @@ Under the `Settings` > `Feature` > `MCP Servers` section, click "Add New MCP Ser
 ```
 Name: codegen-mcp
 Type: Command
-Command: uv --directory <path to codegen installation>/codegen-sdk/src/codegen/cli/mcp run server.py
+Command: uv --directory <path to codegen installation>/codegen-sdk/src/graph_sitter.cli/mcp run server.py
 ```
 
 

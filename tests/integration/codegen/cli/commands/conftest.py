@@ -7,8 +7,8 @@ from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
 
-from codegen.cli.commands.init.main import init_command
-from codegen.cli.workspace.venv_manager import VenvManager
+from graph_sitter.cli.commands.init.main import init_command
+from graph_sitter.cli.workspace.venv_manager import VenvManager
 
 
 @pytest.fixture

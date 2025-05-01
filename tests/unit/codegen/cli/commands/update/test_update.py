@@ -7,7 +7,7 @@ from click.testing import CliRunner
 from packaging.version import Version
 from rich.text import Text
 
-from codegen.cli.commands.update import main
+from graph_sitter.cli.commands.update import main
 
 
 @pytest.fixture(autouse=True)

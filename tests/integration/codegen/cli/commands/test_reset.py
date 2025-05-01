@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from codegen.cli.commands.reset.main import reset_command
+from graph_sitter.cli.commands.reset.main import reset_command
 
 
 @dataclass

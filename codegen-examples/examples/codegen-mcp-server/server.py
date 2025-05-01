@@ -8,11 +8,11 @@ from typing import Annotated, Any, Dict, List, Optional
 
 import requests
 from graph_sitter import Codebase
-from codegen.cli.api.client import RestAPI
-from codegen.cli.api.endpoints import CODEGEN_SYSTEM_PROMPT_URL
-from codegen.cli.auth.token_manager import get_current_token
-from codegen.cli.codemod.convert import convert_to_cli
-from codegen.cli.utils.default_code import DEFAULT_CODEMOD
+from graph_sitter.cli.api.client import RestAPI
+from graph_sitter.cli.api.endpoints import CODEGEN_SYSTEM_PROMPT_URL
+from graph_sitter.cli.auth.token_manager import get_current_token
+from graph_sitter.cli.codemod.convert import convert_to_cli
+from graph_sitter.cli.utils.default_code import DEFAULT_CODEMOD
 from graph_sitter.extensions.tools.reveal_symbol import reveal_symbol
 from mcp.server.fastmcp import FastMCP
 
@@ -364,7 +364,7 @@ async def run_codemod(
     try:
         # Get the codemod using CodemodManager
         try:
-            from codegen.cli.utils.codemod_manager import CodemodManager
+            from graph_sitter.cli.utils.codemod_manager import CodemodManager
 
             codemod = CodemodManager.get_codemod(name, start_path=state.parsed_codebase.repo_path)
         except Exception as e:
@@ -378,7 +378,7 @@ async def run_codemod(
 
                 # Validate arguments if schema exists
                 if codemod.arguments_type_schema:
-                    from codegen.cli.utils.json_schema import validate_json
+                    from graph_sitter.cli.utils.json_schema import validate_json
 
                     if not validate_json(codemod.arguments_type_schema, args_dict):
                         return {"error": f"Invalid arguments format. Expected schema: {codemod.arguments_type_schema}"}
@@ -386,7 +386,7 @@ async def run_codemod(
                 return {"error": "Invalid JSON in arguments parameter"}
 
         # Create a session for the codemod
-        from codegen.cli.auth.session import CodegenSession
+        from graph_sitter.cli.auth.session import CodegenSession
 
         session = CodegenSession(state.parsed_codebase.repo_path)
         session.codebase = state.parsed_codebase
@@ -417,8 +417,8 @@ async def run_codemod(
 async def reset() -> Dict[str, Any]:
     try:
         # Import necessary functions from reset command
-        from codegen.cli.commands.reset.main import backup_codegen_files, remove_untracked_files, restore_codegen_files
-        from codegen.cli.git.repo import get_git_repo
+        from graph_sitter.cli.commands.reset.main import backup_codegen_files, remove_untracked_files, restore_codegen_files
+        from graph_sitter.cli.git.repo import get_git_repo
         from pygit2.enums import ResetMode
 
         # Get the git repository

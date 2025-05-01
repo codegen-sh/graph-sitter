@@ -10,7 +10,7 @@ We recommend using [`uv`](https://github.com/astral-sh/uv) with Python 3.13 for 
 
 To install Codegen, please follow the [official installation guide](https://docs.codegen.com/introduction/installation). Once Codegen is installed, use these steps to run the examples in this repository:
 
-Install the Codegen CLI globally
+Install the graph_sitter.cli globally
 
 ```bash
 uv tool install codegen

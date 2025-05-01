@@ -697,11 +697,11 @@ Add this to your cline_mcp_settings.json:
 ```json
 {
   "mcpServers": {
-    "codegen-cli": {
+    "graph_sitter.cli": {
         "command": "uv",
         "args": [
             "--directory",
-            "<path to codegen installation>/codegen-sdk/src/codegen/cli/mcp",
+            "<path to codegen installation>/codegen-sdk/src/graph_sitter.cli/mcp",
             "run",
             "server.py"
         ]
@@ -717,7 +717,7 @@ Under the `Settings` > `Feature` > `MCP Servers` section, click "Add New MCP Ser
 ```
 Name: codegen-mcp
 Type: Command
-Command: uv --directory <path to codegen installation>/codegen-sdk/src/codegen/cli/mcp run server.py
+Command: uv --directory <path to codegen installation>/codegen-sdk/src/graph_sitter.cli/mcp run server.py
 ```
 
 
@@ -835,7 +835,7 @@ import {
 
 ## Generating System Prompts
 
-The [Codegen CLI](/cli/about) provides commands to generate `.md` files that can be fed to any AI assistant for more accurate and contextual help.
+The [graph_sitter.cli](/cli/about) provides commands to generate `.md` files that can be fed to any AI assistant for more accurate and contextual help.
 
 When you create a new codemod via [codegen create](/cli/create):
 
@@ -12146,7 +12146,7 @@ The attribution extension is included with Codegen. No additional installation i
 
 ### Running the Analysis
 
-You can run the AI impact analysis using the Codegen CLI:
+You can run the AI impact analysis using the graph_sitter.cli:
 
 ```bash
 codegen analyze-ai-impact

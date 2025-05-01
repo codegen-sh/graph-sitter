@@ -1,5 +1,5 @@
-from codegen.cli.sdk.decorator import function
-from codegen.cli.sdk.functions import Function
+from graph_sitter.cli.sdk.decorator import function
+from graph_sitter.cli.sdk.functions import Function
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.extensions.events.codegen_app import CodegenApp
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
