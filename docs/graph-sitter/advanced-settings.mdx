@@ -26,7 +26,7 @@ These configuration options are defined in [src/codegen/configs/models/codebase.
 You can customize the behavior of the graph construction process when initializing a [Codebase](/api-reference/core/Codebase) by passing a `CodebaseConfig` object with the desired configuration flags.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs import CodebaseConfig
 
 # Initialize a Codebase with custom configuration
@@ -215,7 +215,7 @@ This experimental flag pushes the graph creation back until the graph is needed.
 
 **Example Codemod:**
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs import CodebaseConfig
 
 # Enable lazy graph parsing

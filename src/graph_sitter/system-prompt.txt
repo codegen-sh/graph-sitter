@@ -10,7 +10,7 @@ iconType: "solid"
 It provides a scriptable interface to a powerful, multi-lingual language server built on top of [Tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Codegen builds a complete graph connecting
 # functions, classes, imports and their relationships
@@ -200,7 +200,7 @@ codegen notebook --demo
 Instantiating a [Codebase](/api-reference/core/Codebase) will automatically parse a codebase and make it available for manipulation.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Clone + parse fastapi/fastapi
 codebase = Codebase.from_repo('fastapi/fastapi')
@@ -444,7 +444,7 @@ Codegen also supports a number of advanced settings that can be used to customiz
 These flags are helpful for debugging problematic repos, optimizing Codegen’s performance, or testing unreleased or experimental (potentially backwards-breaking) features.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs import CodebaseConfig
 
 # Initialize a Codebase with custom configuration
@@ -925,7 +925,7 @@ At the heart of Codegen is a comprehensive graph representation of your code. Wh
 
 ```python
 # Initialize and analyze the codebase
-from codegen import Codebase
+from graph_sitter import Codebase
 codebase = Codebase("./")
 
 # Access pre-computed relationships
@@ -1017,7 +1017,7 @@ These configuration options are defined in [src/codegen/configs/models/codebase.
 You can customize the behavior of the graph construction process when initializing a [Codebase](/api-reference/core/Codebase) by passing a `CodebaseConfig` object with the desired configuration flags.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs import CodebaseConfig
 
 # Initialize a Codebase with custom configuration
@@ -1206,7 +1206,7 @@ This experimental flag pushes the graph creation back until the graph is needed.
 
 **Example Codemod:**
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs import CodebaseConfig
 
 # Enable lazy graph parsing
@@ -1820,7 +1820,7 @@ The primary entrypoint to programs leveraging Codegen is the [Codebase](/api-ref
 Construct a Codebase by passing in a path to a local `git` repository or any subfolder within it. The path must be within a git repository (i.e., somewhere in the parent directory tree must contain a `.git` folder).
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Parse from a git repository root
 codebase = Codebase("path/to/repository")
@@ -1852,7 +1852,7 @@ codebase = Codebase("./", language="typescript")
 To fetch and parse a repository directly from GitHub, use the `from_repo` function.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 # Fetch and parse a repository (defaults to /tmp/codegen/{repo_name})
 codebase = Codebase.from_repo('fastapi/fastapi')
 
@@ -1876,7 +1876,7 @@ codebase = Codebase.from_repo(
 You can customize the behavior of your Codebase instance by passing a `CodebaseConfig` object. This allows you to configure secrets (like API keys) and toggle specific features:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs.models.codebase import CodebaseConfig
 from codegen.configs.models.secrets import SecretsConfig
 
@@ -1904,7 +1904,7 @@ For more complex scenarios, Codegen supports an advanced initialization mode usi
 Here's an example:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.git.repo_operator.local_repo_operator import LocalRepoOperator
 from codegen.git.schemas.repo_config import BaseRepoConfig
 from codegen.sdk.codebase.config import ProjectConfig
@@ -1957,7 +1957,7 @@ This creates a new codemod in your `.codegen/codemods` directory:
 
 ```python
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 
 @codegen.function("rename-function")
 def run(codebase: Codebase):
@@ -2008,7 +2008,7 @@ A codemod consists of three main parts:
 
 ```python
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 
 @codegen.function("update-imports")
 def run(codebase: Codebase):
@@ -2154,7 +2154,7 @@ Use `codegen list` to see all codemods in your project.
 The `jupyter/` directory contains notebooks for interactive development:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Initialize codebase
 codebase = Codebase('../../')
@@ -2256,7 +2256,7 @@ Codegen provides first-class support for both Python and TypeScript codebases. T
 When you create a new `Codebase` instance, Codegen automatically detects the programming language:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Automatically detects Python or TypeScript
 codebase = Codebase("./")
@@ -2379,7 +2379,7 @@ You can manage your codebase's state with two core APIs:
 When you make changes to your codebase through Codegen's APIs, they aren't immediately written to disk. You need to explicitly commit them with [codebase.commit()](/api-reference/core/Codebase#commit):
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 codebase = Codebase("./")
 
@@ -5115,7 +5115,7 @@ This guide covers the core APIs and patterns for working with type annotations i
 Codegen builds a complete dependency graph of your codebase, connecting functions, classes, imports, and their relationships. This enables powerful type resolution capabilities:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Initialize codebase with dependency graph
 codebase = Codebase("./")
@@ -7108,7 +7108,7 @@ Let's walk through each step using Codegen.
 First, we initialize the codebase and create a vector index for semantic search:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions import VectorIndex
 
 def initialize_codebase():
@@ -7395,7 +7395,7 @@ The bot only triggers on PRs labeled with "Codegen", giving you control over whi
 Finally, we implement the AI-powered review agent:
 
 ```python
-from codegen import Codebase, CodeAgent
+from graph_sitter import Codebase, CodeAgent
 from codegen.extensions.langchain.tools import (
     GithubViewPRTool,
     GithubCreatePRCommentTool,
@@ -7516,7 +7516,7 @@ Let's walk through building each component.
 First, let's import the necessary components and set up our research tools:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.langchain.agent import create_agent_with_tools
 from codegen.extensions.langchain.tools import (
     ListDirectoryTool,
@@ -7898,7 +7898,7 @@ First, let's import the types we need from Codegen:
 
 ```python
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.sdk.core.external_module import ExternalModule
 from codegen.sdk.core.import_resolution import Import
 from codegen.sdk.core.symbol import Symbol
@@ -8108,7 +8108,7 @@ First, we'll set up our codebase, graph and configure some basic parameters:
 
 ```python
 import networkx as nx
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Initialize codebase
 codebase = Codebase("path/to/posthog/")
@@ -11753,7 +11753,7 @@ First, we need to update Flask imports to their FastAPI equivalents and modify t
 </Tip>
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Parse the codebase
 codebase = Codebase("./")
@@ -11967,7 +11967,7 @@ First, let's create a basic MCP server using Codegen's MCP tools:
 
 server.py
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from mcp.server.fastmcp import FastMCP
 from typing import Annotated
 # Initialize the codebase
@@ -12058,7 +12058,7 @@ docker run \
 ## Usage
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.graph.main import visualize_codebase
 
 # parse codebase
@@ -12155,7 +12155,7 @@ codegen analyze-ai-impact
 Or from Python code:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.cli import run
 
 # Initialize codebase from current directory
@@ -12182,7 +12182,7 @@ The analysis will print a summary of AI contributions to your console and save d
 After running the analysis, each symbol in your codebase will have attribution information attached to it:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.main import add_attribution_to_symbols
 
 # Initialize codebase
@@ -12206,7 +12206,7 @@ By default, the analysis looks for common AI bot names in commit authors.
 You can customize this by providing your own list of AI authors:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.main import analyze_ai_impact
 
 # Initialize codebase
@@ -12233,7 +12233,7 @@ Here's a complete example that analyzes contributors to your codebase and their 
 import os
 from collections import Counter
 
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.main import add_attribution_to_symbols
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.repo_config import RepoConfig

@@ -41,7 +41,7 @@ codegen analyze-ai-impact
 Or from Python code:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.cli import run
 
 # Initialize codebase from current directory
@@ -68,7 +68,7 @@ The analysis will print a summary of AI contributions to your console and save d
 After running the analysis, each symbol in your codebase will have attribution information attached to it:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.main import add_attribution_to_symbols
 
 # Initialize codebase
@@ -92,7 +92,7 @@ By default, the analysis looks for common AI bot names in commit authors.
 You can customize this by providing your own list of AI authors:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.main import analyze_ai_impact
 
 # Initialize codebase
@@ -119,7 +119,7 @@ Here's a complete example that analyzes contributors to your codebase and their 
 import os
 from collections import Counter
 
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.extensions.attribution.main import add_attribution_to_symbols
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.repo_config import RepoConfig

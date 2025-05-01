@@ -12,7 +12,7 @@ The primary entrypoint to programs leveraging Codegen is the [Codebase](/api-ref
 Construct a Codebase by passing in a path to a local `git` repository or any subfolder within it. The path must be within a git repository (i.e., somewhere in the parent directory tree must contain a `.git` folder).
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Parse from a git repository root
 codebase = Codebase("path/to/repository")
@@ -44,7 +44,7 @@ codebase = Codebase("./", language="typescript")
 To fetch and parse a repository directly from GitHub, use the `from_repo` function.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 # Fetch and parse a repository (defaults to /tmp/codegen/{repo_name})
 codebase = Codebase.from_repo('fastapi/fastapi')
 
@@ -68,7 +68,7 @@ codebase = Codebase.from_repo(
 You can customize the behavior of your Codebase instance by passing a `CodebaseConfig` object. This allows you to configure secrets (like API keys) and toggle specific features:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs.models.codebase import CodebaseConfig
 from codegen.configs.models.secrets import SecretsConfig
 
@@ -96,7 +96,7 @@ For more complex scenarios, Codegen supports an advanced initialization mode usi
 Here's an example:
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.git.repo_operator.local_repo_operator import LocalRepoOperator
 from codegen.git.schemas.repo_config import BaseRepoConfig
 from codegen.sdk.codebase.config import ProjectConfig

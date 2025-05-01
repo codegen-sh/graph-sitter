@@ -25,7 +25,7 @@
 [Codegen](https://docs.codegen.com) is a python library for manipulating codebases.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Codegen builds a complete graph connecting
 # functions, classes, imports and their relationships
@@ -76,7 +76,7 @@ codegen notebook
 See [Getting Started](https://docs.codegen.com/introduction/getting-started) for a full tutorial.
 
 ```
-from codegen import Codebase
+from graph_sitter import Codebase
 ```
 
 ## Troubleshooting

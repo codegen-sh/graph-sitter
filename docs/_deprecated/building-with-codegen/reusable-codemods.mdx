@@ -19,7 +19,7 @@ This creates a new codemod in your `.codegen/codemods` directory:
 
 ```python
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 
 @codegen.function("rename-function")
 def run(codebase: Codebase):
@@ -70,7 +70,7 @@ A codemod consists of three main parts:
 
 ```python
 import codegen
-from codegen import Codebase
+from graph_sitter import Codebase
 
 @codegen.function("update-imports")
 def run(codebase: Codebase):

@@ -39,7 +39,7 @@ codegen notebook --demo
 Instantiating a [Codebase](/api-reference/core/Codebase) will automatically parse a codebase and make it available for manipulation.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Clone + parse fastapi/fastapi
 codebase = Codebase.from_repo('fastapi/fastapi')
@@ -283,7 +283,7 @@ Codegen also supports a number of advanced settings that can be used to customiz
 These flags are helpful for debugging problematic repos, optimizing Codegen’s performance, or testing unreleased or experimental (potentially backwards-breaking) features.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 from codegen.configs import CodebaseConfig
 
 # Initialize a Codebase with custom configuration

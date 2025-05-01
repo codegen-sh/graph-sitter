@@ -12,7 +12,7 @@ This script performs several key functions:
    - Analyzes import relationships and dependencies
 
 ```python
-  from codegen import Codebase
+  from graph_sitter import Codebase
 
   # Initialize codebase object from directory
   codebase = Codebase.from_repo("your-org/your-repo", language="python")
