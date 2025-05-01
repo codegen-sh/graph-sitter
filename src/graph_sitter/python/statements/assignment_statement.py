@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from graph_sitter.compiled.utils import find_all_descendants
 from graph_sitter.core.expressions.multi_expression import MultiExpression
 from graph_sitter.core.statements.assignment_statement import AssignmentStatement
-from graph_sitter.extensions.utils import find_all_descendants
 from graph_sitter.python.assignment import PyAssignment
 from graph_sitter.shared.decorators.docs import py_apidoc
 from graph_sitter.shared.logging.get_logger import get_logger

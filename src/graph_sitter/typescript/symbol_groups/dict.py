@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Self, TypeVar, override
 
 from tree_sitter import Node as TSNode
 
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.autocommit import writer
 from graph_sitter.core.expressions import Expression
 from graph_sitter.core.expressions.string import String
@@ -9,7 +10,6 @@ from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.has_attribute import HasAttribute
 from graph_sitter.core.node_id_factory import NodeId
 from graph_sitter.core.symbol_groups.dict import Dict, Pair
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc, ts_apidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 

@@ -3,9 +3,9 @@ from __future__ import annotations
 from collections import deque
 from typing import TYPE_CHECKING, Self
 
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.expressions.multi_expression import MultiExpression
 from graph_sitter.core.statements.assignment_statement import AssignmentStatement
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.typescript.assignment import TSAssignment

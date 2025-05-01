@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 from tree_sitter import Node as TSNode
 
 from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.expressions.type import Type
 from graph_sitter.core.node_id_factory import NodeId
 from graph_sitter.core.symbol_groups.collection import Collection
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

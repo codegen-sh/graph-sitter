@@ -3,12 +3,12 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+from graph_sitter.compiled.sort import sort_editables
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import mover, reader, writer
 from graph_sitter.core.file import SourceFile
 from graph_sitter.core.interfaces.exportable import Exportable
 from graph_sitter.enums import ImportType, NodeType, SymbolType
-from graph_sitter.extensions.sort import sort_editables
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.typescript.assignment import TSAssignment

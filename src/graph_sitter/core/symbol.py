@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Generic, Literal, TypeVar
 
 from rich.markup import escape
 
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.autocommit import commiter, reader, writer
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.core.detached_symbols.argument import Argument
@@ -15,7 +16,6 @@ from graph_sitter.core.expressions.defined_name import DefinedName
 from graph_sitter.core.interfaces.usable import Usable
 from graph_sitter.core.statements.statement import Statement
 from graph_sitter.enums import ImportType, NodeType, SymbolType
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.output.constants import ANGULAR_STYLE
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 

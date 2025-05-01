@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 from graph_sitter.core.expressions import Expression, Name
 from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import ts_apidoc
 
 if TYPE_CHECKING:

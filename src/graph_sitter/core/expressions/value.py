@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.expressions.expression import Expression
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

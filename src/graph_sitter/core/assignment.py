@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.compiled.autocommit import commiter, reader
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.autocommit import writer
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions import Expression, Name
@@ -16,8 +18,6 @@ from graph_sitter.core.symbol import Symbol
 from graph_sitter.core.symbol_groups.collection import Collection
 from graph_sitter.core.symbol_groups.dict import Dict
 from graph_sitter.enums import SymbolType
-from graph_sitter.extensions.autocommit import commiter, reader
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.typescript.expressions.object_type import TSObjectType
 from graph_sitter.utils import find_index

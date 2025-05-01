@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, ClassVar, Generic, Literal, Self, TypeVar, ove
 
 from graph_sitter.codebase.resolution_stack import ResolutionStack
 from graph_sitter.codebase.transactions import TransactionPriority
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import commiter, reader, remover, writer
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions.name import Name
@@ -16,7 +17,6 @@ from graph_sitter.core.interfaces.has_attribute import HasAttribute
 from graph_sitter.core.interfaces.usable import Usable
 from graph_sitter.core.statements.import_statement import ImportStatement
 from graph_sitter.enums import EdgeType, ImportType, NodeType
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.output.constants import ANGULAR_STYLE
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.visualizations.enums import VizNode

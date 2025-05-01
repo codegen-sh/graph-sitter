@@ -3,8 +3,8 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.interfaces.editable import Editable
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.shared.decorators.docs import noapidoc
 
 if TYPE_CHECKING:

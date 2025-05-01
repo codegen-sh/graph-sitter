@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, override
 
+from graph_sitter.compiled.autocommit import commiter, reader
 from graph_sitter.core.statements.try_catch_statement import TryCatchStatement
-from graph_sitter.extensions.autocommit import commiter, reader
 from graph_sitter.python.statements.block_statement import PyBlockStatement
 from graph_sitter.python.statements.catch_statement import PyCatchStatement
 from graph_sitter.shared.decorators.docs import noapidoc, py_apidoc

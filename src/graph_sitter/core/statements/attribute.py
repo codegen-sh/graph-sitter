@@ -4,12 +4,12 @@ import itertools
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.autocommit import writer
 from graph_sitter.core.interfaces.chainable import Chainable
 from graph_sitter.core.interfaces.usable import Usable
 from graph_sitter.core.statements.assignment_statement import AssignmentStatement
 from graph_sitter.core.statements.statement import StatementType
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
@@ -18,11 +18,11 @@ if TYPE_CHECKING:
     from tree_sitter import Node as TSNode
 
     from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.compiled.resolution import ResolutionStack
     from graph_sitter.core.assignment import Assignment
     from graph_sitter.core.detached_symbols.code_block import CodeBlock
     from graph_sitter.core.interfaces.importable import Importable
     from graph_sitter.core.node_id_factory import NodeId
-    from graph_sitter.extensions.resolution import ResolutionStack
 
 TCodeBlock = TypeVar("TCodeBlock", bound="CodeBlock | None")
 TAssignment = TypeVar("TAssignment", bound="Assignment")

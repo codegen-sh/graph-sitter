@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING, Generic, Self
 
 from typing_extensions import TypeVar
 
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.expressions.named_type import NamedType
 from graph_sitter.core.symbol import Symbol
 from graph_sitter.core.symbol_groups.type_parameters import TypeParameters
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.shared.decorators.docs import noapidoc
 
 if TYPE_CHECKING:

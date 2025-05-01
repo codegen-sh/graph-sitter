@@ -3,9 +3,9 @@ from __future__ import annotations
 from collections.abc import Collection, Iterator
 from typing import TYPE_CHECKING, Generic, TypeVar, override
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader, repr_func, writer
 from graph_sitter.core.interfaces.editable import Editable
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

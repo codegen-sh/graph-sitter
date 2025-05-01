@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import reader, writer
 from graph_sitter.core.file import SourceFile
 from graph_sitter.core.interface import Interface
 from graph_sitter.core.symbol import Symbol
 from graph_sitter.enums import ImportType
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.python import PyAssignment
 from graph_sitter.python.class_definition import PyClass
 from graph_sitter.python.detached_symbols.code_block import PyCodeBlock

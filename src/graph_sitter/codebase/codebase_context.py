@@ -19,6 +19,8 @@ from graph_sitter.codebase.io.file_io import FileIO
 from graph_sitter.codebase.progress.stub_progress import StubProgress
 from graph_sitter.codebase.transaction_manager import TransactionManager
 from graph_sitter.codebase.validation import get_edges, post_reset_validation
+from graph_sitter.compiled.sort import sort_editables
+from graph_sitter.compiled.utils import uncache_all
 from graph_sitter.configs.models.codebase import CodebaseConfig, PinkMode
 from graph_sitter.configs.models.secrets import SecretsConfig
 from graph_sitter.core.autocommit import AutoCommit, commiter
@@ -26,8 +28,6 @@ from graph_sitter.core.directory import Directory
 from graph_sitter.core.external.dependency_manager import DependencyManager, get_dependency_manager
 from graph_sitter.core.external.language_engine import LanguageEngine, get_language_engine
 from graph_sitter.enums import Edge, EdgeType, NodeType
-from graph_sitter.extensions.sort import sort_editables
-from graph_sitter.extensions.utils import uncache_all
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.shared.exceptions.control_flow import StopCodemodException
 from graph_sitter.shared.logging.get_logger import get_logger

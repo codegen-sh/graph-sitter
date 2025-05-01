@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Literal, Self, TypeVar, override
 
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import commiter, reader
 from graph_sitter.core.autocommit.decorators import writer
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
@@ -13,7 +14,6 @@ from graph_sitter.core.interfaces.chainable import Chainable
 from graph_sitter.core.interfaces.has_value import HasValue
 from graph_sitter.core.interfaces.importable import Importable
 from graph_sitter.enums import EdgeType, ImportType, NodeType
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 from graph_sitter.typescript.assignment import TSAssignment
 from graph_sitter.typescript.class_definition import TSClass

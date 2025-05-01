@@ -37,6 +37,8 @@ from graph_sitter.codebase.flagging.group import Group
 from graph_sitter.codebase.io.io import IO
 from graph_sitter.codebase.progress.progress import Progress
 from graph_sitter.codebase.span import Span
+from graph_sitter.compiled.sort import sort_editables
+from graph_sitter.compiled.utils import uncache_all
 from graph_sitter.configs.models.codebase import CodebaseConfig, PinkMode
 from graph_sitter.configs.models.secrets import SecretsConfig
 from graph_sitter.core.assignment import Assignment
@@ -56,8 +58,6 @@ from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.core.symbol import Symbol
 from graph_sitter.core.type_alias import TypeAlias
 from graph_sitter.enums import NodeType, SymbolType
-from graph_sitter.extensions.sort import sort_editables
-from graph_sitter.extensions.utils import uncache_all
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.git.schemas.enums import CheckoutResult
 from graph_sitter.git.schemas.repo_config import RepoConfig

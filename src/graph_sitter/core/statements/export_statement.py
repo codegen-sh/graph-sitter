@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.statements.statement import Statement, StatementType
 from graph_sitter.core.symbol_groups.collection import Collection
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.typescript.export import TSExport
 from graph_sitter.typescript.statements.import_statement import TSImportStatement

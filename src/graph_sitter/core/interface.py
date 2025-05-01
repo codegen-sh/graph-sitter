@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader
 from graph_sitter.core.interfaces.has_attribute import HasAttribute
 from graph_sitter.core.interfaces.has_block import HasBlock
 from graph_sitter.core.interfaces.inherits import Inherits
 from graph_sitter.enums import SymbolType
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

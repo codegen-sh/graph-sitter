@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
 from typing_extensions import deprecated
 
+from graph_sitter.compiled.autocommit import commiter
+from graph_sitter.compiled.resolution import UsageKind
 from graph_sitter.core.autocommit import reader, writer
 from graph_sitter.core.dataclasses.usage import UsageType
 from graph_sitter.core.expressions import Expression
@@ -12,8 +14,6 @@ from graph_sitter.core.expressions.name import Name
 from graph_sitter.core.interfaces.has_value import HasValue
 from graph_sitter.core.interfaces.typeable import Typeable
 from graph_sitter.core.interfaces.usable import Usable
-from graph_sitter.extensions.autocommit import commiter
-from graph_sitter.extensions.resolution import UsageKind
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.utils import find_first_descendant

@@ -5,12 +5,12 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader, writer
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.function import Function
 from graph_sitter.core.interfaces.conditional_block import ConditionalBlock
 from graph_sitter.core.statements.statement import Statement, StatementType
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

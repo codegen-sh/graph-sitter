@@ -4,9 +4,9 @@ from enum import StrEnum
 from functools import cached_property
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader
 from graph_sitter.core.expressions import Expression
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.output.constants import ANGULAR_STYLE
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.utils import find_all_descendants

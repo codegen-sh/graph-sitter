@@ -3,6 +3,7 @@ from typing import Self
 from tree_sitter import Node as TSNode
 
 from graph_sitter.codebase.codebase_context import CodebaseContext
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import commiter, reader, writer
 from graph_sitter.core.class_definition import Class
 from graph_sitter.core.dataclasses.usage import UsageKind
@@ -12,7 +13,6 @@ from graph_sitter.core.node_id_factory import NodeId
 from graph_sitter.core.symbol_group import SymbolGroup
 from graph_sitter.core.symbol_groups.multi_line_collection import MultiLineCollection
 from graph_sitter.core.symbol_groups.parents import Parents
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
 from graph_sitter.python.detached_symbols.decorator import PyDecorator
 from graph_sitter.python.detached_symbols.parameter import PyParameter

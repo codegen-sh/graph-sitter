@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 
 from typing_extensions import deprecated
 
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions.expression import Expression
 from graph_sitter.core.interfaces.chainable import Chainable
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

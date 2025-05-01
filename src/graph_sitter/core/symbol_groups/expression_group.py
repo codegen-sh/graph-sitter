@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.symbol_group import SymbolGroup
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import apidoc
 
 if TYPE_CHECKING:

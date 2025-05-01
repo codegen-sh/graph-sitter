@@ -16,6 +16,7 @@ from graph_sitter._proxy import proxy_property
 from graph_sitter.codebase.codebase_context import CodebaseContext
 from graph_sitter.codebase.range_index import RangeIndex
 from graph_sitter.codebase.span import Range
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.autocommit import commiter, mover, reader, remover, writer
 from graph_sitter.core.class_definition import Class
 from graph_sitter.core.dataclasses.usage import UsageType
@@ -29,7 +30,6 @@ from graph_sitter.core.interfaces.usable import Usable
 from graph_sitter.core.statements.import_statement import ImportStatement
 from graph_sitter.core.symbol import Symbol
 from graph_sitter.enums import EdgeType, ImportType, NodeType, SymbolType
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.topological_sort import pseudo_topological_sort

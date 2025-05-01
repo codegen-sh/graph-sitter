@@ -2,10 +2,10 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
 from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions.type import Type
 from graph_sitter.core.interfaces.importable import Importable
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

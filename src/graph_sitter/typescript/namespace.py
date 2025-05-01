@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
+from graph_sitter.compiled.autocommit import reader
+from graph_sitter.compiled.sort import sort_editables
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import commiter
 from graph_sitter.core.autocommit.decorators import writer
 from graph_sitter.core.export import Export
 from graph_sitter.core.interfaces.has_attribute import HasAttribute
 from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.enums import SymbolType
-from graph_sitter.extensions.autocommit import reader
-from graph_sitter.extensions.sort import sort_editables
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.typescript.class_definition import TSClass

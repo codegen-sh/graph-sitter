@@ -1,7 +1,7 @@
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.codebase.validation import PostInitValidationStatus, post_init_validation
+from graph_sitter.compiled.utils import uncache_all
 from graph_sitter.enums import NodeType
-from graph_sitter.extensions.utils import uncache_all
 
 
 def test_post_init_validation_valid_graph(tmpdir) -> None:

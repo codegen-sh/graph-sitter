@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.statements.statement import Statement
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

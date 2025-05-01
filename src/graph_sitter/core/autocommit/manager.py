@@ -15,7 +15,7 @@ from graph_sitter.core.autocommit.constants import (
 )
 from graph_sitter.core.autocommit.utils import is_file, is_on_graph, is_symbol
 from graph_sitter.core.node_id_factory import NodeId
-from graph_sitter.extensions.autocommit import update_dict
+from graph_sitter.compiled.autocommit import update_dict
 
 if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext

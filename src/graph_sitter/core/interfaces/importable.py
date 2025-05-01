@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar, Union
 from tree_sitter import Node as TSNode
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.compiled.autocommit import commiter
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.autocommit import reader
 from graph_sitter.core.dataclasses.usage import UsageType
 from graph_sitter.core.expressions.expression import Expression
 from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.core.node_id_factory import NodeId
 from graph_sitter.enums import EdgeType
-from graph_sitter.extensions.autocommit import commiter
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 

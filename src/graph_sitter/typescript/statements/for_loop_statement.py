@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from graph_sitter.compiled.autocommit import commiter, reader
 from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
-from graph_sitter.extensions.autocommit import commiter, reader
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 from graph_sitter.typescript.statements.block_statement import TSBlockStatement
 

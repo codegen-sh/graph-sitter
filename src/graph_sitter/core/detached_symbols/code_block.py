@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
 from typing_extensions import deprecated
 
+from graph_sitter.compiled.sort import sort_editables
+from graph_sitter.compiled.utils import find_line_start_and_end_nodes
 from graph_sitter.core.autocommit import reader, writer
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.core.expressions import Expression, Value
 from graph_sitter.core.statements.statement import Statement, StatementType
-from graph_sitter.extensions.sort import sort_editables
-from graph_sitter.extensions.utils import find_line_start_and_end_nodes
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

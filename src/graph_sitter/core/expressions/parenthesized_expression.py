@@ -1,6 +1,7 @@
 from typing import Generic, TypeVar, override
 
 from graph_sitter.codebase.transactions import TransactionPriority
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.autocommit import writer
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 from graph_sitter.core.expressions import Expression
@@ -8,7 +9,6 @@ from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.has_value import HasValue
 from graph_sitter.core.interfaces.unwrappable import Unwrappable
 from graph_sitter.core.interfaces.wrapper_expression import IWrapper
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import apidoc
 from graph_sitter.typescript.statements.if_block_statement import TSIfBlockStatement
 

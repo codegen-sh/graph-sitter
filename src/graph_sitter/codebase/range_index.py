@@ -4,8 +4,8 @@ from functools import cached_property
 
 from tree_sitter import Range
 
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.interfaces.editable import Editable
-from graph_sitter.extensions.sort import sort_editables
 
 
 class RangeIndex:

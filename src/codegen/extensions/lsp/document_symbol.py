@@ -2,9 +2,9 @@ from lsprotocol.types import DocumentSymbol
 
 from codegen.extensions.lsp.kind import get_kind
 from codegen.extensions.lsp.range import get_range
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.class_definition import Class
 from graph_sitter.core.interfaces.editable import Editable
-from graph_sitter.extensions.sort import sort_editables
 
 
 def get_document_symbol(node: Editable) -> DocumentSymbol:

@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader
 from graph_sitter.core.autocommit.decorators import writer
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.detached_symbols.parameter import Parameter
 from graph_sitter.core.expressions.union_type import UnionType
 from graph_sitter.core.symbol_groups.collection import Collection
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 from graph_sitter.typescript.expressions.object_type import TSObjectType
 from graph_sitter.typescript.expressions.type import TSType

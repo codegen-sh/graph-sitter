@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Literal, Self
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.interfaces.has_symbols import (
     FilesParam,
     HasSymbols,
@@ -17,7 +18,6 @@ from graph_sitter.core.interfaces.has_symbols import (
 )
 from graph_sitter.core.utils.cache_utils import cached_generator
 from graph_sitter.enums import NodeType
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 

@@ -20,7 +20,7 @@ Edge Cases:
 from graph_sitter.core.autocommit.constants import enabled
 from graph_sitter.core.autocommit.decorators import mover, remover, repr_func, writer
 from graph_sitter.core.autocommit.manager import AutoCommit
-from graph_sitter.extensions.autocommit import commiter, reader
+from graph_sitter.compiled.autocommit import commiter, reader
 
 __all__ = [
     "AutoCommit",

@@ -4,11 +4,11 @@ from collections.abc import Collection
 from typing import TYPE_CHECKING
 
 from graph_sitter.codebase.transactions import RemoveTransaction, TransactionPriority
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.assignment import Assignment
 from graph_sitter.core.autocommit.decorators import remover
 from graph_sitter.core.expressions.multi_expression import MultiExpression
 from graph_sitter.core.statements.assignment_statement import AssignmentStatement
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.python.symbol import PySymbol
 from graph_sitter.python.symbol_groups.comment_group import PyCommentGroup
 from graph_sitter.shared.decorators.docs import noapidoc, py_apidoc

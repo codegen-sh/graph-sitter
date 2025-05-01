@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, override
 from tree_sitter import Node as TSNode
 
 from graph_sitter.codebase.codebase_context import CodebaseContext
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader, writer
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions import Expression
@@ -10,7 +11,6 @@ from graph_sitter.core.expressions.name import Name
 from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.core.interfaces.has_value import HasValue
 from graph_sitter.core.node_id_factory import NodeId
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 from graph_sitter.typescript.detached_symbols.jsx.expression import JSXExpression
 

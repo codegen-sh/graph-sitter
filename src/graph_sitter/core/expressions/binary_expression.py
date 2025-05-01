@@ -5,6 +5,8 @@ from functools import cached_property
 from typing import Generic, Self, TypeVar, override
 
 from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.compiled.autocommit import commiter, reader
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.autocommit import writer
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions import Expression
@@ -14,8 +16,6 @@ from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.core.interfaces.importable import Importable
 from graph_sitter.core.interfaces.unwrappable import Unwrappable
 from graph_sitter.core.symbol_groups.expression_group import ExpressionGroup
-from graph_sitter.extensions.autocommit import commiter, reader
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 Parent = TypeVar("Parent", bound="Editable")

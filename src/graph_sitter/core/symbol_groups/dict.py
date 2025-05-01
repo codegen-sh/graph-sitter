@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 from tree_sitter import Node as TSNode
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions.builtin import Builtin
 from graph_sitter.core.expressions.expression import Expression
@@ -13,7 +14,6 @@ from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.core.interfaces.has_value import HasValue
 from graph_sitter.core.node_id_factory import NodeId
 from graph_sitter.core.symbol_groups.collection import Collection
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

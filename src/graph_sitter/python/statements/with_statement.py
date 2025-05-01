@@ -3,11 +3,11 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from graph_sitter.compiled.autocommit import commiter
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.autocommit import reader
 from graph_sitter.core.statements.statement import Statement, StatementType
 from graph_sitter.core.symbol_groups.expression_group import ExpressionGroup
-from graph_sitter.extensions.autocommit import commiter
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.python.interfaces.has_block import PyHasBlock
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 

@@ -3,11 +3,11 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, override
 
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import commiter, reader, writer
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.function import Function
 from graph_sitter.core.symbol_groups.collection import Collection
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
 from graph_sitter.python.detached_symbols.decorator import PyDecorator
 from graph_sitter.python.detached_symbols.parameter import PyParameter

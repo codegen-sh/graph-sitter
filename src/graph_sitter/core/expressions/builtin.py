@@ -2,9 +2,9 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Self, override
 
 from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.compiled.autocommit import reader
 from graph_sitter.core.interfaces.chainable import Chainable
 from graph_sitter.core.interfaces.has_attribute import HasAttribute
-from graph_sitter.extensions.autocommit import reader
 from graph_sitter.shared.decorators.docs import noapidoc
 
 if TYPE_CHECKING:

@@ -11,9 +11,9 @@ from rich.pretty import Pretty
 
 from graph_sitter.codebase.span import Span
 from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction, TransactionPriority
+from graph_sitter.compiled.utils import get_all_identifiers
 from graph_sitter.core.autocommit import commiter, reader, remover, repr_func, writer
 from graph_sitter.core.placeholder.placeholder import Placeholder
-from graph_sitter.extensions.utils import get_all_identifiers
 from graph_sitter.output.ast import AST
 from graph_sitter.output.constants import ANGULAR_STYLE, MAX_STRING_LENGTH
 from graph_sitter.output.jsonable import JSONable

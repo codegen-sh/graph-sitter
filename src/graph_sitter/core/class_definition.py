@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Generic, Literal, Self, overload, override
 from typing_extensions import TypeVar
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import commiter, reader, writer
 from graph_sitter.core.import_resolution import Import
 from graph_sitter.core.interfaces.callable import Callable
@@ -16,7 +17,6 @@ from graph_sitter.core.statements.attribute import Attribute
 from graph_sitter.core.statements.statement import StatementType
 from graph_sitter.core.symbol import Symbol
 from graph_sitter.enums import SymbolType
-from graph_sitter.extensions.utils import cached_property
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.visualizations.enums import VizNode

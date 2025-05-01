@@ -3,13 +3,13 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Self, final, override
 
 from graph_sitter.codebase.resolution_stack import ResolutionStack
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions import Expression
 from graph_sitter.core.interfaces.chainable import Chainable
 from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.has_name import HasName
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import noapidoc
 
 if TYPE_CHECKING:

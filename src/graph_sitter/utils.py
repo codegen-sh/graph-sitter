@@ -10,7 +10,7 @@ import dicttoxml
 import xmltodict
 from tree_sitter import Node as TSNode
 
-from graph_sitter.extensions.utils import find_all_descendants, find_first_descendant, get_all_identifiers
+from graph_sitter.compiled.utils import find_all_descendants, find_first_descendant, get_all_identifiers
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 from graph_sitter.typescript.enums import TSFunctionTypeNames
 

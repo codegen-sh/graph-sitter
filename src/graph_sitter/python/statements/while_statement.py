@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from graph_sitter.compiled.autocommit import commiter, reader
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.statements.while_statement import WhileStatement
-from graph_sitter.extensions.autocommit import commiter, reader
-from graph_sitter.extensions.sort import sort_editables
 from graph_sitter.python.interfaces.has_block import PyHasBlock
 from graph_sitter.python.statements.if_block_statement import PyIfBlockStatement
 from graph_sitter.shared.decorators.docs import noapidoc, py_apidoc

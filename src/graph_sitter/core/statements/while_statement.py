@@ -3,9 +3,9 @@ from __future__ import annotations
 from abc import ABC
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
+from graph_sitter.compiled.autocommit import commiter, reader
 from graph_sitter.core.interfaces.has_block import HasBlock
 from graph_sitter.core.statements.statement import Statement, StatementType
-from graph_sitter.extensions.autocommit import commiter, reader
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

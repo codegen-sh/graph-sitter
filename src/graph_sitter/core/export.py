@@ -3,8 +3,8 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
+from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.interfaces.exportable import Exportable
-from graph_sitter.extensions.autocommit import commiter
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:

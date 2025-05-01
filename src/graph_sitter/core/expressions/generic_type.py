@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar, override
 
 from tree_sitter import Node as TSNode
 
+from graph_sitter.compiled.resolution import ResolutionStack
 from graph_sitter.core.autocommit import commiter, reader
 from graph_sitter.core.dataclasses.usage import UsageKind
 from graph_sitter.core.expressions.named_type import NamedType
 from graph_sitter.core.interfaces.importable import Importable
 from graph_sitter.core.node_id_factory import NodeId
 from graph_sitter.core.symbol_groups.collection import Collection
-from graph_sitter.extensions.resolution import ResolutionStack
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
 
 if TYPE_CHECKING:
