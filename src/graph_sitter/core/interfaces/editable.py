@@ -29,7 +29,6 @@ if TYPE_CHECKING:
     from tree_sitter import Node as TSNode
     from tree_sitter import Point, Range
 
-    from codegen.visualizations.enums import VizNode
     from graph_sitter.codebase.codebase_context import CodebaseContext
     from graph_sitter.codebase.flagging.code_flag import CodeFlag
     from graph_sitter.codebase.flagging.enums import FlagKwargs
@@ -50,6 +49,7 @@ if TYPE_CHECKING:
     from graph_sitter.core.symbol import Symbol
     from graph_sitter.core.symbol_group import SymbolGroup
     from graph_sitter.enums import NodeType
+    from graph_sitter.visualizations.enums import VizNode
 CONTAINER_CHARS = (b"(", b")", b"{", b"}", b"[", b"]", b"<", b">", b"import")
 MAX_REPR_LEN: int = 200
 
@@ -993,8 +993,8 @@ class Editable(JSONable, Generic[Parent]):
     @property
     @noapidoc
     def viz(self) -> VizNode:
-        from codegen.visualizations.enums import VizNode
         from graph_sitter.core.interfaces.has_name import HasName
+        from graph_sitter.visualizations.enums import VizNode
 
         if isinstance(self, HasName):
             return VizNode(file_path=self.filepath, start_point=self.start_point, end_point=self.end_point, name=self.name, symbol_name=self.__class__.__name__)

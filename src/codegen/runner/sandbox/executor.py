@@ -8,7 +8,6 @@ from codegen.runner.models.codemod import BranchConfig, CodemodRunResult, Create
 from codegen.runner.sandbox.repo import SandboxRepo
 from codegen.runner.utils.branch_name import get_head_branch_name
 from codegen.runner.utils.exception_utils import update_observation_meta
-from codegen.visualizations.viz_utils import get_graph_json
 from graph_sitter.codebase.config import SessionOptions
 from graph_sitter.codebase.factory.codebase_factory import CodebaseType
 from graph_sitter.codebase.flagging.code_flag import CodeFlag
@@ -18,6 +17,7 @@ from graph_sitter.git.models.pr_options import PROptions
 from graph_sitter.shared.exceptions.control_flow import StopCodemodException
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.shared.performance.stopwatch_utils import stopwatch
+from graph_sitter.visualizations.viz_utils import get_graph_json
 
 logger = get_logger(__name__)
 

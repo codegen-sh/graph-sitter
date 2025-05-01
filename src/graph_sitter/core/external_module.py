@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, override
 
-from codegen.visualizations.enums import VizNode
 from graph_sitter.core.autocommit import commiter, reader
 from graph_sitter.core.interfaces.callable import Callable
 from graph_sitter.core.interfaces.has_attribute import HasAttribute
 from graph_sitter.core.placeholder.placeholder_stub import StubPlaceholder
 from graph_sitter.enums import ImportType, NodeType
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
+from graph_sitter.visualizations.enums import VizNode
 
 if TYPE_CHECKING:
     from tree_sitter import Node as TSNode

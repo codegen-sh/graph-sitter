@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
     from tree_sitter import Node as TSNode
 
-    from codegen.visualizations.enums import VizNode
     from graph_sitter.codebase.codebase_context import CodebaseContext
     from graph_sitter.core.detached_symbols.parameter import Parameter
     from graph_sitter.core.function import Function
@@ -35,6 +34,7 @@ if TYPE_CHECKING:
     from graph_sitter.core.interfaces.editable import Editable
     from graph_sitter.core.interfaces.importable import Importable
     from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.visualizations.enums import VizNode
 
 Parent = TypeVar("Parent", bound="Expression | None")
 
@@ -266,7 +266,7 @@ class FunctionCall(Expression[Parent], HasName, Resolvable, Generic[Parent]):
     @noapidoc
     @override
     def viz(self) -> VizNode:
-        from codegen.visualizations.enums import VizNode
+        from graph_sitter.visualizations.enums import VizNode
 
         func = self.function_definition
         from graph_sitter.core.function import Function

@@ -1145,7 +1145,6 @@ source = { editable = "." }
 dependencies = [
     { name = "astor" },
     { name = "click" },
-    { name = "codegen-api-client" },
     { name = "codeowners" },
     { name = "colorlog" },
     { name = "dataclasses-json" },
@@ -1271,7 +1270,6 @@ requires-dist = [
     { name = "astor", specifier = ">=0.8.1,<1.0.0" },
     { name = "attrs", marker = "extra == 'lsp'", specifier = ">=25.1.0" },
     { name = "click", specifier = ">=8.1.7" },
-    { name = "codegen-api-client" },
     { name = "codegen-sdk-pink", marker = "extra == 'pink'", specifier = ">=0.1.0" },
     { name = "codeowners", specifier = ">=0.6.0,<1.0.0" },
     { name = "colorlog", specifier = ">=6.9.0" },

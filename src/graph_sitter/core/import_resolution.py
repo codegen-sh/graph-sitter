@@ -4,7 +4,6 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Generic, Literal, Self, TypeVar, override
 
-from codegen.visualizations.enums import VizNode
 from graph_sitter.codebase.resolution_stack import ResolutionStack
 from graph_sitter.codebase.transactions import TransactionPriority
 from graph_sitter.core.autocommit import commiter, reader, remover, writer
@@ -20,6 +19,7 @@ from graph_sitter.enums import EdgeType, ImportType, NodeType
 from graph_sitter.extensions.utils import cached_property
 from graph_sitter.output.constants import ANGULAR_STYLE
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc
+from graph_sitter.visualizations.enums import VizNode
 
 if TYPE_CHECKING:
     from collections.abc import Generator

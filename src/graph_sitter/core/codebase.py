@@ -22,7 +22,6 @@ from openai import OpenAI
 from rich.console import Console
 from typing_extensions import TypeVar, deprecated
 
-from codegen.visualizations.visualization_manager import VisualizationManager
 from graph_sitter._proxy import proxy_property
 from graph_sitter.ai.client import get_openai_client
 from graph_sitter.codebase.codebase_ai import generate_system_prompt, generate_tools
@@ -90,6 +89,7 @@ from graph_sitter.typescript.interface import TSInterface
 from graph_sitter.typescript.statements.import_statement import TSImportStatement
 from graph_sitter.typescript.symbol import TSSymbol
 from graph_sitter.typescript.type_alias import TSTypeAlias
+from graph_sitter.visualizations.visualization_manager import VisualizationManager
 
 logger = get_logger(__name__)
 MAX_LINES = 10000  # Maximum number of lines of text allowed to be logged

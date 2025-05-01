@@ -5214,7 +5214,7 @@ This guide provides a basic overview of graph creation and customization. Like t
 ></iframe>
 
 <Note>
-  Codegen visualizations are powered by [NetworkX](https://networkx.org/) and
+  graph_sitter.visualizations are powered by [NetworkX](https://networkx.org/) and
   rendered using [d3](https://d3js.org/what-is-d3).
 </Note>
 

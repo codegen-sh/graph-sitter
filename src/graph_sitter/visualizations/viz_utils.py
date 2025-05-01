@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING
 import networkx as nx
 from networkx import DiGraph, Graph
 
-from codegen.visualizations.enums import GraphJson, GraphType
 from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.importable import Importable
 from graph_sitter.output.utils import DeterministicJSONEncoder
+from graph_sitter.visualizations.enums import GraphJson, GraphType
 
 if TYPE_CHECKING:
     from graph_sitter.git.repo_operator.repo_operator import RepoOperator

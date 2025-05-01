@@ -3,10 +3,10 @@ import os
 import plotly.graph_objects as go
 from networkx import Graph
 
-from codegen.visualizations.viz_utils import graph_to_json
 from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.shared.logging.get_logger import get_logger
+from graph_sitter.visualizations.viz_utils import graph_to_json
 
 logger = get_logger(__name__)
 
