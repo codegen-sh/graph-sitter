@@ -86,8 +86,8 @@ for all files in a codebase. It handles chunking large files and maintains
 a persistent index for faster subsequent queries.
 
 *Relevant Files:*
-• src/codegen/extensions/vector_index.py
-• src/codegen/extensions/tools/semantic_search.py
+• src/graph_sitter.extensions/vector_index.py
+• src/graph_sitter.extensions/tools/semantic_search.py
 ```
 
 ## Environment Variables

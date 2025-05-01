@@ -13,7 +13,7 @@ from codegen.cli.api.endpoints import CODEGEN_SYSTEM_PROMPT_URL
 from codegen.cli.auth.token_manager import get_current_token
 from codegen.cli.codemod.convert import convert_to_cli
 from codegen.cli.utils.default_code import DEFAULT_CODEMOD
-from codegen.extensions.tools.reveal_symbol import reveal_symbol
+from graph_sitter.extensions.tools.reveal_symbol import reveal_symbol
 from mcp.server.fastmcp import FastMCP
 
 logger = getLogger(__name__)

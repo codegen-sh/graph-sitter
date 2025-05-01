@@ -9,7 +9,7 @@ Learn how to build a Model Context Protocol (MCP) server that enables AI models 
 
 This guide will walk you through creating an MCP server that can provide semantic code search
 
-<Info>View the full code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/codegen/extensions/mcp)</Info>
+<Info>View the full code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/graph_sitter.extensions/mcp)</Info>
 
 
 ## Setup:
@@ -47,14 +47,14 @@ Let's implement the semantic search tool.
 
 server.py
 ```python
-from codegen.extensions.tools.semantic_search import semantic_search
+from graph_sitter.extensions.tools.semantic_search import semantic_search
 
 ....
 
 @mcp.tool('codebase_semantic_search', "search codebase with the provided query")
 def search(query: Annotated[str, "search query to run against codebase"]):
   codebase = Codebase("provide location to codebase", language="provide codebase Language")
-  # use the semantic search tool from codegen.extensions.tools OR write your own
+  # use the semantic search tool from graph_sitter.extensions.tools OR write your own
   results = semantic_search(codebase=codebase, query=query)
   return results
 

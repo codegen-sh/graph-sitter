@@ -1,5 +1,5 @@
 import modal.running_app
-from codegen.extensions.events.app import CodegenApp
+from graph_sitter.extensions.events.app import CodegenApp
 import modal
 
 image = modal.Image.debian_slim(python_version="3.13").apt_install("git").pip_install("fastapi[standard]", "codegen>=v0.22.2")

@@ -3,7 +3,7 @@ import traceback
 import os
 
 from graph_sitter import Codebase
-from codegen.extensions.attribution.cli import run
+from graph_sitter.extensions.attribution.cli import run
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.git.schemas.repo_config import RepoConfig
 from graph_sitter.codebase.config import ProjectConfig

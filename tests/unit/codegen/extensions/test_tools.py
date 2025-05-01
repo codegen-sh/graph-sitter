@@ -2,7 +2,7 @@
 
 # import pytest
 
-# from codegen.extensions.tools import (
+# from graph_sitter.extensions.tools import (
 #     create_file,
 #     create_pr,
 #     create_pr_comment,

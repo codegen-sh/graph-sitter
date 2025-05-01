@@ -2,7 +2,7 @@
 
 # import pytest
 
-# from codegen.extensions.tools.link_annotation import (
+# from graph_sitter.extensions.tools.link_annotation import (
 #     MessageChannel,
 #     add_links_to_message,
 #     extract_code_snippets,

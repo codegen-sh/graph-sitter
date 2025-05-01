@@ -9,7 +9,7 @@ from pytest_lsp import (
 )
 
 from graph_sitter.core.codebase import Codebase
-from tests.unit.codegen.extensions.lsp.utils import apply_edit
+from tests.unit.graph_sitter.extensions.lsp.utils import apply_edit
 
 
 @pytest.mark.parametrize(

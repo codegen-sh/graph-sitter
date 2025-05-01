@@ -2,7 +2,7 @@
 
 import modal
 from graph_sitter import Codebase
-from codegen.extensions import VectorIndex
+from graph_sitter.extensions import VectorIndex
 from pydantic import BaseModel
 
 # Create image with dependencies

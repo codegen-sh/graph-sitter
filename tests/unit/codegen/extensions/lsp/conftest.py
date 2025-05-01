@@ -15,7 +15,7 @@ from graph_sitter.core.codebase import Codebase
 
 @pytest_lsp.fixture(
     config=ClientServerConfig(
-        server_command=[sys.executable, "-m", "codegen.extensions.lsp.lsp"],
+        server_command=[sys.executable, "-m", "graph_sitter.extensions.lsp.lsp"],
     ),
 )
 async def lsp_client_uninitialized(lsp_client: LanguageClient):
@@ -25,7 +25,7 @@ async def lsp_client_uninitialized(lsp_client: LanguageClient):
 
 @pytest_lsp.fixture(
     config=ClientServerConfig(
-        server_command=[sys.executable, "-m", "codegen.extensions.lsp.lsp"],
+        server_command=[sys.executable, "-m", "graph_sitter.extensions.lsp.lsp"],
     ),
 )
 async def client(lsp_client: LanguageClient, codebase: Codebase):

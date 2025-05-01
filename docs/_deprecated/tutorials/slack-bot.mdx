@@ -27,7 +27,7 @@ First, we initialize the codebase and create a vector index for semantic search:
 
 ```python
 from graph_sitter import Codebase
-from codegen.extensions import VectorIndex
+from graph_sitter.extensions import VectorIndex
 
 def initialize_codebase():
     """Initialize and index the codebase."""
@@ -168,8 +168,8 @@ using tiktoken. Each chunk is embedded separately and can be searched independen
 allowing for more precise semantic search results.
 
 Relevant files:
-• src/codegen/extensions/vector_index.py (score: 0.92)
-• src/codegen/extensions/tools/semantic_search.py (score: 0.85)
+• src/graph_sitter.extensions/vector_index.py (score: 0.92)
+• src/graph_sitter.extensions/tools/semantic_search.py (score: 0.85)
 ```
 
 ## Extensions

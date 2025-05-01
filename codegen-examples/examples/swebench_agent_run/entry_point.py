@@ -1,5 +1,5 @@
-from codegen.extensions.swebench.utils import SweBenchExample
-from codegen.extensions.swebench.harness import run_agent_on_entry
+from graph_sitter.extensions.swebench.utils import SweBenchExample
+from graph_sitter.extensions.swebench.harness import run_agent_on_entry
 import modal
 
 image = (

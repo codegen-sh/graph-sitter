@@ -11,7 +11,7 @@ import uvicorn
 from rich.logging import RichHandler
 from rich.panel import Panel
 
-from codegen.extensions.events.codegen_app import CodegenApp
+from graph_sitter.extensions.events.codegen_app import CodegenApp
 from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)

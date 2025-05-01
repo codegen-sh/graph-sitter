@@ -17,7 +17,7 @@ uv add modal
 2. Start the API server:
 
 ```bash
-modal serve src/codegen/extensions/modal/api.py
+modal serve src/graph_sitter.extensions/modal/api.py
 ```
 
 3. Test with curl:
@@ -64,5 +64,5 @@ The API is built using:
 To deploy changes:
 
 ```bash
-modal deploy src/codegen/extensions/modal/api.py
+modal deploy src/graph_sitter.extensions/modal/api.py
 ```

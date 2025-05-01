@@ -6,8 +6,8 @@ from contextlib import asynccontextmanager
 from uvicorn.config import Config
 from uvicorn.server import Server
 
-from codegen.extensions.events.client import CodegenClient
-from codegen.extensions.events.codegen_app import CodegenApp
+from graph_sitter.extensions.events.client import CodegenClient
+from graph_sitter.extensions.events.codegen_app import CodegenApp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

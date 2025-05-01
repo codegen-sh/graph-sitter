@@ -6398,7 +6398,7 @@ The `FileIndex` operates at the file level:
 - Simpler and faster to create/update
 
 ```python
-from codegen.extensions.index.file_index import FileIndex
+from graph_sitter.extensions.index.file_index import FileIndex
 
 index = FileIndex(codebase)
 index.create()
@@ -6412,7 +6412,7 @@ The `SymbolIndex` operates at the symbol level:
 - More granular search results
 
 ```python
-from codegen.extensions.index.symbol_index import SymbolIndex
+from graph_sitter.extensions.index.symbol_index import SymbolIndex
 
 index = SymbolIndex(codebase)
 index.create()
@@ -6931,7 +6931,7 @@ The agent has access to powerful code viewing and manipulation tools powered by 
 
 
 
-<Info>View the full code for the default tools and agent implementation in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/codegen/extensions/langchain/tools)</Info>
+<Info>View the full code for the default tools and agent implementation in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/graph_sitter.extensions/langchain/tools)</Info>
 
 # Basic Usage
 
@@ -6970,7 +6970,7 @@ agent = CodeAgent(
 The agent comes with a comprehensive set of tools for code analysis and manipulation. Here are some key tools:
 
 ```python
-from codegen.extensions.langchain.tools import (
+from graph_sitter.extensions.langchain.tools import (
     CreateFileTool,
     DeleteFileTool,
     EditFileTool,
@@ -6985,7 +6985,7 @@ from codegen.extensions.langchain.tools import (
 )
 ```
 
-<Note>View the full set of [tools on Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/codegen/extensions/langchain/tools.py)</Note>
+<Note>View the full set of [tools on Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
 
 Each tool provides specific capabilities:
 
@@ -7002,7 +7002,7 @@ CODEGEN_SECRETS__GITHUB_TOKEN="..."
 Import the GitHub tools:
 
 ```python
-from codegen.extensions.langchain.tools import (
+from graph_sitter.extensions.langchain.tools import (
     GithubCreatePRTool,
     GithubViewPRTool,
     GithubCreatePRCommentTool,
@@ -7016,7 +7016,7 @@ These tools enable:
 - Adding general PR comments
 - Adding inline review comments
 
-<Note>View all Github tools on [Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/codegen/extensions/langchain/tools.py)</Note>
+<Note>View all Github tools on [Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
 
 
 ## Linear Integration
@@ -7032,7 +7032,7 @@ LINEAR_SIGNING_SECRET="..."
 Import and use the Linear tools:
 
 ```python
-from codegen.extensions.langchain.tools import (
+from graph_sitter.extensions.langchain.tools import (
     LinearGetIssueTool,
     LinearGetIssueCommentsTool,
     LinearCommentOnIssueTool,
@@ -7048,7 +7048,7 @@ These tools allow the agent to:
 - Add comments to issues
 - View team information
 
-<Note>View all Linear tools on [Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/codegen/extensions/langchain/tools.py)</Note>
+<Note>View all Linear tools on [Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
 
 
 ## Adding Custom Tools
@@ -7109,7 +7109,7 @@ First, we initialize the codebase and create a vector index for semantic search:
 
 ```python
 from graph_sitter import Codebase
-from codegen.extensions import VectorIndex
+from graph_sitter.extensions import VectorIndex
 
 def initialize_codebase():
     """Initialize and index the codebase."""
@@ -7250,8 +7250,8 @@ using tiktoken. Each chunk is embedded separately and can be searched independen
 allowing for more precise semantic search results.
 
 Relevant files:
-• src/codegen/extensions/vector_index.py (score: 0.92)
-• src/codegen/extensions/tools/semantic_search.py (score: 0.85)
+• src/graph_sitter.extensions/vector_index.py (score: 0.92)
+• src/graph_sitter.extensions/tools/semantic_search.py (score: 0.85)
 ```
 
 ## Extensions
@@ -7327,7 +7327,7 @@ First, we set up a Modal application to handle GitHub webhooks:
 
 ```python
 import modal
-from codegen.extensions.events.app import CodegenApp
+from graph_sitter.extensions.events.app import CodegenApp
 from fastapi import Request
 
 # Set up the base image with required dependencies
@@ -7361,7 +7361,7 @@ Make sure to configure your GitHub repository's webhook settings to point to you
 Next, we set up event handlers for PR label events:
 
 ```python
-from codegen.extensions.github.types.events.pull_request import (
+from graph_sitter.extensions.github.types.events.pull_request import (
     PullRequestLabeledEvent,
     PullRequestUnlabeledEvent
 )
@@ -7396,7 +7396,7 @@ Finally, we implement the AI-powered review agent:
 
 ```python
 from graph_sitter import Codebase, CodeAgent
-from codegen.extensions.langchain.tools import (
+from graph_sitter.extensions.langchain.tools import (
     GithubViewPRTool,
     GithubCreatePRCommentTool,
     GithubCreatePRReviewCommentTool,
@@ -7517,8 +7517,8 @@ First, let's import the necessary components and set up our research tools:
 
 ```python
 from graph_sitter import Codebase
-from codegen.extensions.langchain.agent import create_agent_with_tools
-from codegen.extensions.langchain.tools import (
+from graph_sitter.extensions.langchain.agent import create_agent_with_tools
+from graph_sitter.extensions.langchain.tools import (
     ListDirectoryTool,
     RevealSymbolTool,
     SearchTool,
@@ -11952,7 +11952,7 @@ Learn how to build a Model Context Protocol (MCP) server that enables AI models 
 
 This guide will walk you through creating an MCP server that can provide semantic code search
 
-<Info>View the full code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/codegen/extensions/mcp)</Info>
+<Info>View the full code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/graph_sitter.extensions/mcp)</Info>
 
 
 ## Setup:
@@ -11990,14 +11990,14 @@ Let's implement the semantic search tool.
 
 server.py
 ```python
-from codegen.extensions.tools.semantic_search import semantic_search
+from graph_sitter.extensions.tools.semantic_search import semantic_search
 
 ....
 
 @mcp.tool('codebase_semantic_search', "search codebase with the provided query")
 def search(query: Annotated[str, "search query to run against codebase"]):
   codebase = Codebase("provide location to codebase", language="provide codebase Language")
-  # use the semantic search tool from codegen.extensions.tools OR write your own
+  # use the semantic search tool from graph_sitter.extensions.tools OR write your own
   results = semantic_search(codebase=codebase, query=query)
   return results
 
@@ -12059,7 +12059,7 @@ docker run \
 
 ```python
 from graph_sitter import Codebase
-from codegen.extensions.graph.main import visualize_codebase
+from graph_sitter.extensions.graph.main import visualize_codebase
 
 # parse codebase
 codebase = Codebase("path/to/codebase")
@@ -12156,7 +12156,7 @@ Or from Python code:
 
 ```python
 from graph_sitter import Codebase
-from codegen.extensions.attribution.cli import run
+from graph_sitter.extensions.attribution.cli import run
 
 # Initialize codebase from current directory
 codebase = Codebase.from_repo("your-org/your-repo", language="python")
@@ -12183,7 +12183,7 @@ After running the analysis, each symbol in your codebase will have attribution i
 
 ```python
 from graph_sitter import Codebase
-from codegen.extensions.attribution.main import add_attribution_to_symbols
+from graph_sitter.extensions.attribution.main import add_attribution_to_symbols
 
 # Initialize codebase
 codebase = Codebase.from_repo("your-org/your-repo", language="python")
@@ -12207,7 +12207,7 @@ You can customize this by providing your own list of AI authors:
 
 ```python
 from graph_sitter import Codebase
-from codegen.extensions.attribution.main import analyze_ai_impact
+from graph_sitter.extensions.attribution.main import analyze_ai_impact
 
 # Initialize codebase
 codebase = Codebase.from_repo("your-org/your-repo", language="python")
@@ -12234,7 +12234,7 @@ import os
 from collections import Counter
 
 from graph_sitter import Codebase
-from codegen.extensions.attribution.main import add_attribution_to_symbols
+from graph_sitter.extensions.attribution.main import add_attribution_to_symbols
 from codegen.git.repo_operator.repo_operator import RepoOperator
 from codegen.git.schemas.repo_config import RepoConfig
 from codegen.sdk.codebase.config import ProjectConfig

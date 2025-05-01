@@ -2,8 +2,8 @@ import os
 import sys
 
 from graph_sitter import Codebase
-from codegen.extensions.attribution.cli import run
-from codegen.extensions.attribution.main import add_attribution_to_symbols
+from graph_sitter.extensions.attribution.cli import run
+from graph_sitter.extensions.attribution.main import add_attribution_to_symbols
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.git.schemas.repo_config import RepoConfig
 from graph_sitter.codebase.config import ProjectConfig
