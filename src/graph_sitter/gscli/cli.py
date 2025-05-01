@@ -2,7 +2,7 @@
 
 import click
 
-from gscli.generate.commands import generate
+from graph_sitter.gscli.generate.commands import generate
 
 
 @click.group()

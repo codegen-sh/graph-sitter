@@ -1,2 +1,2 @@
 def test_cli():
-    import gscli  # noqa: F401
+    import graph_sitter.gscli  # noqa: F401

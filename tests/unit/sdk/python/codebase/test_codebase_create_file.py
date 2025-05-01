@@ -5,7 +5,7 @@ import pytest
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.core.file import File
-from tests.unit.python.utils.test_file_contents import file1_content, file2_content
+from tests.unit.sdk.python.utils.test_file_contents import file1_content, file2_content
 
 
 @pytest.fixture(scope="function")
