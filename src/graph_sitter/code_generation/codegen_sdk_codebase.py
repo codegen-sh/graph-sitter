@@ -9,7 +9,7 @@ def get_codegen_sdk_subdirectories() -> list[str]:
     graphsitter_path = os.path.join(base, "graph_sitter")
     paths = [os.path.join(base, "codemods")]
     for dir in os.listdir(graphsitter_path):
-        if dir in ["git", "extensions"]:
+        if dir in ["git", "extensions", "cli"]:
             continue
         paths.append(os.path.join(graphsitter_path, dir))
 
