@@ -7,7 +7,7 @@ def convert_to_cli(input: str, language: str, name: str) -> str:
 # Important: if you run this as a regular python file, you MUST run it such that
 #  the base directory './' is the base of your codebase, otherwise it will not work.
 import codegen
-from graph_sitter import Codebase
+from graph_sitter.core.codebase import Codebase
 
 
 @codegen.function('{name}')

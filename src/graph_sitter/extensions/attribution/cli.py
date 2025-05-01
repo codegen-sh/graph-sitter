@@ -4,7 +4,7 @@ import os
 import pygit2
 
 import codegen
-from graph_sitter import Codebase
+from graph_sitter.core.codebase import Codebase
 from graph_sitter.extensions.attribution.main import add_attribution_to_symbols, analyze_ai_impact
 
 

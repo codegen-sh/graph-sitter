@@ -1,5 +1,5 @@
-from graph_sitter import Codebase
 from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.core.codebase import Codebase
 from graph_sitter.core.function import Function
 from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
 from graph_sitter.core.statements.if_block_statement import IfBlockStatement
