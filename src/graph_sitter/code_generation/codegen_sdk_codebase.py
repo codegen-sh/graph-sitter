@@ -6,7 +6,14 @@ from graph_sitter.core.codebase import Codebase
 
 def get_codegen_sdk_subdirectories() -> list[str]:
     base = get_codegen_codebase_base_path()
-    return [os.path.join(base, "graph_sitter"), os.path.join(base, "codemods")]
+    graphsitter_path = os.path.join(base, "graph_sitter")
+    paths = [os.path.join(base, "codemods")]
+    for dir in os.listdir(graphsitter_path):
+        if dir in ["git", "extensions"]:
+            continue
+        paths.append(os.path.join(graphsitter_path, dir))
+
+    return paths
 
 
 def get_codegen_sdk_codebase() -> Codebase:
