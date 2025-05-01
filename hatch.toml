@@ -77,15 +77,15 @@ exclude = [
 macos-max-compat = false
 
 [build]
-packages = ["src/graph_sitter", "src/codegen"]
+packages = ["src/graph_sitter"]
 
 [metadata.hooks.vcs.urls]
 Homepage = "https://www.codegen.com/"
-Repository = "https://github.com/codegen-sh/codegen-sdk"
-Download = "https://github.com/codegen-sh/codegen-sdk/archive/{commit_hash}.zip"
+Repository = "https://github.com/codegen-sh/graph-sitter"
+Download = "https://github.com/codegen-sh/graph-sitter/archive/{commit_hash}.zip"
 Changelog = "https://docs.codegen.com/changelog/changelog"
-Releasenotes = "https://github.com/codegen-sh/codegen-sdk/releases"
-Issues = "https://github.com/codegen-sh/codegen-sdk/issues"
+Releasenotes = "https://github.com/codegen-sh/graph-sitter/releases"
+Issues = "https://github.com/codegen-sh/graph-sitter/issues"
 Documentation = "https://docs.codegen.com"
 Playground = "https://www.codegen.sh/"
 
