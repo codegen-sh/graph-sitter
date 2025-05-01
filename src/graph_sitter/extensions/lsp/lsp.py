@@ -2,7 +2,7 @@ import logging
 
 from lsprotocol import types
 
-import codegen
+import graph_sitter
 from graph_sitter.codebase.diff_lite import ChangeType, DiffLite
 from graph_sitter.core.file import SourceFile
 from graph_sitter.extensions.lsp.definition import go_to_definition
@@ -13,7 +13,7 @@ from graph_sitter.extensions.lsp.server import CodegenLanguageServer
 from graph_sitter.extensions.lsp.utils import get_path
 from graph_sitter.shared.logging.get_logger import get_logger
 
-version = getattr(codegen, "__version__", "v0.1")
+version = getattr(graph_sitter, "__version__", "v0.1")
 server = CodegenLanguageServer("codegen", version, protocol_cls=CodegenLanguageServerProtocol)
 logger = get_logger(__name__)
 
