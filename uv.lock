@@ -506,21 +506,6 @@ wheels = [
 ]
 
 [[package]]
-name = "codegen-api-client"
-version = "1.0.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pydantic" },
-    { name = "python-dateutil" },
-    { name = "typing-extensions" },
-    { name = "urllib3" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/69/df/8a2bf96f96df71f44619dbd003852804dedd5c331846ad99e5476749bf96/codegen_api_client-1.0.0.tar.gz", hash = "sha256:4e925e25dfdda4afaba8c0b223c5bf2736da2a38d34ee30a92777692e4f34783", size = 26173 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/66/5bafb6e567d636e87a2fbedeca2300bc1a3a21a7b8cd5ec418e94538b57d/codegen_api_client-1.0.0-py3-none-any.whl", hash = "sha256:12f8fcfabe512bc88917fa750784d75b79b3a50495dc2c311c58ea83120f44a7", size = 44767 },
-]
-
-[[package]]
 name = "codegen-sdk-pink"
 version = "0.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1234,7 +1219,6 @@ dev = [
     { name = "black" },
     { name = "braintrust" },
     { name = "cibuildwheel", extra = ["uv"] },
-    { name = "codegen-api-client" },
     { name = "coverage" },
     { name = "cython" },
     { name = "deptry" },
@@ -1351,7 +1335,6 @@ dev = [
     { name = "black", specifier = ">=24.8.0" },
     { name = "braintrust", specifier = ">=0.0.160" },
     { name = "cibuildwheel", extras = ["uv"], specifier = ">=2.22.0" },
-    { name = "codegen-api-client", specifier = ">=1.0.0" },
     { name = "coverage", specifier = ">=7.6.1,<8.0.0" },
     { name = "cython", specifier = ">=3.0.11" },
     { name = "deptry", specifier = ">=0.22.0" },
