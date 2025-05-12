@@ -83,7 +83,7 @@
 		"primary": {
 			"type": "button",
 			"label": "GitHub",
-			"href": "https://github.com/codegen-sh/codegen-sdk"
+			"href": "https://github.com/codegen-sh/graph-sitter"
 		}
 	},
 	"seo": {

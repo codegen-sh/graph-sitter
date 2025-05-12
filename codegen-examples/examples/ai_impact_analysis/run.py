@@ -46,7 +46,7 @@ if __name__ == "__main__":
             if not found_git:
                 # Option C: Use from_repo method which handles cloning
                 print("No local git repository found. Cloning a repository...")
-                codebase = Codebase.from_repo(repo_full_name="codegen-sh/codegen", language="python")
+                codebase = Codebase.from_repo(repo_full_name="codegen-sh/graph-sitter", language="python")
 
         print(f"Codebase loaded with {len(codebase.files)} files and {len(codebase.symbols)} symbols")
 

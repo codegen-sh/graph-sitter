@@ -107,7 +107,7 @@ The script will output a detailed report including:
 ```
 📊 Repository Analysis Report 📊
 ==================================================
-📁 Repository: codegen-sh/codegen
+📁 Repository: codegen-sh/graph-sitter
 📝 Description: [Repository description from GitHub]
 
 📈 Basic Metrics:

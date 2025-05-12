@@ -7,7 +7,7 @@ iconType: "solid"
 
 This tutorial demonstrates how to build a Slack bot that can answer code questions using simple RAG (Retrieval Augmented Generation) over a codebase. The bot uses semantic search to find relevant code snippets and generates detailed answers using OpenAI's APIs.
 
-<Info>View the full code and setup instructions in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/slack_chatbot)</Info>
+<Info>View the full code and setup instructions in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/slack_chatbot)</Info>
 
 <Tip>While this example uses the Codegen codebase, you can adapt it to any repository by changing the repository URL</Tip>
 
@@ -33,7 +33,7 @@ def initialize_codebase():
     """Initialize and index the codebase."""
     # Initialize codebase with smart caching
     codebase = Codebase.from_repo(
-        "codegen-sh/codegen-sdk",
+        "codegen-sh/graph-sitter",
         language="python",
         tmp_dir="/root"
     )

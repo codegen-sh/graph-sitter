@@ -78,6 +78,6 @@ class CodebaseClient(Client):
 
 if __name__ == "__main__":
     test_config = RepoConfig.from_repo_path("/Users/caroljung/git/codegen/codegen-agi")
-    test_config.full_name = "codegen-sh/codegen-agi"
+    test_config.full_name = "codegen-sh/graph-sitter-agi"
     client = CodebaseClient(test_config)
     print(client.is_running())

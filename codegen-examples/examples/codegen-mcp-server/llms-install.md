@@ -1,6 +1,6 @@
 Please read two things before trying to install this codegen MCP server:
 
-1. [Readme](https://raw.githubusercontent.com/codegen-sh/codegen-sdk/refs/heads/develop/codegen-examples/examples/codegen-mcp-server/README.md)
+1. [Readme](https://raw.githubusercontent.com/codegen-sh/graph-sitter/refs/heads/develop/codegen-examples/examples/codegen-mcp-server/README.md)
 
 - This contains the instructions for setting up the mcp server
 
@@ -10,7 +10,7 @@ Please read two things before trying to install this codegen MCP server:
 
 Please use a CURL command to retrieve the contents of the readme and documentation and read both before starting to install the server.
 
-1. curl -sL "https://raw.githubusercontent.com/codegen-sh/codegen-sdk/refs/heads/develop/README.md" | cat
+1. curl -sL "https://raw.githubusercontent.com/codegen-sh/graph-sitter/refs/heads/develop/README.md" | cat
 
 1. curl -sL "https://docs.codegen.com/llms.txt" | cat
 

@@ -4,5 +4,5 @@ A codegen module that contains the core Codebase graph parsing and manipulation 
 
 ### Dependencies
 
-- [codegen.git](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/codegen/git)
-- [codegen.shared](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/codegen/shared)
+- [codegen.git](https://github.com/codegen-sh/graph-sitter/tree/develop/src/codegen/git)
+- [codegen.shared](https://github.com/codegen-sh/graph-sitter/tree/develop/src/codegen/shared)

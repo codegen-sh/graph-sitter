@@ -5,7 +5,7 @@ icon: "code"
 iconType: "solid"
 ---
 
-[Codegen](https://github.com/codegen-sh/codegen-sdk) is a python library for manipulating codebases.
+[Codegen](https://github.com/codegen-sh/graph-sitter) is a python library for manipulating codebases.
 
 It provides a scriptable interface to a powerful, multi-lingual language server built on top of [Tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 
@@ -916,7 +916,7 @@ Codegen performs advanced static analysis to build a rich graph representation o
 </Note>
 <Info>
   Codegen is open source. Check out the [source
-  code](https://github.com/codegen-sh/codegen-sdk) to learn more!
+  code](https://github.com/codegen-sh/graph-sitter) to learn more!
 </Info>
 
 ## The Codebase Graph
@@ -1009,7 +1009,7 @@ If you need help, please visit our [community](/introduction/community).
 </Warning>
 
 <Note>
-These configuration options are defined in [src/codegen/configs/models/codebase.py](https://github.com/codegen-sh/codegen/blob/develop/src/codegen/configs/models/codebase.py).
+These configuration options are defined in [src/codegen/configs/models/codebase.py](https://github.com/codegen-sh/graph-sitter/blob/develop/src/codegen/configs/models/codebase.py).
 </Note>
 
 # Usage
@@ -1127,7 +1127,7 @@ Method usage resolution could be disabled for a marginal performance boost. Howe
 Enables or disables graph sync during `codebase.commit`.
 
 <Note>
-Implementation-specific details on sync graph can be found [here](https://github.com/codegen-sh/codegen/blob/develop/architecture/6.%20incremental-computation/C.%20Graph%20Recomputation.md).
+Implementation-specific details on sync graph can be found [here](https://github.com/codegen-sh/graph-sitter/blob/develop/architecture/6.%20incremental-computation/C.%20Graph%20Recomputation.md).
 </Note>
 
 This section won't go into the specific details of sync graph, but the general idea is that enabling sync graph will update the Codebase object to whatever new changes were made.
@@ -1331,7 +1331,7 @@ Instead, just install `node_modules` as normal (either through `npm`, `pnpm`, or
 Enables Codegen's internal dependency installer for TypeScript. This will modify `package.json` and install the bare minimum set of installable dependencies.
 
 <Note>
-More documentation on TypeScript dependency manager can be found [here](https://github.com/codegen-sh/codegen/blob/develop/architecture/external/dependency-manager.md)
+More documentation on TypeScript dependency manager can be found [here](https://github.com/codegen-sh/graph-sitter/blob/develop/architecture/external/dependency-manager.md)
 </Note>
 
 ## Flag: `ts_language_engine`
@@ -1514,7 +1514,7 @@ Join the growing Codegen community! We're excited to have you be part of our jou
 
 We welcome contributions of all kinds! Whether you're fixing a typo in documentation, reporting a bug, or implementing a new feature, we appreciate your help in making Codegen better.
 
-Check out our [Contributing Guide](https://github.com/codegen-sh/codegen-sdk/blob/develop/CONTRIBUTING.md) on GitHub to learn how to:
+Check out our [Contributing Guide](https://github.com/codegen-sh/graph-sitter/blob/develop/CONTRIBUTING.md) on GitHub to learn how to:
 
 - Set up your development environment
 - Submit pull requests
@@ -1561,7 +1561,7 @@ Based in San Francisco, we're a team of engineers and researchers passionate abo
 
 ## Open Source
 
-We believe in the power of open source software. Our core library, [codegen](https://github.com/codegen-sh/codegen-sdk), is freely available and open to contributions from the community.
+We believe in the power of open source software. Our core library, [codegen](https://github.com/codegen-sh/graph-sitter), is freely available and open to contributions from the community.
 
 ## Join Us
 
@@ -1639,18 +1639,18 @@ iconType: "solid"
     icon="hand-holding-heart"
   >
     Start by trying out Codegen, joining our [Slack community](https://community.codegen.com), and looking for
-    issues labeled "good first issue" on [GitHub](https://github.com/codegen-sh/codegen-sdk). We welcome contributions to
+    issues labeled "good first issue" on [GitHub](https://github.com/codegen-sh/graph-sitter). We welcome contributions to
     documentation, examples, and code improvements.
   </Accordion>
   <Accordion title="Is Codegen free to use?" icon="scale-balanced">
-    Yes, Codegen is [open source](https://github.com/codegen-sh/codegen-sdk) and free to use under the [Apache 2.0
-    license](https://github.com/codegen-sh/codegen-sdk?tab=Apache-2.0-1-ov-file).
+    Yes, Codegen is [open source](https://github.com/codegen-sh/graph-sitter) and free to use under the [Apache 2.0
+    license](https://github.com/codegen-sh/graph-sitter?tab=Apache-2.0-1-ov-file).
     You can use it for both personal and commercial projects.
   </Accordion>
   <Accordion title="Where can I get help if I'm stuck?" icon="life-ring">
     The best places to get help are:
     1. Our community [Slack channel](https://community.codegen.com)
-    2. [GitHub issues](https://github.com/codegen-sh/codegen-sdk) for bug reports
+    2. [GitHub issues](https://github.com/codegen-sh/graph-sitter) for bug reports
     3. Reach out to us on [Twitter](https://x.com/codegen)
   </Accordion>
 </AccordionGroup>
@@ -1891,7 +1891,7 @@ codebase = Codebase(
   - `config`: Toggle specific features like language engines, dependency management, and graph synchronization
   - `secrets`: API keys and other sensitive information needed by the codebase
 
-For a complete list of available feature flags and configuration options, see the [source code on GitHub](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/codegen/sdk/codebase/config.py).
+For a complete list of available feature flags and configuration options, see the [source code on GitHub](https://github.com/codegen-sh/graph-sitter/blob/develop/src/codegen/sdk/codebase/config.py).
 
 ## Advanced Initialization
 
@@ -1925,7 +1925,7 @@ codebase = Codebase(
 )
 ```
 
-For more details on advanced configuration options, see the [source code on GitHub](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/codegen/sdk/core/codebase.py).
+For more details on advanced configuration options, see the [source code on GitHub](https://github.com/codegen-sh/graph-sitter/blob/develop/src/codegen/sdk/core/codebase.py).
 
 ## Supported Languages
 
@@ -6931,7 +6931,7 @@ The agent has access to powerful code viewing and manipulation tools powered by 
 
 
 
-<Info>View the full code for the default tools and agent implementation in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/graph_sitter.extensions/langchain/tools)</Info>
+<Info>View the full code for the default tools and agent implementation in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/src/graph_sitter.extensions/langchain/tools)</Info>
 
 # Basic Usage
 
@@ -6985,7 +6985,7 @@ from graph_sitter.extensions.langchain.tools import (
 )
 ```
 
-<Note>View the full set of [tools on Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
+<Note>View the full set of [tools on Github](https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
 
 Each tool provides specific capabilities:
 
@@ -7016,7 +7016,7 @@ These tools enable:
 - Adding general PR comments
 - Adding inline review comments
 
-<Note>View all Github tools on [Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
+<Note>View all Github tools on [Github](https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
 
 
 ## Linear Integration
@@ -7048,7 +7048,7 @@ These tools allow the agent to:
 - Add comments to issues
 - View team information
 
-<Note>View all Linear tools on [Github](https://github.com/codegen-sh/codegen-sdk/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
+<Note>View all Linear tools on [Github](https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter.extensions/langchain/tools.py)</Note>
 
 
 ## Adding Custom Tools
@@ -7089,7 +7089,7 @@ iconType: "solid"
 
 This tutorial demonstrates how to build a Slack bot that can answer code questions using simple RAG (Retrieval Augmented Generation) over a codebase. The bot uses semantic search to find relevant code snippets and generates detailed answers using OpenAI's APIs.
 
-<Info>View the full code and setup instructions in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/slack_chatbot)</Info>
+<Info>View the full code and setup instructions in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/slack_chatbot)</Info>
 
 <Tip>While this example uses the Codegen codebase, you can adapt it to any repository by changing the repository URL</Tip>
 
@@ -7115,7 +7115,7 @@ def initialize_codebase():
     """Initialize and index the codebase."""
     # Initialize codebase with smart caching
     codebase = Codebase.from_repo(
-        "codegen-sh/codegen-sdk",
+        "codegen-sh/graph-sitter",
         language="python",
         tmp_dir="/root"
     )
@@ -7497,7 +7497,7 @@ iconType: "solid"
 
 This guide demonstrates how to build an intelligent code research tool that can analyze and explain codebases using Codegen's and LangChain. The tool combines semantic code search, dependency analysis, and natural language understanding to help developers quickly understand new codebases.
 
-<Info>View the full code on [GitHub](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/deep_code_research)</Info>
+<Info>View the full code on [GitHub](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/deep_code_research)</Info>
 
 <Tip>This example works with any public GitHub repository - just provide the repo name in the format owner/repo</Tip>
 
@@ -7874,7 +7874,7 @@ iconType: "solid"
 
 This guide demonstrates how to use Codegen to generate high-quality training data for large language models (LLMs) by extracting function implementations along with their dependencies and usages. This approach is similar to [word2vec](https://www.tensorflow.org/text/tutorials/word2vec) or [node2vec](https://snap.stanford.edu/node2vec/) - given the context of a function, learn to predict the function's implementation.
 
-<Info>View the full code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/generate_training_data)</Info>
+<Info>View the full code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/generate_training_data)</Info>
 
 <Tip>This example works with both Python and Typescript repositories without modification</Tip>
 
@@ -8946,7 +8946,7 @@ iconType: "solid"
 Modern JavaScript/TypeScript codebases often need to migrate from Promise-based code to the more readable async/await syntax. Codegen provides powerful tools to automate this conversion while preserving business logic and handling complex scenarios.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/blob/develop/codegen-examples/examples/promises_to_async_await/promises_to_async_await.ipynb).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/blob/develop/codegen-examples/examples/promises_to_async_await/promises_to_async_await.ipynb).
 </Info>
 
 
@@ -9034,7 +9034,7 @@ new_code = promise_statement.edit(
 - Ambiguous/conditional return blocks
 
 <Info>
-A list of all the covered cases can be found in the [example notebook](https://github.com/codegen-sh/codegen-sdk/tree/codegen-examples/examples/promises_to_async_await/promise_to_async_await.ipynb).
+A list of all the covered cases can be found in the [example notebook](https://github.com/codegen-sh/graph-sitter/tree/codegen-examples/examples/promises_to_async_await/promise_to_async_await.ipynb).
 </Info>
 
 
@@ -9209,7 +9209,7 @@ Here are some next steps to ensure a successful migration:
 1. Ensure to run `npx prettier --write .` after the migration to fix indentation + linting
 2. **Incremental Migration**: Convert one module at a time
 3. **Handle Additional Business Logic**: Use `.promise_statement.edit()` to modify the entire chain and handle external business logic
-4. If the specific conversion case is not covered, open an issue on the [Codegen](https://github.com/codegen-sh/codegen-sdk) repository or try to right your own transformation logic using the codegen-sdk
+4. If the specific conversion case is not covered, open an issue on the [Codegen](https://github.com/codegen-sh/graph-sitter) repository or try to right your own transformation logic using the codegen-sdk
 
 
 ---
@@ -10858,7 +10858,7 @@ iconType: "solid"
 Migrating from [unittest](https://docs.python.org/3/library/unittest.html) to [pytest](https://docs.pytest.org/) involves converting test classes and assertions to pytest's more modern and concise style. This guide will walk you through using Codegen to automate this migration.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/unittest_to_pytest).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/unittest_to_pytest).
 </Info>
 
 ## Overview
@@ -11070,7 +11070,7 @@ iconType: "solid"
 Migrating from [SQLAlchemy](https://www.sqlalchemy.org/) 1.4 to 2.0 involves several API changes to support the new 2.0-style query interface. This guide will walk you through using Codegen to automate this migration, handling query syntax, session usage, and ORM patterns.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/sqlalchemy_1.4_to_2.0).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/sqlalchemy_1.4_to_2.0).
 </Info>
 
 ## Overview
@@ -11212,7 +11212,7 @@ Import loops occur when two or more Python modules depend on each other, creatin
 In this tutorial, we'll explore how to identify and fix problematic import cycles using Codegen.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/removing_import_loops_in_pytorch).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/removing_import_loops_in_pytorch).
 </Info>
 
 ## Overview
@@ -11475,7 +11475,7 @@ iconType: "solid"
 Migrating from Python 2 to Python 3 involves several syntax and API changes. This guide will walk you through using Codegen to automate this migration, handling print statements, string handling, iterators, and more.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/python2_to_python3).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/python2_to_python3).
 </Info>
 
 ## Overview
@@ -11688,7 +11688,7 @@ class MyIterator:
 You can run the complete migration using our example script:
 
 ```bash
-git clone https://github.com/codegen-sh/codegen-sdk.git
+git clone https://github.com/codegen-sh/graph-sitter.git
 cd codegen-examples/examples/python2_to_python3
 python run.py
 ```
@@ -11731,7 +11731,7 @@ iconType: "solid"
 
 Migrating from [Flask](https://flask.palletsprojects.com/) to [FastAPI](https://fastapi.tiangolo.com/) involves several key changes to your codebase. This guide will walk you through using Codegen to automate this migration, handling imports, route decorators, static files, and template rendering.
 
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/codegen-examples/examples/flask_to_fastapi_migration)
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/flask_to_fastapi_migration)
 
 ## Overview
 
@@ -11907,7 +11907,7 @@ def list_users(request: Request):
 You can run the complete migration using our example script:
 
 ```bash
-git clone https://github.com/codegen-sh/codegen-sdk.git
+git clone https://github.com/codegen-sh/graph-sitter.git
 cd codegen-examples/examples/flask_to_fastapi_migration
 python run.py
 ```
@@ -11952,7 +11952,7 @@ Learn how to build a Model Context Protocol (MCP) server that enables AI models 
 
 This guide will walk you through creating an MCP server that can provide semantic code search
 
-<Info>View the full code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/graph_sitter.extensions/mcp)</Info>
+<Info>View the full code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/src/graph_sitter.extensions/mcp)</Info>
 
 
 ## Setup:

@@ -8,7 +8,7 @@ iconType: "solid"
 Modern JavaScript/TypeScript codebases often need to migrate from Promise-based code to the more readable async/await syntax. Codegen provides powerful tools to automate this conversion while preserving business logic and handling complex scenarios.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/codegen-sdk/blob/develop/codegen-examples/examples/promises_to_async_await/promises_to_async_await.ipynb).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/blob/develop/codegen-examples/examples/promises_to_async_await/promises_to_async_await.ipynb).
 </Info>
 
 
@@ -96,7 +96,7 @@ new_code = promise_statement.edit(
 - Ambiguous/conditional return blocks
 
 <Info>
-A list of all the covered cases can be found in the [example notebook](https://github.com/codegen-sh/codegen-sdk/tree/codegen-examples/examples/promises_to_async_await/promise_to_async_await.ipynb).
+A list of all the covered cases can be found in the [example notebook](https://github.com/codegen-sh/graph-sitter/tree/codegen-examples/examples/promises_to_async_await/promise_to_async_await.ipynb).
 </Info>
 
 
@@ -271,4 +271,4 @@ Here are some next steps to ensure a successful migration:
 1. Ensure to run `npx prettier --write .` after the migration to fix indentation + linting
 2. **Incremental Migration**: Convert one module at a time
 3. **Handle Additional Business Logic**: Use `.promise_statement.edit()` to modify the entire chain and handle external business logic
-4. If the specific conversion case is not covered, open an issue on the [Codegen](https://github.com/codegen-sh/codegen-sdk) repository or try to right your own transformation logic using the codegen-sdk
+4. If the specific conversion case is not covered, open an issue on the [Codegen](https://github.com/codegen-sh/graph-sitter) repository or try to right your own transformation logic using the codegen-sdk

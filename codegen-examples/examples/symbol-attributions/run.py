@@ -70,7 +70,7 @@ if __name__ == "__main__":
             # Use from_repo method for a well-known repository
             print("Using a sample repository...")
             codebase = Codebase.from_repo(
-                repo_full_name="codegen-sh/codegen",
+                repo_full_name="codegen-sh/graph-sitter",
                 # commit="",  # Using a specific commit for consistency
                 language="python",
             )

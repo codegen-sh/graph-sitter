@@ -4,8 +4,8 @@ A codegen module that handles all `codegen` CLI commands.
 
 ### Dependencies
 
-- [codegen.sdk](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/codegen/sdk)
-- [codegen.shared](https://github.com/codegen-sh/codegen-sdk/tree/develop/src/codegen/shared)
+- [codegen.sdk](https://github.com/codegen-sh/graph-sitter/tree/develop/src/codegen/sdk)
+- [codegen.shared](https://github.com/codegen-sh/graph-sitter/tree/develop/src/codegen/shared)
 
 ## Best Practices
 

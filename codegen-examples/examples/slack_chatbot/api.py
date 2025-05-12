@@ -20,7 +20,7 @@ def format_response(answer: str, context: list[tuple[str, int]]) -> str:
     """Format the response for Slack with file links."""
     response = f"*Answer:*\n{answer}\n\n*Relevant Files:*\n"
     for filename, score in context:
-        github_link = f"https://github.com/codegen-sh/codegen-sdk/blob/develop/{filename}"
+        github_link = f"https://github.com/codegen-sh/graph-sitter/blob/develop/{filename}"
         response += f"• <{github_link}|{filename}>\n"
     return response
 
@@ -28,7 +28,7 @@ def format_response(answer: str, context: list[tuple[str, int]]) -> str:
 def answer_question(query: str) -> tuple[str, list[tuple[str, int]]]:
     """Use RAG to answer a question about FastAPI."""
     # Initialize codebase. Smart about caching.
-    codebase = Codebase.from_repo("codegen-sh/codegen-sdk", language="python", tmp_dir="/root")
+    codebase = Codebase.from_repo("codegen-sh/graph-sitter", language="python", tmp_dir="/root")
 
     # Initialize vector index
     index = VectorIndex(codebase)

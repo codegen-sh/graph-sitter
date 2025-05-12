@@ -101,7 +101,7 @@ Currently, the `promise_chain.convert_to_async_await()` method handles the follo
 
 **IMPORTANT:**
 
-_There will be cases that the current `promise_chain.convert_to_async_await()` cannot handle. In those cases, either right your own transformation logic using the codegen-sdk or open an issue on the [Codegen](https://github.com/codegen-sh/codegen-sdk) repository._
+_There will be cases that the current `promise_chain.convert_to_async_await()` cannot handle. In those cases, either right your own transformation logic using the codegen-sdk or open an issue on the [Codegen](https://github.com/codegen-sh/graph-sitter) repository._
 
 ## Contributing
 

@@ -231,7 +231,7 @@ wheels = [
 [[package]]
 name = "codegen"
 version = "0.22.2.dev14+g64374f8"
-source = { git = "https://github.com/codegen-sh/codegen-sdk.git?rev=64374f8#64374f832539b137b83859dd88b3f78df3a5c664" }
+source = { git = "https://github.com/codegen-sh/graph-sitter.git?rev=64374f8#64374f832539b137b83859dd88b3f78df3a5c664" }
 dependencies = [
     { name = "anthropic" },
     { name = "astor" },
@@ -999,7 +999,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "codegen", git = "https://github.com/codegen-sh/codegen-sdk.git?rev=64374f8" },
+    { name = "codegen", git = "https://github.com/codegen-sh/graph-sitter.git?rev=64374f8" },
     { name = "modal", specifier = ">=0.73.25" },
 ]
 

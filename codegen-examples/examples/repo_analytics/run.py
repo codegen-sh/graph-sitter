@@ -285,7 +285,7 @@ def analyze_repo(repo_url: str) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    repo_url = "codegen-sh/codegen"
+    repo_url = "codegen-sh/graph-sitter"
     results = analyze_repo(repo_url)
 
     print("\n📊 Repository Analysis Report 📊")

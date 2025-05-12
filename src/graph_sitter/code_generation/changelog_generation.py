@@ -129,7 +129,7 @@ def generate_changelog(client: OpenAI, latest_existing_version: str | None = Non
         if latest_existing_version and version == latest_existing_version:
             break
 
-        tag_url = f"https://github.com/codegen-sh/codegen-sdk/releases/tag/{version}"
+        tag_url = f"https://github.com/codegen-sh/graph-sitter/releases/tag/{version}"
         release_summary = generate_release_summary(client, release)
         release_content = f"""
 <Update label="{version}" description="{release["tagged_date"].strftime("%B %d, %Y")}">

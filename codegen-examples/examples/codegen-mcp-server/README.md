@@ -14,7 +14,7 @@
 <div align="center">
 
 [![Documentation](https://img.shields.io/badge/Docs-docs.codegen.com-purple?style=flat-square)](https://docs.codegen.com)
-[![License](https://img.shields.io/badge/Code%20License-Apache%202.0-gray?&color=gray)](https://github.com/codegen-sh/codegen-sdk/tree/develop?tab=Apache-2.0-1-ov-file)
+[![License](https://img.shields.io/badge/Code%20License-Apache%202.0-gray?&color=gray)](https://github.com/codegen-sh/graph-sitter/tree/develop?tab=Apache-2.0-1-ov-file)
 
 </div>
 
@@ -36,7 +36,7 @@ This example demonstrates how to run a Model Control Protocol (MCP) server that 
 1. No installation is necessary, with the following command. Run this command directly or add it your `.json` mcp config file.
 
 ```bash
- uvx --from 'git+https://github.com/codegen-sh/codegen-sdk.git#egg=codegen-mcp-server&subdirectory=codegen-examples/examples/codegen-mcp-server' codegen-mcp-server
+ uvx --from 'git+https://github.com/codegen-sh/graph-sitter.git#egg=codegen-mcp-server&subdirectory=codegen-examples/examples/codegen-mcp-server' codegen-mcp-server
 ```
 
 ### Example MCP Config
@@ -50,7 +50,7 @@ Here is an example mcp config that can be used with Cline or Claude desktop to i
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/codegen-sh/codegen-sdk.git#egg=codegen-mcp-server&subdirectory=codegen-examples/examples/codegen-mcp-server",
+        "git+https://github.com/codegen-sh/graph-sitter.git#egg=codegen-mcp-server&subdirectory=codegen-examples/examples/codegen-mcp-server",
         "codegen-mcp-server"
       ],
       "disabled": false,
