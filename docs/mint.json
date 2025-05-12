@@ -87,9 +87,6 @@
 			"group": "Tutorials",
 			"pages": [
 				"tutorials/at-a-glance",
-				"tutorials/build-code-agent",
-				"tutorials/slack-bot",
-				"tutorials/github-review-bot",
 				"tutorials/deep-code-research",
 				"tutorials/codebase-analytics-dashboard",
 				"tutorials/training-data",
