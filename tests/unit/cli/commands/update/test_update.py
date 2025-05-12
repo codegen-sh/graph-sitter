@@ -42,7 +42,7 @@ def mock_install_package():
 def mock_distribution():
     with patch.object(main, "distribution") as mock_distribution:
         mock_distribution.return_value.version = "1.20.0"
-        mock_distribution.return_value.name = "graph_sitter"
+        mock_distribution.return_value.name = "graph-sitter"
         yield mock_distribution
 
 
@@ -64,7 +64,7 @@ def test_update_default(mock_install_package):
     result = runner.invoke(main.update_command, [])
     assert result.exit_code == 0
 
-    mock_install_package.assert_called_once_with("graph_sitter", "--upgrade")
+    mock_install_package.assert_called_once_with("graph-sitter", "--upgrade")
 
 
 def test_update_with_version_flag(mock_install_package):
@@ -77,7 +77,7 @@ def test_update_with_version_flag(mock_install_package):
     assert result.exit_code == 0
 
     # Check that install_package was called with "graph_sitter==0.3.0"
-    mock_install_package.assert_called_once_with("graph_sitter==0.3.0")
+    mock_install_package.assert_called_once_with("graph-sitter==0.3.0")
 
 
 def test_list_versions(mock_request):
@@ -90,7 +90,7 @@ def test_list_versions(mock_request):
     result = runner.invoke(main.update_command, ["--list"])
     assert result.exit_code == 0
 
-    mock_request.assert_called_once_with("https://pypi.org/pypi/graph_sitter/json")
+    mock_request.assert_called_once_with("https://pypi.org/pypi/graph-sitter/json")
 
     output = result.output
     expected_lines = [
