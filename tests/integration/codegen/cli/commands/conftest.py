@@ -28,7 +28,7 @@ def sample_repository(tmp_path: Path):
 
 @pytest.fixture()
 def runner():
-    return CliRunner(mix_stderr=False)
+    return CliRunner()
 
 
 @pytest.fixture
