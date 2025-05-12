@@ -9,7 +9,7 @@ from semantic_release.changelog.release_history import Release, ReleaseHistory
 from semantic_release.cli.cli_context import CliContextObj
 from semantic_release.cli.config import GlobalCommandLineOptions
 
-import codegen
+import graph_sitter
 from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
@@ -113,7 +113,7 @@ def generate_changelog(client: OpenAI, latest_existing_version: str | None = Non
     ctx = CliContextObj(ContextMock(), logger=logger, global_opts=GlobalCommandLineOptions())
     runtime = ctx.runtime_ctx
     translator = runtime.version_translator
-    with Repo(Path(codegen.__file__).parents[2]) as codegen_sdk_repo:
+    with Repo(Path(graph_sitter.__file__).parents[2]) as codegen_sdk_repo:
         release_history = ReleaseHistory.from_git_history(
             repo=codegen_sdk_repo,
             translator=translator,
