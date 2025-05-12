@@ -5,7 +5,7 @@ from graph_sitter.configs.models.base_config import BaseConfig
 
 class RepositoryConfig(BaseConfig):
     """Configuration for the repository context to run codegen.
-    To automatically populate this config, call `codegen init` from within a git repository.
+    To automatically populate this config, call `gs init` from within a git repository.
     """
 
     path: str | None = None

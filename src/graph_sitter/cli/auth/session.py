@@ -67,7 +67,7 @@ class CodegenSession:
             rich.print("To enable full functionality, please set your GitHub token:")
             rich.print(format_command("export GITHUB_TOKEN=<your-token>"))
             rich.print("Or pass in as a parameter:")
-            rich.print(format_command("codegen init --token <your-token>"))
+            rich.print(format_command("gs init --token <your-token>"))
 
         if self.local_git.origin_remote is None:
             rich.print("\n[bold yellow]Warning:[/bold yellow] No remote found for repository")

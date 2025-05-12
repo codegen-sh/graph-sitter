@@ -11,7 +11,7 @@ The `notebook` command launches a Jupyter Lab instance with a pre-configured not
 ## Usage
 
 ```bash
-codegen notebook [--background]
+gs notebook [--background]
 ```
 
 ### Options
@@ -45,7 +45,7 @@ codebase = Codebase('../../')
 
 ## Directory Structure
 
-After running `codegen notebook`, your repository will have this structure:
+After running `gs notebook`, your repository will have this structure:
 
 ```
 .codegen/
@@ -59,13 +59,13 @@ After running `codegen notebook`, your repository will have this structure:
 
 ```bash
 # Run Jupyter in the foreground (default)
-codegen notebook
+gs notebook
 
 # Run Jupyter in the background
-codegen notebook --background
+gs notebook --background
 
 # Initialize a new repository and launch notebook
-codegen init && codegen notebook
+gs init && gs notebook
 ```
 
 <Tip>

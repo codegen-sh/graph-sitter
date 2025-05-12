@@ -20,7 +20,7 @@ def requires_auth(f: Callable) -> Callable:
 
         # Check for valid session
         if session is None:
-            pretty_print_error("There is currently no active session.\nPlease run 'codegen init' to initialize the project.")
+            pretty_print_error("There is currently no active session.\nPlease run 'gs init' to initialize the project.")
             raise click.Abort()
 
         if (token := get_current_token()) is None:

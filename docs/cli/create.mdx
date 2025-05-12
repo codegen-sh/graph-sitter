@@ -8,13 +8,13 @@ iconType: "solid"
 The `create` command generates a new codemod function with the necessary boilerplate.
 
 ```bash
-codegen create rename-function .
+gs create rename-function .
 ```
 
 ## Usage
 
 ```bash
-codegen create NAME PATH [OPTIONS]
+gs create NAME PATH [OPTIONS]
 ```
 
 ## Arguments
@@ -28,7 +28,7 @@ codegen create NAME PATH [OPTIONS]
 
 ## Generated Files
 
-When you run `codegen create rename-function .`, it creates:
+When you run `gs create rename-function .`, it creates:
 
 ```
 .codegen/
@@ -64,19 +64,19 @@ if __name__ == "__main__":
 
 Create a basic codemod:
 ```bash
-codegen create rename-function .
+gs create rename-function .
 ```
 
 Create with an AI-powered implementation:
 ```bash
-codegen create rename-function . -d "Rename the getUserData function to fetchUserProfile"
+gs create rename-function . -d "Rename the getUserData function to fetchUserProfile"
 ```
 
 ## Next Steps
 
 After creating a codemod:
 1. Edit the implementation in the generated .py file
-2. Test it with `codegen run rename-function`
+2. Test it with `gs run rename-function`
 3. Deploy it for team use with `codegen deploy rename-function`
 
 ## Common Issues

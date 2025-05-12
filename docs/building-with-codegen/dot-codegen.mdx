@@ -5,7 +5,7 @@ icon: "folder"
 iconType: "solid"
 ---
 
-The `.codegen` directory contains your project's Codegen configuration, codemods, and supporting files. It's automatically created when you run `codegen init`.
+The `.codegen` directory contains your project's Codegen configuration, codemods, and supporting files. It's automatically created when you run `gs init`.
 
 ## Directory Structure
 
@@ -20,10 +20,10 @@ The `.codegen` directory contains your project's Codegen configuration, codemods
 
 ## Initialization
 
-The directory is created and managed using the `codegen init` command:
+The directory is created and managed using the `gs init` command:
 
 ```bash
-codegen init [--fetch-docs] [--repo-name NAME] [--organization-name ORG]
+gs init [--fetch-docs] [--repo-name NAME] [--organization-name ORG]
 ```
 
 <Note>
@@ -40,7 +40,7 @@ Codegen maintains its own virtual environment in `.codegen/.venv/` to ensure con
 - Used for running codemods and Jupyter notebooks
 - Gitignored to avoid committing environment-specific files
 
-The environment is created during `codegen init` and used by commands like `codegen run` and `codegen notebook`.
+The environment is created during `gs init` and used by commands like `gs run` and `gs notebook`.
 
 <Note>To debug codemods, you will need to set the python virtual environment in your IDE to `.codegen/.venv`</Note>
 
@@ -78,7 +78,7 @@ Codegen automatically adds appropriate entries to your `.gitignore`:
 The `codemods/` directory is where your transformation functions live. You can create new codemods using:
 
 ```bash
-codegen create my-codemod PATH [--description "what it does"]
+gs create my-codemod PATH [--description "what it does"]
 ```
 
 This will:
@@ -87,7 +87,7 @@ This will:
 3. Set up the necessary imports and decorators
 
 <Tip>
-Use `codegen list` to see all codemods in your project.
+Use `gs list` to see all codemods in your project.
 </Tip>
 
 ## Jupyter Integration
@@ -115,12 +115,12 @@ After initializing your `.codegen` directory:
 
 1. Create your first codemod:
 ```bash
-codegen create my-codemod . -d "describe what you want to do"
+gs create my-codemod . -d "describe what you want to do"
 ```
 
 2. Run it:
 ```bash
-codegen run my-codemod --apply-local
+gs run my-codemod --apply-local
 ```
 
 3. Deploy it for team use:

@@ -75,9 +75,9 @@ def run_cloud(session: CodegenSession, function, apply_local: bool = False, diff
                 if not apply_local:
                     rich.print("")
                     rich.print("Apply changes locally:")
-                    rich.print(format_command(f"codegen run {function.name} --apply-local"))
+                    rich.print(format_command(f"gs run {function.name} --apply-local"))
                     rich.print("Create a PR:")
-                    rich.print(format_command(f"codegen run {function.name} --create-pr"))
+                    rich.print(format_command(f"gs run {function.name} --create-pr"))
             else:
                 rich.print("")
                 rich.print("[yellow] No changes were produced by this codemod[/yellow]")

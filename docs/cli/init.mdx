@@ -10,7 +10,7 @@ The `init` command sets up Codegen in your repository, creating necessary config
 ## Usage
 
 ```bash
-codegen init [OPTIONS]
+gs init [OPTIONS]
 ```
 
 ## Options
@@ -20,13 +20,13 @@ codegen init [OPTIONS]
 
 ## Directory Structure
 
-When you run `init`, Codegen creates a `.codegen` directory in your repository with the following structure:
+When you run `init`, gs creates a `.codegen` directory in your repository with the following structure:
 
 ```
 .codegen/
 ├── config.toml         # Configuration file with repo and org info
 ├── codemods/          # Your codemods live here
-│   └── my_codemod.py  # Created via `codegen create my-codemod`
+│   └── my_codemod.py  # Created via `gs create my-codemod`
 ├── docs/              # Local documentation for offline access
 │   ├── api/
 │   ├── examples/
@@ -47,7 +47,7 @@ This setup allows you to:
 
 ## Recommended Structure
 
-We recommend keeping your Codegen codemods in the `.codegen/codemods/` directory (this is the default when using `codegen create`). This:
+We recommend keeping your Codegen codemods in the `.codegen/codemods/` directory (this is the default when using `gs create`). This:
 
 - Keeps transformation code separate from your application code
 - Makes it easy to find and manage all your codemods
@@ -68,7 +68,7 @@ The command must be run from within a git repository. If you're not in one, you'
 ```bash
 git init
 git remote add origin <your-repo-url>
-codegen init
+gs init
 ```
 
 ## Examples
@@ -76,13 +76,13 @@ codegen init
 Initialize with default settings (uses git repo info):
 
 ```bash
-codegen init
+gs init
 ```
 
 Initialize with custom organization and repo:
 
 ```bash
-codegen init --organization-name "my-org" --repo-name "my-project"
+gs init --organization-name "my-org" --repo-name "my-project"
 ```
 
 ## Next Steps
@@ -92,7 +92,7 @@ After initializing:
 1. Create your first codemod:
 
 ```bash
-codegen create my-function . -d "describe what you want to do"
+gs create my-function . -d "describe what you want to do"
 ```
 
 Note: The second parameter (`.`) specifies the path where the codemod should be created. This is required.
@@ -100,7 +100,7 @@ Note: The second parameter (`.`) specifies the path where the codemod should be 
 2. Run it:
 
 ```bash
-codegen run my-function --apply-local
+gs run my-function --apply-local
 ```
 
 ## Updating
@@ -108,7 +108,7 @@ codegen run my-function --apply-local
 You can run `init` again to update your local documentation and configuration:
 
 ```bash
-codegen init
+gs init
 ```
 
 This will refresh the `.codegen` directory while preserving your existing configuration.

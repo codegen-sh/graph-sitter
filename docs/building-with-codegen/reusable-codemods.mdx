@@ -12,7 +12,7 @@ Codegen enables you to create reusable code transformations using Python functio
 The easiest way to create a new codemod is using the CLI [create](/cli/create) command:
 
 ```bash
-codegen create rename-function .
+gs create rename-function .
 ```
 
 This creates a new codemod in your `.codegen/codemods` directory:
@@ -37,7 +37,7 @@ def run(codebase: Codebase):
 You can use AI to generate an initial implementation by providing a description:
 
 ```bash
-codegen create rename-function . -d "Rename the getUserData function to fetchUserProfile"
+gs create rename-function . -d "Rename the getUserData function to fetchUserProfile"
 ```
 
 This will:
@@ -50,7 +50,7 @@ This will:
 Once created, run your codemod using:
 
 ```bash
-codegen run rename-function
+gs run rename-function
 ```
 
 The execution flow:
@@ -104,7 +104,7 @@ def run(codebase: Codebase, arguments: RenameArgs):
 
 Run it with:
 ```bash
-codegen run rename-function --arguments '{"old_name": "getUserData", "new_name": "fetchUserProfile"}'
+gs run rename-function --arguments '{"old_name": "getUserData", "new_name": "fetchUserProfile"}'
 ```
 
 ## Directory Structure

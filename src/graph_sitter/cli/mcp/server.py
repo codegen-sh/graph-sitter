@@ -65,7 +65,7 @@ def generate_codemod(
     return f'''
     Use the graph_sitter.cli to generate a codemod. If you need to intall the cli the command to do so is `uv tool install codegen`. Once installed, run the following command to generate the codemod:
 
-    codegen create {title} -d "{task}"
+    gs create {title} -d "{task}"
     '''
 
 

@@ -47,7 +47,7 @@ class CodemodManager:
             # If not found, check if any codemods exist
             all_codemods = cls.list(start_path)
             if not all_codemods:
-                raise click.ClickException("No codemods found. Create one with:\n" + "  codegen create my-codemod")
+                raise click.ClickException("No codemods found. Create one with:\n" + "  gs create my-codemod")
             else:
                 available = "\n  ".join(f"- {c.name}" for c in all_codemods)
                 msg = f"Codemod '{name}' not found. Available codemods:\n  {available}"

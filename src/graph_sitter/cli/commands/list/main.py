@@ -32,7 +32,7 @@ def list_command():
 
         rich.print(table)
         rich.print("\nRun a function with:")
-        rich.print(format_command("codegen run <label>"))
+        rich.print(format_command("gs run <label>"))
     else:
         rich.print("[yellow]No codegen functions found in current directory.[/yellow]")
         rich.print("\nAdd a function with @codegen.function decorator:")

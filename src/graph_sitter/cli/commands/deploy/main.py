@@ -39,7 +39,7 @@ def deploy_functions(functions: list[DecoratedFunction], message: str | None = N
         func_type = "Webhook" if func.lint_mode else "Function"
         rich.print(f"✅ {func_type} '{func.name}' deployed in {deploy_time:.3f}s! 🎉")
         rich.print("   [dim]View deployment:[/dim]")
-        rich.print(format_command(f"codegen run {func.name}"))
+        rich.print(format_command(f"gs run {func.name}"))
 
 
 @click.command(name="deploy")

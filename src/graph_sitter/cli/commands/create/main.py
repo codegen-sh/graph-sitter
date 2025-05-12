@@ -83,7 +83,7 @@ def create_command(session: CodegenSession, name: str, path: Path | None, descri
     # Check if file exists
     if codemod_path.exists() and not overwrite:
         rel_path = make_relative(codemod_path)
-        pretty_print_error(f"File already exists at {format_path(rel_path)}\n\nTo overwrite the file:\n{format_command(f'codegen create {name} {rel_path} --overwrite')}")
+        pretty_print_error(f"File already exists at {format_path(rel_path)}\n\nTo overwrite the file:\n{format_command(f'gs create {name} {rel_path} --overwrite')}")
         return
 
     response = None
@@ -120,4 +120,4 @@ def create_command(session: CodegenSession, name: str, path: Path | None, descri
     # Next steps
     rich.print("\n[bold]What's next?[/bold]\n")
     rich.print("1. Review and edit the function to customize its behavior")
-    rich.print(f"2. Run it with: \n{format_command(f'codegen run {name}')}")
+    rich.print(f"2. Run it with: \n{format_command(f'gs run {name}')}")

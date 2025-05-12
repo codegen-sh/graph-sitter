@@ -7,11 +7,11 @@ iconType: "solid"
 
 Get up and running with Codegen programs in IDEs like VSCode, Cursor and PyCharm.
 
-<Tip>Make sure to [install and initialize](/introduction/installation) Codegen with `codegen init`</Tip>
+<Tip>Make sure to [install and initialize](/introduction/installation) Codegen with `gs init`</Tip>
 
 ## Configuring your IDE Interpreter
 
-Codegen creates a custom Python environment in `.codegen/.venv`. Configure your IDE to use this environment for the best development experience.
+gs creates a custom Python environment in `.codegen/.venv`. Configure your IDE to use this environment for the best development experience.
 
 <AccordionGroup>
   <Accordion title="VSCode, Cursor and Windsurf" icon="window-maximize">
@@ -100,10 +100,10 @@ https://docs.codegen.com/api-reference/index
 
 ## Create a New Codemod
 
-Generate the boilerplate for a new code manipulation program using [codegen create](/cli/create):
+Generate the boilerplate for a new code manipulation program using [gs create](/cli/create):
 
 ```bash
-codegen create organize-types \
+gs create organize-types \
   -d "Move all TypeScript types to \
       into a centralized types.ts file"
 ```
@@ -123,7 +123,7 @@ The generated codemod includes type hints and docstrings, making it easy to get 
 
 ## Iterating with Chat Assistants
 
-When you do `codegen init`, you will receive a [system prompt optimized for AI consumption](/introduction/work-with-ai) at `.codegen/codegen-system-prompt.txt`.
+When you do `gs init`, you will receive a [system prompt optimized for AI consumption](/introduction/work-with-ai) at `.codegen/codegen-system-prompt.txt`.
 
 If you reference this file in "chat" sessions with Copilot, Cursor, Cody, etc., the assistant will become fluent in Codegen.
 
@@ -145,10 +145,10 @@ You can also drag and drop the system prompt ([available here](/introduction/wor
 
 ```bash
 # Run => write changes to disk
-codegen run organize-types
+gs run organize-types
 
 # Reset changes on disk
-codegen reset
+gs reset
 ```
 
 <Tip>You can also run the program directly via `.codegen/.venv/bin/python path/to/codemod.py` or via your editor's debugger</Tip>

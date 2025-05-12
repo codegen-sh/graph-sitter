@@ -10,12 +10,12 @@ The `reset` command performs a hard reset of your git repository while carefully
 ## Usage
 
 ```bash
-codegen reset
+gs reset
 ```
 
 ## What it Does
 
-When you run `codegen reset`, it:
+When you run `gs reset`, it:
 
 1. Backs up all files in `.codegen` directory, preserving their content and staged/unstaged status
 2. Performs a hard reset (`git reset --hard HEAD`) on the repository
@@ -34,10 +34,10 @@ This is more sophisticated than `git checkout .` as it:
 Reset after testing a codemod:
 ```bash
 # Run your codemod
-codegen run organize-imports
+gs run organize-imports
 
 # If the changes aren't what you wanted
-codegen reset  # Reverts changes but keeps your codemod implementation
+gs reset  # Reverts changes but keeps your codemod implementation
 ```
 
 

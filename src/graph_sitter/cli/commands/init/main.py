@@ -28,7 +28,7 @@ def init_command(path: str | None = None, token: str | None = None, language: st
         rich.print("[white]Please run this command from within a git repository.[/white]")
         rich.print("\n[dim]To initialize a new git repository:[/dim]")
         rich.print(format_command("git init"))
-        rich.print(format_command("codegen init"))
+        rich.print(format_command("gs init"))
         sys.exit(1)
 
     session = CodegenSession(repo_path=repo_path, git_token=token)
@@ -46,6 +46,6 @@ def init_command(path: str | None = None, token: str | None = None, language: st
     # Print next steps
     rich.print("\n[bold]What's next?[/bold]\n")
     rich.print("1. Create a function:")
-    rich.print(format_command('codegen create my-function . -d "describe what you want to do"'))
+    rich.print(format_command('gs create my-function . -d "describe what you want to do"'))
     rich.print("2. Run it:")
-    rich.print(format_command("codegen run my-function --apply-local"))
+    rich.print(format_command("gs run my-function --apply-local"))

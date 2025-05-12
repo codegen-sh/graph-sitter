@@ -8,13 +8,13 @@ iconType: "solid"
 The `run` command executes a codemod against your local codebase, showing you the changes and applying them to your filesystem.
 
 ```bash
-codegen run rename-function
+gs run rename-function
 ```
 
 ## Usage
 
 ```bash
-codegen run LABEL [OPTIONS]
+gs run LABEL [OPTIONS]
 ```
 
 ## Arguments
@@ -30,17 +30,17 @@ codegen run LABEL [OPTIONS]
 
 Run a codemod:
 ```bash
-codegen run rename-function
+gs run rename-function
 ```
 
 Run with a diff preview limited to 50 lines:
 ```bash
-codegen run rename-function --diff-preview 50
+gs run rename-function --diff-preview 50
 ```
 
 Run with arguments (for codemods that require them):
 ```bash
-codegen run rename-function --arguments '{"old_name": "getUserData", "new_name": "fetchUserProfile"}'
+gs run rename-function --arguments '{"old_name": "getUserData", "new_name": "fetchUserProfile"}'
 ```
 
 ## Output

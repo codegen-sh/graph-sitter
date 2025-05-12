@@ -187,11 +187,11 @@ uv tool install codegen
 
 ## Quick Start with Jupyter
 
-The [codegen notebook](/cli/notebook) command creates a virtual environment and opens a Jupyter notebook for quick prototyping. This is often the fastest way to get up and running.
+The [gs notebook](/cli/notebook) command creates a virtual environment and opens a Jupyter notebook for quick prototyping. This is often the fastest way to get up and running.
 
 ```bash
 # Launch Jupyter with a demo notebook
-codegen notebook --demo
+gs notebook --demo
 ```
 
 
@@ -515,9 +515,9 @@ Let's walk through a minimal example of using Codegen in a project:
    cd path/to/your/project
    ```
 
-2. Initialize Codegen in your project with [codegen init](/cli/init):
+2. Initialize Codegen in your project with [gs init](/cli/init):
    ```bash
-   codegen init
+   gs init
    ```
 
    This creates a `.codegen/` directory with:
@@ -529,25 +529,25 @@ Let's walk through a minimal example of using Codegen in a project:
    └── codegen-system-prompt.txt  # AI system prompt
    ```
 
-3. Create your first codemod with [codegen create](/cli/create):
+3. Create your first codemod with [gs create](/cli/create):
    ```bash
-   codegen create organize-imports \
+   gs create organize-imports \
      -d "Sort and organize imports according to PEP8"
    ```
     <Note>
-        The `-d` flag in `codegen create` generates an AI-powered implementation. This requires a Github account registered on [codegen.sh](https://codegen.sh)
+        The `-d` flag in `gs create` generates an AI-powered implementation. This requires a Github account registered on [codegen.sh](https://codegen.sh)
     </Note>
 
 
 
-4. Run your codemod with [codegen run](/cli/run):
+4. Run your codemod with [gs run](/cli/run):
    ```bash
-   codegen run organize-imports
+   gs run organize-imports
    ```
 
-5. Reset any filesystem changes (excluding `.codegen/*`) with [codegen reset](/cli/reset):
+5. Reset any filesystem changes (excluding `.codegen/*`) with [gs reset](/cli/reset):
    ```bash
-   codegen reset
+   gs reset
    ```
 
 ## Next Steps
@@ -597,11 +597,11 @@ iconType: "solid"
 
 Get up and running with Codegen programs in IDEs like VSCode, Cursor and PyCharm.
 
-<Tip>Make sure to [install and initialize](/introduction/installation) Codegen with `codegen init`</Tip>
+<Tip>Make sure to [install and initialize](/introduction/installation) Codegen with `gs init`</Tip>
 
 ## Configuring your IDE Interpreter
 
-Codegen creates a custom Python environment in `.codegen/.venv`. Configure your IDE to use this environment for the best development experience.
+gs creates a custom Python environment in `.codegen/.venv`. Configure your IDE to use this environment for the best development experience.
 
 <AccordionGroup>
   <Accordion title="VSCode, Cursor and Windsurf" icon="window-maximize">
@@ -643,10 +643,10 @@ Codegen creates a custom Python environment in `.codegen/.venv`. Configure your 
 
 ## Create a New Codemod
 
-Generate the boilerplate for a new code manipulation program using [codegen create](/cli/create):
+Generate the boilerplate for a new code manipulation program using [gs create](/cli/create):
 
 ```bash
-codegen create organize-types \
+gs create organize-types \
   -d "Move all TypeScript types to \
       into a centralized types.ts file"
 ```
@@ -666,7 +666,7 @@ The generated codemod includes type hints and docstrings, making it easy to get 
 
 ## Iterating with Chat Assistants
 
-When you do `codegen init`, you will receive a [system prompt optimized for AI consumption](/introduction/work-with-ai) at `.codegen/codegen-system-prompt.txt`.
+When you do `gs init`, you will receive a [system prompt optimized for AI consumption](/introduction/work-with-ai) at `.codegen/codegen-system-prompt.txt`.
 
 If you reference this file in "chat" sessions with Copilot, Cursor, Cody, etc., the assistant will become fluent in Codegen.
 
@@ -688,10 +688,10 @@ You can also drag and drop the system prompt ([available here](/introduction/wor
 
 ```bash
 # Run => write changes to disk
-codegen run organize-types
+gs run organize-types
 
 # Reset changes on disk
-codegen reset
+gs reset
 ```
 
 <Tip>You can also run the program directly via `.codegen/.venv/bin/python path/to/codemod.py` or via your editor's debugger</Tip>
@@ -748,10 +748,10 @@ import {
 
 The [graph_sitter.cli](/cli/about) provides commands to generate `.md` files that can be fed to any AI assistant for more accurate and contextual help.
 
-When you create a new codemod via [`codegen create`](/cli/create):
+When you create a new codemod via [`gs create`](/cli/create):
 
 ```bash
-codegen create delete-dead-imports --description "Delete unused imports"
+gs create delete-dead-imports --description "Delete unused imports"
 ```
 
 Codegen automatically generates an optimized ["system prompt"](https://news.ycombinator.com/item?id=37880023) that includes:
@@ -764,7 +764,7 @@ You can find this generated prompt in the `.codegen/prompts/<codemod-name>-syste
 
 <Note>
   All contents of the `.codegen/prompts` directory are by default ignored the
-  `.gitignore` file. after running [`codegen init`](/cli/init)
+  `.gitignore` file. after running [`gs init`](/cli/init)
 </Note>
 
 This `.md` file can be used with any AI assistant (Claude, GPT-4, etc.) to get more accurate and contextual help.
@@ -775,7 +775,7 @@ This `.md` file can be used with any AI assistant (Claude, GPT-4, etc.) to get m
   <Step title="Create a codemod with description">
     Use the [`create` command](/cli/create) with a detailed description of what you want to accomplish:
     ```bash
-    codegen create modernize-components --description "Convert class components to functional components with hooks"
+    gs create modernize-components --description "Convert class components to functional components with hooks"
     ```
   </Step>
   <Step title="Review the generated system prompt">
@@ -1461,7 +1461,7 @@ Codegen enables you to create reusable code transformations using Python functio
 The easiest way to create a new codemod is using the CLI [create](/cli/create) command:
 
 ```bash
-codegen create rename-function
+gs create rename-function
 ```
 
 This creates a new codemod in your `.codegen/codemods` directory:
@@ -1486,7 +1486,7 @@ def run(codebase: Codebase):
 You can use AI to generate an initial implementation by providing a description:
 
 ```bash
-codegen create rename-function -d "Rename the getUserData function to fetchUserProfile"
+gs create rename-function -d "Rename the getUserData function to fetchUserProfile"
 ```
 
 This will:
@@ -1499,7 +1499,7 @@ This will:
 Once created, run your codemod using:
 
 ```bash
-codegen run rename-function
+gs run rename-function
 ```
 
 The execution flow:
@@ -1553,7 +1553,7 @@ def run(codebase: Codebase, arguments: RenameArgs):
 
 Run it with:
 ```bash
-codegen run rename-function --arguments '{"old_name": "getUserData", "new_name": "fetchUserProfile"}'
+gs run rename-function --arguments '{"old_name": "getUserData", "new_name": "fetchUserProfile"}'
 ```
 
 ## Directory Structure
@@ -1575,7 +1575,7 @@ icon: "folder"
 iconType: "solid"
 ---
 
-The `.codegen` directory contains your project's Codegen configuration, codemods, and supporting files. It's automatically created when you run `codegen init`.
+The `.codegen` directory contains your project's Codegen configuration, codemods, and supporting files. It's automatically created when you run `gs init`.
 
 ## Directory Structure
 
@@ -1590,10 +1590,10 @@ The `.codegen` directory contains your project's Codegen configuration, codemods
 
 ## Initialization
 
-The directory is created and managed using the `codegen init` command:
+The directory is created and managed using the `gs init` command:
 
 ```bash
-codegen init [--fetch-docs] [--repo-name NAME] [--organization-name ORG]
+gs init [--fetch-docs] [--repo-name NAME] [--organization-name ORG]
 ```
 
 <Note>
@@ -1610,7 +1610,7 @@ Codegen maintains its own virtual environment in `.codegen/.venv/` to ensure con
 - Used for running codemods and Jupyter notebooks
 - Gitignored to avoid committing environment-specific files
 
-The environment is created during `codegen init` and used by commands like `codegen run` and `codegen notebook`.
+The environment is created during `gs init` and used by commands like `gs run` and `gs notebook`.
 
 <Note>To debug codemods, you will need to set the python virtual environment in your IDE to `.codegen/.venv`</Note>
 
@@ -1648,7 +1648,7 @@ Codegen automatically adds appropriate entries to your `.gitignore`:
 The `codemods/` directory is where your transformation functions live. You can create new codemods using:
 
 ```bash
-codegen create my-codemod [--description "what it does"]
+gs create my-codemod [--description "what it does"]
 ```
 
 This will:
@@ -1657,7 +1657,7 @@ This will:
 3. Set up the necessary imports and decorators
 
 <Tip>
-Use `codegen list` to see all codemods in your project.
+Use `gs list` to see all codemods in your project.
 </Tip>
 
 ## Jupyter Integration
@@ -1685,12 +1685,12 @@ After initializing your `.codegen` directory:
 
 1. Create your first codemod:
 ```bash
-codegen create my-codemod -d "describe what you want to do"
+gs create my-codemod -d "describe what you want to do"
 ```
 
 2. Run it:
 ```bash
-codegen run my-codemod --apply-local
+gs run my-codemod --apply-local
 ```
 
 3. Deploy it for team use:
@@ -1740,7 +1740,7 @@ The `function` decorator is part of the codegen SDK CLI and is used to mark func
 To run a deployed function using the CLI, use the following command:
 
 ```bash
-codegen run my-function
+gs run my-function
 ```
 
 This command runs the function named `my-function`.

@@ -42,9 +42,9 @@ Let's walk through a minimal example of using Codegen in a project:
    cd path/to/your/project
    ```
 
-2. Initialize Codegen in your project with [codegen init](/cli/init):
+2. Initialize Codegen in your project with [gs init](/cli/init):
    ```bash
-   codegen init
+   gs init
    ```
 
    This creates a `.codegen/` directory with:
@@ -57,25 +57,25 @@ Let's walk through a minimal example of using Codegen in a project:
    └── codegen-system-prompt.txt  # AI system prompt
    ```
 
-3. Create your first codemod with [codegen create](/cli/create):
+3. Create your first codemod with [gs create](/cli/create):
    ```bash
-   codegen create organize-imports \
+   gs create organize-imports \
      -d "Sort and organize imports according to PEP8"
    ```
     <Note>
-        The `-d` flag in `codegen create` generates an AI-powered implementation. This requires a Github account registered on [codegen.sh](https://codegen.sh)
+        The `-d` flag in `gs create` generates an AI-powered implementation. This requires a Github account registered on [codegen.sh](https://codegen.sh)
     </Note>
 
 
 
-4. Run your codemod with [codegen run](/cli/run):
+4. Run your codemod with [gs run](/cli/run):
    ```bash
-   codegen run organize-imports
+   gs run organize-imports
    ```
 
-5. Reset any filesystem changes (excluding `.codegen/*`) with [codegen reset](/cli/reset):
+5. Reset any filesystem changes (excluding `.codegen/*`) with [gs reset](/cli/reset):
    ```bash
-   codegen reset
+   gs reset
    ```
 
 ## Troubleshooting

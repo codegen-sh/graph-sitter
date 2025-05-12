@@ -61,14 +61,14 @@ uv tool install codegen --python 3.13
 
 # Create a codemod for a given repo
 cd path/to/repo
-codegen init
-codegen create test-function
+gs init
+gs create test-function
 
 # Run the codemod
-codegen run test-function
+gs run test-function
 
 # Create an isolated venv with codegen => open jupyter
-codegen notebook
+gs notebook
 ```
 
 ## Usage

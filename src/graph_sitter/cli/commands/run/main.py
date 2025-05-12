@@ -33,7 +33,7 @@ def run_command(
     # Ensure venv is initialized
     venv = VenvManager(session.codegen_dir)
     if not venv.is_initialized():
-        msg = "Virtual environment not found. Please run 'codegen init' first."
+        msg = "Virtual environment not found. Please run 'gs init' first."
         raise click.ClickException(msg)
 
     # Set up environment with venv

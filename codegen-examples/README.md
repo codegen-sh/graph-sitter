@@ -19,7 +19,7 @@ uv tool install codegen
 Initialize Codegen in your project
 
 ```bash
-codegen init
+gs init
 ```
 
 Activate the virtual environment
