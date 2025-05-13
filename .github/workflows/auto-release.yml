@@ -55,7 +55,7 @@ jobs:
       - name: Generate changelog
         env:
           OPEN_AI_TOKEN: ${{ secrets.OPEN_AI_TOKEN }}
-        run: uv run python src/gscli/cli.py generate changelog --openai-key ${{ secrets.OPEN_AI_TOKEN }}
+        run: uv run python src/graph_sitter/gscli/cli.py generate changelog --openai-key ${{ secrets.OPEN_AI_TOKEN }}
 
       - name: Commit changes
         run: |
