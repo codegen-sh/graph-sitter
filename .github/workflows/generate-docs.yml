@@ -22,16 +22,16 @@ jobs:
         uses: ./.github/actions/setup-environment
 
       - name: Generate API reference
-        run: uv run python src/graph-sitter/gscli/cli.py generate docs
+        run: uv run python src/graph_sitter/gscli/cli.py generate docs
 
       - name: Generate System Prompt
-        run: uv run python src/graph-sitter/gscli/cli.py generate system-prompt
+        run: uv run python src/graph_sitter/gscli/cli.py generate system-prompt
 
       - name: Commit changes
         run: |
           git config --local user.email ${{ secrets.DOCS_USER_EMAIL }}
           git config --local user.name ${{ secrets.DOCS_USER_NAME }}
-          git add docs/ src/codegen/sdk/system-prompt.txt
+          git add docs/ src/graph_sitter/system-prompt.txt
           git diff --staged --quiet || git commit -m "docs: updated API reference"
 
       - name: Push changes
