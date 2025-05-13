@@ -1,3 +1,3 @@
-# Codegen GS Build
+# GS Build
 
-A codegen module that builds the codegen SDK.
+A build hook to generate the **init**.py file.
