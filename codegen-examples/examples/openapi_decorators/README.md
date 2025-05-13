@@ -144,7 +144,7 @@ The script will:
 
 - [Flask-RESTx Documentation](https://flask-restx.readthedocs.io/)
 - [OpenAPI Specification](https://swagger.io/specification/)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

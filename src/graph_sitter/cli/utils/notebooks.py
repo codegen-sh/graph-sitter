@@ -25,11 +25,11 @@ DEMO_CELLS = [
         "cell_type": "markdown",
         "source": """# Codegen Demo: FastAPI
 
-Welcome to [Codegen](https://docs.codegen.com)!
+Welcome to [Codegen](https://graph-sitter.com)!
 
 This demo notebook will walk you through some features of Codegen applied to [FastAPI](https://github.com/fastapi/fastapi).
 
-See the [getting started](https://docs.codegen.com/introduction/getting-started) guide to learn more.""".strip(),
+See the [getting started](https://graph-sitter.com/introduction/getting-started) guide to learn more.""".strip(),
     },
     {
         "cell_type": "code",
@@ -49,9 +49,9 @@ codebase = Codebase.from_repo('fastapi/fastapi', commit="eab0653a346196bff692871
 
 Let's do a quick codebase analysis!
 
-- Grab codebase content with [codebase.functions](https://docs.codegen.com/building-with-codegen/symbol-api) et al.
-- View inheritance hierarchies with [inhertance APIs](https://docs.codegen.com/building-with-codegen/class-api#working-with-inheritance)
-- Identify recursive functions by looking at [FunctionCalls](https://docs.codegen.com/building-with-codegen/function-calls-and-callsites)""".strip(),
+- Grab codebase content with [codebase.functions](https://graph-sitter.com/building-with-codegen/symbol-api) et al.
+- View inheritance hierarchies with [inhertance APIs](https://graph-sitter.com/building-with-codegen/class-api#working-with-inheritance)
+- Identify recursive functions by looking at [FunctionCalls](https://graph-sitter.com/building-with-codegen/function-calls-and-callsites)""".strip(),
     },
     {
         "cell_type": "code",
@@ -112,7 +112,7 @@ for file, num_tests in file_test_counts.most_common()[:5]:
 
 Lets split up the largest test files into separate modules for better organization.
 
-This uses Codegen's [codebase.move_to_file(...)](https://docs.codegen.com/building-with-codegen/moving-symbols), which will:
+This uses Codegen's [codebase.move_to_file(...)](https://graph-sitter.com/building-with-codegen/moving-symbols), which will:
 - update all imports
 - (optionally) move depenencies
 - do so very fast ⚡️
@@ -170,7 +170,7 @@ Enjoy!
 
 Reset your codebase to it's initial state, discarding all changes
 
-Learn more in [commit and reset](https://docs.codegen.com/building-with-codegen/commit-and-reset).""".strip(),
+Learn more in [commit and reset](https://graph-sitter.com/building-with-codegen/commit-and-reset).""".strip(),
     },
     {
         "cell_type": "code",

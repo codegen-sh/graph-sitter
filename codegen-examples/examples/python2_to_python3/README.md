@@ -1,8 +1,8 @@
 # Python 2 to Python 3 Migration Example
 
-[![Documentation](https://img.shields.io/badge/docs-docs.codegen.com-blue)](https://docs.codegen.com/tutorials/python2-to-python3)
+[![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com/tutorials/python2-to-python3)
 
-This example demonstrates how to use Codegen to automatically migrate Python 2 code to Python 3. For a complete walkthrough, check out our [tutorial](https://docs.codegen.com/tutorials/python2-to-python3).
+This example demonstrates how to use Codegen to automatically migrate Python 2 code to Python 3. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/python2-to-python3).
 
 ## What This Example Does
 
@@ -94,7 +94,7 @@ The script will process all Python files in the `repo-before` directory and appl
 
 ## Learn More
 
-- [Full Tutorial](https://docs.codegen.com/tutorials/python2-to-python3)
+- [Full Tutorial](https://graph-sitter.com/tutorials/python2-to-python3)
 - [Python 3 Documentation](https://docs.python.org/3/)
 - [What's New in Python 3](https://docs.python.org/3/whatsnew/3.0.html)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)

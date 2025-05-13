@@ -1,6 +1,6 @@
 # Codegen Examples
 
-[![Documentation](https://img.shields.io/badge/docs-docs.codegen.com-blue)](https://docs.codegen.com)
+[![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com)
 
 This is a collection of examples using [Codegen](https://codegen.com). You can use these examples to learn how to use Codegen and build custom code transformations.
 
@@ -8,7 +8,7 @@ This is a collection of examples using [Codegen](https://codegen.com). You can u
 
 We recommend using [`uv`](https://github.com/astral-sh/uv) with Python 3.13 for the best experience.
 
-To install Codegen, please follow the [official installation guide](https://docs.codegen.com/introduction/installation). Once Codegen is installed, use these steps to run the examples in this repository:
+To install Codegen, please follow the [official installation guide](https://graph-sitter.com/introduction/installation). Once Codegen is installed, use these steps to run the examples in this repository:
 
 Install the graph_sitter.cli globally
 
@@ -32,7 +32,7 @@ Your environment is now ready to run example codemods.
 
 ### IDE Configuration (Optional)
 
-To configure your IDE for optimal use with Codegen, follow our [IDE setup guide](https://docs.codegen.com/introduction/ide-usage#configuring-your-ide-interpreter).
+To configure your IDE for optimal use with Codegen, follow our [IDE setup guide](https://graph-sitter.com/introduction/ide-usage#configuring-your-ide-interpreter).
 
 ## Examples
 
@@ -46,10 +46,10 @@ To see a transformation, simply run the `run.py` script within the desired direc
 
 ## Learn More
 
-- [Documentation](https://docs.codegen.com)
-- [Getting Started Guide](https://docs.codegen.com/introduction/getting-started)
-- [Tutorials](https://docs.codegen.com/tutorials/at-a-glance)
-- [API Reference](https://docs.codegen.com/api-reference)
+- [Documentation](https://graph-sitter.com)
+- [Getting Started Guide](https://graph-sitter.com/introduction/getting-started)
+- [Tutorials](https://graph-sitter.com/tutorials/at-a-glance)
+- [API Reference](https://graph-sitter.com/api-reference)
 
 ## Contributing
 

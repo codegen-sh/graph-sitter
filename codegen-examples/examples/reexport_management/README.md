@@ -115,9 +115,9 @@ The script will:
 
 - [TypeScript Modules](https://www.typescriptlang.org/docs/handbook/modules.html)
 - [Export/Import Documentation](https://www.typescriptlang.org/docs/handbook/modules.html#export)
-- [Codegen Documentation](https://docs.codegen.com)
-- [Tutorial on Analyzing and Organizing Re-exports](https://docs.codegen.com/tutorials/managing-typescript-exports)
-- [More on exports ](https://docs.codegen.com/building-with-codegen/exports)
+- [Codegen Documentation](https://graph-sitter.com)
+- [Tutorial on Analyzing and Organizing Re-exports](https://graph-sitter.com/tutorials/managing-typescript-exports)
+- [More on exports ](https://graph-sitter.com/building-with-codegen/exports)
 
 ## Contributing
 

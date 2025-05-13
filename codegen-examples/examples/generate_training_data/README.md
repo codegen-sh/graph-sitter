@@ -1,6 +1,6 @@
 # Generate Codebase Pre-Training Data
 
-[![Documentation](https://img.shields.io/badge/docs-docs.codegen.com-blue)](https://docs.codegen.com/tutorials/generate-training-data)
+[![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com/tutorials/generate-training-data)
 
 This example demonstrates how to use Codegen to generate training data for large-scale LLM pre-training by extracting function implementations along with their dependencies and usages. The approach is inspired by node2vec, leveraging code graphs for learning.
 
@@ -87,6 +87,6 @@ The generated `training_data.json` follows this structure:
 
 ## Learn More
 
-- [Full Tutorial](https://docs.codegen.com/tutorials/generate-training-data)
-- [Code Model Pre-training](https://docs.codegen.com/concepts/code-model-training)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Full Tutorial](https://graph-sitter.com/tutorials/generate-training-data)
+- [Code Model Pre-training](https://graph-sitter.com/concepts/code-model-training)
+- [Codegen Documentation](https://graph-sitter.com)

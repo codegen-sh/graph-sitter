@@ -78,8 +78,8 @@ The dashboard will display:
 
 ## Learn More
 
-- [AI Impact Analysis Documentation](https://docs.codegen.com/tutorials/attributions)
-- [Codegen Documentation](https://docs.codegen.com)
+- [AI Impact Analysis Documentation](https://graph-sitter.com/tutorials/attributions)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

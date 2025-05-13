@@ -83,10 +83,10 @@ packages = ["src/graph_sitter"]
 Homepage = "https://www.codegen.com/"
 Repository = "https://github.com/codegen-sh/graph-sitter"
 Download = "https://github.com/codegen-sh/graph-sitter/archive/{commit_hash}.zip"
-Changelog = "https://docs.codegen.com/changelog/changelog"
+Changelog = "https://graph-sitter.com/changelog/changelog"
 Releasenotes = "https://github.com/codegen-sh/graph-sitter/releases"
 Issues = "https://github.com/codegen-sh/graph-sitter/issues"
-Documentation = "https://docs.codegen.com"
+Documentation = "https://graph-sitter.com"
 Playground = "https://www.codegen.sh/"
 
 [build.targets.wheel.hooks.custom]

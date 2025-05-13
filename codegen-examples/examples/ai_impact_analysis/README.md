@@ -116,8 +116,8 @@ After running the analysis, symbols in the codebase will have the following attr
 
 ## Learn More
 
-- [Attributions](https://docs.codegen.com/tutorials/attributions)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Attributions](https://graph-sitter.com/tutorials/attributions)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

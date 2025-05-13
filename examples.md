@@ -4,4 +4,4 @@ For practical examples of using Codegen in real-world scenarios, please visit ou
 
 [github.com/codegen-sh/graph-sitter-examples](https://github.com/codegen-sh/graph-sitter-examples)
 
-For docs and tutorials, please visit [docs.codegen.com](https://docs.codegen.com)
+For docs and tutorials, please visit [graph-sitter.com](https://graph-sitter.com)

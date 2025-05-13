@@ -134,8 +134,8 @@ You can customize the analysis by:
 
 - [NetworkX Documentation](https://networkx.org/)
 - [Python Import System](https://docs.python.org/3/reference/import.html)
-- [Codegen Documentation](https://docs.codegen.com)
-- [Graph visualization](https://docs.codegen.com/building-with-codegen/codebase-visualization)
+- [Codegen Documentation](https://graph-sitter.com)
+- [Graph visualization](https://graph-sitter.com/building-with-codegen/codebase-visualization)
 
 ## Contributing
 

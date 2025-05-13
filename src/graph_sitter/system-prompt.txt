@@ -216,8 +216,8 @@ Here are some common patterns for code navigation in Codegen:
 - Iterate over all [Functions](/api-reference/core/Function) with [Codebase.functions](/api-reference/core/Codebase#functions)
 - View class inheritance with [Class.superclasses](/api-reference/core/Class#superclasses)
 - View function usages with [Function.usages](/api-reference/core/Function#usages)
-- View inheritance hierarchies with [inheritance APIs](https://docs.codegen.com/building-with-codegen/class-api#working-with-inheritance)
-- Identify recursive functions by looking at [FunctionCalls](https://docs.codegen.com/building-with-codegen/function-calls-and-callsites)
+- View inheritance hierarchies with [inheritance APIs](https://graph-sitter.com/building-with-codegen/class-api#working-with-inheritance)
+- Identify recursive functions by looking at [FunctionCalls](https://graph-sitter.com/building-with-codegen/function-calls-and-callsites)
 - View function call-sites with [Function.call_sites](/api-reference/core/Function#call-sites)
 
 ```python
@@ -510,7 +510,7 @@ Install and set up Codegen in your development environment.
 - macOS and Linux
   - macOS is supported
   - Linux is supported on x86_64 and aarch64 with glibc 2.34+
-  - Windows is supported via WSL. See [here](https://docs.codegen.com/building-with-codegen/codegen-with-wsl) for more details.
+  - Windows is supported via WSL. See [here](https://graph-sitter.com/building-with-codegen/codegen-with-wsl) for more details.
 - Python, Typescript, Javascript and React codebases
 
 ## Prerequisites
@@ -719,7 +719,7 @@ Command: uv --directory <path to codegen installation>/codegen-sdk/src/graph_sit
 If you use Cursor you'll be able to configure the IDE to index the Codegen docs. To do so go to `Settings` > `Features` > `Docs`
 and then click on `Add new docs`. We recommend using this url to index the API reference:
 ```
-https://docs.codegen.com/api-reference/index
+https://graph-sitter.com/api-reference/index
 ```
 
 

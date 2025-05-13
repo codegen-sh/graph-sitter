@@ -1,7 +1,7 @@
 # Codegen MCP Server
 
 <p align="center">
-  <a href="https://docs.codegen.com">
+  <a href="https://graph-sitter.com">
     <img src="https://i.imgur.com/6RF9W0z.jpeg" />
   </a>
 </p>
@@ -13,7 +13,7 @@
 
 <div align="center">
 
-[![Documentation](https://img.shields.io/badge/Docs-docs.codegen.com-purple?style=flat-square)](https://docs.codegen.com)
+[![Documentation](https://img.shields.io/badge/Docs-graph-sitter.com-purple?style=flat-square)](https://graph-sitter.com)
 [![License](https://img.shields.io/badge/Code%20License-Apache%202.0-gray?&color=gray)](https://github.com/codegen-sh/graph-sitter/tree/develop?tab=Apache-2.0-1-ov-file)
 
 </div>

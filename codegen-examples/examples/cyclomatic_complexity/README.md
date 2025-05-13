@@ -141,7 +141,7 @@ python run.py
 ## Learn More
 
 - [About Cyclomatic Complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

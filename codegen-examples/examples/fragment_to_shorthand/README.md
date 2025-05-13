@@ -65,8 +65,8 @@ The script will:
 
 - [React Fragments](https://react.dev/reference/react/Fragment)
 - [JSX Fragments](https://react.dev/reference/jsx#jsx-fragments)
-- [Codegen Documentation](https://docs.codegen.com)
-- [More on Codegen SDK jsx elements API](https://docs.codegen.com/api-reference/typescript/JSXElement#jsxelement)
+- [Codegen Documentation](https://graph-sitter.com)
+- [More on Codegen SDK jsx elements API](https://graph-sitter.com/api-reference/typescript/JSXElement#jsxelement)
 
 ## Contributing
 

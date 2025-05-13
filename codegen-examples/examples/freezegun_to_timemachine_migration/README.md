@@ -145,7 +145,7 @@ python run.py
 
 - [TimeMachine Documentation](https://github.com/adamchainz/time-machine)
 - [FreezeGun Documentation](https://github.com/spulec/freezegun)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

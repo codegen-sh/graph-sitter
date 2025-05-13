@@ -1,7 +1,7 @@
 # Codegen RAG Q&A API
 
 <p align="center">
-  <a href="https://docs.codegen.com">
+  <a href="https://graph-sitter.com">
     <img src="https://i.imgur.com/6RF9W0z.jpeg" />
   </a>
 </p>
@@ -12,7 +12,7 @@
 
 <div align="center">
 
-[![Documentation](https://img.shields.io/badge/Docs-docs.codegen.com-purple?style=flat-square)](https://docs.codegen.com)
+[![Documentation](https://img.shields.io/badge/Docs-graph-sitter.com-purple?style=flat-square)](https://graph-sitter.com)
 [![License](https://img.shields.io/badge/Code%20License-Apache%202.0-gray?&color=gray)](https://github.com/codegen-sh/graph-sitter/tree/develop?tab=Apache-2.0-1-ov-file)
 
 </div>
@@ -115,6 +115,6 @@ Required environment variables:
 
 ## Learn More
 
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 - [Modal Documentation](https://modal.com/docs)
-- [VectorIndex Tutorial](https://docs.codegen.com/building-with-codegen/semantic-code-search)
+- [VectorIndex Tutorial](https://graph-sitter.com/building-with-codegen/semantic-code-search)

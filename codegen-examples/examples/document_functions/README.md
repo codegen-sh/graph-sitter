@@ -92,8 +92,8 @@ The script provides detailed progress information:
 
 ## Learn More
 
-- [Creating Documentation](https://docs.codegen.com/tutorials/creating-documentation#creating-documentation)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Creating Documentation](https://graph-sitter.com/tutorials/creating-documentation#creating-documentation)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

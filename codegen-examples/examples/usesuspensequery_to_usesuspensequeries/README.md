@@ -114,7 +114,7 @@ The script will:
 
 - [React Query Documentation](https://tanstack.com/query/latest)
 - [useSuspenseQueries API](https://tanstack.com/query/latest/docs/react/reference/useSuspenseQueries)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

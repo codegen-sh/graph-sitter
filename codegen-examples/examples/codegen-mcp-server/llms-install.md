@@ -4,7 +4,7 @@ Please read two things before trying to install this codegen MCP server:
 
 - This contains the instructions for setting up the mcp server
 
-2. [Documentation Index for Agents](https://docs.codegen.com/llms.txt)
+2. [Documentation Index for Agents](https://graph-sitter.com/llms.txt)
 
 - This contains a list of urls to the documentation for topics related to creating codegen codemods
 
@@ -12,6 +12,6 @@ Please use a CURL command to retrieve the contents of the readme and documentati
 
 1. curl -sL "https://raw.githubusercontent.com/codegen-sh/graph-sitter/refs/heads/develop/README.md" | cat
 
-1. curl -sL "https://docs.codegen.com/llms.txt" | cat
+1. curl -sL "https://graph-sitter.com/llms.txt" | cat
 
 This should give you all the context you need to successfully install and utilize the server.

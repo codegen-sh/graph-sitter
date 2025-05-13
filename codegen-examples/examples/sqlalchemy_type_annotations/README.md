@@ -147,7 +147,7 @@ python run.py
 
 - [SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/)
 - [SQLAlchemy Type Annotations Guide](https://docs.sqlalchemy.org/en/20/orm/typing.html)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

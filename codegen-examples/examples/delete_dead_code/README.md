@@ -74,8 +74,8 @@ python run.py
 
 ## Learn More
 
-- [Deleting Dead Code](https://docs.codegen.com/tutorials/deleting-dead-code)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Deleting Dead Code](https://graph-sitter.com/tutorials/deleting-dead-code)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

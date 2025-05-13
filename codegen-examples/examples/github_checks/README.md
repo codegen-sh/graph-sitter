@@ -102,8 +102,8 @@ The analysis results are posted as a markdown-formatted comment on the pull requ
 
 ## Learn More
 
-- [Codegen Documentation](https://docs.codegen.com)
-- [Detecting Import Loops](https://docs.codegen.com/blog/fixing-import-loops)
+- [Codegen Documentation](https://graph-sitter.com)
+- [Detecting Import Loops](https://graph-sitter.com/blog/fixing-import-loops)
 
 ## Contributing
 

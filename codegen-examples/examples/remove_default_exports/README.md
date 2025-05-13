@@ -65,7 +65,7 @@ python run.py
 ## Learn More
 
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

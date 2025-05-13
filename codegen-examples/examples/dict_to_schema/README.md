@@ -102,7 +102,7 @@ python run.py
 ## Learn More
 
 - [Pydantic Documentation](https://docs.pydantic.dev/)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

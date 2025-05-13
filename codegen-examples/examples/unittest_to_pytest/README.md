@@ -105,10 +105,10 @@ The script will process all Python test files in the `repo-before` directory and
 
 ## Learn More
 
-- [Full Tutorial](https://docs.codegen.com/tutorials/unittest-to-pytest)
+- [Full Tutorial](https://graph-sitter.com/tutorials/unittest-to-pytest)
 - [pytest Documentation](https://docs.pytest.org/)
 - [unittest Documentation](https://docs.python.org/3/library/unittest.html)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 

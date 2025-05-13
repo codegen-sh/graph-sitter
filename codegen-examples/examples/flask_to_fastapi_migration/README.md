@@ -1,8 +1,8 @@
 # Flask to FastAPI Migration Example
 
-[![Documentation](https://img.shields.io/badge/docs-docs.codegen.com-blue)](https://docs.codegen.com/tutorials/flask-to-fastapi)
+[![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com/tutorials/flask-to-fastapi)
 
-This example demonstrates how to use Codegen to automatically migrate a Flask application to FastAPI. For a complete walkthrough, check out our [tutorial](https://docs.codegen.com/tutorials/flask-to-fastapi).
+This example demonstrates how to use Codegen to automatically migrate a Flask application to FastAPI. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/flask-to-fastapi).
 
 ## What This Example Does
 
@@ -70,7 +70,7 @@ The script will process all Python files in the `repo-before` directory and appl
 
 ## Learn More
 
-- [Full Tutorial](https://docs.codegen.com/tutorials/flask-to-fastapi)
+- [Full Tutorial](https://graph-sitter.com/tutorials/flask-to-fastapi)
 - [Flask Documentation](https://flask.palletsprojects.com/)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)

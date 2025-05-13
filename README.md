@@ -1,7 +1,7 @@
 <br />
 
 <p align="center">
-  <a href="https://docs.codegen.com">
+  <a href="https://graph-sitter.com">
     <img src="https://i.imgur.com/6RF9W0z.jpeg" />
   </a>
 </p>
@@ -13,7 +13,7 @@
 <div align="center">
 
 [![PyPI](https://img.shields.io/badge/PyPi-codegen-gray?style=flat-square&color=blue)](https://pypi.org/project/codegen/)
-[![Documentation](https://img.shields.io/badge/Docs-docs.codegen.com-purple?style=flat-square)](https://docs.codegen.com)
+[![Documentation](https://img.shields.io/badge/Docs-graph-sitter.com-purple?style=flat-square)](https://graph-sitter.com)
 [![Slack Community](https://img.shields.io/badge/Slack-Join-4A154B?logo=slack&style=flat-square)](https://community.codegen.com)
 [![License](https://img.shields.io/badge/Code%20License-Apache%202.0-gray?&color=gray)](https://github.com/codegen-sh/graph-sitter/tree/develop?tab=Apache-2.0-1-ov-file)
 [![Follow on X](https://img.shields.io/twitter/follow/codegen?style=social)](https://x.com/codegen)
@@ -22,7 +22,7 @@
 
 <br />
 
-[Codegen](https://docs.codegen.com) is a python library for manipulating codebases.
+[Codegen](https://graph-sitter.com) is a python library for manipulating codebases.
 
 ```python
 from codegen import Codebase
@@ -49,7 +49,7 @@ We support
 - macOS and Linux
   - macOS is supported
   - Linux is supported on x86_64 and aarch64 with glibc 2.34+
-  - Windows is supported via WSL. See [here](https://docs.codegen.com/building-with-codegen/codegen-with-wsl) for more details.
+  - Windows is supported via WSL. See [here](https://graph-sitter.com/building-with-codegen/codegen-with-wsl) for more details.
 - Python, Typescript, Javascript and React codebases
 
 ```
@@ -73,7 +73,7 @@ gs notebook
 
 ## Usage
 
-See [Getting Started](https://docs.codegen.com/introduction/getting-started) for a full tutorial.
+See [Getting Started](https://graph-sitter.com/introduction/getting-started) for a full tutorial.
 
 ```
 from codegen import Codebase
@@ -91,8 +91,8 @@ If you run into additional issues not listed here, please [join our slack commun
 
 ## Resources
 
-- [Docs](https://docs.codegen.com)
-- [Getting Started](https://docs.codegen.com/introduction/getting-started)
+- [Docs](https://graph-sitter.com)
+- [Getting Started](https://graph-sitter.com/introduction/getting-started)
 - [Contributing](CONTRIBUTING.md)
 - [Contact Us](https://codegen.com/contact)
 

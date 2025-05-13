@@ -147,7 +147,7 @@ python run.py
 ## Learn More
 
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/en/20/)
-- [Codegen Documentation](https://docs.codegen.com)
+- [Codegen Documentation](https://graph-sitter.com)
 
 ## Contributing
 
