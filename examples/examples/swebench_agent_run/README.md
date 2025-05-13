@@ -1,8 +1,8 @@
 # INSTRUCTIONS
 
-1. Create a `.env` file in the `swebench_agent_run` directory (codegen-examples/examples/swebench_agent_run) and add your API keys.
+1. Create a `.env` file in the `swebench_agent_run` directory (examples/examples/swebench_agent_run) and add your API keys.
 
-1. cd into the `codegen-examples/examples/swebench_agent_run` directory
+1. cd into the `examples/examples/swebench_agent_run` directory
 
 1. Create a `.venv` with `uv venv` and activate it with `source .venv/bin/activate`
 

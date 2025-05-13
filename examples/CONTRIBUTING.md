@@ -1,6 +1,6 @@
 # Contributing to Codegen Examples
 
-Thank you for your interest in contributing to `codegen-examples`! This document outlines the process and guidelines for contributing.
+Thank you for your interest in contributing to `examples`! This document outlines the process and guidelines for contributing.
 
 ## Contributor License Agreement
 

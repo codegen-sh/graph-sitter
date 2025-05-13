@@ -4,7 +4,7 @@ requires-python = ">=3.12, <3.14"
 
 [manifest]
 members = [
-    "codegen-examples",
+    "examples",
     "swebench-agent-run",
 ]
 
@@ -473,7 +473,7 @@ wheels = [
 ]
 
 [[package]]
-name = "codegen-examples"
+name = "examples"
 version = "0.0.0"
 source = { virtual = "." }
 dependencies = [

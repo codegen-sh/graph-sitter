@@ -165,7 +165,7 @@ dev-dependencies = [
 ]
 
 [tool.uv.workspace]
-exclude = ["codegen-examples"]
+exclude = ["examples"]
 
 
 [tool.cython-lint]

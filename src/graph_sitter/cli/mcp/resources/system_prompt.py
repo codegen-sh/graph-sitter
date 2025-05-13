@@ -9659,7 +9659,7 @@ You can run the complete migration using our example script:
 
 ```bash
 git clone https://github.com/codegen-sh/graph-sitter-examples.git
-cd codegen-examples/python2_to_python3
+cd examples/python2_to_python3
 python run.py
 ```
 
@@ -9878,7 +9878,7 @@ You can run the complete migration using our example script:
 
 ```bash
 git clone https://github.com/codegen-sh/graph-sitter-examples.git
-cd codegen-examples/flask_to_fastapi_migration
+cd examples/flask_to_fastapi_migration
 python run.py
 ```
 

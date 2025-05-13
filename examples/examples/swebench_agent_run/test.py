@@ -3,7 +3,7 @@ import modal
 
 image = modal.Image.debian_slim(python_version="3.13").apt_install("git").pip_install("fastapi[standard]").run_commands("pip install codegen")
 
-app = modal.App(name="codegen-examples", image=image, secrets=[modal.Secret.from_dotenv()])
+app = modal.App(name="examples", image=image, secrets=[modal.Secret.from_dotenv()])
 
 
 @app.function()

@@ -1,5 +1,5 @@
 [project]
-name = "codegen-examples"
+name = "examples"
 version = "0.0.0"
 readme = "README.md"
 requires-python = ">=3.12, <3.14"

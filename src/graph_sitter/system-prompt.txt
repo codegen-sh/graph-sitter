@@ -6884,7 +6884,7 @@ iconType: "solid"
 
 This guide demonstrates how to build an intelligent code research tool that can analyze and explain codebases using Codegen's and LangChain. The tool combines semantic code search, dependency analysis, and natural language understanding to help developers quickly understand new codebases.
 
-<Info>View the full code on [GitHub](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/deep_code_research)</Info>
+<Info>View the full code on [GitHub](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/deep_code_research)</Info>
 
 <Tip>This example works with any public GitHub repository - just provide the repo name in the format owner/repo</Tip>
 
@@ -7261,7 +7261,7 @@ iconType: "solid"
 
 This guide demonstrates how to use Codegen to generate high-quality training data for large language models (LLMs) by extracting function implementations along with their dependencies and usages. This approach is similar to [word2vec](https://www.tensorflow.org/text/tutorials/word2vec) or [node2vec](https://snap.stanford.edu/node2vec/) - given the context of a function, learn to predict the function's implementation.
 
-<Info>View the full code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/generate_training_data)</Info>
+<Info>View the full code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/generate_training_data)</Info>
 
 <Tip>This example works with both Python and Typescript repositories without modification</Tip>
 
@@ -8333,7 +8333,7 @@ iconType: "solid"
 Modern JavaScript/TypeScript codebases often need to migrate from Promise-based code to the more readable async/await syntax. Codegen provides powerful tools to automate this conversion while preserving business logic and handling complex scenarios.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/blob/develop/codegen-examples/examples/promises_to_async_await/promises_to_async_await.ipynb).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/blob/develop/examples/examples/promises_to_async_await/promises_to_async_await.ipynb).
 </Info>
 
 
@@ -8421,7 +8421,7 @@ new_code = promise_statement.edit(
 - Ambiguous/conditional return blocks
 
 <Info>
-A list of all the covered cases can be found in the [example notebook](https://github.com/codegen-sh/graph-sitter/tree/codegen-examples/examples/promises_to_async_await/promise_to_async_await.ipynb).
+A list of all the covered cases can be found in the [example notebook](https://github.com/codegen-sh/graph-sitter/tree/examples/examples/promises_to_async_await/promise_to_async_await.ipynb).
 </Info>
 
 
@@ -10245,7 +10245,7 @@ iconType: "solid"
 Migrating from [unittest](https://docs.python.org/3/library/unittest.html) to [pytest](https://docs.pytest.org/) involves converting test classes and assertions to pytest's more modern and concise style. This guide will walk you through using Codegen to automate this migration.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/unittest_to_pytest).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/unittest_to_pytest).
 </Info>
 
 ## Overview
@@ -10457,7 +10457,7 @@ iconType: "solid"
 Migrating from [SQLAlchemy](https://www.sqlalchemy.org/) 1.4 to 2.0 involves several API changes to support the new 2.0-style query interface. This guide will walk you through using Codegen to automate this migration, handling query syntax, session usage, and ORM patterns.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/sqlalchemy_1.4_to_2.0).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/sqlalchemy_1.4_to_2.0).
 </Info>
 
 ## Overview
@@ -10599,7 +10599,7 @@ Import loops occur when two or more Python modules depend on each other, creatin
 In this tutorial, we'll explore how to identify and fix problematic import cycles using Codegen.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/removing_import_loops_in_pytorch).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/removing_import_loops_in_pytorch).
 </Info>
 
 ## Overview
@@ -10862,7 +10862,7 @@ iconType: "solid"
 Migrating from Python 2 to Python 3 involves several syntax and API changes. This guide will walk you through using Codegen to automate this migration, handling print statements, string handling, iterators, and more.
 
 <Info>
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/python2_to_python3).
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/python2_to_python3).
 </Info>
 
 ## Overview
@@ -11076,7 +11076,7 @@ You can run the complete migration using our example script:
 
 ```bash
 git clone https://github.com/codegen-sh/graph-sitter.git
-cd codegen-examples/examples/python2_to_python3
+cd examples/examples/python2_to_python3
 python run.py
 ```
 
@@ -11118,7 +11118,7 @@ iconType: "solid"
 
 Migrating from [Flask](https://flask.palletsprojects.com/) to [FastAPI](https://fastapi.tiangolo.com/) involves several key changes to your codebase. This guide will walk you through using Codegen to automate this migration, handling imports, route decorators, static files, and template rendering.
 
-You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/codegen-examples/examples/flask_to_fastapi_migration)
+You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/flask_to_fastapi_migration)
 
 ## Overview
 
@@ -11295,7 +11295,7 @@ You can run the complete migration using our example script:
 
 ```bash
 git clone https://github.com/codegen-sh/graph-sitter.git
-cd codegen-examples/examples/flask_to_fastapi_migration
+cd examples/examples/flask_to_fastapi_migration
 python run.py
 ```
 
