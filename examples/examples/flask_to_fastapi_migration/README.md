@@ -54,7 +54,8 @@ The migration script handles four key transformations:
 ## Running the Example
 
 ```bash
-# Install Graph-sitter pip install graph-sitter
+# Install Graph-sitter
+pip install graph-sitter
 
 # Run the migration
 python run.py

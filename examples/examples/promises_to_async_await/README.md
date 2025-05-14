@@ -70,7 +70,8 @@ _1. Follow step by step in the [convert_promises_twilio_repository.ipynb](./conv
 _Or run codemod script directly:_
 
 ```bash
-# Install Graph-sitter pip install graph-sitter
+# Install Graph-sitter
+pip install graph-sitter
 
 # Run the promise to async/await migration
 python run.py

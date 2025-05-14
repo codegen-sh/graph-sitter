@@ -50,7 +50,8 @@ The script (`run.py`) performs the dead code removal in several key steps:
 ## Running the Script
 
 ```bash
-# Install Graph-sitter pip install graph-sitter
+# Install Graph-sitter
+pip install graph-sitter
 
 # Run the script
 python run.py

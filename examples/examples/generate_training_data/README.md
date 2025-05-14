@@ -34,7 +34,8 @@ The script analyzes your codebase and generates training data by:
 ## Running the Example
 
 ```bash
-# Install Graph-sitter pip install graph-sitter
+# Install Graph-sitter
+pip install graph-sitter
 
 # Run the data generation
 python run.py
