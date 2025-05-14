@@ -6,7 +6,7 @@ from lsprotocol import types
 from graph_sitter.core.interfaces.editable import Editable
 
 if TYPE_CHECKING:
-    from graph_sitter.extensions.lsp.server import CodegenLanguageServer
+    from graph_sitter.extensions.lsp.server import GraphSitterLanguageServer
 
 
 class CodeAction(ABC):
@@ -17,10 +17,10 @@ class CodeAction(ABC):
         pass
 
     @abstractmethod
-    def execute(self, server: "CodegenLanguageServer", node: Editable) -> None: ...
+    def execute(self, server: "GraphSitterLanguageServer", node: Editable) -> None: ...
 
     @abstractmethod
-    def is_applicable(self, server: "CodegenLanguageServer", node: Editable) -> bool: ...
+    def is_applicable(self, server: "GraphSitterLanguageServer", node: Editable) -> bool: ...
 
     def to_command(self, uri: str, range: types.Range) -> types.Command:
         return types.Command(

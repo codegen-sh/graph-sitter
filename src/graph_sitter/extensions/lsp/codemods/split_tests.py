@@ -5,13 +5,13 @@ from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.extensions.lsp.codemods.base import CodeAction
 
 if TYPE_CHECKING:
-    from graph_sitter.extensions.lsp.server import CodegenLanguageServer
+    from graph_sitter.extensions.lsp.server import GraphSitterLanguageServer
 
 
 class SplitTests(CodeAction):
     name = "Split Tests"
 
-    def _get_targets(self, server: "CodegenLanguageServer", node: Editable) -> dict[Function, str]:
+    def _get_targets(self, server: "GraphSitterLanguageServer", node: Editable) -> dict[Function, str]:
         targets = {}
         for function in node.file.functions:
             if function.name.startswith("test_"):
@@ -20,12 +20,12 @@ class SplitTests(CodeAction):
                     targets[function] = target
         return targets
 
-    def is_applicable(self, server: "CodegenLanguageServer", node: Editable) -> bool:
+    def is_applicable(self, server: "GraphSitterLanguageServer", node: Editable) -> bool:
         if "tests" in str(node.file.path):
             return len(self._get_targets(server, node)) > 1
         return False
 
-    def execute(self, server: "CodegenLanguageServer", node: Editable) -> None:
+    def execute(self, server: "GraphSitterLanguageServer", node: Editable) -> None:
         targets = self._get_targets(server, node)
         for function, target in targets.items():
             new_file = server.codebase.create_file(target)

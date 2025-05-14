@@ -12,11 +12,11 @@ from graph_sitter.extensions.lsp.progress import LSPProgress
 from graph_sitter.extensions.lsp.utils import get_path
 
 if TYPE_CHECKING:
-    from graph_sitter.extensions.lsp.server import CodegenLanguageServer
+    from graph_sitter.extensions.lsp.server import GraphSitterLanguageServer
 
 
-class CodegenLanguageServerProtocol(LanguageServerProtocol):
-    _server: "CodegenLanguageServer"
+class GraphSitterLanguageServerProtocol(LanguageServerProtocol):
+    _server: "GraphSitterLanguageServer"
 
     def _init_codebase(self, params: InitializeParams) -> None:
         progress = LSPProgress(self._server, params.work_done_token)

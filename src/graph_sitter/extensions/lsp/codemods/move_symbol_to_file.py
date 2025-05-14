@@ -4,16 +4,16 @@ from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.extensions.lsp.codemods.base import CodeAction
 
 if TYPE_CHECKING:
-    from graph_sitter.extensions.lsp.server import CodegenLanguageServer
+    from graph_sitter.extensions.lsp.server import GraphSitterLanguageServer
 
 
 class MoveSymbolToFile(CodeAction):
     name = "Move Symbol to File"
 
-    def is_applicable(self, server: "CodegenLanguageServer", node: Editable) -> bool:
+    def is_applicable(self, server: "GraphSitterLanguageServer", node: Editable) -> bool:
         return True
 
-    def execute(self, server: "CodegenLanguageServer", node: Editable) -> None:
+    def execute(self, server: "GraphSitterLanguageServer", node: Editable) -> None:
         target_file = server.window_show_message_request(
             "Select the file to move the symbol to",
             server.codebase.files,
