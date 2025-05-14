@@ -5,7 +5,7 @@ on:
     branches:
       - "develop"
   pull_request_target:
-    types: [ opened, synchronize, reopened, labeled ]
+    types: [opened, synchronize, reopened, labeled]
     branches:
       - "develop"
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
 
   unit-tests:
     needs: access-check
-    runs-on: ubuntu-latest-8
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,11 +51,11 @@ jobs:
     needs: access-check
     # TODO: re-enable when this check is a develop required check
     if: false
-    runs-on: ubuntu-latest-32
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        sync_graph: [ true, false ]
-        size: [ small, large ]
+        sync_graph: [true, false]
+        size: [small, large]
         exclude:
           # Exclude large codemod tests when not needed
           - size: ${{(contains(github.event.pull_request.labels.*.name, 'big-codemod-tests') || github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'kevin' || 'large'}}
@@ -162,7 +162,7 @@ jobs:
 
   integration-tests:
     needs: access-check
-    runs-on: ubuntu-latest-16
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
