@@ -117,4 +117,4 @@ Required environment variables:
 
 - [Graph-sitter Documentation](https://graph-sitter.com)
 - [Modal Documentation](https://modal.com/docs)
-- [VectorIndex Tutorial](https://graph-sitter.com/building-with-codegen/semantic-code-search)
+- [VectorIndex Tutorial](https://graph-sitter.com/building-with-graph-sitter/semantic-code-search)

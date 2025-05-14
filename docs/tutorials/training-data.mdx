@@ -26,7 +26,7 @@ Let's walk through each step using Codegen.
 
 First, we will do a "graph expansion" for each function - grab the function's source, as well as the full source of all usages of the function and all dependencies.
 
-<Info>See [dependencies and usages](/building-with-codegen/dependencies-and-usages) to learn more about navigating the code graph</Info>
+<Info>See [dependencies and usages](/building-with-graph-sitter/dependencies-and-usages) to learn more about navigating the code graph</Info>
 
 First, let's import the types we need from Codegen:
 
@@ -148,7 +148,7 @@ def run(codebase: Codebase):
 
 Finally, we can run our training data generator on any codebase.
 
-<Note>See [parsing codebases](/building-with-codegen/parsing-codebases) to learn more</Note>
+<Note>See [parsing codebases](/building-with-graph-sitter/parsing-codebases) to learn more</Note>
 
 ```python
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ Codegen's graph construction happens in two stages:
 
 1. **AST Parsing**: We use [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) as our foundation for parsing code into Abstract Syntax Trees. Tree-sitter provides fast, reliable parsing across multiple languages.
 
-2. **Multi-file Graph Construction**: Custom parsing logic, implemented in [rustworkx](https://github.com/Qiskit/rustworkx) and Python, analyzes these ASTs to construct a more sophisticated graph structure. This graph captures relationships between [symbols](/building-with-codegen/symbol-api), [files](/building-with-codegen/files-and-directories), [imports](/building-with-codegen/imports), and more.
+2. **Multi-file Graph Construction**: Custom parsing logic, implemented in [rustworkx](https://github.com/Qiskit/rustworkx) and Python, analyzes these ASTs to construct a more sophisticated graph structure. This graph captures relationships between [symbols](/building-with-graph-sitter/symbol-api), [files](/building-with-graph-sitter/files-and-directories), [imports](/building-with-graph-sitter/imports), and more.
 
 ### Performance Through Pre-computation
 
@@ -66,11 +66,11 @@ Currently, Graph-sitter supports:
 
 - [Python](/api-reference/python)
 - [TypeScript](/api-reference/typescript)
-- [React & JSX](/building-with-codegen/react-and-jsx)
+- [React & JSX](/building-with-graph-sitter/react-and-jsx)
 
 <Note>
   Learn about how Graph-sitter handles language specifics in the [Language
-  Support](/building-with-codegen/language-support) guide.
+  Support](/building-with-graph-sitter/language-support) guide.
 </Note>
 
 We've started with these ecosystems but designed our architecture to be extensible. The graph-based approach provides a consistent interface across languages while handling language-specific details under the hood.

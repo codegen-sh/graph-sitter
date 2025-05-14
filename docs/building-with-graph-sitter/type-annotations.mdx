@@ -47,7 +47,7 @@ Type annotations in Graph-sitter are built on two key interfaces:
 
 Any node that inherits from `Typeable` will have a `.type` property that returns a `Type` object, which can be used to inspect and modify type annotations.
 
-<Tip>Learn more about [inheritable behaviors](/building-with-codegen/inheritable-behaviors) like Typeable here</Tip>
+<Tip>Learn more about [inheritable behaviors](/building-with-graph-sitter/inheritable-behaviors) like Typeable here</Tip>
 
 ## Core Type APIs
 
@@ -135,7 +135,7 @@ union_type.remove("None")
 if "str" in union_type.options:
     print("String is a possible type")
 ```
-<Tip>Learn more about [working with collections here](/building-with-codegen/collections)</Tip>
+<Tip>Learn more about [working with collections here](/building-with-graph-sitter/collections)</Tip>
 
 ### Generic Types
 
@@ -154,7 +154,7 @@ generic_type.parameters[0] = "float"
 # Create new generic
 function.set_return_type("List[str]")
 ```
-<Tip>Learn more about [working with collections here](/building-with-codegen/collections)</Tip>
+<Tip>Learn more about [working with collections here](/building-with-graph-sitter/collections)</Tip>
 
 ### Type Resolution
 

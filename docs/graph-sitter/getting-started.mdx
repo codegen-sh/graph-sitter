@@ -50,7 +50,7 @@ codebase = Codebase("path/to/git/repo")
 
 <Note>
   This will automatically infer the programming language of the codebase and
-  parse all files in the codebase. Learn more about [parsing codebases here](/building-with-codegen/parsing-codebases)
+  parse all files in the codebase. Learn more about [parsing codebases here](/building-with-graph-sitter/parsing-codebases)
 </Note>
 
 ## Exploring Your Codebase
@@ -62,8 +62,8 @@ Here are some common patterns for code navigation in Codegen:
 - Iterate over all [Functions](/api-reference/core/Function) with [Codebase.functions](/api-reference/core/Codebase#functions)
 - View class inheritance with [Class.superclasses](/api-reference/core/Class#superclasses)
 - View function usages with [Function.usages](/api-reference/core/Function#usages)
-- View inheritance hierarchies with [inheritance APIs](https://graph-sitter.com/building-with-codegen/class-api#working-with-inheritance)
-- Identify recursive functions by looking at [FunctionCalls](https://graph-sitter.com/building-with-codegen/function-calls-and-callsites)
+- View inheritance hierarchies with [inheritance APIs](https://graph-sitter.com/building-with-graph-sitter/class-api#working-with-inheritance)
+- Identify recursive functions by looking at [FunctionCalls](https://graph-sitter.com/building-with-graph-sitter/function-calls-and-callsites)
 - View function call-sites with [Function.call_sites](/api-reference/core/Function#call-sites)
 
 ```python
@@ -121,7 +121,7 @@ for file, num_tests in file_test_counts.most_common()[:5]:
 
 Lets split up the largest test files into separate modules for better organization.
 
-This uses Codegen's [codebase.move_to_file(...)](/building-with-codegen/moving-symbols), which will:
+This uses Codegen's [codebase.move_to_file(...)](/building-with-graph-sitter/moving-symbols), which will:
 - update all imports
 - (optionally) move dependencies
 - do so very fast ⚡️
@@ -168,7 +168,7 @@ codebase.commit()
 <Warning>
   In order to commit changes to your filesystem, you must call
   [codebase.commit()](/api-reference/core/Codebase#commit). Learn more about
-  [commit() and reset()](/building-with-codegen/commit-and-reset).
+  [commit() and reset()](/building-with-graph-sitter/commit-and-reset).
 </Warning>
 
 ### Finding Specific Content
@@ -234,7 +234,7 @@ for fcall in handler.call_sites:
 
 <Tip>
   When moving symbols, Graph-sitter will automatically update all imports and
-  references. See [Moving Symbols](/building-with-codegen/moving-symbols) to
+  references. See [Moving Symbols](/building-with-graph-sitter/moving-symbols) to
   learn more.
 </Tip>
 
@@ -273,7 +273,7 @@ if base_class:
 
 <Note>
   Learn more about [dependencies and
-  references](/building-with-codegen/dependencies-and-usages) or [imports](/building-with-codegen/imports) and [exports](/building-with-codegen/exports).
+  references](/building-with-graph-sitter/dependencies-and-usages) or [imports](/building-with-graph-sitter/imports) and [exports](/building-with-graph-sitter/exports).
 </Note>
 
 ## Advanced Settings
@@ -323,7 +323,7 @@ These are considered experimental and unstable features that may be removed or c
   <Card
     title="Learn Core Concepts"
     icon="book"
-    href="/building-with-codegen/at-a-glance"
+    href="/building-with-graph-sitter/at-a-glance"
   >
     Understand key concepts like working with files, functions, imports, and the
     call graph to effectively manipulate code.

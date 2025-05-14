@@ -117,7 +117,7 @@ The script will:
 - [Export/Import Documentation](https://www.typescriptlang.org/docs/handbook/modules.html#export)
 - [Graph-sitter Documentation](https://graph-sitter.com)
 - [Tutorial on Analyzing and Organizing Re-exports](https://graph-sitter.com/tutorials/managing-typescript-exports)
-- [More on exports ](https://graph-sitter.com/building-with-codegen/exports)
+- [More on exports ](https://graph-sitter.com/building-with-graph-sitter/exports)
 
 ## Contributing
 

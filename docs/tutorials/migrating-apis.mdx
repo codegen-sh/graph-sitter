@@ -25,7 +25,7 @@ old_param.rename("data")
 # process_data(input="test") -> process_data(data="test")
 ```
 
-<Info>See [dependencies and usages](/building-with-codegen/dependencies-and-usages) for more on updating parameter names and types.</Info>
+<Info>See [dependencies and usages](/building-with-graph-sitter/dependencies-and-usages) for more on updating parameter names and types.</Info>
 
 ### Adding Required Parameters
 
@@ -43,7 +43,7 @@ for call in call_sites:
     call.add_argument("timeout=30")  # Add with a default value
 ```
 
-<Info>See [function calls and callsites](/building-with-codegen/function-calls-and-callsites) for more on handling call sites.</Info>
+<Info>See [function calls and callsites](/building-with-graph-sitter/function-calls-and-callsites) for more on handling call sites.</Info>
 
 ### Changing Parameter Types
 
@@ -62,7 +62,7 @@ for call in api_function.call_sites:
         arg.edit(f"UUID({arg.value})")
 ```
 
-<Info>See [working with type annotations](/building-with-codegen/type-annotations) for more on changing parameter types.</Info>
+<Info>See [working with type annotations](/building-with-graph-sitter/type-annotations) for more on changing parameter types.</Info>
 
 ### Deprecating Functions
 

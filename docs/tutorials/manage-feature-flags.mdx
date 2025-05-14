@@ -61,7 +61,7 @@ else:
 This will output a table showing all feature flags and their usage counts, helping identify which flags are candidates for removal.
 
 <Tip>
-    Learn more about [Attributes](/building-with-codegen/class-api#class-attributes) and [tracking usages](/building-with-codegen/dependencies-and-usages) here
+    Learn more about [Attributes](/building-with-graph-sitter/class-api#class-attributes) and [tracking usages](/building-with-graph-sitter/dependencies-and-usages) here
 </Tip>
 
 
@@ -70,7 +70,7 @@ This will output a table showing all feature flags and their usage counts, helpi
 Once you've identified a flag that's ready to be removed, Graph-sitter can help safely delete it and its associated code paths.
 
 <Tip>
-    This primarily leverages Codegen's API for [reduction conditions](/building-with-codegen/reducing-conditions)
+    This primarily leverages Codegen's API for [reduction conditions](/building-with-graph-sitter/reducing-conditions)
 </Tip>
 
 ### Python Example
@@ -153,5 +153,5 @@ This will:
 
 
 ## Related Resources
-- [Reducing Conditions](/building-with-codegen/reducing-conditions) - Details on condition reduction APIs
+- [Reducing Conditions](/building-with-graph-sitter/reducing-conditions) - Details on condition reduction APIs
 - [Dead Code Removal](/tutorials/deleting-dead-code) - Remove unused code after flag deletion

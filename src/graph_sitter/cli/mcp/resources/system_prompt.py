@@ -54,7 +54,7 @@ def baz():
 Graph-sitter handles complex refactors while maintaining correctness, enabling a broad set of advanced code manipulation programs.
 </Note>
 
-<Tip>Graph-sitter works with both Python and Typescript/JSX codebases. Learn more about language support [here](/building-with-codegen/language-support).</Tip>
+<Tip>Graph-sitter works with both Python and Typescript/JSX codebases. Learn more about language support [here](/building-with-graph-sitter/language-support).</Tip>
 
 ## Installation
 
@@ -220,7 +220,7 @@ codebase = Codebase("path/to/git/repo")
 
 <Note>
   This will automatically infer the programming language of the codebase and
-  parse all files in the codebase. Learn more about [parsing codebases here](/building-with-codegen/parsing-codebases)
+  parse all files in the codebase. Learn more about [parsing codebases here](/building-with-graph-sitter/parsing-codebases)
 </Note>
 
 ## Exploring Your Codebase
@@ -232,8 +232,8 @@ Here are some common patterns for code navigation in Codegen:
 - Iterate over all [Functions](/api-reference/core/Function) with [Codebase.functions](/api-reference/core/Codebase#functions)
 - View class inheritance with [Class.superclasses](/api-reference/core/Class#superclasses)
 - View function usages with [Function.usages](/api-reference/core/Function#usages)
-- View inheritance hierarchies with [inheritance APIs](https://graph-sitter.com/building-with-codegen/class-api#working-with-inheritance)
-- Identify recursive functions by looking at [FunctionCalls](https://graph-sitter.com/building-with-codegen/function-calls-and-callsites)
+- View inheritance hierarchies with [inheritance APIs](https://graph-sitter.com/building-with-graph-sitter/class-api#working-with-inheritance)
+- Identify recursive functions by looking at [FunctionCalls](https://graph-sitter.com/building-with-graph-sitter/function-calls-and-callsites)
 - View function call-sites with [Function.call_sites](/api-reference/core/Function#call-sites)
 
 ```python
@@ -291,7 +291,7 @@ for file, num_tests in file_test_counts.most_common()[:5]:
 
 Lets split up the largest test files into separate modules for better organization.
 
-This uses Codegen's [codebase.move_to_file(...)](/building-with-codegen/moving-symbols), which will:
+This uses Codegen's [codebase.move_to_file(...)](/building-with-graph-sitter/moving-symbols), which will:
 - update all imports
 - (optionally) move dependencies
 - do so very fast ⚡️
@@ -338,7 +338,7 @@ codebase.commit()
 <Warning>
   In order to commit changes to your filesystem, you must call
   [codebase.commit()](/api-reference/core/Codebase#commit). Learn more about
-  [commit() and reset()](/building-with-codegen/commit-and-reset).
+  [commit() and reset()](/building-with-graph-sitter/commit-and-reset).
 </Warning>
 
 ### Finding Specific Content
@@ -404,7 +404,7 @@ for fcall in handler.call_sites:
 
 <Tip>
   When moving symbols, Graph-sitter will automatically update all imports and
-  references. See [Moving Symbols](/building-with-codegen/moving-symbols) to
+  references. See [Moving Symbols](/building-with-graph-sitter/moving-symbols) to
   learn more.
 </Tip>
 
@@ -443,7 +443,7 @@ if base_class:
 
 <Note>
   Learn more about [dependencies and
-  references](/building-with-codegen/dependencies-and-usages) or [imports](/building-with-codegen/imports) and [exports](/building-with-codegen/exports).
+  references](/building-with-graph-sitter/dependencies-and-usages) or [imports](/building-with-graph-sitter/imports) and [exports](/building-with-graph-sitter/exports).
 </Note>
 
 ## What's Next?
@@ -460,7 +460,7 @@ if base_class:
   <Card
     title="Learn Core Concepts"
     icon="book"
-    href="/building-with-codegen/at-a-glance"
+    href="/building-with-graph-sitter/at-a-glance"
   >
     Understand key concepts like working with files, functions, imports, and the
     call graph to effectively manipulate code.
@@ -577,7 +577,7 @@ Let's walk through a minimal example of using Graph-sitter in a project:
   <Card
     title="Guides"
     icon="hammer"
-    href="/building-with-codegen/at-a-glance"
+    href="/building-with-graph-sitter/at-a-glance"
   >
     Learn more about building with Codegen
     </Card>
@@ -714,7 +714,7 @@ We recommend viewing changes in your IDE's native diff editor.
   <Card
     title="Graph-sitter Guides"
     icon="book"
-    href="/building-with-codegen/at-a-glance"
+    href="/building-with-graph-sitter/at-a-glance"
   >
     Learn about Codegen's core concepts and features
   </Card>
@@ -851,7 +851,7 @@ Codegen's graph construction happens in two stages:
 
 1. **AST Parsing**: We use [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) as our foundation for parsing code into Abstract Syntax Trees. Tree-sitter provides fast, reliable parsing across multiple languages.
 
-2. **Multi-file Graph Construction**: Custom parsing logic, implemented in [rustworkx](https://github.com/Qiskit/rustworkx) and Python, analyzes these ASTs to construct a more sophisticated graph structure. This graph captures relationships between [symbols](/building-with-codegen/symbol-api), [files](/building-with-codegen/files-and-directories), [imports](/building-with-codegen/imports), and more.
+2. **Multi-file Graph Construction**: Custom parsing logic, implemented in [rustworkx](https://github.com/Qiskit/rustworkx) and Python, analyzes these ASTs to construct a more sophisticated graph structure. This graph captures relationships between [symbols](/building-with-graph-sitter/symbol-api), [files](/building-with-graph-sitter/files-and-directories), [imports](/building-with-graph-sitter/imports), and more.
 
 ### Performance Through Pre-computation
 
@@ -877,11 +877,11 @@ Currently, Graph-sitter supports:
 
 - [Python](/api-reference/python)
 - [TypeScript](/api-reference/typescript)
-- [React & JSX](/building-with-codegen/react-and-jsx)
+- [React & JSX](/building-with-graph-sitter/react-and-jsx)
 
 <Note>
   Learn about how Graph-sitter handles language specifics in the [Language
-  Support](/building-with-codegen/language-support) guide.
+  Support](/building-with-graph-sitter/language-support) guide.
 </Note>
 
 We've started with these ecosystems but designed our architecture to be extensible. The graph-based approach provides a consistent interface across languages while handling language-specific details under the hood.
@@ -1117,7 +1117,7 @@ iconType: "solid"
     We're actively working on expanding language support based on community needs.
     <Tip>
       Learn more about how Graph-sitter handles language specifics in the [Language
-      Support](/building-with-codegen/language-support) guide.
+      Support](/building-with-graph-sitter/language-support) guide.
     </Tip>
     <Note>
       Interested in adding support for your language? [Let us know](https://x.com/codegen) or [contribute](/introduction/community)!
@@ -1176,14 +1176,14 @@ Learn how to use Codegen's core APIs to analyze and transform code.
   <Card
     title="Parsing Codebases"
     icon="code"
-    href="/building-with-codegen/parsing-codebases"
+    href="/building-with-graph-sitter/parsing-codebases"
   >
     Understand how Graph-sitter parses and analyzes different programming languages.
   </Card>
   <Card
     title="Files & Directories"
     icon="folder-tree"
-    href="/building-with-codegen/files-and-directories"
+    href="/building-with-graph-sitter/files-and-directories"
   >
     Learn how to work with files, directories, and navigate the codebase
     structure.
@@ -1191,14 +1191,14 @@ Learn how to use Codegen's core APIs to analyze and transform code.
   <Card
     title="The Editable API"
     icon="wand-magic-sparkles"
-    href="/building-with-codegen/the-editable-api"
+    href="/building-with-graph-sitter/the-editable-api"
   >
     Learn how to safely modify code while preserving formatting and comments.
   </Card>
   <Card
     title="Symbols, Functions and Classes"
     icon="pen-to-square"
-    href="/building-with-codegen/the-editable-api"
+    href="/building-with-graph-sitter/the-editable-api"
   >
     Master the core abstractions for manipulating code safely and effectively.
   </Card>
@@ -1211,28 +1211,28 @@ Learn how to use Codegen's core APIs to analyze and transform code.
   <Card
     title="Dependencies & Usages"
     icon="diagram-project"
-    href="/building-with-codegen/dependencies-and-usages"
+    href="/building-with-graph-sitter/dependencies-and-usages"
   >
     Analyze relationships between code elements and track symbol references.
   </Card>
   <Card
     title="Function Calls & Callsites"
     icon="arrow-right-arrow-left"
-    href="/building-with-codegen/function-calls-and-callsites"
+    href="/building-with-graph-sitter/function-calls-and-callsites"
   >
     Understand function call patterns and manipulate call sites.
   </Card>
   <Card
     title="Imports"
     icon="file-import"
-    href="/building-with-codegen/imports"
+    href="/building-with-graph-sitter/imports"
   >
     Work with module imports and manage dependencies.
   </Card>
   <Card
     title="Traversing the Call Graph"
     icon="share-nodes"
-    href="/building-with-codegen/traversing-the-call-graph"
+    href="/building-with-graph-sitter/traversing-the-call-graph"
   >
     Navigate function call relationships and analyze code flow.
   </Card>
@@ -1244,28 +1244,28 @@ Learn how to use Codegen's core APIs to analyze and transform code.
   <Card
     title="Moving Symbols"
     icon="arrows-up-down-left-right"
-    href="/building-with-codegen/moving-symbols"
+    href="/building-with-graph-sitter/moving-symbols"
   >
     Relocate functions, classes, and other symbols while updating references.
   </Card>
   <Card
     title="Statements & Code Blocks"
     icon="brackets-curly"
-    href="/building-with-codegen/statements-and-code-blocks"
+    href="/building-with-graph-sitter/statements-and-code-blocks"
   >
     Work with code blocks, control flow, and statement manipulation.
   </Card>
   <Card
     title="Variable Assignments"
     icon="equals"
-    href="/building-with-codegen/variable-assignments"
+    href="/building-with-graph-sitter/variable-assignments"
   >
     Handle variable declarations, assignments, and scope.
   </Card>
   <Card
     title="Collections"
     icon="layer-group"
-    href="/building-with-codegen/collections"
+    href="/building-with-graph-sitter/collections"
   >
     Work with groups of related code elements like functions, classes, and
     imports.
@@ -1278,28 +1278,28 @@ Learn how to use Codegen's core APIs to analyze and transform code.
   <Card
     title="React & JSX"
     icon="react"
-    href="/building-with-codegen/react-and-jsx"
+    href="/building-with-graph-sitter/react-and-jsx"
   >
     Work with React components, JSX syntax, and component transformations.
   </Card>
   <Card
     title="Local Variables"
     icon="cube"
-    href="/building-with-codegen/local-variables"
+    href="/building-with-graph-sitter/local-variables"
   >
     Analyze and manipulate local variable usage and scope.
   </Card>
   <Card
     title="Calling Out to LLMs"
     icon="robot"
-    href="/building-with-codegen/calling-out-to-llms"
+    href="/building-with-graph-sitter/calling-out-to-llms"
   >
     Integrate AI assistance into your code transformations.
   </Card>
   <Card
     title="Codebase Visualization"
     icon="chart-network"
-    href="/building-with-codegen/codebase-visualization"
+    href="/building-with-graph-sitter/codebase-visualization"
   >
     Visualize code relationships and dependencies.
   </Card>
@@ -1444,7 +1444,7 @@ Graph-sitter currently supports:
 
 - [Python](/api-reference/python)
 - [TypeScript/JavaScript](/api-reference/typescript)
-- [React/JSX](/building-with-codegen/react-and-jsx)
+- [React/JSX](/building-with-graph-sitter/react-and-jsx)
 
 
 ---
@@ -1779,7 +1779,7 @@ print(codebase.language)  # "python" or "typescript"
 
 <Tip>
   Learn more about codebase initialization options in [Parsing
-  Codebases](/building-with-codegen/parsing-codebases).
+  Codebases](/building-with-graph-sitter/parsing-codebases).
 </Tip>
 
 ## Type System
@@ -1849,7 +1849,7 @@ Some features are only available in TypeScript codebases:
 
 - **Types and Interfaces**: TypeScript's rich type system ([`TSTypeAlias`](/api-reference/typescript/TSTypeAlias), [`TSInterface`](/api-reference/typescript/TSInterface))
 - **Exports**: Module exports and re-exports ([`TSExport`](/api-reference/typescript/TSExport))
-- **JSX/TSX**: React component handling (see [React and JSX](/building-with-codegen/react-and-jsx))
+- **JSX/TSX**: React component handling (see [React and JSX](/building-with-graph-sitter/react-and-jsx))
 
 Example of TypeScript-specific features:
 
@@ -1966,7 +1966,7 @@ if commit:
 <Note>
   `git_commit` will only commit changes that have been synced to the filesystem
   by calling [`Codebase.commit()`](/api-reference/core/Codebase#commit). See
-  [`Commit and Reset`](/building-with-codegen/commit-and-reset) for more
+  [`Commit and Reset`](/building-with-graph-sitter/commit-and-reset) for more
   details.
 </Note>
 
@@ -2202,7 +2202,7 @@ parent = dir.parent # Parent directory
 Files themselves are [`Editable`](/api-reference/core/Editable.mdx) objects, just like Functions and Classes.
 
 <Tip>
-  Learn more about the [Editable API](/building-with-codegen/the-editable-api).
+  Learn more about the [Editable API](/building-with-graph-sitter/the-editable-api).
 </Tip>
 
 This means they expose many useful operations, including:
@@ -2533,8 +2533,8 @@ All symbols share common APIs for manipulation:
   - [symbol.docstring](/api-reference/core/Symbol#docstring)
 - Edit operations
   - [symbol.set_docstring](/api-reference/core/Symbol#set-docstring)
-  - [symbol.move_to_file](/api-reference/core/Symbol#move-to-file) (see [Moving Symbols](/building-with-codegen/moving-symbols))
-- Graph relations (See [Usages and Dependencies](/building-with-codegen/dependencies-and-usages))
+  - [symbol.move_to_file](/api-reference/core/Symbol#move-to-file) (see [Moving Symbols](/building-with-graph-sitter/moving-symbols))
+- Graph relations (See [Usages and Dependencies](/building-with-graph-sitter/dependencies-and-usages))
   - [symbol.usages](/api-reference/core/Symbol#usages)
   - [symbol.dependencies](/api-reference/core/Symbol#dependencies)
 
@@ -2617,11 +2617,11 @@ icon: "cube"
 iconType: "solid"
 ---
 
-The [Class](/api-reference/core/Class) API extends the [Symbol](/building-with-codegen/symbol-api) API to support methods, attributes, and inheritance hierarchies.
+The [Class](/api-reference/core/Class) API extends the [Symbol](/building-with-graph-sitter/symbol-api) API to support methods, attributes, and inheritance hierarchies.
 
 ## Methods and Method Usages
 
-Classes provide access to their methods and method [usages](/building-with-codegen/dependencies-and-usages) through an intuitive API:
+Classes provide access to their methods and method [usages](/building-with-graph-sitter/dependencies-and-usages) through an intuitive API:
 
 ```python
 # Access methods
@@ -2876,7 +2876,7 @@ for imp in file.imports:
         print(f"Local import: {imp.name}")
 ```
 
-<Tip>Learn more about [external modules here](/building-with-codegen/external-modules)</Tip>
+<Tip>Learn more about [external modules here](/building-with-graph-sitter/external-modules)</Tip>
 
 
 ## Bulk Operations
@@ -2960,7 +2960,7 @@ for stmt in file.import_statements:
 ```
 
 <Note>
-ImportStatement inherits from [Statement](/building-with-codegen/statements-and-code-blocks), providing operations like `remove()` and `insert_before()`.
+ImportStatement inherits from [Statement](/building-with-graph-sitter/statements-and-code-blocks), providing operations like `remove()` and `insert_before()`.
 </Note>
 
 ---
@@ -3008,7 +3008,7 @@ for stmt in file.export_statements:
 ```
 
 <Note>
-ExportStatement inherits from [Statement](/building-with-codegen/statements-and-code-blocks), providing operations like `remove()` and `insert_before()`. This is particularly useful when you want to manipulate the entire export declaration.
+ExportStatement inherits from [Statement](/building-with-graph-sitter/statements-and-code-blocks), providing operations like `remove()` and `insert_before()`. This is particularly useful when you want to manipulate the entire export declaration.
 </Note>
 
 ## Common Operations
@@ -3188,7 +3188,7 @@ Graph-sitter uses a set of core behaviors that can be inherited by code elements
 - [HasName](/api-reference/core/HasName): For elements with [Names](/api-reference/core/Name) (Functions, Classes, Assignments, etc.)
 - [HasValue](/api-reference/core/HasValue): For elements with [Values](/api-reference/core/Value) (Arguments, Assignments, etc.)
 - [HasBlock](/api-reference/core/HasBlock): For elements containing [CodeBlocks](/api-reference/core/CodeBlock) (Files, Functions, Classes)
-- [Editable](/api-reference/core/Editable): For elements that can be safely modified ([learn more](/building-with-codegen/the-editable-api))
+- [Editable](/api-reference/core/Editable): For elements that can be safely modified ([learn more](/building-with-graph-sitter/the-editable-api))
 
 <Note>These "behaviors" are implemented as inherited classes.</Note>
 
@@ -3239,7 +3239,7 @@ printS(block.source)
 
 <Info>
   Learn more about [CodeBlocks and Statements
-  here](/building-with-codegen/statements-and-code-blocks)
+  here](/building-with-graph-sitter/statements-and-code-blocks)
 </Info>
 
 ## Working with Attributes
@@ -3255,7 +3255,7 @@ if class_attr:
 
 <Info>
   Learn more about [working with Attributes
-  here](/building-with-codegen/class-api#class-attributes).
+  here](/building-with-graph-sitter/class-api#class-attributes).
 </Info>
 
 ## Behavior Combinations
@@ -3336,7 +3336,7 @@ Functions and Files support [.prepend_statement(...)](../api-reference/core/Symb
 
 <Tip>
   See [Adding
-  Statements](/building-with-codegen/symbol-api#function-statement-manipulation)
+  Statements](/building-with-graph-sitter/symbol-api#function-statement-manipulation)
   for details.
 </Tip>
 
@@ -3405,7 +3405,7 @@ Graph-sitter supports various statement types, each with specific APIs:
 ### [Import Statements](../api-reference/core/ImportStatement) / [Export Statements](../api-reference/core/ExportStatement)
 
 <Tip>
-  See [imports](/building-with-codegen/imports) and [exports](../building-with-codegen/exports) for
+  See [imports](/building-with-graph-sitter/imports) and [exports](../building-with-graph-sitter/exports) for
   more details.
 </Tip>
 
@@ -3925,7 +3925,7 @@ call.set_kwarg("input_data", "'new_value'", override_existing=True)  # Converts 
 2. Using [FuncionCall.args.append(...)](/api-reference/core/FunctionCall#args) to add new arguments:
    <Tip>
      [FunctionCall.args](/api-reference/core/FunctionCall#args) is a
-     [Collection](/building-with-codegen/collections) of
+     [Collection](/building-with-graph-sitter/collections) of
      [Argument](/api-reference/core/Argument) objects, so it supports
      [.append(...)](/api-reference/core/List#append),
      [.insert(...)](/api-reference/core/List#insert) and other collection
@@ -4084,7 +4084,7 @@ name_assignment.rename("userName")
 <Note>
   Assignments inherit both [HasName](/api-reference/core/HasName) and
   [HasValue](/api-reference/core/HasValue) behaviors. See [Inheritable
-  Behaviors](/building-with-codegen/inheritable-behaviors) for more details.
+  Behaviors](/building-with-graph-sitter/inheritable-behaviors) for more details.
 </Note>
 
 ### Type Annotations
@@ -4128,7 +4128,7 @@ dependencies = assignment.dependencies
 ```
 
 <Tip>
-  See [Dependencies and Usages](/building-with-codegen/dependencies-and-usages)
+  See [Dependencies and Usages](/building-with-graph-sitter/dependencies-and-usages)
   for more details.
 </Tip>
 
@@ -4390,7 +4390,7 @@ function.set_docstring(new_docstring)
 <Tip>
   Learn more about AI documentation capabilities in our [Documentation
   Guide](/tutorials/creating-documentation) and [LLM Integration
-  Guide](/building-with-codegen/calling-out-to-llms).
+  Guide](/building-with-graph-sitter/calling-out-to-llms).
 </Tip>
 
 ### Documentation Coverage
@@ -4586,7 +4586,7 @@ Type annotations in Graph-sitter are built on two key interfaces:
 
 Any node that inherits from `Typeable` will have a `.type` property that returns a `Type` object, which can be used to inspect and modify type annotations.
 
-<Tip>Learn more about [inheritable behaviors](/building-with-codegen/inheritable-behaviors) like Typeable here</Tip>
+<Tip>Learn more about [inheritable behaviors](/building-with-graph-sitter/inheritable-behaviors) like Typeable here</Tip>
 
 ## Core Type APIs
 
@@ -4674,7 +4674,7 @@ union_type.remove("None")
 if "str" in union_type.options:
     print("String is a possible type")
 ```
-<Tip>Learn more about [working with collections here](/building-with-codegen/collections)</Tip>
+<Tip>Learn more about [working with collections here](/building-with-graph-sitter/collections)</Tip>
 
 ### Generic Types
 
@@ -4693,7 +4693,7 @@ generic_type.parameters[0] = "float"
 # Create new generic
 function.set_return_type("List[str]")
 ```
-<Tip>Learn more about [working with collections here](/building-with-codegen/collections)</Tip>
+<Tip>Learn more about [working with collections here](/building-with-graph-sitter/collections)</Tip>
 
 ### Type Resolution
 
@@ -5145,7 +5145,7 @@ for component in react_components:
 ```
 
 <Note>
-  See [Moving Symbols](/building-with-codegen/moving-symbols) for more details
+  See [Moving Symbols](/building-with-graph-sitter/moving-symbols) for more details
   on moving symbols between files.
 </Note>
 
@@ -5287,7 +5287,7 @@ codebase.visualize(call_graph, root=endpoint)
 
 <Tip>
   Learn more about [traversing the call graph
-  here](/building-with-codegen/traversing-the-call-graph).
+  here](/building-with-graph-sitter/traversing-the-call-graph).
 </Tip>
 
 ### React Component Trees
@@ -6153,7 +6153,7 @@ old_param.rename("data")
 # process_data(input="test") -> process_data(data="test")
 ```
 
-<Info>See [dependencies and usages](/building-with-codegen/dependencies-and-usages) for more on updating parameter names and types.</Info>
+<Info>See [dependencies and usages](/building-with-graph-sitter/dependencies-and-usages) for more on updating parameter names and types.</Info>
 
 ### Adding Required Parameters
 
@@ -6171,7 +6171,7 @@ for call in call_sites:
     call.add_argument("timeout=30")  # Add with a default value
 ```
 
-<Info>See [function calls and callsites](/building-with-codegen/function-calls-and-callsites) for more on handling call sites.</Info>
+<Info>See [function calls and callsites](/building-with-graph-sitter/function-calls-and-callsites) for more on handling call sites.</Info>
 
 ### Changing Parameter Types
 
@@ -6190,7 +6190,7 @@ for call in api_function.call_sites:
         arg.edit(f"UUID({arg.value})")
 ```
 
-<Info>See [working with type annotations](/building-with-codegen/type-annotations) for more on changing parameter types.</Info>
+<Info>See [working with type annotations](/building-with-graph-sitter/type-annotations) for more on changing parameter types.</Info>
 
 ### Deprecating Functions
 
@@ -6763,7 +6763,7 @@ Let's walk through each step using Codegen.
 
 First, we will do a "graph expansion" for each function - grab the function's source, as well as the full source of all usages of the function and all dependencies.
 
-<Info>See [dependencies and usages](/building-with-codegen/dependencies-and-usages) to learn more about navigating the code graph</Info>
+<Info>See [dependencies and usages](/building-with-graph-sitter/dependencies-and-usages) to learn more about navigating the code graph</Info>
 
 First, let's import the types we need from Codegen:
 
@@ -6885,7 +6885,7 @@ def run(codebase: Codebase):
 
 Finally, we can run our training data generator on any codebase.
 
-<Note>See [parsing codebases](/building-with-codegen/parsing-codebases) to learn more</Note>
+<Note>See [parsing codebases](/building-with-graph-sitter/parsing-codebases) to learn more</Note>
 
 ```python
 if __name__ == "__main__":
@@ -7080,9 +7080,9 @@ print("\n✅ Import cycles resolved!")
 
 <Tip>
   Most operations in Graph-sitter will automatically handle updaging
-  [dependencies](/building-with-codegen/dependencies-and-usages) and
-  [imports](/building-with-codegen/imports). See [Moving
-  Symbols](/building-with-codegen/moving-symbols) to learn more.
+  [dependencies](/building-with-graph-sitter/dependencies-and-usages) and
+  [imports](/building-with-graph-sitter/imports). See [Moving
+  Symbols](/building-with-graph-sitter/moving-symbols) to learn more.
 </Tip>
 
 ## Basic Symbol Movement
@@ -7464,7 +7464,7 @@ else:
 This will output a table showing all feature flags and their usage counts, helping identify which flags are candidates for removal.
 
 <Tip>
-    Learn more about [Attributes](/building-with-codegen/class-api#class-attributes) and [tracking usages](/building-with-codegen/dependencies-and-usages) here
+    Learn more about [Attributes](/building-with-graph-sitter/class-api#class-attributes) and [tracking usages](/building-with-graph-sitter/dependencies-and-usages) here
 </Tip>
 
 
@@ -7473,7 +7473,7 @@ This will output a table showing all feature flags and their usage counts, helpi
 Once you've identified a flag that's ready to be removed, Graph-sitter can help safely delete it and its associated code paths.
 
 <Tip>
-    This primarily leverages Codegen's API for [reduction conditions](/building-with-codegen/reducing-conditions)
+    This primarily leverages Codegen's API for [reduction conditions](/building-with-graph-sitter/reducing-conditions)
 </Tip>
 
 ### Python Example
@@ -7556,7 +7556,7 @@ This will:
 
 
 ## Related Resources
-- [Reducing Conditions](/building-with-codegen/reducing-conditions) - Details on condition reduction APIs
+- [Reducing Conditions](/building-with-graph-sitter/reducing-conditions) - Details on condition reduction APIs
 - [Dead Code Removal](/tutorials/deleting-dead-code) - Remove unused code after flag deletion
 
 ---
@@ -7581,7 +7581,7 @@ This guide will show you how to safely identify and remove genuinely unused code
 
 To simply identify code without any external usages, you can check for the absence of [Symbol.usages](/api-reference/core/Symbol#usages).
 
-<Tip>See [Dependencies and Usages](/building-with-codegen/dependencies-and-usages) for more information on how to use these properties.</Tip>
+<Tip>See [Dependencies and Usages](/building-with-graph-sitter/dependencies-and-usages) for more information on how to use these properties.</Tip>
 
 ```python
 # Iterate through all functions in the codebase
@@ -7693,7 +7693,7 @@ Common use cases include:
     Adding type hints can improve developer experience and [significantly speed up](https://github.com/microsoft/Typescript/wiki/Performance#using-type-annotations) programs like the Typescript compiler and `mypy`.
 </Tip>
 
-<Note>See [Type Annotations](/building-with-codegen/type-annotations) for a general overview of the type maninpulation</Note>
+<Note>See [Type Annotations](/building-with-graph-sitter/type-annotations) for a general overview of the type maninpulation</Note>
 
 ## APIs for monitoring types
 
@@ -7805,7 +7805,7 @@ icon: "ship"
 iconType: "solid"
 ---
 
-Graph-sitter provides powerful tools for managing and reorganizing exports in TypeScript codebases. This tutorial builds on the concepts covered in [exports](/building-with-codegen/exports) to show you how to automate common export management tasks and ensure your module boundaries stay clean and maintainable.
+Graph-sitter provides powerful tools for managing and reorganizing exports in TypeScript codebases. This tutorial builds on the concepts covered in [exports](/building-with-graph-sitter/exports) to show you how to automate common export management tasks and ensure your module boundaries stay clean and maintainable.
 
 ## Common Export Management Tasks
 
@@ -7992,9 +7992,9 @@ Remember that managing exports is an iterative process. You may need to run the 
 </Note>
 
 ### Related tutorials
-- [Moving symbols](/building-with-codegen/moving-symbols)
-- [Exports](/building-with-codegen/exports)
-- [Dependencies and usages](/building-with-codegen/dependencies-and-usages)
+- [Moving symbols](/building-with-graph-sitter/moving-symbols)
+- [Exports](/building-with-graph-sitter/exports)
+- [Dependencies and usages](/building-with-graph-sitter/dependencies-and-usages)
 
 ## Complete Codemod
 
@@ -8129,7 +8129,7 @@ icon: "arrow-right-arrow-left"
 iconType: "solid"
 ---
 
-Graph-sitter provides tools to help you migrate away from default exports to named exports in your TypeScript codebase. This tutorial builds on the concepts covered in [exports](/building-with-codegen/exports) to show you how to automate this conversion process.
+Graph-sitter provides tools to help you migrate away from default exports to named exports in your TypeScript codebase. This tutorial builds on the concepts covered in [exports](/building-with-graph-sitter/exports) to show you how to automate this conversion process.
 
 ## Overview
 
@@ -8257,8 +8257,8 @@ Remember to test thoroughly after converting default exports, as this change aff
 
 ### Related tutorials
 - [Managing typescript exports](/tutorials/managing-typescript-exports)
-- [Exports](/building-with-codegen/exports)
-- [Dependencies and usages](/building-with-codegen/dependencies-and-usages)
+- [Exports](/building-with-graph-sitter/exports)
+- [Dependencies and usages](/building-with-graph-sitter/dependencies-and-usages)
 
 ## Complete Codemod
 
@@ -8370,7 +8370,7 @@ Which provides the following output:
 
 To identify areas of low documentation coverage, you can iterate through all directories and count the number of functions with docstrings.
 
-<Note>Learn more about [`Directories` here](/building-with-codegen/files-and-directories).</Note>
+<Note>Learn more about [`Directories` here](/building-with-graph-sitter/files-and-directories).</Note>
 
 ```python python
 # Track directory stats
@@ -8435,7 +8435,7 @@ For non-trivial codebases, it can be challenging to achieve full documentation c
 
 The most efficient way to edit informative docstrings is to use [codebase.ai](/api-reference/core/Codebase#ai) to generate docstrings, then use the [set_docstring](/api-reference/core/HasBlock#set-docstring) method to update the docstring.
 
-<Tip>Learn more about using AI in our [guides](/building-with-codegen/calling-out-to-llms).</Tip>
+<Tip>Learn more about using AI in our [guides](/building-with-graph-sitter/calling-out-to-llms).</Tip>
 
 ```python python
 # Import datetime for timestamp
@@ -8828,7 +8828,7 @@ components/
   The `strategy="add_back_edge"` parameter ensures that any components that were
   previously co-located can still import each other without circular
   dependencies. Learn more about [moving
-  code](/building-with-codegen/moving-symbols) here.
+  code](/building-with-graph-sitter/moving-symbols) here.
 </Note>
 
 
@@ -9689,7 +9689,7 @@ Check out these related tutorials:
 - [Python 3 Documentation](https://docs.python.org/3/)
 - [What's New in Python 3](https://docs.python.org/3/whatsnew/3.0.html)
 - [Codegen API Reference](/api-reference)
-- [Dependencies and Usages](/building-with-codegen/dependencies-and-usages)
+- [Dependencies and Usages](/building-with-graph-sitter/dependencies-and-usages)
 
 
 ---
@@ -9719,7 +9719,7 @@ Let's walk through each step using Codegen.
 First, we need to update Flask imports to their FastAPI equivalents and modify the app initialization:
 
 <Tip>
-  Learn more about [imports here](/building-with-codegen/imports).
+  Learn more about [imports here](/building-with-graph-sitter/imports).
 </Tip>
 
 ```python
@@ -9906,6 +9906,6 @@ Check out these related tutorials:
 
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Codegen API Reference](/api-reference)
-- [Moving Symbols Guide](/building-with-codegen/moving-symbols)
-- [Dependencies and Usages](/building-with-codegen/dependencies-and-usages)
+- [Moving Symbols Guide](/building-with-graph-sitter/moving-symbols)
+- [Dependencies and Usages](/building-with-graph-sitter/dependencies-and-usages)
 '''
