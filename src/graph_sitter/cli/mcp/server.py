@@ -2,12 +2,8 @@ from typing import Annotated, Any
 
 from mcp.server.fastmcp import Context, FastMCP
 
-from graph_sitter.cli.api.client import RestAPI
-from graph_sitter.cli.mcp.agent.docs_expert import create_sdk_expert_agent
 from graph_sitter.cli.mcp.resources.system_prompt import SYSTEM_PROMPT
 from graph_sitter.cli.mcp.resources.system_setup_instructions import SETUP_INSTRUCTIONS
-from graph_sitter.core.codebase import Codebase
-from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 # Initialize FastMCP server
 
@@ -42,50 +38,18 @@ def get_service_config() -> dict[str, Any]:
 
 
 @mcp.tool()
-def ask_codegen_sdk(query: Annotated[str, "Ask a question to an exper agent for details about any aspect of the codegen sdk core set of classes and utilities"]):
-    codebase = Codebase("../../sdk/core")
-    agent = create_sdk_expert_agent(codebase=codebase)
-
-    result = agent.invoke(
-        {"input": query},
-        config={"configurable": {"thread_id": 1}},
-    )
-
-    return result["messages"][-1].content
-
-
-@mcp.tool()
 def generate_codemod(
     title: Annotated[str, "The title of the codemod (hyphenated)"],
-    task: Annotated[str, "The task to which the codemod should implement to solve"],
     codebase_path: Annotated[str, "The absolute path to the codebase directory"],
     ctx: Context,
 ) -> str:
     """Generate a codemod for the given task and codebase."""
-    return f'''
+    return f"""
     Use the graph_sitter.cli to generate a codemod. If you need to intall the cli the command to do so is `uv tool install graph-sitter`.
     Once installed, run the following command to generate the codemod:
 
-    gs create {title} -d "{task}"
-    '''
-
-
-@mcp.tool()
-def improve_codemod(
-    codemod_source: Annotated[str, "The source code of the codemod to improve"],
-    task: Annotated[str, "The task to which the codemod should implement to solve"],
-    concerns: Annotated[list[str], "A list of issues that were discovered with the current codemod that need to be considered in the next iteration"],
-    context: Annotated[dict[str, Any], "Additional context for the codemod this can be a list of files that are related, additional information about the task, etc."],
-    language: Annotated[ProgrammingLanguage, "The language of the codebase, i.e ALL CAPS PYTHON or TYPESCRIPT "],
-    ctx: Context,
-) -> str:
-    """Improve the codemod."""
-    try:
-        client = RestAPI()
-        response = client.improve_codemod(codemod_source, task, concerns, context, language)
-        return response.codemod_source
-    except Exception as e:
-        return f"Error: {e}"
+    gs create {title}"
+    """
 
 
 if __name__ == "__main__":
