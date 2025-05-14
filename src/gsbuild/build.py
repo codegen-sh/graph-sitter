@@ -6,7 +6,7 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
 def update_init_file(file: Path) -> None:
-    path = Path(__file__).parent.parent.parent
+    path = Path(__file__).parent.parent
     sys.path.append(str(path))
     from graph_sitter.gscli.generate.runner_imports import generate_exported_modules, get_runner_imports
 
