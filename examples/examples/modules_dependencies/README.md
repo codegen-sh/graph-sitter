@@ -108,8 +108,8 @@ DiGraph with n nodes and m edges where:
 ## Running the Visualization
 
 ```bash
-# Install Codegen and dependencies
-pip install codegen networkx
+# install graph-sitter and dependencies
+pip install graph-sitter networkx
 
 # Run the visualization
 python run.py

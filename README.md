@@ -54,10 +54,10 @@ We support
 
 ```
 # Install inside existing project
-uv pip install codegen
+uv pip install graph-sitter
 
 # Install global CLI
-uv tool install codegen --python 3.13
+uv tool install graph-sitter --python 3.13
 
 # Create a codemod for a given repo
 cd path/to/repo

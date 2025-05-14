@@ -46,7 +46,7 @@ RUN node --version \
 ARG CODEGEN_VERSION
 ARG BUILD_TYPE="release"  # Can be "release" or "dev"
 
-# Install codegen based on BUILD_TYPE
+# install graph-sitter based on BUILD_TYPE
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=.,target=/codegen-sdk,rw \
     if [ "$BUILD_TYPE" = "release" ]; then \

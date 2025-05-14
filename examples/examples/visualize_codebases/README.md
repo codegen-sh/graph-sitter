@@ -146,7 +146,7 @@ All visualizations share these characteristics:
 
 ```bash
 # Install dependencies
-pip install codegen networkx
+pip install graph-sitter networkx
 
 # Run any visualization script
 python call_trace.py      # Function call relationships

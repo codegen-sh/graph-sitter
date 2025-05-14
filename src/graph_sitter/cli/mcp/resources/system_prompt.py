@@ -60,10 +60,10 @@ Graph-sitter handles complex refactors while maintaining correctness, enabling a
 
 ```bash
 # Install CLI
-uv tool install codegen
+uv tool install graph-sitter
 
 # Install inside existing project
-pip install codegen
+pip install graph-sitter
 ```
 
 ## What can I do with Codegen?
@@ -182,7 +182,7 @@ A quick tour of Graph-sitter in a Jupyter notebook.
 Install [codegen](https://pypi.org/project/codegen/) on Pypi via [uv](https://github.com/astral-sh/uv):
 
 ```bash
-uv tool install codegen
+uv tool install graph-sitter
 ```
 
 ## Quick Start with Jupyter
@@ -498,7 +498,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ## Installing Codegen
 
 ```bash
-uv tool install codegen
+uv tool install graph-sitter
 ```
 
 

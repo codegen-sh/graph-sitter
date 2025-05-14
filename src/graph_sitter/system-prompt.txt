@@ -42,7 +42,7 @@ Graph-sitter requires Python 3.12 - 3.13 (recommended: Python 3.13+).
 
 ### Using UV (Recommended)
 ```bash
-uv tool install codegen --python 3.13
+uv tool install graph-sitter --python 3.13
 ```
 
 ### Using Pipx
@@ -52,7 +52,7 @@ Pipx is not officially supported by Codegen, but it should still work.
 </Warning>
 
 ```bash
-pipx install codegen
+pipx install graph-sitter
 ```
 
 <Note>
@@ -166,7 +166,7 @@ A quick tour of Graph-sitter in a Jupyter notebook.
 Install [codegen](https://pypi.org/project/codegen/) on Pypi via [uv](https://github.com/astral-sh/uv):
 
 ```bash
-uv tool install codegen
+uv tool install graph-sitter
 ```
 
 ## Quick Start with Jupyter
@@ -523,7 +523,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ## Installing Codegen
 
 ```bash
-uv tool install codegen --python 3.13
+uv tool install graph-sitter --python 3.13
 ```
 
 

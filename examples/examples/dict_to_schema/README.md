@@ -92,7 +92,7 @@ class Service:
 ## Running the Conversion
 
 ```bash
-# Install Graph-sitter pip install codegen
+# Install Graph-sitter pip install graph-sitter
 
 # Run the conversion
 python run.py

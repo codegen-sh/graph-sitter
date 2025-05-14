@@ -63,7 +63,8 @@ def generate_codemod(
 ) -> str:
     """Generate a codemod for the given task and codebase."""
     return f'''
-    Use the graph_sitter.cli to generate a codemod. If you need to intall the cli the command to do so is `uv tool install codegen`. Once installed, run the following command to generate the codemod:
+    Use the graph_sitter.cli to generate a codemod. If you need to intall the cli the command to do so is `uv tool install graph-sitter`.
+    Once installed, run the following command to generate the codemod:
 
     gs create {title} -d "{task}"
     '''

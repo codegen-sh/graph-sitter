@@ -8,12 +8,12 @@ This is a collection of examples using [Codegen](https://codegen.com). You can u
 
 We recommend using [`uv`](https://github.com/astral-sh/uv) with Python 3.13 for the best experience.
 
-To install Codegen, please follow the [official installation guide](https://graph-sitter.com/introduction/installation). Once Graph-sitter is installed, use these steps to run the examples in this repository:
+To install graph-sitter, please follow the [official installation guide](https://graph-sitter.com/introduction/installation). Once Graph-sitter is installed, use these steps to run the examples in this repository:
 
 Install the graph_sitter.cli globally
 
 ```bash
-uv tool install codegen
+uv tool install graph-sitter
 ```
 
 Initialize Graph-sitter in your project
