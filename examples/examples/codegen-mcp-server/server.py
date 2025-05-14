@@ -6,12 +6,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import Annotated, Any, Dict, List, Optional
 
-import requests
 from graph_sitter import Codebase
-from graph_sitter.cli.api.client import RestAPI
-from graph_sitter.cli.api.endpoints import CODEGEN_SYSTEM_PROMPT_URL
-from graph_sitter.cli.auth.token_manager import get_current_token
-from graph_sitter.cli.codemod.convert import convert_to_cli
 from graph_sitter.cli.utils.default_code import DEFAULT_CODEMOD
 from graph_sitter.extensions.tools.reveal_symbol import reveal_symbol
 from mcp.server.fastmcp import FastMCP
@@ -99,7 +94,7 @@ def requires_parsed_codebase(func):
 #     return {"message": f"Codebase is parsed. Found {len(state.parsed_codebase.files)} files.", "status": "parsed"}
 
 
-async def create_codemod_task(name: str, description: str, language: str = "python") -> Dict[str, Any]:
+async def create_codemod_task(name: str, language: str = "python") -> Dict[str, Any]:
     """Background task to create a codemod using the API."""
     try:
         # Convert name to snake case for filename
@@ -116,36 +111,11 @@ async def create_codemod_task(name: str, description: str, language: str = "pyth
         function_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Created directories for codemod {name} in {function_dir}")
 
-        # Use API to generate implementation if description is provided
-        if description:
-            try:
-                api = RestAPI(get_current_token())
-                response = api.create(name=name, query=description)
-                code = convert_to_cli(response.code, language, name)
-                context = response.context
-
-                # Save the prompt/context
-                if context:
-                    prompt_path.write_text(context)
-            except Exception as e:
-                # Fall back to default implementation on API error
-                code = DEFAULT_CODEMOD.format(name=name)
-                return {"status": "error", "message": f"Error generating codemod via API, using default template: {str(e)}", "path": str(codemod_path), "code": code}
-        else:
-            # Use default implementation
-            code = DEFAULT_CODEMOD.format(name=name)
+        # Use default implementation
+        code = DEFAULT_CODEMOD.format(name=name)
 
         # Write the codemod file
         codemod_path.write_text(code)
-
-        # Download and save system prompt if not already done
-        if not prompt_path.exists():
-            try:
-                response = requests.get(CODEGEN_SYSTEM_PROMPT_URL)
-                response.raise_for_status()
-                prompt_path.write_text(response.text)
-            except Exception:
-                pass  # Ignore system prompt download failures
 
         return {"status": "completed", "message": f"Created codemod '{name}'", "path": str(codemod_path), "docs_path": str(prompt_path), "code": code}
     except Exception as e:
@@ -268,7 +238,6 @@ def get_config() -> str:
 @mcp.tool(name="create_codemod", description="Initiate creation of a new codemod in the `.codegen/codemods/{name}` directory")
 async def create_codemod(
     name: Annotated[str, "Name of the codemod to create"],
-    description: Annotated[str, "Description of what the codemod does. Be specific, as this is passed to an expert LLM to generate the first draft"] = None,
     language: Annotated[str, "Programming language for the codemod (default Python)"] = "python",
 ) -> Dict[str, Any]:
     # Check if a task with this name already exists
@@ -291,13 +260,13 @@ async def create_codemod(
         new_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(new_loop)
         # Run our async function to completion in this thread
-        return new_loop.run_until_complete(create_codemod_task(name, description, language))
+        return new_loop.run_until_complete(create_codemod_task(name, language))
 
     # Run the wrapper in a thread pool
     task = loop.run_in_executor(None, sync_wrapper)
 
     # Store task info
-    state.codemod_tasks[name] = {"task": task, "name": name, "description": description, "language": language, "started_at": loop.time()}
+    state.codemod_tasks[name] = {"task": task, "name": name, "language": language, "started_at": loop.time()}
 
     # Return immediately
     return {

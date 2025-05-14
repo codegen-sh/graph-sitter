@@ -15,8 +15,7 @@ from graph_sitter.shared.path import get_git_root_path
 @click.option("--path", type=str, help="Path within a git repository. Defaults to the current directory.")
 @click.option("--token", type=str, help="Access token for the git repository. Required for full functionality.")
 @click.option("--language", type=click.Choice(["python", "typescript"], case_sensitive=False), help="Override automatic language detection")
-@click.option("--fetch-docs", is_flag=True, help="Fetch docs and examples (requires auth)")
-def init_command(path: str | None = None, token: str | None = None, language: str | None = None, fetch_docs: bool = False):
+def init_command(path: str | None = None, token: str | None = None, language: str | None = None):
     """Initialize or update the Codegen folder."""
     # Print a message if not in a git repo
     path = Path.cwd() if path is None else Path(path)
@@ -37,7 +36,7 @@ def init_command(path: str | None = None, token: str | None = None, language: st
         session.config.save()
 
     action = "Updating" if session.existing else "Initializing"
-    codegen_dir, docs_dir, examples_dir = initialize_codegen(status=action, session=session, fetch_docs=fetch_docs)
+    codegen_dir, docs_dir, examples_dir = initialize_codegen(status=action, session=session)
 
     # Print success message
     rich.print(f"✅ {action} complete\n")
