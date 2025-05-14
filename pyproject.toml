@@ -239,7 +239,6 @@ DEP002 = [
   "pytest-snapshot",
   "langgraph-prebuilt",
 ]
-DEP003 = "sqlalchemy"
 DEP004 = "pytest"
 
 [tool.deptry.package_module_name_map]

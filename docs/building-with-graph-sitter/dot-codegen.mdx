@@ -23,12 +23,9 @@ The `.codegen` directory contains your project's Graph-sitter configuration, cod
 The directory is created and managed using the `gs init` command:
 
 ```bash
-gs init [--fetch-docs] [--repo-name NAME] [--organization-name ORG]
+gs init [--repo-name NAME] [--organization-name ORG]
 ```
 
-<Note>
-The `--fetch-docs` flag downloads API documentation and examples specific to your project's programming language.
-</Note>
 
 ## Virtual Environment
 
@@ -123,7 +120,3 @@ gs create my-codemod . -d "describe what you want to do"
 gs run my-codemod --apply-local
 ```
 
-3. Deploy it for team use:
-```bash
-codegen deploy my-codemod
-```
