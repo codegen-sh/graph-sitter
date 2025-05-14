@@ -16,6 +16,7 @@ import networkx as nx
 import plotly
 """.strip()
 CODEGEN_IMPORTS = """
+from graph_sitter.cli.sdk.decorator import function
 from graph_sitter.git.models.codemod_context import CodemodContext
 from graph_sitter.git.models.github_named_user_context import GithubNamedUserContext
 from graph_sitter.git.models.pr_options import PROptions
