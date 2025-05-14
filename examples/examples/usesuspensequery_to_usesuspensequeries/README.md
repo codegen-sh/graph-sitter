@@ -1,6 +1,6 @@
 # Transform useSuspenseQuery to useSuspenseQueries
 
-This example demonstrates how to use Codegen to automatically convert multiple `useSuspenseQuery` calls to a single `useSuspenseQueries` call in React codebases. The migration script makes this process simple by handling all the tedious manual updates automatically.
+This example demonstrates how to use Graph-sitter to automatically convert multiple `useSuspenseQuery` calls to a single `useSuspenseQueries` call in React codebases. The migration script makes this process simple by handling all the tedious manual updates automatically.
 
 > [!NOTE]
 > View example transformations created by this codemod on the `deepfence/ThreatMapper` repository [here](codegen.sh/codemod/a433152e-5e8d-4319-8043-19ff2b418869/public/diff).
@@ -96,8 +96,7 @@ const [result1, result2, result3] = useSuspenseQueries({
 ## Running the Migration
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the migration
 python run.py
@@ -114,7 +113,7 @@ The script will:
 
 - [React Query Documentation](https://tanstack.com/query/latest)
 - [useSuspenseQueries API](https://tanstack.com/query/latest/docs/react/reference/useSuspenseQueries)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

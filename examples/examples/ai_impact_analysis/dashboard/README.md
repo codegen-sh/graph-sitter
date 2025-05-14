@@ -79,7 +79,7 @@ The dashboard will display:
 ## Learn More
 
 - [AI Impact Analysis Documentation](https://graph-sitter.com/tutorials/attributions)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

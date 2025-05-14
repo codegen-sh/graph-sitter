@@ -1,6 +1,6 @@
-# Structuring Codegen Examples
+# Structuring Graph-sitter Examples
 
-This guide explains how to structure examples for the Codegen library. A well-structured example helps both humans and AI understand the code's purpose and how to use it effectively.
+This guide explains how to structure examples for the Graph-sitter library. A well-structured example helps both humans and AI understand the code's purpose and how to use it effectively.
 
 ## Core Principles
 
@@ -39,7 +39,7 @@ Your `run.py` should follow this structure, demonstrated well in the `generate_t
        # Implementation...
    ```
 
-1. **Main Codegen function with decorator**
+1. **Main Graph-sitter function with decorator**
 
    ```python
    @codegen.function("your-function-name")

@@ -5,11 +5,11 @@ icon: "binary"
 iconType: "solid"
 ---
 
-Codegen provides first-class support for both Python and TypeScript codebases. The language is automatically inferred when you initialize a codebase.
+Graph-sitter provides first-class support for both Python and TypeScript codebases. The language is automatically inferred when you initialize a codebase.
 
 ## Language Detection
 
-When you create a new `Codebase` instance, Codegen automatically detects the programming language:
+When you create a new `Codebase` instance, Graph-sitter automatically detects the programming language:
 
 ```python
 from graph_sitter import Codebase
@@ -28,7 +28,7 @@ print(codebase.language)  # "python" or "typescript"
 
 ## Type System
 
-Codegen uses specialized types for each language. These are defined as type aliases:
+Graph-sitter uses specialized types for each language. These are defined as type aliases:
 
 ```python
 # Python codebases use PyCodebaseType
@@ -77,7 +77,7 @@ class TSFunction(Function):
     pass
 ```
 
-This inheritance pattern means that most Codegen programs can work with either Python or TypeScript without modification, since they share the same API structure.
+This inheritance pattern means that most Graph-sitter programs can work with either Python or TypeScript without modification, since they share the same API structure.
 
 ```python
 # Works for both Python and TypeScript

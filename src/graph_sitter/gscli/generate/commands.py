@@ -207,7 +207,7 @@ def changelog(docs_dir: str, openai_key: str, complete: bool = False) -> None:
     """Generate the changelog for the codegen_sdk API and update the changelog.mdx file"""
     print(colored("Generating changelog", "green"))
     header = """---
-title: "Codegen Updates"
+title: "Graph-sitter Updates"
 icon: "clock"
 iconType: "solid"
 ---

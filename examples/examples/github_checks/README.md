@@ -89,7 +89,7 @@ This application is a GitHub integration that analyzes import cycles in codebase
 
 ## Technical Details
 
-The application uses Codegen to parse the codebase and a combination of NetworkX and Codegen to analyze the import relationships. The app is structured as a Modal App with a FastAPI server.
+The application uses Graph-sitter to parse the codebase and a combination of NetworkX and Graph-sitter to analyze the import relationships. The app is structured as a Modal App with a FastAPI server.
 The analysis runs when a pull request is labeled (`pull_request:labeled` event).
 
 ## Output Format
@@ -102,7 +102,7 @@ The analysis results are posted as a markdown-formatted comment on the pull requ
 
 ## Learn More
 
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 - [Detecting Import Loops](https://graph-sitter.com/blog/fixing-import-loops)
 
 ## Contributing

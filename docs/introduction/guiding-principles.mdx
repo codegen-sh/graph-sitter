@@ -5,13 +5,13 @@ icon: "compass"
 iconType: "solid"
 ---
 
-Codegen was developed by working backwards from real-world, large-scale codebase migrations. Instead of starting with abstract syntax trees and parser theory, we started with the question: "How do developers actually think about code changes?"
+Graph-sitter was developed by working backwards from real-world, large-scale codebase migrations. Instead of starting with abstract syntax trees and parser theory, we started with the question: "How do developers actually think about code changes?"
 
 This practical origin led to four core principles that shape Codegen's design:
 
 ## Intuitive APIs
 
-Write code that reads like natural language, without worrying about abstract syntax trees or parser internals. Codegen provides high-level APIs that map directly to the transformations developers want to perform:
+Write code that reads like natural language, without worrying about abstract syntax trees or parser internals. Graph-sitter provides high-level APIs that map directly to the transformations developers want to perform:
 
 ```python
 # Methods that read like English
@@ -29,12 +29,12 @@ for usage in function.usages:  # Not ast.find_references(function_node)
 
 ## No Sharp Edges
 
-Focus on your high-level intent while Codegen handles the intricate details.
+Focus on your high-level intent while Graph-sitter handles the intricate details.
 
-Codegen operations handle the edge cases - it should be hard to break lint.
+Graph-sitter operations handle the edge cases - it should be hard to break lint.
 
 ```python
-# Moving a function? Codegen handles:
+# Moving a function? Graph-sitter handles:
 function.move_to_file("new_file.py")
 # ✓ Updating all import statements
 # ✓ Preserving dependencies
@@ -42,7 +42,7 @@ function.move_to_file("new_file.py")
 # ✓ Fixing relative imports
 # ✓ Resolving naming conflicts
 
-# Renaming a symbol? Codegen manages:
+# Renaming a symbol? Graph-sitter manages:
 class_def.rename("NewName")
 # ✓ Updating all usages
 # ✓ Handling string references
@@ -52,7 +52,7 @@ class_def.rename("NewName")
 
 ## Performance through Pre-Computation
 
-Codegen frontloads as much as possible to enable fast, efficient transformations.
+Graph-sitter frontloads as much as possible to enable fast, efficient transformations.
 
 It is built with the insight that each codebase only needs to be parsed once per commit.
 
@@ -63,13 +63,13 @@ It is built with the insight that each codebase only needs to be parsed once per
 
 ## Python-First Composability
 
-Codegen embraces Python's strength as a "glue language" - its ability to seamlessly integrate different tools and APIs. This makes it natural to compose Codegen with your existing toolchain:
+Graph-sitter embraces Python's strength as a "glue language" - its ability to seamlessly integrate different tools and APIs. This makes it natural to compose Graph-sitter with your existing toolchain:
 
 - Build complex transforms by combining simpler operations
-- Integrate Codegen with your existing tools (linters, type checkers, test frameworks, AI tools)
+- Integrate Graph-sitter with your existing tools (linters, type checkers, test frameworks, AI tools)
 
 <Note>
-  Python's rich ecosystem makes it ideal for code manipulation tasks. Codegen is
+  Python's rich ecosystem makes it ideal for code manipulation tasks. Graph-sitter is
   designed to be one tool in your toolbox, not a replacement for your entire
   workflow.
 </Note>

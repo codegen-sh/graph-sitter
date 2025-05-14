@@ -9,7 +9,7 @@ This document explains how to work with local variables in Codegen.
 
 ## Overview
 
-Through the [CodeBlock](../api-reference/core/CodeBlock) class, Codegen exposes APIs for analyzing and manipulating local variables within code blocks.
+Through the [CodeBlock](../api-reference/core/CodeBlock) class, Graph-sitter exposes APIs for analyzing and manipulating local variables within code blocks.
 
 - [local_var_assignments](../api-reference/core/CodeBlock#local-var-assignments): find all [Assignments](../api-reference/core/Assignment) in this scope
 - [get_local_var_assignment(...)](../api-reference/core/CodeBlock#get-local-var-assignment): get specific [Assignments](../api-reference/core/Assignment) by name
@@ -36,7 +36,7 @@ function.rename_local_variable("foo", "bar")
 
 ## Fuzzy Matching
 
-Codegen supports fuzzy matching when searching for local variables. This allows you to find variables whose names contain a substring, rather than requiring exact matches:
+Graph-sitter supports fuzzy matching when searching for local variables. This allows you to find variables whose names contain a substring, rather than requiring exact matches:
 
 ```python
 # Get all local variables containing "config"

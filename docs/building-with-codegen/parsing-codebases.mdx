@@ -5,7 +5,7 @@ icon: "power-off"
 iconType: "solid"
 ---
 
-The primary entrypoint to programs leveraging Codegen is the [Codebase](/api-reference/core/Codebase) class.
+The primary entrypoint to programs leveraging Graph-sitter is the [Codebase](/api-reference/core/Codebase) class.
 
 ## Local Codebases
 
@@ -28,7 +28,7 @@ codebase = Codebase("./", language="typescript")
 ```
 
 <Note>
-  By default, Codegen will automatically infer the programming language of the codebase and
+  By default, Graph-sitter will automatically infer the programming language of the codebase and
   parse all files in the codebase. You can override this by passing the `language` parameter
   with a value from the `ProgrammingLanguage` enum.
 </Note>
@@ -87,7 +87,7 @@ For a complete list of available feature flags and configuration options, see th
 
 ## Advanced Initialization
 
-For more complex scenarios, Codegen supports an advanced initialization mode using `ProjectConfig`. This allows for fine-grained control over:
+For more complex scenarios, Graph-sitter supports an advanced initialization mode using `ProjectConfig`. This allows for fine-grained control over:
 
 - Repository configuration
 - Base path and subdirectory filtering
@@ -121,7 +121,7 @@ For more details on advanced configuration options, see the [source code on GitH
 
 ## Supported Languages
 
-Codegen currently supports:
+Graph-sitter currently supports:
 
 - [Python](/api-reference/python)
 - [TypeScript/JavaScript](/api-reference/typescript)

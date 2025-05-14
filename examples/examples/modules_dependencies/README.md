@@ -1,6 +1,6 @@
 # Visualize Module Dependencies
 
-This example demonstrates how to use Codegen to automatically analyze and visualize module dependencies in Python codebases. The script creates a directed graph showing relationships between different modules, making it easier to understand code architecture and dependencies.
+This example demonstrates how to use Graph-sitter to automatically analyze and visualize module dependencies in Python codebases. The script creates a directed graph showing relationships between different modules, making it easier to understand code architecture and dependencies.
 
 > [!NOTE]
 > This codemod helps developers understand module relationships by creating a visual representation of import dependencies between different parts of the codebase.
@@ -134,7 +134,7 @@ You can customize the analysis by:
 
 - [NetworkX Documentation](https://networkx.org/)
 - [Python Import System](https://docs.python.org/3/reference/import.html)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 - [Graph visualization](https://graph-sitter.com/building-with-codegen/codebase-visualization)
 
 ## Contributing

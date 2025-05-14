@@ -5,7 +5,7 @@ icon: "flag"
 iconType: "solid"
 ---
 
-Codegen has been used in production for multi-million line codebases to automatically delete "dead" (rolled-out) feature flags. This guide will walk you through analyzing feature flag usage and safely removing rolled out flags.
+Graph-sitter has been used in production for multi-million line codebases to automatically delete "dead" (rolled-out) feature flags. This guide will walk you through analyzing feature flag usage and safely removing rolled out flags.
 
 <Warning>
     Every codebase does feature flags differently. This guide shows common techniques and syntax but likely requires adaptation to codebase-specific circumstances.
@@ -13,7 +13,7 @@ Codegen has been used in production for multi-million line codebases to automati
 
 ## Analyzing Feature Flag Usage
 
-Before removing a feature flag, it's important to analyze its usage across the codebase. Codegen provides tools to help identify where and how feature flags are used.
+Before removing a feature flag, it's important to analyze its usage across the codebase. Graph-sitter provides tools to help identify where and how feature flags are used.
 
 ### For Python Codebases
 
@@ -67,7 +67,7 @@ This will output a table showing all feature flags and their usage counts, helpi
 
 ## Removing Rolled Out Flags
 
-Once you've identified a flag that's ready to be removed, Codegen can help safely delete it and its associated code paths.
+Once you've identified a flag that's ready to be removed, Graph-sitter can help safely delete it and its associated code paths.
 
 <Tip>
     This primarily leverages Codegen's API for [reduction conditions](/building-with-codegen/reducing-conditions)

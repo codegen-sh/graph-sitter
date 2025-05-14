@@ -40,7 +40,7 @@ def install_package(package: str, *args: str) -> None:
 )
 @click.option("--version", "-v", type=str, help="Update to a specific version of the codegen")
 def update_command(list_: bool = False, version: str | None = None):
-    """Update Codegen to the latest or specified version
+    """Update Graph-sitter to the latest or specified version
 
     --list: List all supported versions of the codegen
     --version: Update to a specific version of the codegen

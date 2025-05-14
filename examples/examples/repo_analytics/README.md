@@ -1,6 +1,6 @@
 # Repository Analytics
 
-This example demonstrates how to use Codegen to analyze repository metrics and generate comprehensive codebase analytics. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/codebase-analytics-dashboard).
+This example demonstrates how to use Graph-sitter to analyze repository metrics and generate comprehensive codebase analytics. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/codebase-analytics-dashboard).
 
 ## How the Analytics Script Works
 
@@ -87,8 +87,7 @@ The script calculates four main categories of metrics:
 ## Running the Analysis
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the analysis
 python run.py
@@ -133,7 +132,7 @@ The script will output a detailed report including:
 ## Learn More
 
 - [Analytics Tutorial](https://graph-sitter.com/tutorials/codebase-analytics-dashboard)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

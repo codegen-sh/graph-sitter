@@ -16,7 +16,7 @@ from graph_sitter.shared.path import get_git_root_path
 @click.option("--token", type=str, help="Access token for the git repository. Required for full functionality.")
 @click.option("--language", type=click.Choice(["python", "typescript"], case_sensitive=False), help="Override automatic language detection")
 def init_command(path: str | None = None, token: str | None = None, language: str | None = None):
-    """Initialize or update the Codegen folder."""
+    """Initialize or update the Graph-sitter folder."""
     # Print a message if not in a git repo
     path = Path.cwd() if path is None else Path(path)
     repo_path = get_git_root_path(path)

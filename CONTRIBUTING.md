@@ -1,6 +1,4 @@
-# Contributing to Codegen
-
-Thank you for your interest in contributing to Codegen! This document outlines the process and guidelines for contributing. If you have any questions, please join our [Slack Community](https://community.codegen.com) 😀.
+# Contributing to Graph-sitter Thank you for your interest in contributing to Codegen! This document outlines the process and guidelines for contributing. If you have any questions, please join our [Slack Community](https://community.codegen.com) 😀.
 
 ## Contributor License Agreement
 

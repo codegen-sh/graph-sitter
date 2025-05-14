@@ -1,4 +1,4 @@
-# Codegen MCP server
+# Graph-sitter MCP server
 
 A MCP server implementation that provides tools and resources for using and working with the graph_sitter.cli and SDK, enabling AI agents to iterate quickly on writing codemods with the codegen sdk.
 

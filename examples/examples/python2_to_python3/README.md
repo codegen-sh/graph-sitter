@@ -2,7 +2,7 @@
 
 [![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com/tutorials/python2-to-python3)
 
-This example demonstrates how to use Codegen to automatically migrate Python 2 code to Python 3. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/python2-to-python3).
+This example demonstrates how to use Graph-sitter to automatically migrate Python 2 code to Python 3. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/python2-to-python3).
 
 ## What This Example Does
 
@@ -78,8 +78,7 @@ The migration script handles five key transformations:
 ## Running the Example
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the migration
 python run.py
@@ -97,4 +96,4 @@ The script will process all Python files in the `repo-before` directory and appl
 - [Full Tutorial](https://graph-sitter.com/tutorials/python2-to-python3)
 - [Python 3 Documentation](https://docs.python.org/3/)
 - [What's New in Python 3](https://docs.python.org/3/whatsnew/3.0.html)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)

@@ -12,7 +12,7 @@ It provides a scriptable interface to a powerful, multi-lingual language server 
 
 export const metaCode = `from graph_sitter.core.codebase import Codebase
 
-# Codegen builds a complete graph connecting
+# Graph-sitter builds a complete graph connecting
 # functions, classes, imports and their relationships
 codebase = Codebase("./")
 
@@ -51,10 +51,10 @@ def baz():
 ></iframe>
 
 <Note>
-Codegen handles complex refactors while maintaining correctness, enabling a broad set of advanced code manipulation programs.
+Graph-sitter handles complex refactors while maintaining correctness, enabling a broad set of advanced code manipulation programs.
 </Note>
 
-<Tip>Codegen works with both Python and Typescript/JSX codebases. Learn more about language support [here](/building-with-codegen/language-support).</Tip>
+<Tip>Graph-sitter works with both Python and Typescript/JSX codebases. Learn more about language support [here](/building-with-codegen/language-support).</Tip>
 
 ## Installation
 
@@ -68,7 +68,7 @@ pip install codegen
 
 ## What can I do with Codegen?
 
-Codegen enables you to programmatically manipulate code with scale and precision.
+Graph-sitter enables you to programmatically manipulate code with scale and precision.
 
 <Frame caption="Call graph visualization for modal/modal-client/_Client">
 <iframe
@@ -137,13 +137,13 @@ import {
     Follow our step-by-step tutorial to start manipulating code with Codegen.
   </Card>
   <Card title="Tutorials" icon="diagram-project" href="/tutorials/at-a-glance">
-    Learn how to use Codegen for common code transformation tasks.
+    Learn how to use Graph-sitter for common code transformation tasks.
   </Card>
   <Card title="View on GitHub" icon="github" href={CODEGEN_SDK_GITHUB_URL}>
     Star us on GitHub and contribute to the project.
   </Card>
   <Card title="Join our Slack" icon="slack" href={COMMUNITY_SLACK_URL}>
-    Get help and connect with the Codegen community.
+    Get help and connect with the Graph-sitter community.
   </Card>
 </CardGroup>
 
@@ -151,7 +151,7 @@ import {
 
 Many software engineering tasks - refactors, enforcing patterns, analyzing control flow, etc. - are fundamentally programmatic operations. Yet the tools we use to express these transformations often feel disconnected from how we think about code.
 
-Codegen was engineered backwards from real-world refactors we performed for enterprises at [Codegen, Inc.](/introduction/about). Instead of starting with theoretical abstractions, we built the set of APIs that map directly to how humans and AI think about code changes:
+Graph-sitter was engineered backwards from real-world refactors we performed for enterprises at [Codegen, Inc.](/introduction/about). Instead of starting with theoretical abstractions, we built the set of APIs that map directly to how humans and AI think about code changes:
 
 - **Natural Mental Model**: Express transformations through high-level operations that match how you reason about code changes, not low-level text or AST manipulation.
 - **Clean Business Logic**: Let the engine handle the complexities of imports, references, and cross-file dependencies.
@@ -159,13 +159,13 @@ Codegen was engineered backwards from real-world refactors we performed for ente
 
 As AI becomes increasingly sophisticated, we're seeing a fascinating shift: AI agents aren't bottlenecked by their ability to understand code or generate solutions. Instead, they're limited by their ability to efficiently manipulate codebases. The challenge isn't the "brain" - it's the "hands."
 
-We built Codegen with a key insight: future AI agents will need to ["act via code,"](/blog/act-via-code) building their own sophisticated tools for code manipulation. Rather than generating diffs or making direct text changes, these agents will:
+We built Graph-sitter with a key insight: future AI agents will need to ["act via code,"](/blog/act-via-code) building their own sophisticated tools for code manipulation. Rather than generating diffs or making direct text changes, these agents will:
 
 1. Express transformations as composable programs
 2. Build higher-level tools by combining primitive operations
 3. Create and maintain their own abstractions for common patterns
 
-This creates a shared language that both humans and AI can reason about effectively, making code changes more predictable, reviewable, and maintainable. Whether you're a developer writing a complex refactoring script or an AI agent building transformation tools, Codegen provides the foundation for expressing code changes as they should be: through code itself.
+This creates a shared language that both humans and AI can reason about effectively, making code changes more predictable, reviewable, and maintainable. Whether you're a developer writing a complex refactoring script or an AI agent building transformation tools, Graph-sitter provides the foundation for expressing code changes as they should be: through code itself.
 
 
 ---
@@ -175,7 +175,7 @@ icon: "bolt"
 iconType: "solid"
 ---
 
-A quick tour of Codegen in a Jupyter notebook.
+A quick tour of Graph-sitter in a Jupyter notebook.
 
 ## Installation
 
@@ -370,13 +370,13 @@ test_files = [
 
 ## Safe Code Transformations
 
-Codegen guarantees that code transformations maintain correctness. It automatically handles updating imports, references, and dependencies. Here are some common transformations:
+Graph-sitter guarantees that code transformations maintain correctness. It automatically handles updating imports, references, and dependencies. Here are some common transformations:
 
 ```python
 # Move all Enum classes to a dedicated file
 for cls in codebase.classes:
     if cls.is_subclass_of('Enum'):
-        # Codegen automatically:
+        # Graph-sitter automatically:
         # - Updates all imports that reference this class
         # - Maintains the class's dependencies
         # - Preserves comments and decorators
@@ -403,7 +403,7 @@ for fcall in handler.call_sites:
 ```
 
 <Tip>
-  When moving symbols, Codegen will automatically update all imports and
+  When moving symbols, Graph-sitter will automatically update all imports and
   references. See [Moving Symbols](/building-with-codegen/moving-symbols) to
   learn more.
 </Tip>
@@ -473,7 +473,7 @@ if base_class:
     icon="microchip"
     href="/introduction/work-with-ai"
   >
-    Learn how to use Codegen with Cursor, Devin, Windsurf, and more.
+    Learn how to use Graph-sitter with Cursor, Devin, Windsurf, and more.
   </Card>
 
 </CardGroup>
@@ -486,7 +486,7 @@ icon: "download"
 iconType: "solid"
 ---
 
-Install and set up Codegen in your development environment.
+Install and set up Graph-sitter in your development environment.
 
 ## Prerequisites
 
@@ -508,14 +508,14 @@ This makes the `codegen` command available globally in your terminal, while keep
 
 ## Quick Start
 
-Let's walk through a minimal example of using Codegen in a project:
+Let's walk through a minimal example of using Graph-sitter in a project:
 
 1. Navigate to your repository:
    ```bash
    cd path/to/your/project
    ```
 
-2. Initialize Codegen in your project with [gs init](/cli/init):
+2. Initialize Graph-sitter in your project with [gs init](/cli/init):
    ```bash
    gs init
    ```
@@ -558,7 +558,7 @@ Let's walk through a minimal example of using Codegen in a project:
     icon="window"
     href="/introduction/ide-usage"
   >
-    Learn how to use Codegen effectively in VSCode, Cursor, and other IDEs.
+    Learn how to use Graph-sitter effectively in VSCode, Cursor, and other IDEs.
   </Card>
   <Card
     title="Tutorials"
@@ -589,15 +589,15 @@ For more help, join our [community Slack](/introduction/community) or check the 
 </Note>
 
 ---
-title: "Using Codegen in Your IDE"
+title: "Using Graph-sitter in Your IDE"
 sidebarTitle: "IDE Usage"
 icon: "window"
 iconType: "solid"
 ---
 
-Get up and running with Codegen programs in IDEs like VSCode, Cursor and PyCharm.
+Get up and running with Graph-sitter programs in IDEs like VSCode, Cursor and PyCharm.
 
-<Tip>Make sure to [install and initialize](/introduction/installation) Codegen with `gs init`</Tip>
+<Tip>Make sure to [install and initialize](/introduction/installation) Graph-sitter with `gs init`</Tip>
 
 ## Configuring your IDE Interpreter
 
@@ -672,10 +672,10 @@ If you reference this file in "chat" sessions with Copilot, Cursor, Cody, etc., 
 
 <Frame>
     <img src="/images/system-prompt.png" />
-    Collaborating with Cursor's assistant and the Codegen system prompt
+    Collaborating with Cursor's assistant and the Graph-sitter system prompt
 </Frame>
 
-In addition, when you [create](/cli/create) a codemod with "-d", Codegen generates an optimized system prompt in `.codegen/codemods/{name}/{name}-system-prompt.txt`. This prompt contains:
+In addition, when you [create](/cli/create) a codemod with "-d", Graph-sitter generates an optimized system prompt in `.codegen/codemods/{name}/{name}-system-prompt.txt`. This prompt contains:
 - Relevant Codegen API documentation
 - Examples of relevant transformations
 - Context about your specific task
@@ -712,7 +712,7 @@ We recommend viewing changes in your IDE's native diff editor.
     See real-world examples of codemods in action.
   </Card>
   <Card
-    title="Codegen Guides"
+    title="Graph-sitter Guides"
     icon="book"
     href="/building-with-codegen/at-a-glance"
   >
@@ -728,11 +728,11 @@ icon: "microchip"
 iconType: "solid"
 ---
 
-Codegen is designed to be used with AI assistants. This document describes how to use Codegen with common AI tools, including Copilot, Cursor, Devin and more.
+Graph-sitter is designed to be used with AI assistants. This document describes how to use Graph-sitter with common AI tools, including Copilot, Cursor, Devin and more.
 
 ## System Prompt
 
-Codegen provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Codegen.
+Graph-sitter provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Codegen.
 
 import {
   CODEGEN_SYSTEM_PROMPT
@@ -754,7 +754,7 @@ When you create a new codemod via [`gs create`](/cli/create):
 gs create delete-dead-imports --description "Delete unused imports"
 ```
 
-Codegen automatically generates an optimized ["system prompt"](https://news.ycombinator.com/item?id=37880023) that includes:
+Graph-sitter automatically generates an optimized ["system prompt"](https://news.ycombinator.com/item?id=37880023) that includes:
 
 - An introduction to Codegen
 - Codegen API documentation
@@ -779,7 +779,7 @@ This `.md` file can be used with any AI assistant (Claude, GPT-4, etc.) to get m
     ```
   </Step>
   <Step title="Review the generated system prompt">
-    Check the AI context that Codegen generated for your transformation: ```bash
+    Check the AI context that Graph-sitter generated for your transformation: ```bash
     cat codegen-sh/codemods/modernize-components/prompt.md ```
   </Step>
 
@@ -817,22 +817,22 @@ iconType: "solid"
 subtitle: "How Codegen's codebase graph works"
 ---
 
-Codegen performs advanced static analysis to build a rich graph representation of your codebase. This pre-computation step analyzes dependencies, references, types, and control flow to enable fast and reliable code manipulation operations.
+Graph-sitter performs advanced static analysis to build a rich graph representation of your codebase. This pre-computation step analyzes dependencies, references, types, and control flow to enable fast and reliable code manipulation operations.
 
 <Note>
-  Codegen is built on top of
+  Graph-sitter is built on top of
   [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) and
   [rustworkx](https://github.com/Qiskit/rustworkx) and has implemented most
   language server features from scratch.
 </Note>
 <Info>
-  Codegen is open source. Check out the [source
+  Graph-sitter is open source. Check out the [source
   code](https://github.com/codegen-sh/graph-sitter) to learn more!
 </Info>
 
 ## The Codebase Graph
 
-At the heart of Codegen is a comprehensive graph representation of your code. When you initialize a [Codebase](/api-reference/core/Codebase), it performs static analysis to construct a rich graph structure connecting code elements:
+At the heart of Graph-sitter is a comprehensive graph representation of your code. When you initialize a [Codebase](/api-reference/core/Codebase), it performs static analysis to construct a rich graph structure connecting code elements:
 
 ```python
 # Initialize and analyze the codebase
@@ -855,7 +855,7 @@ Codegen's graph construction happens in two stages:
 
 ### Performance Through Pre-computation
 
-Pre-computing a rich index enables Codegen to make certain operations very fast that that are relevant to refactors and code analysis:
+Pre-computing a rich index enables Graph-sitter to make certain operations very fast that that are relevant to refactors and code analysis:
 
 - Finding all usages of a symbol
 - Detecting circular dependencies
@@ -873,14 +873,14 @@ Pre-computing a rich index enables Codegen to make certain operations very fast 
 
 One of Codegen's core principles is that many programming tasks are fundamentally similar across languages.
 
-Currently, Codegen supports:
+Currently, Graph-sitter supports:
 
 - [Python](/api-reference/python)
 - [TypeScript](/api-reference/typescript)
 - [React & JSX](/building-with-codegen/react-and-jsx)
 
 <Note>
-  Learn about how Codegen handles language specifics in the [Language
+  Learn about how Graph-sitter handles language specifics in the [Language
   Support](/building-with-codegen/language-support) guide.
 </Note>
 
@@ -888,7 +888,7 @@ We've started with these ecosystems but designed our architecture to be extensib
 
 ## Build with Us
 
-Codegen is just getting started, and we're excited about the possibilities ahead. We enthusiastically welcome contributions from the community, whether it's:
+Graph-sitter is just getting started, and we're excited about the possibilities ahead. We enthusiastically welcome contributions from the community, whether it's:
 
 - Adding support for new languages
 - Implementing new analysis capabilities
@@ -907,13 +907,13 @@ icon: "compass"
 iconType: "solid"
 ---
 
-Codegen was developed by working backwards from real-world, large-scale codebase migrations. Instead of starting with abstract syntax trees and parser theory, we started with the question: "How do developers actually think about code changes?"
+Graph-sitter was developed by working backwards from real-world, large-scale codebase migrations. Instead of starting with abstract syntax trees and parser theory, we started with the question: "How do developers actually think about code changes?"
 
 This practical origin led to four core principles that shape Codegen's design:
 
 ## Intuitive APIs
 
-Write code that reads like natural language, without worrying about abstract syntax trees or parser internals. Codegen provides high-level APIs that map directly to the transformations developers want to perform:
+Write code that reads like natural language, without worrying about abstract syntax trees or parser internals. Graph-sitter provides high-level APIs that map directly to the transformations developers want to perform:
 
 ```python
 # Methods that read like English
@@ -931,12 +931,12 @@ for usage in function.usages:  # Not ast.find_references(function_node)
 
 ## No Sharp Edges
 
-Focus on your high-level intent while Codegen handles the intricate details.
+Focus on your high-level intent while Graph-sitter handles the intricate details.
 
-Codegen operations handle the edge cases - it should be hard to break lint.
+Graph-sitter operations handle the edge cases - it should be hard to break lint.
 
 ```python
-# Moving a function? Codegen handles:
+# Moving a function? Graph-sitter handles:
 function.move_to_file("new_file.py")
 # ✓ Updating all import statements
 # ✓ Preserving dependencies
@@ -944,7 +944,7 @@ function.move_to_file("new_file.py")
 # ✓ Fixing relative imports
 # ✓ Resolving naming conflicts
 
-# Renaming a symbol? Codegen manages:
+# Renaming a symbol? Graph-sitter manages:
 class_def.rename("NewName")
 # ✓ Updating all usages
 # ✓ Handling string references
@@ -954,7 +954,7 @@ class_def.rename("NewName")
 
 ## Performance through Pre-Computation
 
-Codegen frontloads as much as possible to enable fast, efficient transformations.
+Graph-sitter frontloads as much as possible to enable fast, efficient transformations.
 
 It is built with the insight that each codebase only needs to be parsed once per commit.
 
@@ -965,13 +965,13 @@ It is built with the insight that each codebase only needs to be parsed once per
 
 ## Python-First Composability
 
-Codegen embraces Python's strength as a "glue language" - its ability to seamlessly integrate different tools and APIs. This makes it natural to compose Codegen with your existing toolchain:
+Graph-sitter embraces Python's strength as a "glue language" - its ability to seamlessly integrate different tools and APIs. This makes it natural to compose Graph-sitter with your existing toolchain:
 
 - Build complex transforms by combining simpler operations
-- Integrate Codegen with your existing tools (linters, type checkers, test frameworks, AI tools)
+- Integrate Graph-sitter with your existing tools (linters, type checkers, test frameworks, AI tools)
 
 <Note>
-  Python's rich ecosystem makes it ideal for code manipulation tasks. Codegen is
+  Python's rich ecosystem makes it ideal for code manipulation tasks. Graph-sitter is
   designed to be one tool in your toolbox, not a replacement for your entire
   workflow.
 </Note>
@@ -989,11 +989,11 @@ import {
   CODEGEN_SDK_GITHUB_URL,
 } from "/snippets/links.mdx";
 
-Join the growing Codegen community! We're excited to have you be part of our journey to make codebase manipulation and transformation more accessible.
+Join the growing Graph-sitter community! We're excited to have you be part of our journey to make codebase manipulation and transformation more accessible.
 
 <CardGroup cols={2}>
   <Card title="Join our Slack" icon="slack" href={COMMUNITY_SLACK_URL}>
-    Connect with the community, get help, and share your Codegen projects in our
+    Connect with the community, get help, and share your Graph-sitter projects in our
     active Slack workspace.
   </Card>
   <Card title="GitHub" icon="github" href={CODEGEN_SDK_GITHUB_URL}>
@@ -1007,7 +1007,7 @@ Join the growing Codegen community! We're excited to have you be part of our jou
     icon="book-open"
     href="/introduction/getting-started"
   >
-    Learn how to use Codegen effectively with our comprehensive guides.
+    Learn how to use Graph-sitter effectively with our comprehensive guides.
   </Card>
 </CardGroup>
 
@@ -1017,7 +1017,7 @@ Join the growing Codegen community! We're excited to have you be part of our jou
 
 ## Contributing
 
-We welcome contributions of all kinds! Whether you're fixing a typo in documentation, reporting a bug, or implementing a new feature, we appreciate your help in making Codegen better.
+We welcome contributions of all kinds! Whether you're fixing a typo in documentation, reporting a bug, or implementing a new feature, we appreciate your help in making Graph-sitter better.
 
 Check out our [Contributing Guide](https://github.com/codegen-sh/graph-sitter/blob/develop/CONTRIBUTING.md) on GitHub to learn how to:
 
@@ -1075,7 +1075,7 @@ We believe in the power of open source software. Our core library, [codegen](htt
     We're hiring! Join us in building the future of code transformation.
   </Card>
   <Card title="Community" icon="people-group" href="/introduction/community">
-    Connect with other developers and share your Codegen experiences.
+    Connect with other developers and share your Graph-sitter experiences.
   </Card>
 </CardGroup>
 
@@ -1109,14 +1109,14 @@ iconType: "solid"
 ---
 
 <AccordionGroup>
-  <Accordion title="What languages does Codegen support?" icon="code">
-    Codegen currently parses two languages:
+  <Accordion title="What languages does Graph-sitter support?" icon="code">
+    Graph-sitter currently parses two languages:
     - [Python](/api-reference/python)
     - [TypeScript](/api-reference/typescript)
 
     We're actively working on expanding language support based on community needs.
     <Tip>
-      Learn more about how Codegen handles language specifics in the [Language
+      Learn more about how Graph-sitter handles language specifics in the [Language
       Support](/building-with-codegen/language-support) guide.
     </Tip>
     <Note>
@@ -1124,20 +1124,20 @@ iconType: "solid"
     </Note>
 
   </Accordion>
-    <Accordion title="Is Codegen exact?" icon="scale-balanced">
-    Pretty much! Codegen is roughly on par with `mypy` and `tsc`. There are always edge cases in static analysis that are provably impossible to get (for example doing `eval()` on a string), but all of Codegen's APIs are intended to be exact unless otherwise specified. Please reach out if you find an edge case and we will do our best to patch it.
+    <Accordion title="Is Graph-sitter exact?" icon="scale-balanced">
+    Pretty much! Graph-sitter is roughly on par with `mypy` and `tsc`. There are always edge cases in static analysis that are provably impossible to get (for example doing `eval()` on a string), but all of Codegen's APIs are intended to be exact unless otherwise specified. Please reach out if you find an edge case and we will do our best to patch it.
   </Accordion>
-  <Accordion title="Is Codegen suitable for large codebases?" icon="database">
-    Yes! Codegen was developed on multmillion-line Python and Typescript codebases
+  <Accordion title="Is Graph-sitter suitable for large codebases?" icon="database">
+    Yes! Graph-sitter was developed on multmillion-line Python and Typescript codebases
     and includes optimizations for handling large-scale transformations.
     <Tip>
       For enterprise support, please reach out to [team@codegen.com](mailto:team@codegen.com)
     </Tip>
   </Accordion>
-  <Accordion title="Can I use Codegen with my existing tools?" icon="screwdriver-wrench">
+  <Accordion title="Can I use Graph-sitter with my existing tools?" icon="screwdriver-wrench">
     Yes - [by design](/introduction/guiding-principles#python-first-composability).
 
-    Codegen works like any other python package. It works alongside your IDE, version control system, and other development tools.
+    Graph-sitter works like any other python package. It works alongside your IDE, version control system, and other development tools.
   </Accordion>
   <Accordion
     title="How can I contribute if I'm new to the project?"
@@ -1147,8 +1147,8 @@ iconType: "solid"
     issues labeled "good first issue" on [GitHub](https://github.com/codegen-sh/graph-sitter). We welcome contributions to
     documentation, examples, and code improvements.
   </Accordion>
-  <Accordion title="Is Codegen free to use?" icon="scale-balanced">
-    Yes, Codegen is [open source](https://github.com/codegen-sh/graph-sitter) and free to use under the [Apache 2.0
+  <Accordion title="Is Graph-sitter free to use?" icon="scale-balanced">
+    Yes, Graph-sitter is [open source](https://github.com/codegen-sh/graph-sitter) and free to use under the [Apache 2.0
     license](https://github.com/codegen-sh/graph-sitter?tab=Apache-2.0-1-ov-file).
     You can use it for both personal and commercial projects.
   </Accordion>
@@ -1178,7 +1178,7 @@ Learn how to use Codegen's core APIs to analyze and transform code.
     icon="code"
     href="/building-with-codegen/parsing-codebases"
   >
-    Understand how Codegen parses and analyzes different programming languages.
+    Understand how Graph-sitter parses and analyzes different programming languages.
   </Card>
   <Card
     title="Files & Directories"
@@ -1318,7 +1318,7 @@ icon: "power-off"
 iconType: "solid"
 ---
 
-The primary entrypoint to programs leveraging Codegen is the [Codebase](/api-reference/core/Codebase) class.
+The primary entrypoint to programs leveraging Graph-sitter is the [Codebase](/api-reference/core/Codebase) class.
 
 ## Local Codebases
 
@@ -1342,7 +1342,7 @@ codebase = Codebase("./", programming_language=ProgrammingLanguage.TYPESCRIPT)
 ```
 
 <Note>
-  By default, Codegen will automatically infer the programming language of the codebase and
+  By default, Graph-sitter will automatically infer the programming language of the codebase and
   parse all files in the codebase. You can override this by passing the `programming_language` parameter
   with a value from the `ProgrammingLanguage` enum.
 </Note>
@@ -1406,7 +1406,7 @@ For a complete list of available feature flags and configuration options, see th
 
 ## Advanced Initialization
 
-For more complex scenarios, Codegen supports an advanced initialization mode using `ProjectConfig`. This allows for fine-grained control over:
+For more complex scenarios, Graph-sitter supports an advanced initialization mode using `ProjectConfig`. This allows for fine-grained control over:
 
 - Repository configuration
 - Base path and subdirectory filtering
@@ -1440,7 +1440,7 @@ For more details on advanced configuration options, see the [source code on GitH
 
 ## Supported Languages
 
-Codegen currently supports:
+Graph-sitter currently supports:
 
 - [Python](/api-reference/python)
 - [TypeScript/JavaScript](/api-reference/typescript)
@@ -1454,7 +1454,7 @@ icon: "arrows-rotate"
 iconType: "solid"
 ---
 
-Codegen enables you to create reusable code transformations using Python functions decorated with `@codegen.function`. These codemods can be shared, versioned, and run by your team.
+Graph-sitter enables you to create reusable code transformations using Python functions decorated with `@codegen.function`. These codemods can be shared, versioned, and run by your team.
 
 ## Creating Codemods
 
@@ -1503,7 +1503,7 @@ gs run rename-function
 ```
 
 The execution flow:
-1. Codegen parses your codebase into a graph representation
+1. Graph-sitter parses your codebase into a graph representation
 2. Your codemod function is executed against this graph
 3. Changes are tracked and applied to your filesystem
 4. A diff preview shows what changed
@@ -1575,7 +1575,7 @@ icon: "folder"
 iconType: "solid"
 ---
 
-The `.codegen` directory contains your project's Codegen configuration, codemods, and supporting files. It's automatically created when you run `gs init`.
+The `.codegen` directory contains your project's Graph-sitter configuration, codemods, and supporting files. It's automatically created when you run `gs init`.
 
 ## Directory Structure
 
@@ -1602,11 +1602,11 @@ The `--fetch-docs` flag downloads API documentation and examples specific to you
 
 ## Virtual Environment
 
-Codegen maintains its own virtual environment in `.codegen/.venv/` to ensure consistent package versions and isolation from your project's dependencies. This environment is:
+Graph-sitter maintains its own virtual environment in `.codegen/.venv/` to ensure consistent package versions and isolation from your project's dependencies. This environment is:
 
 - Created using `uv` for fast, reliable package management
 - Initialized with Python 3.13
-- Automatically managed by Codegen commands
+- Automatically managed by Graph-sitter commands
 - Used for running codemods and Jupyter notebooks
 - Gitignored to avoid committing environment-specific files
 
@@ -1624,11 +1624,11 @@ REPOSITORY_PATH = "/root/git/your-repo"
 REPOSITORY_LANGUAGE = "python"  # or other supported language
 ```
 
-This configuration is used by Codegen to provide language-specific features and proper repository context.
+This configuration is used by Graph-sitter to provide language-specific features and proper repository context.
 
 ## Git Integration
 
-Codegen automatically adds appropriate entries to your `.gitignore`:
+Graph-sitter automatically adds appropriate entries to your `.gitignore`:
 
 ```gitignore
 # Codegen
@@ -1761,11 +1761,11 @@ icon: "binary"
 iconType: "solid"
 ---
 
-Codegen provides first-class support for both Python and TypeScript codebases. The language is automatically inferred when you initialize a codebase.
+Graph-sitter provides first-class support for both Python and TypeScript codebases. The language is automatically inferred when you initialize a codebase.
 
 ## Language Detection
 
-When you create a new `Codebase` instance, Codegen automatically detects the programming language:
+When you create a new `Codebase` instance, Graph-sitter automatically detects the programming language:
 
 ```python
 from graph_sitter.core.codebase import Codebase
@@ -1784,7 +1784,7 @@ print(codebase.language)  # "python" or "typescript"
 
 ## Type System
 
-Codegen uses specialized types for each language. These are defined as type aliases:
+Graph-sitter uses specialized types for each language. These are defined as type aliases:
 
 ```python
 # Python codebases use PyCodebaseType
@@ -1833,7 +1833,7 @@ class TSFunction(Function):
     pass
 ```
 
-This inheritance pattern means that most Codegen programs can work with either Python or TypeScript without modification, since they share the same API structure.
+This inheritance pattern means that most Graph-sitter programs can work with either Python or TypeScript without modification, since they share the same API structure.
 
 ```python
 # Works for both Python and TypeScript
@@ -1874,7 +1874,7 @@ icon: "arrows-rotate"
 iconType: "solid"
 ---
 
-Codegen requires you to explicitly commit changes by calling [codebase.commit()](/api-reference/core/Codebase#commit).
+Graph-sitter requires you to explicitly commit changes by calling [codebase.commit()](/api-reference/core/Codebase#commit).
 
 <Tip>
   Keeping everything in memory enables fast, large-scale writes. See the [How it
@@ -1938,7 +1938,7 @@ sidebarTitle: "Git Operations"
 icon: "code-branch"
 ---
 
-Many workflows require Git operations. Codegen provides a high-level API for common Git operations through the [`Codebase`](/api-reference/core/Codebase) class, including:
+Many workflows require Git operations. Graph-sitter provides a high-level API for common Git operations through the [`Codebase`](/api-reference/core/Codebase) class, including:
 
 - [`Codebase.git_commit(...)`](/api-reference/core/Codebase#git_commit)
 - [`Codebase.checkout(...)`](/api-reference/core/Codebase#checkout)
@@ -1972,7 +1972,7 @@ if commit:
 
 ## Checking Current Git State
 
-Codegen provides properties to check the current Git state:
+Graph-sitter provides properties to check the current Git state:
 
 ```python
 # Get the default branch (e.g. 'main' or 'master')
@@ -2013,7 +2013,7 @@ icon: "folder-tree"
 iconType: "solid"
 ---
 
-Codegen provides three primary abstractions for working with your codebase's file structure:
+Graph-sitter provides three primary abstractions for working with your codebase's file structure:
 
 - [File](/api-reference/core/File) - Represents a file in the codebase (e.g. README.md, package.json, etc.)
 - [SourceFile](/api-reference/core/SourceFile) - Represents a source code file (e.g. Python, TypeScript, React, etc.)
@@ -2153,7 +2153,7 @@ if main_function:
 
 ## Working with Non-Code Files (README, JSON, etc.)
 
-By default, Codegen focuses on source code files (Python, TypeScript, etc). However, you can access all files in your codebase, including documentation, configuration, and other non-code [files](/api-reference/core/File) like README.md, package.json, or .env:
+By default, Graph-sitter focuses on source code files (Python, TypeScript, etc). However, you can access all files in your codebase, including documentation, configuration, and other non-code [files](/api-reference/core/File) like README.md, package.json, or .env:
 
 ```python
 # Get all files in the codebase (including README, docs, config files)
@@ -2327,7 +2327,7 @@ icon: "pencil"
 iconType: "solid"
 ---
 
-Every code element in Codegen is an [Editable](../api-reference/core/Editable) - meaning it can be manipulated while maintaining correctness.
+Every code element in Graph-sitter is an [Editable](../api-reference/core/Editable) - meaning it can be manipulated while maintaining correctness.
 
 All higher-level code manipulation APIs are built on top of the atomic Editable API.
 
@@ -2394,7 +2394,7 @@ function_calls = function.function_calls  # All function calls within this node
 
 ## Smart Formatting
 
-Codegen handles formatting details automatically:
+Graph-sitter handles formatting details automatically:
 
 ```python
 # Adding to import statements
@@ -2586,7 +2586,7 @@ method.add_statements("return self.result")
 
 ## Common Patterns
 
-Most Codegen programs focus on finding and manipulating symbols:
+Most Graph-sitter programs focus on finding and manipulating symbols:
 
 ```python
 # Find and modify functions
@@ -2759,14 +2759,14 @@ if parent_class:
 </Tip>
 
 <Note>
-  Codegen handles both internal and external parent classes (like stdlib
+  Graph-sitter handles both internal and external parent classes (like stdlib
   classes). The `superclasses` property follows the language's MRO rules for
   method resolution.
 </Note>
 
 ## Method Resolution Order (MRO)
 
-Codegen follows the target language's method resolution order (MRO) for inheritance:
+Graph-sitter follows the target language's method resolution order (MRO) for inheritance:
 
 ```python
 # Access superclasses
@@ -2923,7 +2923,7 @@ Always check if imports resolve to external modules before modification to avoid
 
 ## Import Statements vs Imports
 
-Codegen provides two levels of abstraction for working with imports:
+Graph-sitter provides two levels of abstraction for working with imports:
 
 - [ImportStatement](/api-reference/core/ImportStatement) - Represents a complete import statement
 - [Import](/api-reference/core/Import) - Represents individual imported symbols
@@ -2976,7 +2976,7 @@ The [Export](/api-reference/core/Export) API provides tools for managing exports
 
 ## Export Statements vs Exports
 
-Similar to imports, Codegen provides two levels of abstraction for working with exports:
+Similar to imports, Graph-sitter provides two levels of abstraction for working with exports:
 
 - [ExportStatement](/api-reference/core/ExportStatement) - Represents a complete export statement
 - [Export](/api-reference/core/Export) - Represents individual exported symbols
@@ -3069,7 +3069,7 @@ The export will automatically handle adding any required imports.
 
 ## Export Types
 
-Codegen supports several types of exports:
+Graph-sitter supports several types of exports:
 
 ```typescript
 // Direct exports
@@ -3180,7 +3180,7 @@ icon: "puzzle-piece"
 iconType: "solid"
 ---
 
-Codegen uses a set of core behaviors that can be inherited by code elements. These behaviors provide consistent APIs across different types of symbols.
+Graph-sitter uses a set of core behaviors that can be inherited by code elements. These behaviors provide consistent APIs across different types of symbols.
 
 
 ## Core Behaviors
@@ -3286,7 +3286,7 @@ icon: "code"
 iconType: "solid"
 ---
 
-Codegen uses two classes to represent code structure at the highest level:
+Graph-sitter uses two classes to represent code structure at the highest level:
 
 - [Statement](../api-reference/core/Statement): Represents a single line or block of code
 
@@ -3299,13 +3299,13 @@ Codegen uses two classes to represent code structure at the highest level:
   - Provides APIs for analyzing and manipulating statements
   - Handles scope, variables, and dependencies
 
-Codegen provides rich APIs for working with code statements and blocks, allowing you to analyze and manipulate code structure at a granular level.
+Graph-sitter provides rich APIs for working with code statements and blocks, allowing you to analyze and manipulate code structure at a granular level.
 
 ## Working with Statements
 
 ### Basic Usage
 
-Every file, function, and class in Codegen has a [CodeBlock](../api-reference/core/CodeBlock) that contains its statements:
+Every file, function, and class in Graph-sitter has a [CodeBlock](../api-reference/core/CodeBlock) that contains its statements:
 
 ```python
 # Access statements in a file
@@ -3344,7 +3344,7 @@ Functions and Files support [.prepend_statement(...)](../api-reference/core/Symb
 
 Frequently you will want to check if a statement is nested within another structure, for example if a statement is inside an `if` block or a `try/catch` statement.
 
-Codegen supports this functionality with the [Editable.is_wrapped_in(...)](../api-reference/core/Editable#is-wrapped-in) method.
+Graph-sitter supports this functionality with the [Editable.is_wrapped_in(...)](../api-reference/core/Editable#is-wrapped-in) method.
 
 ```python
 func = codebase.get_function("process_data")
@@ -3400,7 +3400,7 @@ while_loop.code_block.unwrap()  # Removes the while loop but keeps its body
 
 ## Statement Types
 
-Codegen supports various statement types, each with specific APIs:
+Graph-sitter supports various statement types, each with specific APIs:
 
 ### [Import Statements](../api-reference/core/ImportStatement) / [Export Statements](../api-reference/core/ExportStatement)
 
@@ -3483,7 +3483,7 @@ elif_block.reduce_condition(False)
 ```
 
 <Note>
-  When reducing conditions, Codegen automatically handles the restructuring of
+  When reducing conditions, Graph-sitter automatically handles the restructuring of
   elif/else chains and preserves the correct control flow.
 </Note>
 
@@ -3623,11 +3623,11 @@ icon: "share-nodes"
 iconType: "solid"
 ---
 
-Codegen pre-computes dependencies and usages for all symbols in the codebase, enabling constant-time queries for these relationships.
+Graph-sitter pre-computes dependencies and usages for all symbols in the codebase, enabling constant-time queries for these relationships.
 
 ## Overview
 
-Codegen provides two main ways to track relationships between symbols:
+Graph-sitter provides two main ways to track relationships between symbols:
 
 - [`.dependencies`](/api-reference/core/Symbol#dependencies) / [`.get_dependencies(...)`](/api-reference/core/Symbol#get-dependencies) - What symbols does this symbol depend on?
 - [`.usages`](/api-reference/core/Symbol#usages) / [`.usages(...)`](/api-reference/core/Symbol#usages) - Where is this symbol used?
@@ -3809,7 +3809,7 @@ icon: "function"
 iconType: "solid"
 ---
 
-Codegen provides comprehensive APIs for working with function calls through several key classes:
+Graph-sitter provides comprehensive APIs for working with function calls through several key classes:
 
 - [FunctionCall](../api-reference/core/FunctionCall) - Represents a function invocation
 - [Argument](../api-reference/core/Argument) - Represents arguments passed to a function
@@ -3822,7 +3822,7 @@ Codegen provides comprehensive APIs for working with function calls through seve
 
 ## Navigating Function Calls
 
-Codegen provides two main ways to navigate function calls:
+Graph-sitter provides two main ways to navigate function calls:
 
 1. From a function to its call sites using [call_sites](../api-reference/core/Function#call-sites)
 2. From a function to the calls it makes (within it's [CodeBlock](../api-reference/core/CodeBlock)) using [function_calls](../api-reference/core/Function#function-calls)
@@ -4011,7 +4011,7 @@ print(f"Which is inside: {outer.name}")  # 'outer'
 
 ## Method Chaining
 
-Codegen enables working with chained method calls through [predecessor](../api-reference/core/FunctionCall#predecessor) and related properties:
+Graph-sitter enables working with chained method calls through [predecessor](../api-reference/core/FunctionCall#predecessor) and related properties:
 
 For example, for the following database query:
 
@@ -4144,7 +4144,7 @@ This document explains how to work with local variables in Codegen.
 
 ## Overview
 
-Through the [CodeBlock](../api-reference/core/CodeBlock) class, Codegen exposes APIs for analyzing and manipulating local variables within code blocks.
+Through the [CodeBlock](../api-reference/core/CodeBlock) class, Graph-sitter exposes APIs for analyzing and manipulating local variables within code blocks.
 
 - [local_var_assignments](../api-reference/core/CodeBlock#local-var-assignments): find all [Assignments](../api-reference/core/Assignment) in this scope
 - [get_local_var_assignment(...)](../api-reference/core/CodeBlock#get-local-var-assignment): get specific [Assignments](../api-reference/core/Assignment) by name
@@ -4171,7 +4171,7 @@ function.rename_local_variable("foo", "bar")
 
 ## Fuzzy Matching
 
-Codegen supports fuzzy matching when searching for local variables. This allows you to find variables whose names contain a substring, rather than requiring exact matches:
+Graph-sitter supports fuzzy matching when searching for local variables. This allows you to find variables whose names contain a substring, rather than requiring exact matches:
 
 ```python
 # Get all local variables containing "config"
@@ -4207,7 +4207,7 @@ icon: "comment"
 iconType: "solid"
 ---
 
-Codegen enables reading, modifying, and manipulating comments and docstrings while preserving proper formatting.
+Graph-sitter enables reading, modifying, and manipulating comments and docstrings while preserving proper formatting.
 
 This guide describes proper usage of the following classes:
 
@@ -4270,7 +4270,7 @@ comment_group.edit_text("New first line\nNew second line")
 
 ## Working with Docstrings
 
-Docstrings are special comments that document functions, classes, and modules. Codegen provides similar APIs for working with docstrings:
+Docstrings are special comments that document functions, classes, and modules. Graph-sitter provides similar APIs for working with docstrings:
 
 ```python
 function = file.get_symbol("my_function")
@@ -4299,7 +4299,7 @@ function.set_docstring("""
 
 ### Language-Specific Formatting
 
-Codegen automatically handles language-specific docstring formatting:
+Graph-sitter automatically handles language-specific docstring formatting:
 
 ```python
 # Python: Uses triple quotes
@@ -4332,7 +4332,7 @@ function.docstring.edit_text("""
 
 ## Comment Operations
 
-Codegen provides utilities for working with comments at scale. For example, you can update or remove specific types of comments across your codebase:
+Graph-sitter provides utilities for working with comments at scale. For example, you can update or remove specific types of comments across your codebase:
 
 ```python
 # Example: Remove eslint disable comments for a specific rule
@@ -4345,7 +4345,7 @@ for file in codebase.files:
 ```
 
 <Note>
-  When editing multi-line comments or docstrings, Codegen automatically handles
+  When editing multi-line comments or docstrings, Graph-sitter automatically handles
   indentation and maintains the existing comment style.
 </Note>
 
@@ -4353,7 +4353,7 @@ for file in codebase.files:
 
 ### Google Style Docstrings
 
-Codegen supports Google-style docstrings and can handle their specific formatting, using the [CommentGroup.to_google_docstring(...)](/api-reference/core/CommentGroup#to-google-docstring) method.
+Graph-sitter supports Google-style docstrings and can handle their specific formatting, using the [CommentGroup.to_google_docstring(...)](/api-reference/core/CommentGroup#to-google-docstring) method.
 
 ```python
 # Edit while preserving Google style
@@ -4364,7 +4364,7 @@ func_b.docstring.to_google_docstring(func_b)
 
 ### Using AI for Documentation
 
-Codegen integrates with LLMs to help generate and improve documentation. You can use the [Codebase.ai(...)](/api-reference/core/Codebase#ai) method to:
+Graph-sitter integrates with LLMs to help generate and improve documentation. You can use the [Codebase.ai(...)](/api-reference/core/Codebase#ai) method to:
 
 - Generate comprehensive docstrings
 - Update existing documentation
@@ -4423,7 +4423,7 @@ icon: "box-archive"
 iconType: "solid"
 ---
 
-Codegen provides a way to handle imports from external packages and modules through the [ExternalModule](/api-reference/core/ExternalModule) class.
+Graph-sitter provides a way to handle imports from external packages and modules through the [ExternalModule](/api-reference/core/ExternalModule) class.
 
 ```python
 # Python examples
@@ -4548,7 +4548,7 @@ This guide covers the core APIs and patterns for working with type annotations i
 
 ## Type Resolution
 
-Codegen builds a complete dependency graph of your codebase, connecting functions, classes, imports, and their relationships. This enables powerful type resolution capabilities:
+Graph-sitter builds a complete dependency graph of your codebase, connecting functions, classes, imports, and their relationships. This enables powerful type resolution capabilities:
 
 ```python
 from graph_sitter.core.codebase import Codebase
@@ -4579,7 +4579,7 @@ resolved_type = assignment.type.resolved_types
 
 ## Core Interfaces
 
-Type annotations in Codegen are built on two key interfaces:
+Type annotations in Graph-sitter are built on two key interfaces:
 
 - [Typeable](/api-reference/core/Typeable) - The base interface for any node that can have a type annotation (parameters, variables, functions, etc). Provides `.type` and `.is_typed`.
 - [Type](/api-reference/core/Type) - The base class for all type annotations. Provides type resolution and dependency tracking.
@@ -4723,7 +4723,7 @@ icon: "arrows-up-down-left-right"
 iconType: "solid"
 ---
 
-Codegen provides fast, configurable and safe APIs for moving symbols (functions, classes, variables) between files while automatically handling imports and dependencies.
+Graph-sitter provides fast, configurable and safe APIs for moving symbols (functions, classes, variables) between files while automatically handling imports and dependencies.
 
 The key API is [`Symbol.move_to_file(...)`](/api-reference/core/Symbol#move-to-file).
 
@@ -4794,7 +4794,7 @@ icon: "layer-group"
 iconType: "solid"
 ---
 
-Codegen enables traversing and manipulating collections through the [List](/api-reference/core/List) and [Dict](/api-reference/core/Dict) classes.
+Graph-sitter enables traversing and manipulating collections through the [List](/api-reference/core/List) and [Dict](/api-reference/core/Dict) classes.
 
 These APIs work consistently across Python and TypeScript while preserving formatting and structure.
 
@@ -4896,7 +4896,7 @@ icon: "sitemap"
 iconType: "solid"
 ---
 
-Codegen provides powerful capabilities for analyzing and visualizing function call relationships in your codebase. This guide will show you how to traverse the call graph and create visual representations of function call paths.
+Graph-sitter provides powerful capabilities for analyzing and visualizing function call relationships in your codebase. This guide will show you how to traverse the call graph and create visual representations of function call paths.
 
 ## Understanding Call Graph Traversal
 
@@ -5066,7 +5066,7 @@ Key APIs include:
 
 ## Detecting React Components with `is_jsx`
 
-Codegen exposes a `is_jsx` property on both classes and functions, which can be used to check if a symbol is a React component.
+Graph-sitter exposes a `is_jsx` property on both classes and functions, which can be used to check if a symbol is a React component.
 
 ```python
 # Check if a function is a React component
@@ -5191,7 +5191,7 @@ icon: "share-nodes"
 iconType: "solid"
 ---
 
-Codegen provides the ability to create interactive graph visualizations via the [codebase.visualize(...)](/api-reference/core/Codebase#visualize) method.
+Graph-sitter provides the ability to create interactive graph visualizations via the [codebase.visualize(...)](/api-reference/core/Codebase#visualize) method.
 
 These visualizations have a number of applications, including:
 
@@ -5468,7 +5468,7 @@ icon: "brain"
 iconType: "solid"
 ---
 
-Codegen natively integrates with LLMs via the [codebase.ai(...)](../api-reference/core/Codebase#ai) method, which lets you use large language models (LLMs) to help generate, modify, and analyze code.
+Graph-sitter natively integrates with LLMs via the [codebase.ai(...)](../api-reference/core/Codebase#ai) method, which lets you use large language models (LLMs) to help generate, modify, and analyze code.
 
 ## Configuration
 
@@ -5496,7 +5496,7 @@ result = codebase.ai(
 - **context**: Additional information you want to provide to the AI, which you can gather using GraphSitter's analysis tools
 
 <Note>
-  Codegen does not automatically provide any context to the LLM by default. It
+  Graph-sitter does not automatically provide any context to the LLM by default. It
   does not "understand" your codebase, only the context you provide.
 </Note>
 
@@ -5702,7 +5702,7 @@ icon: "code-branch"
 iconType: "solid"
 ---
 
-Codegen provides powerful APIs for reducing conditional logic to constant values. This is particularly useful for removing feature flags, cleaning up dead code paths, and simplifying conditional logic.
+Graph-sitter provides powerful APIs for reducing conditional logic to constant values. This is particularly useful for removing feature flags, cleaning up dead code paths, and simplifying conditional logic.
 
 ## Overview
 
@@ -5713,7 +5713,7 @@ The `reduce_condition()` method is available on various conditional constructs:
 - [Binary expressions](/api-reference/core/BinaryExpression#reduce-condition)
 - [Function calls](/api-reference/core/FunctionCall#reduce-condition)
 
-When you reduce a condition to `True` or `False`, Codegen automatically:
+When you reduce a condition to `True` or `False`, Graph-sitter automatically:
 
 1. Evaluates which code path(s) to keep
 2. Removes unnecessary branches
@@ -5764,7 +5764,7 @@ print('MY_FEATURE: ON')
 
 ### Handling Elif Chains
 
-Codegen intelligently handles elif chains when reducing conditions:
+Graph-sitter intelligently handles elif chains when reducing conditions:
 
 ```python
 # Original code
@@ -5810,7 +5810,7 @@ result = 'valueB'
 
 ### Nested Ternaries
 
-Codegen handles nested ternary expressions correctly:
+Graph-sitter handles nested ternary expressions correctly:
 
 ```python
 # Original code
@@ -5935,7 +5935,7 @@ This example:
 4. Automatically handles all conditional constructs using the flag
 
 <Note>
-  When reducing a function call, Codegen automatically handles all dependent
+  When reducing a function call, Graph-sitter automatically handles all dependent
   conditions. This includes: - [If/else
   statements](/api-reference/core/IfBlockStatement#reduce-condition) - [Ternary
   expressions](/api-reference/core/TernaryExpression#reduce-condition) - [Binary
@@ -5981,7 +5981,7 @@ icon: "graduation-cap"
 iconType: "solid"
 ---
 
-Explore our tutorials to learn how to use Codegen for various code transformation tasks.
+Explore our tutorials to learn how to use Graph-sitter for various code transformation tasks.
 
 ## Featured Tutorials
 
@@ -6133,7 +6133,7 @@ icon: "webhook"
 iconType: "solid"
 ---
 
-API migrations are a common task in large codebases. Whether you're updating a deprecated function, changing parameter names, or modifying return types, Codegen makes it easy to update all call sites consistently.
+API migrations are a common task in large codebases. Whether you're updating a deprecated function, changing parameter names, or modifying return types, Graph-sitter makes it easy to update all call sites consistently.
 
 ## Common Migration Scenarios
 
@@ -6333,7 +6333,7 @@ migrate_api_v1_to_v2(codebase)
    ```
 
 <Note>
-Remember to test thoroughly after making bulk changes to APIs. While Codegen ensures syntactic correctness, you'll want to verify the semantic correctness of the changes.
+Remember to test thoroughly after making bulk changes to APIs. While Graph-sitter ensures syntactic correctness, you'll want to verify the semantic correctness of the changes.
 </Note>
 
 ---
@@ -6714,24 +6714,24 @@ View on [codegen.sh](https://www.codegen.sh/codemod/d255db6c-9a86-4197-9b78-16c5
     icon="diagram-project"
     href="/tutorials/modularity"
   >
-    Learn how to use Codegen to create modular codebases.
+    Learn how to use Graph-sitter to create modular codebases.
   </Card>
   <Card
     title="Deleting Dead Code"
     icon="trash"
     href="/tutorials/deleting-dead-code"
   >
-    Learn how to use Codegen to delete dead code.
+    Learn how to use Graph-sitter to delete dead code.
   </Card>
   <Card
     title="Increase Type Coverage"
     icon="shield-check"
     href="/tutorials/increase-type-coverage"
   >
-    Learn how to use Codegen to increase type coverage.
+    Learn how to use Graph-sitter to increase type coverage.
   </Card>
   <Card title="API Reference" icon="code" href="/api-reference">
-    Explore the complete API documentation for all Codegen classes and methods.
+    Explore the complete API documentation for all Graph-sitter classes and methods.
   </Card>
 </CardGroup>
 
@@ -6743,7 +6743,7 @@ icon: "network-wired"
 iconType: "solid"
 ---
 
-This guide demonstrates how to use Codegen to generate high-quality training data for large language models (LLMs) by extracting function implementations along with their dependencies and usages. This approach is similar to [word2vec](https://www.tensorflow.org/text/tutorials/word2vec) or [node2vec](https://snap.stanford.edu/node2vec/) - given the context of a function, learn to predict the function's implementation.
+This guide demonstrates how to use Graph-sitter to generate high-quality training data for large language models (LLMs) by extracting function implementations along with their dependencies and usages. This approach is similar to [word2vec](https://www.tensorflow.org/text/tutorials/word2vec) or [node2vec](https://snap.stanford.edu/node2vec/) - given the context of a function, learn to predict the function's implementation.
 
 <Info>View the full code in our [examples repository](https://github.com/codegen-sh/graph-sitter-examples/tree/7b978091c3153b687c32928fe10f05425e22f6a5/examples/generate_training_data)</Info>
 
@@ -7079,7 +7079,7 @@ print("\n✅ Import cycles resolved!")
 </AccordionGroup>
 
 <Tip>
-  Most operations in Codegen will automatically handle updaging
+  Most operations in Graph-sitter will automatically handle updaging
   [dependencies](/building-with-codegen/dependencies-and-usages) and
   [imports](/building-with-codegen/imports). See [Moving
   Symbols](/building-with-codegen/moving-symbols) to learn more.
@@ -7154,7 +7154,7 @@ symbol_to_move.move_to_file(dst_file, strategy="add_back_edge")
 
 ## Handling Dependencies
 
-By default, Codegen will move all of a symbols dependencies along with it. This ensures that your codebase remains consistent and functional.
+By default, Graph-sitter will move all of a symbols dependencies along with it. This ensures that your codebase remains consistent and functional.
 
 <CodeGroup>
 ```python python
@@ -7408,7 +7408,7 @@ icon: "flag"
 iconType: "solid"
 ---
 
-Codegen has been used in production for multi-million line codebases to automatically delete "dead" (rolled-out) feature flags. This guide will walk you through analyzing feature flag usage and safely removing rolled out flags.
+Graph-sitter has been used in production for multi-million line codebases to automatically delete "dead" (rolled-out) feature flags. This guide will walk you through analyzing feature flag usage and safely removing rolled out flags.
 
 <Warning>
     Every codebase does feature flags differently. This guide shows common techniques and syntax but likely requires adaptation to codebase-specific circumstances.
@@ -7416,7 +7416,7 @@ Codegen has been used in production for multi-million line codebases to automati
 
 ## Analyzing Feature Flag Usage
 
-Before removing a feature flag, it's important to analyze its usage across the codebase. Codegen provides tools to help identify where and how feature flags are used.
+Before removing a feature flag, it's important to analyze its usage across the codebase. Graph-sitter provides tools to help identify where and how feature flags are used.
 
 ### For Python Codebases
 
@@ -7470,7 +7470,7 @@ This will output a table showing all feature flags and their usage counts, helpi
 
 ## Removing Rolled Out Flags
 
-Once you've identified a flag that's ready to be removed, Codegen can help safely delete it and its associated code paths.
+Once you've identified a flag that's ready to be removed, Graph-sitter can help safely delete it and its associated code paths.
 
 <Tip>
     This primarily leverages Codegen's API for [reduction conditions](/building-with-codegen/reducing-conditions)
@@ -7697,7 +7697,7 @@ Common use cases include:
 
 ## APIs for monitoring types
 
-Codegen programs typically access type annotations through the following APIs:
+Graph-sitter programs typically access type annotations through the following APIs:
 - [Parameter.type](/api-reference/core/Parameter#type)
 - [Function.return_type](/api-reference/python/PyFunction#return-type)
 - [Assignment.type](/api-reference/core/Assignment#type)
@@ -7795,7 +7795,7 @@ for file in codebase.files:
 
 ## Coming Soon: Advanced Type Inference
 
-<Warning>Codegen is building out an API for direct interface with `tsc` and `mypy` for precise type inference. Interested piloting this API? Let us know!</Warning>
+<Warning>Graph-sitter is building out an API for direct interface with `tsc` and `mypy` for precise type inference. Interested piloting this API? Let us know!</Warning>
 
 ---
 title: "Managing TypeScript Exports"
@@ -7805,7 +7805,7 @@ icon: "ship"
 iconType: "solid"
 ---
 
-Codegen provides powerful tools for managing and reorganizing exports in TypeScript codebases. This tutorial builds on the concepts covered in [exports](/building-with-codegen/exports) to show you how to automate common export management tasks and ensure your module boundaries stay clean and maintainable.
+Graph-sitter provides powerful tools for managing and reorganizing exports in TypeScript codebases. This tutorial builds on the concepts covered in [exports](/building-with-codegen/exports) to show you how to automate common export management tasks and ensure your module boundaries stay clean and maintainable.
 
 ## Common Export Management Tasks
 
@@ -7861,7 +7861,7 @@ if target_file.has_export_statement_for_path(relative_path, "WILDCARD"):
 
 ### Managing Different Export Types
 
-Codegen can handle all types of exports automatically:
+Graph-sitter can handle all types of exports automatically:
 
 <AccordionGroup>
   <Accordion title="Wildcard Exports">
@@ -8129,7 +8129,7 @@ icon: "arrow-right-arrow-left"
 iconType: "solid"
 ---
 
-Codegen provides tools to help you migrate away from default exports to named exports in your TypeScript codebase. This tutorial builds on the concepts covered in [exports](/building-with-codegen/exports) to show you how to automate this conversion process.
+Graph-sitter provides tools to help you migrate away from default exports to named exports in your TypeScript codebase. This tutorial builds on the concepts covered in [exports](/building-with-codegen/exports) to show you how to automate this conversion process.
 
 ## Overview
 
@@ -8841,7 +8841,7 @@ icon: "vial"
 iconType: "solid"
 ---
 
-Migrating from [unittest](https://docs.python.org/3/library/unittest.html) to [pytest](https://docs.pytest.org/) involves converting test classes and assertions to pytest's more modern and concise style. This guide will walk you through using Codegen to automate this migration.
+Migrating from [unittest](https://docs.python.org/3/library/unittest.html) to [pytest](https://docs.pytest.org/) involves converting test classes and assertions to pytest's more modern and concise style. This guide will walk you through using Graph-sitter to automate this migration.
 
 <Info>
 You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter-examples/tree/7b978091c3153b687c32928fe10f05425e22f6a5/examples/unittest_to_pytest).
@@ -9053,7 +9053,7 @@ icon: "layer-group"
 iconType: "solid"
 ---
 
-Migrating from [SQLAlchemy](https://www.sqlalchemy.org/) 1.4 to 2.0 involves several API changes to support the new 2.0-style query interface. This guide will walk you through using Codegen to automate this migration, handling query syntax, session usage, and ORM patterns.
+Migrating from [SQLAlchemy](https://www.sqlalchemy.org/) 1.4 to 2.0 involves several API changes to support the new 2.0-style query interface. This guide will walk you through using Graph-sitter to automate this migration, handling query syntax, session usage, and ORM patterns.
 
 <Info>
 You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter-examples/tree/7b978091c3153b687c32928fe10f05425e22f6a5/examples/sqlalchemy_1.4_to_2.0).
@@ -9442,7 +9442,7 @@ icon: "snake"
 iconType: "solid"
 ---
 
-Migrating from Python 2 to Python 3 involves several syntax and API changes. This guide will walk you through using Codegen to automate this migration, handling print statements, string handling, iterators, and more.
+Migrating from Python 2 to Python 3 involves several syntax and API changes. This guide will walk you through using Graph-sitter to automate this migration, handling print statements, string handling, iterators, and more.
 
 <Info>
 You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter-examples/tree/7b978091c3153b687c32928fe10f05425e22f6a5/examples/python2_to_python3).
@@ -9699,7 +9699,7 @@ icon: "bolt"
 iconType: "solid"
 ---
 
-Migrating from [Flask](https://flask.palletsprojects.com/) to [FastAPI](https://fastapi.tiangolo.com/) involves several key changes to your codebase. This guide will walk you through using Codegen to automate this migration, handling imports, route decorators, static files, and template rendering.
+Migrating from [Flask](https://flask.palletsprojects.com/) to [FastAPI](https://fastapi.tiangolo.com/) involves several key changes to your codebase. This guide will walk you through using Graph-sitter to automate this migration, handling imports, route decorators, static files, and template rendering.
 
 You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter-examples/tree/7b978091c3153b687c32928fe10f05425e22f6a5/examples/flask_to_fastapi_migration)
 
@@ -9762,7 +9762,7 @@ app = FastAPI()
 
 <Note>
   FastAPI doesn't require the `__name__` argument that Flask uses for template
-  resolution. Codegen automatically removes it during migration.
+  resolution. Graph-sitter automatically removes it during migration.
 </Note>
 
 ## II: Convert Route Decorators
@@ -9868,8 +9868,7 @@ def list_users(request: Request):
 ```
 
 <Note>
-  FastAPI requires the `request` object to be passed to templates. Codegen
-  automatically adds this parameter during migration.
+  FastAPI requires the `request` object to be passed to templates. Graph-sitter automatically adds this parameter during migration.
 </Note>
 
 ## Running the Migration

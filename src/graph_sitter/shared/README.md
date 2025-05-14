@@ -1,4 +1,4 @@
-# Codegen Shared
+# Graph-sitter Shared
 
 A codegen module to contain a miscellaneous set of shared utilities.
 

@@ -137,8 +137,7 @@ To learn more about no-graph mode, see the [Advanced Settings](/introduction/adv
 ## Running the Conversion
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the conversion
 python run.py
@@ -147,7 +146,7 @@ python run.py
 ## Learn More
 
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/en/20/)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

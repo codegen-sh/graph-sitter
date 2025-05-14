@@ -5,11 +5,11 @@ icon: "microchip"
 iconType: "solid"
 ---
 
-Codegen is designed to be used with AI assistants. This document describes how to use Codegen with common AI tools, including Copilot, Cursor, Devin and more.
+Graph-sitter is designed to be used with AI assistants. This document describes how to use Graph-sitter with common AI tools, including Copilot, Cursor, Devin and more.
 
 ## System Prompt
 
-Codegen provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Codegen.
+Graph-sitter provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Codegen.
 
 import {
   CODEGEN_SYSTEM_PROMPT
@@ -31,7 +31,7 @@ When you create a new codemod via [gs create](/cli/create):
 gs create delete-dead-imports . --description "Delete unused imports"
 ```
 
-Codegen automatically generates an optimized ["system prompt"](https://news.ycombinator.com/item?id=37880023) that includes:
+Graph-sitter automatically generates an optimized ["system prompt"](https://news.ycombinator.com/item?id=37880023) that includes:
 
 - An introduction to Codegen
 - Codegen API documentation
@@ -56,7 +56,7 @@ This `.md` file can be used with any AI assistant (Claude, GPT-4, etc.) to get m
     ```
   </Step>
   <Step title="Review the generated system prompt">
-    Check the AI context that Codegen generated for your transformation: ```bash
+    Check the AI context that Graph-sitter generated for your transformation: ```bash
     cat codegen-sh/codemods/modernize-components/prompt.md ```
   </Step>
 

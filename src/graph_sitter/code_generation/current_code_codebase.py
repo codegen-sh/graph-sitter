@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 
 
 def get_graphsitter_repo_path() -> str:
-    """Points to base directory of the Codegen repo (.git) that is currently running"""
+    """Points to base directory of the Graph-sitter repo (.git) that is currently running"""
     import graph_sitter as sdk
 
     filepath = sdk.__file__
@@ -36,7 +36,7 @@ def get_codegen_codebase_base_path() -> str:
 
 
 def get_current_code_codebase(config: CodebaseConfig | None = None, secrets: SecretsConfig | None = None, subdirectories: list[str] | None = None) -> CodebaseType:
-    """Returns a Codebase for the code that is *currently running* (i.e. the Codegen repo)"""
+    """Returns a Codebase for the code that is *currently running* (i.e. the Graph-sitter repo)"""
     codegen_repo_path = get_graphsitter_repo_path()
     base_dir = get_codegen_codebase_base_path()
     logger.info(f"Creating codebase from repo at: {codegen_repo_path} with base_path {base_dir}")

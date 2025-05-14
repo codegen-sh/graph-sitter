@@ -1,4 +1,4 @@
-# Codegen RAG Q&A API
+# Graph-sitter RAG Q&A API
 
 <p align="center">
   <a href="https://graph-sitter.com">
@@ -85,7 +85,7 @@ Response format:
 
 ## How It Works
 
-1. The API uses Codegen to clone and analyze the repository
+1. The API uses Graph-sitter to clone and analyze the repository
 1. It creates/loads a VectorIndex of all files using OpenAI's embeddings
 1. For each question:
    - Finds the most semantically similar files
@@ -97,7 +97,7 @@ Response format:
 The API is built using:
 
 - Modal for serverless deployment
-- Codegen for repository analysis
+- Graph-sitter for repository analysis
 - OpenAI for embeddings and Q&A
 - FastAPI for the web endpoint
 
@@ -115,6 +115,6 @@ Required environment variables:
 
 ## Learn More
 
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 - [Modal Documentation](https://modal.com/docs)
 - [VectorIndex Tutorial](https://graph-sitter.com/building-with-codegen/semantic-code-search)

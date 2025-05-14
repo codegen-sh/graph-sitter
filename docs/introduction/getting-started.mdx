@@ -5,7 +5,7 @@ icon: "bolt"
 iconType: "solid"
 ---
 
-A quick tour of Codegen in a Jupyter notebook.
+A quick tour of Graph-sitter in a Jupyter notebook.
 
 ## Installation
 
@@ -200,13 +200,13 @@ test_files = [
 
 ## Safe Code Transformations
 
-Codegen guarantees that code transformations maintain correctness. It automatically handles updating imports, references, and dependencies. Here are some common transformations:
+Graph-sitter guarantees that code transformations maintain correctness. It automatically handles updating imports, references, and dependencies. Here are some common transformations:
 
 ```python
 # Move all Enum classes to a dedicated file
 for cls in codebase.classes:
     if cls.is_subclass_of('Enum'):
-        # Codegen automatically:
+        # Graph-sitter automatically:
         # - Updates all imports that reference this class
         # - Maintains the class's dependencies
         # - Preserves comments and decorators
@@ -233,7 +233,7 @@ for fcall in handler.call_sites:
 ```
 
 <Tip>
-  When moving symbols, Codegen will automatically update all imports and
+  When moving symbols, Graph-sitter will automatically update all imports and
   references. See [Moving Symbols](/building-with-codegen/moving-symbols) to
   learn more.
 </Tip>
@@ -278,7 +278,7 @@ if base_class:
 
 ## Advanced Settings
 
-Codegen also supports a number of advanced settings that can be used to customize the behavior of the graph construction process.
+Graph-sitter also supports a number of advanced settings that can be used to customize the behavior of the graph construction process.
 
 These flags are helpful for debugging problematic repos, optimizing Codegen’s performance, or testing unreleased or experimental (potentially backwards-breaking) features.
 
@@ -336,7 +336,7 @@ These are considered experimental and unstable features that may be removed or c
     icon="microchip"
     href="/introduction/work-with-ai"
   >
-    Learn how to use Codegen with Cursor, Devin, Windsurf, and more.
+    Learn how to use Graph-sitter with Cursor, Devin, Windsurf, and more.
   </Card>
 
 </CardGroup>

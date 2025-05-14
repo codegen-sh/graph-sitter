@@ -1,8 +1,8 @@
-## Codegen Harness and Evaluator for SWE Bennch Development Tool
+## Graph-sitter Harness and Evaluator for SWE Bennch Development Tool
 
 This folder contains a harness and evaluator for the SWE Bench leaderboard, and enables developers to test and evaluate their codegen models on the SWE Bench leaderboard.
 
-It integrates directly into the Codegen agentic framework and can be built on top of.
+It integrates directly into the Graph-sitter agentic framework and can be built on top of.
 
 ### Setup
 

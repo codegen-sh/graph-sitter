@@ -131,7 +131,7 @@ async def create_codemod_task(name: str, language: str = "python") -> Dict[str, 
 def codegen_system_prompt():
     """System prompt for the codegen server"""
     return """
-Codegen is a tool for programmatically manipulating codebases via "codemods".
+Graph-sitter is a tool for programmatically manipulating codebases via "codemods".
 
 It provides a scriptable interface to a powerful, multi-lingual language server built on top of Tree-sitter.
 
@@ -140,7 +140,7 @@ For example, consider the following script:
 ```python
 from graph_sitter import Codebase
 
-# Codegen builds a complete graph connecting
+# Graph-sitter builds a complete graph connecting
 # functions, classes, imports and their relationships
 codebase = Codebase("./")
 
@@ -161,7 +161,7 @@ You can run this script using the `run_codemod` tool.
 
 # Developing Codemods
 
-Codegen codemods are functions that take a `Codebase` as input and manipulate it.
+Graph-sitter codemods are functions that take a `Codebase` as input and manipulate it.
 
 They live in the `.codegen/codemods/{name}/{name.py}` directory, and take the following form:
 ```python

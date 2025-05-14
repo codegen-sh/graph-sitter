@@ -4,7 +4,7 @@ sidebarTitle: "Installing with WSL"
 iconType: "solid"
 ---
 
-Although Codegen is not natively supported on Windows, we do provide a guide for installing Codegen through WSL.
+Although Graph-sitter is not natively supported on Windows, we do provide a guide for installing Graph-sitter through WSL.
 
 <Tip>
 **Windows Subsystem for Linux (WSL)** is a feature of Windows that allows you to run a Linux environment on your Windows machine. Learn more about WSL [here](https://learn.microsoft.com/en-us/windows/wsl/about).
@@ -30,17 +30,15 @@ WSL2 is generally recommended for better performance and compatibility, **but if
 You can read more about the differences between WSL1 and WSL2 [here](https://learn.microsoft.com/en-us/windows/wsl/compare-versions).
 </Note>
 
-## Installing Codegen
+## Installing Graph-sitter Initial Graph-sitter installation should be the same as the Linux instructions from the [installation guide](https://graph-sitter.com/introduction/installation).
 
-Initial Codegen installation should be the same as the Linux instructions from the [installation guide](https://graph-sitter.com/introduction/installation).
+## Using Graph-sitter with files from WSL
 
-## Using Codegen with files from WSL
+Graph-sitter should work the same way as it does on Linux.
 
-Codegen should work the same way as it does on Linux.
+## Using Graph-sitter with files from Windows
 
-## Using Codegen with files from Windows
-
-Both WSL1 and WSL2 can interact with Windows files through the `/mnt/c` directory. For example, if you have a file at `C:\Users\username\Documents\file.txt`, you can access it at `/mnt/c/Users/username/Documents/file.txt`. Therefore, you can parse any repo by cd'ing into the repo in `/mnt/c` and using Codegen as intended.
+Both WSL1 and WSL2 can interact with Windows files through the `/mnt/c` directory. For example, if you have a file at `C:\Users\username\Documents\file.txt`, you can access it at `/mnt/c/Users/username/Documents/file.txt`. Therefore, you can parse any repo by cd'ing into the repo in `/mnt/c` and using Graph-sitter as intended.
 
 <Warning>
 There is a significant performance overhead to interacting with Windows files from WSL2.
@@ -48,7 +46,7 @@ There is a significant performance overhead to interacting with Windows files fr
 
 ## Integration with VSCode / Cursor / Windsurf / Other IDEs
 
-If you are using VSCode or any VSCode forks like Cursor or Windsurf, you can use the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) to interact and develop with a Linux environment from Windows. This will have the best performance and compatibility with running Codegen on Windows.
+If you are using VSCode or any VSCode forks like Cursor or Windsurf, you can use the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) to interact and develop with a Linux environment from Windows. This will have the best performance and compatibility with running Graph-sitter on Windows.
 
 ![](https://code.visualstudio.com/assets/docs/remote/wsl/architecture-wsl.png)
 
@@ -67,7 +65,7 @@ If you plan on using Codegen's MCP (Model Context Protocol) or LSP (Language Ser
 
 - **I have trouble connecting to MCP or LSP from VSCode**: Windows and WSL run on two different network environments. WSL does come with a compatibility layer called [NAT (Network Address Translation)](https://learn.microsoft.com/en-us/windows/wsl/networking#default-networking-mode-nat) as a translation layer between the two environments, but it can sometimes cause issues. On machines running Windows 11 22H2 and higher, try switching to [Mirrored mode networking](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking) to see if that fixes the issue.
 - **WSL takes up too much memory after running Codegen**: This is a known issue with WSL. Memory does not get properly released after running a memory-intensive process like Codegen. Try killing the WSL process using `wsl --shutdown` to free up memory. ([GitHub Issue for WSL](https://github.com/microsoft/WSL/issues/4166))
-- **WSL hangs and pins the CPU at 100% when I try to run Codegen**: This could be because of WSL running out of memory. Try killing the WSL process using `wsl --shutdown` and then try running Codegen again. If that doesn't work, try [downloading more RAM](https://downloadmoreram.com/).
+- **WSL hangs and pins the CPU at 100% when I try to run Codegen**: This could be because of WSL running out of memory. Try killing the WSL process using `wsl --shutdown` and then try running Graph-sitter again. If that doesn't work, try [downloading more RAM](https://downloadmoreram.com/).
 
 For any additional issues, see the [troubleshooting guide](/introduction/installation#troubleshooting).
 

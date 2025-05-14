@@ -23,11 +23,11 @@ DEMO_CELLS = [
     ##### [ CODEGEN DEMO ] #####
     {
         "cell_type": "markdown",
-        "source": """# Codegen Demo: FastAPI
+        "source": """# Graph-sitter Demo: FastAPI
 
 Welcome to [Codegen](https://graph-sitter.com)!
 
-This demo notebook will walk you through some features of Codegen applied to [FastAPI](https://github.com/fastapi/fastapi).
+This demo notebook will walk you through some features of Graph-sitter applied to [FastAPI](https://github.com/fastapi/fastapi).
 
 See the [getting started](https://graph-sitter.com/introduction/getting-started) guide to learn more.""".strip(),
     },

@@ -205,7 +205,7 @@ class GitAttributionTracker:
         start_time = time.time()
 
         print("Stashing any working directory changes...")
-        stash_msg = f"Codegen Attribution Stash @ {datetime.now().timestamp()}"  # noqa: DTZ005
+        stash_msg = f"Graph-sitter Attribution Stash @ {datetime.now().timestamp()}"  # noqa: DTZ005
         stash_id = None
         try:
             stash_id = self.repo.stash(self.repo.default_signature, stash_msg, include_untracked=True)

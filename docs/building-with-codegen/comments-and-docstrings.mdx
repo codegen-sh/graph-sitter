@@ -5,7 +5,7 @@ icon: "comment"
 iconType: "solid"
 ---
 
-Codegen enables reading, modifying, and manipulating comments and docstrings while preserving proper formatting.
+Graph-sitter enables reading, modifying, and manipulating comments and docstrings while preserving proper formatting.
 
 This guide describes proper usage of the following classes:
 
@@ -68,7 +68,7 @@ comment_group.edit_text("New first line\nNew second line")
 
 ## Working with Docstrings
 
-Docstrings are special comments that document functions, classes, and modules. Codegen provides similar APIs for working with docstrings:
+Docstrings are special comments that document functions, classes, and modules. Graph-sitter provides similar APIs for working with docstrings:
 
 ```python
 function = file.get_symbol("my_function")
@@ -97,7 +97,7 @@ function.set_docstring("""
 
 ### Language-Specific Formatting
 
-Codegen automatically handles language-specific docstring formatting:
+Graph-sitter automatically handles language-specific docstring formatting:
 
 ```python
 # Python: Uses triple quotes
@@ -130,7 +130,7 @@ function.docstring.edit_text("""
 
 ## Comment Operations
 
-Codegen provides utilities for working with comments at scale. For example, you can update or remove specific types of comments across your codebase:
+Graph-sitter provides utilities for working with comments at scale. For example, you can update or remove specific types of comments across your codebase:
 
 ```python
 # Example: Remove eslint disable comments for a specific rule
@@ -143,7 +143,7 @@ for file in codebase.files:
 ```
 
 <Note>
-  When editing multi-line comments or docstrings, Codegen automatically handles
+  When editing multi-line comments or docstrings, Graph-sitter automatically handles
   indentation and maintains the existing comment style.
 </Note>
 
@@ -151,7 +151,7 @@ for file in codebase.files:
 
 ### Google Style Docstrings
 
-Codegen supports Google-style docstrings and can handle their specific formatting, using the [CommentGroup.to_google_docstring(...)](/api-reference/core/CommentGroup#to-google-docstring) method.
+Graph-sitter supports Google-style docstrings and can handle their specific formatting, using the [CommentGroup.to_google_docstring(...)](/api-reference/core/CommentGroup#to-google-docstring) method.
 
 ```python
 # Edit while preserving Google style
@@ -162,7 +162,7 @@ func_b.docstring.to_google_docstring(func_b)
 
 ### Using AI for Documentation
 
-Codegen integrates with LLMs to help generate and improve documentation. You can use the [Codebase.ai(...)](/api-reference/core/Codebase#ai) method to:
+Graph-sitter integrates with LLMs to help generate and improve documentation. You can use the [Codebase.ai(...)](/api-reference/core/Codebase#ai) method to:
 
 - Generate comprehensive docstrings
 - Update existing documentation

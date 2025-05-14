@@ -1,6 +1,6 @@
 # Add OpenAPI Decorators to Flask-RESTx Endpoints
 
-This example demonstrates how to use Codegen to automatically add OpenAPI decorators (`@response` and `@expect`) to Flask-RESTx API endpoints. The migration script analyzes existing code patterns and adds appropriate decorators to improve API documentation.
+This example demonstrates how to use Graph-sitter to automatically add OpenAPI decorators (`@response` and `@expect`) to Flask-RESTx API endpoints. The migration script analyzes existing code patterns and adds appropriate decorators to improve API documentation.
 
 > [!NOTE]
 > This codemod helps maintain consistent API documentation by automatically analyzing endpoint behavior and adding appropriate OpenAPI decorators.
@@ -126,8 +126,7 @@ class MyResource(Resource):
 ## Running the Migration
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the migration
 python run.py
@@ -144,7 +143,7 @@ The script will:
 
 - [Flask-RESTx Documentation](https://flask-restx.readthedocs.io/)
 - [OpenAPI Specification](https://swagger.io/specification/)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

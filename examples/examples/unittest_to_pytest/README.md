@@ -89,8 +89,7 @@ The script automates the entire migration process in a few key steps:
 ## Running the Migration
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the migration
 python run.py
@@ -108,7 +107,7 @@ The script will process all Python test files in the `repo-before` directory and
 - [Full Tutorial](https://graph-sitter.com/tutorials/unittest-to-pytest)
 - [pytest Documentation](https://docs.pytest.org/)
 - [unittest Documentation](https://docs.python.org/3/library/unittest.html)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

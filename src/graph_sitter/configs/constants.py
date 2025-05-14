@@ -3,7 +3,7 @@ from pathlib import Path
 CODEGEN_DIR_NAME = ".codegen"
 ENV_FILENAME = ".env"
 
-# ====[ Codegen internal config ]====
+# ====[ Graph-sitter internal config ]====
 CODEGEN_REPO_ROOT = Path(__file__).parent.parent.parent.parent.parent
 CODEGEN_DIR_PATH = CODEGEN_REPO_ROOT / CODEGEN_DIR_NAME
 

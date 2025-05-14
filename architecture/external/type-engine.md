@@ -1,6 +1,6 @@
 # Type Engine
 
-Type Engine is an experimental feature of Codegen that leverages the [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) to provide deeper insight into a user's codebase (such as resolving return types).
+Type Engine is an experimental feature of Graph-sitter that leverages the [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) to provide deeper insight into a user's codebase (such as resolving return types).
 
 > NOTE: Currently, this is only implemented for TypeScript projects.
 
@@ -8,7 +8,7 @@ There are currently two experimental implementations of TypeScript's Type Engine
 
 ## Implementation (External Process)
 
-During codebase parsing, the Type Engine spawns a type inference subprocess (defined in `src/codegen/sdk/typescript/external/typescript_analyzer/run_full.ts`) that concurrently parses the codebase with the TypeScript API to resolve return types. The final analyzer output is placed in `/tmp/typescript-analysis.json` and is read in by Codegen to resolve return types.
+During codebase parsing, the Type Engine spawns a type inference subprocess (defined in `src/codegen/sdk/typescript/external/typescript_analyzer/run_full.ts`) that concurrently parses the codebase with the TypeScript API to resolve return types. The final analyzer output is placed in `/tmp/typescript-analysis.json` and is read in by Graph-sitter to resolve return types.
 
 ## Implementation (V8)
 

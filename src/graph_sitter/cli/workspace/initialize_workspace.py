@@ -64,7 +64,7 @@ def add_to_gitignore_if_not_present(gitignore: Path, line: str):
 
 
 def modify_gitignore(codegen_folder: Path):
-    """Update .gitignore to track only specific Codegen files."""
+    """Update .gitignore to track only specific Graph-sitter files."""
     gitignore_path = codegen_folder / ".gitignore"
 
     # Define what should be ignored (everything except codemods)

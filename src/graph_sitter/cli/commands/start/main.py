@@ -43,7 +43,7 @@ def start_command(port: int | None, detached: bool = False, skip_build: bool = F
             codegen_version = version("codegen")
             _build_docker_image(codegen_root=codegen_root, codegen_version=codegen_version)
         _run_docker_container(repo_config, port, detached)
-        rich.print(Panel(f"[green]Server started successfully![/green]\nAccess the server at: [bold]http://{_default_host}:{port}[/bold]", box=ROUNDED, title="Codegen Server"))
+        rich.print(Panel(f"[green]Server started successfully![/green]\nAccess the server at: [bold]http://{_default_host}:{port}[/bold]", box=ROUNDED, title="Graph-sitter Server"))
         # TODO: memory snapshot here
     except Exception as e:
         rich.print(f"[bold red]Error:[/bold red] {e!s}")
@@ -54,9 +54,9 @@ def _handle_existing_container(repo_config: RepoConfig, container: DockerContain
     if container.is_running():
         rich.print(
             Panel(
-                f"[green]Codegen server for {repo_config.name} is already running at: [bold]http://{container.host}:{container.port}[/bold][/green]",
+                f"[green]Graph-sitter server for {repo_config.name} is already running at: [bold]http://{container.host}:{container.port}[/bold][/green]",
                 box=ROUNDED,
-                title="Codegen Server",
+                title="Graph-sitter Server",
             )
         )
         return

@@ -5,7 +5,7 @@ iconType: "solid"
 description: "Identifying and visualizing import loops in the PyTorch codebase"
 ---
 
-In this post, we will visualize all import loops in the [PyTorch](https://github.com/pytorch/pytorch) codebase, propose a fix for one potentially unstable case, and use Codegen to refactor that fix.
+In this post, we will visualize all import loops in the [PyTorch](https://github.com/pytorch/pytorch) codebase, propose a fix for one potentially unstable case, and use Graph-sitter to refactor that fix.
 
 <Info>
 You can find the complete jupyter notebook in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/removing_import_loops_in_pytorch).
@@ -23,7 +23,7 @@ from module_a import function_a
 
 While Python can handle some import cycles through its import machinery, they can lead to runtime errors, import deadlocks, or initialization order problems.
 
-Debugging import cycle errors can be a challenge, especially when they occur in large codebases. However, Codegen allows us to identify these loops through our visualization tools and fix them very deterministically and at scale. 
+Debugging import cycle errors can be a challenge, especially when they occur in large codebases. However, Graph-sitter allows us to identify these loops through our visualization tools and fix them very deterministically and at scale. 
 
 <Frame caption="Import loop in pytorch/torchgen/model.py">
     <iframe

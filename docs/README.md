@@ -1,4 +1,4 @@
-# Codegen Docs
+# Graph-sitter Docs
 
 ## Development
 

@@ -1,6 +1,6 @@
 # Transform promise.then statements to async/await
 
-This example demonstrates how to use Codegen to automatically transform `promise.then` statements to `async/await`.
+This example demonstrates how to use Graph-sitter to automatically transform `promise.then` statements to `async/await`.
 
 > Here is an [open pull request](https://github.com/twilio/twilio-node/pull/1072) created in the [_official_ twilio node.js](https://www.twilio.com/docs/messaging/quickstart/node) repository using the promise to async/await transformation using Codegen.
 
@@ -70,8 +70,7 @@ _1. Follow step by step in the [convert_promises_twilio_repository.ipynb](./conv
 _Or run codemod script directly:_
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the promise to async/await migration
 python run.py

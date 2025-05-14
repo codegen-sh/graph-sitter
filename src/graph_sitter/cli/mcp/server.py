@@ -11,7 +11,7 @@ from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 # Initialize FastMCP server
 
-mcp = FastMCP("codegen-mcp", instructions="MCP server for the Codegen SDK. Use the tools and resources to setup codegen in your environment and to create and improve your Codegen Codemods.")
+mcp = FastMCP("codegen-mcp", instructions="MCP server for the Codegen SDK. Use the tools and resources to setup codegen in your environment and to create and improve your Graph-sitter Codemods.")
 
 # ----- RESOURCES -----
 

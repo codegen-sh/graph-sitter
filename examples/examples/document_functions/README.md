@@ -1,6 +1,6 @@
 # Automated Function Documentation Generator
 
-This example demonstrates how to use Codegen to automatically generate comprehensive docstrings for functions by analyzing their dependencies and usage patterns within a codebase.
+This example demonstrates how to use Graph-sitter to automatically generate comprehensive docstrings for functions by analyzing their dependencies and usage patterns within a codebase.
 
 ## Overview
 
@@ -49,8 +49,7 @@ def hop_through_imports(imp: Import) -> Symbol | ExternalModule:
 ## Running the Conversion
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the conversion
 python run.py
@@ -93,7 +92,7 @@ The script provides detailed progress information:
 ## Learn More
 
 - [Creating Documentation](https://graph-sitter.com/tutorials/creating-documentation#creating-documentation)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

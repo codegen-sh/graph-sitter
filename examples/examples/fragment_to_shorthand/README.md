@@ -1,6 +1,6 @@
 # Transform React Fragment to Shorthand Syntax
 
-This example demonstrates how to use Codegen to automatically convert React Fragment components to the shorthand syntax (\<>). The script makes this process simple by handling all the tedious manual updates automatically.
+This example demonstrates how to use Graph-sitter to automatically convert React Fragment components to the shorthand syntax (\<>). The script makes this process simple by handling all the tedious manual updates automatically.
 
 > [!NOTE]
 > This codemod helps modernize React codebases by using the more concise fragment syntax while maintaining functionality.
@@ -65,7 +65,7 @@ The script will:
 
 - [React Fragments](https://react.dev/reference/react/Fragment)
 - [JSX Fragments](https://react.dev/reference/jsx#jsx-fragments)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 - [More on Codegen SDK jsx elements API](https://graph-sitter.com/api-reference/typescript/JSXElement#jsxelement)
 
 ## Contributing

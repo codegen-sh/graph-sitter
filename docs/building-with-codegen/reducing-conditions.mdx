@@ -5,7 +5,7 @@ icon: "code-branch"
 iconType: "solid"
 ---
 
-Codegen provides powerful APIs for reducing conditional logic to constant values. This is particularly useful for removing feature flags, cleaning up dead code paths, and simplifying conditional logic.
+Graph-sitter provides powerful APIs for reducing conditional logic to constant values. This is particularly useful for removing feature flags, cleaning up dead code paths, and simplifying conditional logic.
 
 ## Overview
 
@@ -16,7 +16,7 @@ The `reduce_condition()` method is available on various conditional constructs:
 - [Binary expressions](/api-reference/core/BinaryExpression#reduce-condition)
 - [Function calls](/api-reference/core/FunctionCall#reduce-condition)
 
-When you reduce a condition to `True` or `False`, Codegen automatically:
+When you reduce a condition to `True` or `False`, Graph-sitter automatically:
 
 1. Evaluates which code path(s) to keep
 2. Removes unnecessary branches
@@ -67,7 +67,7 @@ print('MY_FEATURE: ON')
 
 ### Handling Elif Chains
 
-Codegen intelligently handles elif chains when reducing conditions:
+Graph-sitter intelligently handles elif chains when reducing conditions:
 
 ```python
 # Original code
@@ -113,7 +113,7 @@ result = 'valueB'
 
 ### Nested Ternaries
 
-Codegen handles nested ternary expressions correctly:
+Graph-sitter handles nested ternary expressions correctly:
 
 ```python
 # Original code
@@ -238,7 +238,7 @@ This example:
 4. Automatically handles all conditional constructs using the flag
 
 <Note>
-  When reducing a function call, Codegen automatically handles all dependent
+  When reducing a function call, Graph-sitter automatically handles all dependent
   conditions. This includes: - [If/else
   statements](/api-reference/core/IfBlockStatement#reduce-condition) - [Ternary
   expressions](/api-reference/core/TernaryExpression#reduce-condition) - [Binary

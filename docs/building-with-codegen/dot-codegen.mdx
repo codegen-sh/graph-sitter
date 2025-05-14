@@ -5,7 +5,7 @@ icon: "folder"
 iconType: "solid"
 ---
 
-The `.codegen` directory contains your project's Codegen configuration, codemods, and supporting files. It's automatically created when you run `gs init`.
+The `.codegen` directory contains your project's Graph-sitter configuration, codemods, and supporting files. It's automatically created when you run `gs init`.
 
 ## Directory Structure
 
@@ -32,11 +32,11 @@ The `--fetch-docs` flag downloads API documentation and examples specific to you
 
 ## Virtual Environment
 
-Codegen maintains its own virtual environment in `.codegen/.venv/` to ensure consistent package versions and isolation from your project's dependencies. This environment is:
+Graph-sitter maintains its own virtual environment in `.codegen/.venv/` to ensure consistent package versions and isolation from your project's dependencies. This environment is:
 
 - Created using `uv` for fast, reliable package management
 - Initialized with Python 3.13
-- Automatically managed by Codegen commands
+- Automatically managed by Graph-sitter commands
 - Used for running codemods and Jupyter notebooks
 - Gitignored to avoid committing environment-specific files
 
@@ -54,11 +54,11 @@ REPOSITORY_PATH = "/root/git/your-repo"
 REPOSITORY_LANGUAGE = "python"  # or other supported language
 ```
 
-This configuration is used by Codegen to provide language-specific features and proper repository context.
+This configuration is used by Graph-sitter to provide language-specific features and proper repository context.
 
 ## Git Integration
 
-Codegen automatically adds appropriate entries to your `.gitignore`:
+Graph-sitter automatically adds appropriate entries to your `.gitignore`:
 
 ```gitignore
 # Codegen

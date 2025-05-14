@@ -2,7 +2,7 @@
 
 [![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com/tutorials/flask-to-fastapi)
 
-This example demonstrates how to use Codegen to automatically migrate a Flask application to FastAPI. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/flask-to-fastapi).
+This example demonstrates how to use Graph-sitter to automatically migrate a Flask application to FastAPI. For a complete walkthrough, check out our [tutorial](https://graph-sitter.com/tutorials/flask-to-fastapi).
 
 ## What This Example Does
 
@@ -54,8 +54,7 @@ The migration script handles four key transformations:
 ## Running the Example
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the migration
 python run.py
@@ -73,4 +72,4 @@ The script will process all Python files in the `repo-before` directory and appl
 - [Full Tutorial](https://graph-sitter.com/tutorials/flask-to-fastapi)
 - [Flask Documentation](https://flask.palletsprojects.com/)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)

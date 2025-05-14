@@ -182,7 +182,7 @@ This flag **significantly** increases memory usage!
 
 Controls whether to ignore errors that occur during external process execution (such as dependency manager or language engine).
 
-Disabling `ignore_process_errors` would make Codegen fail on errors that would otherwise be logged then ignored.
+Disabling `ignore_process_errors` would make Graph-sitter fail on errors that would otherwise be logged then ignored.
 
 ## Flag: `disable_graph`
 > **Default: `False`**
@@ -203,7 +203,7 @@ Disables **ALL** parsing, including file and graph parsing. This essentially tre
 Nearly all functions except for editing primitives like `codebase.get_file` and `file.edit` will no longer work.
 
 <Note>
-This flag is useful for any usages of Codegen that do **NOT** require any AST/CST/Graph parsing. (i.e. using Codegen purely as a file editing harness)
+This flag is useful for any usages of Graph-sitter that do **NOT** require any AST/CST/Graph parsing. (i.e. using Graph-sitter purely as a file editing harness)
 
 If this is your use case, this **could decrease parse and memory usage by 95%.**
 </Note>

@@ -84,8 +84,8 @@ The script will automatically:
 
 ## Learn More
 
-- [Codegen Symbols](https://graph-sitter.com/api-reference/core/Symbol#symbol)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Symbols](https://graph-sitter.com/api-reference/core/Symbol#symbol)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

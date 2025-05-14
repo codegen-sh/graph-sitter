@@ -5,7 +5,7 @@ icon: "function"
 iconType: "solid"
 ---
 
-Codegen provides comprehensive APIs for working with function calls through several key classes:
+Graph-sitter provides comprehensive APIs for working with function calls through several key classes:
 
 - [FunctionCall](../api-reference/core/FunctionCall) - Represents a function invocation
 - [Argument](../api-reference/core/Argument) - Represents arguments passed to a function
@@ -18,7 +18,7 @@ Codegen provides comprehensive APIs for working with function calls through seve
 
 ## Navigating Function Calls
 
-Codegen provides two main ways to navigate function calls:
+Graph-sitter provides two main ways to navigate function calls:
 
 1. From a function to its call sites using [call_sites](../api-reference/core/Function#call-sites)
 2. From a function to the calls it makes (within it's [CodeBlock](../api-reference/core/CodeBlock)) using [function_calls](../api-reference/core/Function#function-calls)
@@ -207,7 +207,7 @@ print(f"Which is inside: {outer.name}")  # 'outer'
 
 ## Method Chaining
 
-Codegen enables working with chained method calls through [predecessor](../api-reference/core/FunctionCall#predecessor) and related properties:
+Graph-sitter enables working with chained method calls through [predecessor](../api-reference/core/FunctionCall#predecessor) and related properties:
 
 For example, for the following database query:
 

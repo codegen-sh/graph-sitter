@@ -6,22 +6,22 @@ iconType: "solid"
 subtitle: "How Codegen's codebase graph works"
 ---
 
-Codegen performs advanced static analysis to build a rich graph representation of your codebase. This pre-computation step analyzes dependencies, references, types, and control flow to enable fast and reliable code manipulation operations.
+Graph-sitter performs advanced static analysis to build a rich graph representation of your codebase. This pre-computation step analyzes dependencies, references, types, and control flow to enable fast and reliable code manipulation operations.
 
 <Note>
-  Codegen is built on top of
+  Graph-sitter is built on top of
   [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) and
   [rustworkx](https://github.com/Qiskit/rustworkx) and has implemented most
   language server features from scratch.
 </Note>
 <Info>
-  Codegen is open source. Check out the [source
+  Graph-sitter is open source. Check out the [source
   code](https://github.com/codegen-sh/graph-sitter) to learn more!
 </Info>
 
 ## The Codebase Graph
 
-At the heart of Codegen is a comprehensive graph representation of your code. When you initialize a [Codebase](/api-reference/core/Codebase), it performs static analysis to construct a rich graph structure connecting code elements:
+At the heart of Graph-sitter is a comprehensive graph representation of your code. When you initialize a [Codebase](/api-reference/core/Codebase), it performs static analysis to construct a rich graph structure connecting code elements:
 
 ```python
 # Initialize and analyze the codebase
@@ -44,7 +44,7 @@ Codegen's graph construction happens in two stages:
 
 ### Performance Through Pre-computation
 
-Pre-computing a rich index enables Codegen to make certain operations very fast that that are relevant to refactors and code analysis:
+Pre-computing a rich index enables Graph-sitter to make certain operations very fast that that are relevant to refactors and code analysis:
 
 - Finding all usages of a symbol
 - Detecting circular dependencies
@@ -62,14 +62,14 @@ Pre-computing a rich index enables Codegen to make certain operations very fast 
 
 One of Codegen's core principles is that many programming tasks are fundamentally similar across languages.
 
-Currently, Codegen supports:
+Currently, Graph-sitter supports:
 
 - [Python](/api-reference/python)
 - [TypeScript](/api-reference/typescript)
 - [React & JSX](/building-with-codegen/react-and-jsx)
 
 <Note>
-  Learn about how Codegen handles language specifics in the [Language
+  Learn about how Graph-sitter handles language specifics in the [Language
   Support](/building-with-codegen/language-support) guide.
 </Note>
 
@@ -77,7 +77,7 @@ We've started with these ecosystems but designed our architecture to be extensib
 
 ## Build with Us
 
-Codegen is just getting started, and we're excited about the possibilities ahead. We enthusiastically welcome contributions from the community, whether it's:
+Graph-sitter is just getting started, and we're excited about the possibilities ahead. We enthusiastically welcome contributions from the community, whether it's:
 
 - Adding support for new languages
 - Implementing new analysis capabilities

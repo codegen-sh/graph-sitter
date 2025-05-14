@@ -168,7 +168,7 @@ After running a script, you'll get a graph object containing node and edge relat
 ## Learn More
 
 - [Codebase Visualization Documentation](https://graph-sitter.com/tutorials/codebase-visualization)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

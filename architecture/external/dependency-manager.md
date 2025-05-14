@@ -4,7 +4,7 @@
 
 ## Motivation
 
-A future goal of Codegen is to support resolving symbols directly from dependencies, instead of falling back to `ExternalModule`s. (In fact, some experimental Codegen features such as [Type Engine](./type-engine.md) already parse and use 3rd party dependencies from `node_modules`)
+A future goal of Graph-sitter is to support resolving symbols directly from dependencies, instead of falling back to `ExternalModule`s. (In fact, some experimental Graph-sitter features such as [Type Engine](./type-engine.md) already parse and use 3rd party dependencies from `node_modules`)
 
 This requires us to pull and install dependencies from a repository's `package.json`. However, simply installing dependencies from `package.json` is not enough, as many projects require internal dependencies that use custom NPM registries. Others require custom post-install scripts that may not run on our codemod environments.
 
@@ -31,7 +31,7 @@ repo/
 
 Dependency Manager first deletes any existing `node_modules` folder in the user's repository. After this step, Dependency Manager initializes itself to use the correct version of NPM, Yarn, or PNPM for the user's repository.
 
-Dependency Manager then creates a "shadow copy" of the repository's original `package.json` file. This shadow copy is used to later revert any changes made by Codegen before running codemods. With these steps, the codebase structure now looks like this:
+Dependency Manager then creates a "shadow copy" of the repository's original `package.json` file. This shadow copy is used to later revert any changes made by Graph-sitter before running codemods. With these steps, the codebase structure now looks like this:
 
 ```
 repo/

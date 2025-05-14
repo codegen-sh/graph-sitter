@@ -1,10 +1,10 @@
-# Contributing to Codegen Examples
+# Contributing to Graph-sitter Examples
 
 Thank you for your interest in contributing to `examples`! This document outlines the process and guidelines for contributing.
 
 ## Contributor License Agreement
 
-By contributing to Codegen Examples, you agree that:
+By contributing to Graph-sitter Examples, you agree that:
 
 1. Your contributions will be licensed under the project's license.
 1. You have the right to license your contribution under the project's license.

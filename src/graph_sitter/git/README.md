@@ -1,4 +1,4 @@
-# Codegen Git
+# Graph-sitter Git
 
 A codegen module to supports git operations on codebase.
 

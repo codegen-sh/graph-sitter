@@ -1,6 +1,6 @@
 # FreezeGun to TimeMachine Migration Example
 
-This example demonstrates how to use Codegen to automatically migrate test code from FreezeGun to TimeMachine for time mocking. The migration script makes this process simple by handling all the tedious manual updates automatically.
+This example demonstrates how to use Graph-sitter to automatically migrate test code from FreezeGun to TimeMachine for time mocking. The migration script makes this process simple by handling all the tedious manual updates automatically.
 
 ## How the Migration Script Works
 
@@ -62,12 +62,12 @@ The script (`run.py`) automates the entire migration process in a few key steps:
 
 1. **Consistent Changes**
 
-   - Codegen ensures all transformations follow the same patterns
+   - Graph-sitter ensures all transformations follow the same patterns
    - Maintains code style consistency
 
 1. **Safe Transformations**
 
-   - Codegen validates changes before applying them
+   - Graph-sitter validates changes before applying them
    - Easy to review and revert if needed
 
 ## Common Migration Patterns
@@ -135,8 +135,7 @@ traveller.stop()
 ## Running the Migration
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 # Run the migration
 python run.py
 ```
@@ -145,7 +144,7 @@ python run.py
 
 - [TimeMachine Documentation](https://github.com/adamchainz/time-machine)
 - [FreezeGun Documentation](https://github.com/spulec/freezegun)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

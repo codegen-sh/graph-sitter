@@ -2,7 +2,7 @@
 
 [![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com/tutorials/generate-training-data)
 
-This example demonstrates how to use Codegen to generate training data for large-scale LLM pre-training by extracting function implementations along with their dependencies and usages. The approach is inspired by node2vec, leveraging code graphs for learning.
+This example demonstrates how to use Graph-sitter to generate training data for large-scale LLM pre-training by extracting function implementations along with their dependencies and usages. The approach is inspired by node2vec, leveraging code graphs for learning.
 
 ## What This Example Does
 
@@ -34,8 +34,7 @@ The script analyzes your codebase and generates training data by:
 ## Running the Example
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the data generation
 python run.py
@@ -89,4 +88,4 @@ The generated `training_data.json` follows this structure:
 
 - [Full Tutorial](https://graph-sitter.com/tutorials/generate-training-data)
 - [Code Model Pre-training](https://graph-sitter.com/concepts/code-model-training)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)

@@ -9,7 +9,7 @@ This guide covers the core APIs and patterns for working with type annotations i
 
 ## Type Resolution
 
-Codegen builds a complete dependency graph of your codebase, connecting functions, classes, imports, and their relationships. This enables powerful type resolution capabilities:
+Graph-sitter builds a complete dependency graph of your codebase, connecting functions, classes, imports, and their relationships. This enables powerful type resolution capabilities:
 
 ```python
 from graph_sitter import Codebase
@@ -40,7 +40,7 @@ resolved_type = assignment.type.resolved_types
 
 ## Core Interfaces
 
-Type annotations in Codegen are built on two key interfaces:
+Type annotations in Graph-sitter are built on two key interfaces:
 
 - [Typeable](/api-reference/core/Typeable) - The base interface for any node that can have a type annotation (parameters, variables, functions, etc). Provides `.type` and `.is_typed`.
 - [Type](/api-reference/core/Type) - The base class for all type annotations. Provides type resolution and dependency tracking.

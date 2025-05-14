@@ -1,4 +1,4 @@
-# Codegen MCP Servers
+# Graph-sitter MCP Servers
 
 This directory contains reference implementations of MCP (Machine Control Protocol) servers that extend AI Agent capabilities using the Codegen SDK. These servers enable AI Agents to:
 

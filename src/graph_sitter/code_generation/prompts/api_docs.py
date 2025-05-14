@@ -196,7 +196,7 @@ As you can see, a typical codemod will:
 - Identify the symbols, files, etc. in a codebase that need to be modified (typically a set of for loops and nested conditionals)
 - Make the necessary changes to the codebase by interacting with GraphSitter classes and methods (typically calling `.edit(...)` or other methods, that will call this under the hood.)
 
-Given a Codemod like so, the Codegen infrastructure will:
+Given a Codemod like so, the Graph-sitter infrastructure will:
 - Run the codemod efficiently
 - Visualise the diff, log or other artifacts created for the developer
 - Split up the changes into logical PRs, e.g. by CODEOWNER or by file (according to the developer's request)
@@ -231,5 +231,5 @@ Given a Codemod like so, the Codegen infrastructure will:
 - You *DO NOT* need to import `codegen.sdk`, (this module does not exist) `codebase` or any types.
     - All types in the library are available in the global namespace and are automatically imported, as is the `codebase` object.
 - You *DO NOT* need to do anything to parse the codebase.
-    - This is done automatically by the Codegen infrastructure and pre-cached for fast execution. Just interact with the `codebase` object.
+    - This is done automatically by the Graph-sitter infrastructure and pre-cached for fast execution. Just interact with the `codebase` object.
 """  # noqa: E501

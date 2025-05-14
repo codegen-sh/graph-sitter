@@ -1,13 +1,13 @@
 ---
-title: "Using Codegen in Your IDE"
+title: "Using Graph-sitter in Your IDE"
 sidebarTitle: "IDE Usage"
 icon: "window"
 iconType: "solid"
 ---
 
-Get up and running with Codegen programs in IDEs like VSCode, Cursor and PyCharm.
+Get up and running with Graph-sitter programs in IDEs like VSCode, Cursor and PyCharm.
 
-<Tip>Make sure to [install and initialize](/introduction/installation) Codegen with `gs init`</Tip>
+<Tip>Make sure to [install and initialize](/introduction/installation) Graph-sitter with `gs init`</Tip>
 
 ## Configuring your IDE Interpreter
 
@@ -53,7 +53,7 @@ gs creates a custom Python environment in `.codegen/.venv`. Configure your IDE t
 
 ## MCP Server Setup
 This is an optional step but highly recommended if your IDE supports MCP support and you use AI Agents.
-The MCP server is a local server that allows your AI Agent to interact with the Codegen specific tools,
+The MCP server is a local server that allows your AI Agent to interact with the Graph-sitter specific tools,
 it will allow an agent to:
 - ask an expert to create a codemod
 - improve a codemod
@@ -89,9 +89,9 @@ Command: uv --directory <path to codegen installation>/codegen-sdk/src/graph_sit
 ```
 
 
-## Index Codegen Docs
+## Index Graph-sitter Docs
 #### Cursor:
-If you use Cursor you'll be able to configure the IDE to index the Codegen docs. To do so go to `Settings` > `Features` > `Docs`
+If you use Cursor you'll be able to configure the IDE to index the Graph-sitter docs. To do so go to `Settings` > `Features` > `Docs`
 and then click on `Add new docs`. We recommend using this url to index the API reference:
 ```
 https://graph-sitter.com/api-reference/index
@@ -129,10 +129,10 @@ If you reference this file in "chat" sessions with Copilot, Cursor, Cody, etc., 
 
 <Frame>
     <img src="/images/system-prompt.png" />
-    Collaborating with Cursor's assistant and the Codegen system prompt
+    Collaborating with Cursor's assistant and the Graph-sitter system prompt
 </Frame>
 
-In addition, when you [create](/cli/create) a codemod with "-d", Codegen generates an optimized system prompt in `.codegen/codemods/{name}/{name}-system-prompt.txt`. This prompt contains:
+In addition, when you [create](/cli/create) a codemod with "-d", Graph-sitter generates an optimized system prompt in `.codegen/codemods/{name}/{name}-system-prompt.txt`. This prompt contains:
 - Relevant Codegen API documentation
 - Examples of relevant transformations
 - Context about your specific task
@@ -169,7 +169,7 @@ We recommend viewing changes in your IDE's native diff editor.
     See real-world examples of codemods in action.
   </Card>
   <Card
-    title="Codegen Guides"
+    title="Graph-sitter Guides"
     icon="book"
     href="/building-with-codegen/at-a-glance"
   >

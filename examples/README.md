@@ -1,4 +1,4 @@
-# Codegen Examples
+# Graph-sitter Examples
 
 [![Documentation](https://img.shields.io/badge/docs-graph-sitter.com-blue)](https://graph-sitter.com)
 
@@ -8,7 +8,7 @@ This is a collection of examples using [Codegen](https://codegen.com). You can u
 
 We recommend using [`uv`](https://github.com/astral-sh/uv) with Python 3.13 for the best experience.
 
-To install Codegen, please follow the [official installation guide](https://graph-sitter.com/introduction/installation). Once Codegen is installed, use these steps to run the examples in this repository:
+To install Codegen, please follow the [official installation guide](https://graph-sitter.com/introduction/installation). Once Graph-sitter is installed, use these steps to run the examples in this repository:
 
 Install the graph_sitter.cli globally
 
@@ -16,7 +16,7 @@ Install the graph_sitter.cli globally
 uv tool install codegen
 ```
 
-Initialize Codegen in your project
+Initialize Graph-sitter in your project
 
 ```bash
 gs init
@@ -39,7 +39,7 @@ To configure your IDE for optimal use with Codegen, follow our [IDE setup guide]
 Within the examples folder, each subdirectory contains a self-contained example with:
 
 - An explanation of the transformation (`README.md`)
-- A Codegen script that performs the transformation (`run.py`)
+- A Graph-sitter script that performs the transformation (`run.py`)
 - Sample code to transform, if not using a repository (`input_repo/`)
 
 To see a transformation, simply run the `run.py` script within the desired directory.

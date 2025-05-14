@@ -5,7 +5,7 @@ icon: "arrows-rotate"
 iconType: "solid"
 ---
 
-Codegen enables you to create reusable code transformations using Python functions decorated with `@codegen.function`. These codemods can be shared, versioned, and run by your team.
+Graph-sitter enables you to create reusable code transformations using Python functions decorated with `@codegen.function`. These codemods can be shared, versioned, and run by your team.
 
 ## Creating Codemods
 
@@ -54,7 +54,7 @@ gs run rename-function
 ```
 
 The execution flow:
-1. Codegen parses your codebase into a graph representation
+1. Graph-sitter parses your codebase into a graph representation
 2. Your codemod function is executed against this graph
 3. Changes are tracked and applied to your filesystem
 4. A diff preview shows what changed

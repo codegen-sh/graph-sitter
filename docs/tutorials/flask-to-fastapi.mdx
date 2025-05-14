@@ -5,7 +5,7 @@ icon: "bolt"
 iconType: "solid"
 ---
 
-Migrating from [Flask](https://flask.palletsprojects.com/) to [FastAPI](https://fastapi.tiangolo.com/) involves several key changes to your codebase. This guide will walk you through using Codegen to automate this migration, handling imports, route decorators, static files, and template rendering.
+Migrating from [Flask](https://flask.palletsprojects.com/) to [FastAPI](https://fastapi.tiangolo.com/) involves several key changes to your codebase. This guide will walk you through using Graph-sitter to automate this migration, handling imports, route decorators, static files, and template rendering.
 
 You can find the complete example code in our [examples repository](https://github.com/codegen-sh/graph-sitter/tree/develop/examples/examples/flask_to_fastapi_migration)
 
@@ -68,7 +68,7 @@ app = FastAPI()
 
 <Note>
   FastAPI doesn't require the `__name__` argument that Flask uses for template
-  resolution. Codegen automatically removes it during migration.
+  resolution. Graph-sitter automatically removes it during migration.
 </Note>
 
 ## II: Convert Route Decorators
@@ -174,8 +174,7 @@ def list_users(request: Request):
 ```
 
 <Note>
-  FastAPI requires the `request` object to be passed to templates. Codegen
-  automatically adds this parameter during migration.
+  FastAPI requires the `request` object to be passed to templates. Graph-sitter automatically adds this parameter during migration.
 </Note>
 
 ## Running the Migration

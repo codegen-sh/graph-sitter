@@ -1,4 +1,4 @@
-# Codegen MCP Server
+# Graph-sitter MCP Server
 
 <p align="center">
   <a href="https://graph-sitter.com">

@@ -14,7 +14,7 @@ def requires_init(f: Callable) -> Callable:
         # Create a session if one wasn't provided
         session = kwargs.get("session") or CodegenSession.from_active_session()
         if session is None:
-            pretty_print_error("Codegen not initialized. Please run `gs init` from a git repo workspace.")
+            pretty_print_error("Graph-sitter not initialized. Please run `gs init` from a git repo workspace.")
             sys.exit(1)
 
         kwargs["session"] = session

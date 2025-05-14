@@ -59,7 +59,7 @@ The API is built using:
 
 - Modal for serverless deployment
 - FastAPI for the web endpoint
-- Codegen for repository analysis
+- Graph-sitter for repository analysis
 
 To deploy changes:
 

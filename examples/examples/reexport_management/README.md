@@ -1,6 +1,6 @@
 # Transform Module Re-exports Organization
 
-This example demonstrates how to use Codegen to automatically analyze and reorganize TypeScript module re-exports through shared directories. The script makes this process simple by handling all the tedious manual updates automatically.
+This example demonstrates how to use Graph-sitter to automatically analyze and reorganize TypeScript module re-exports through shared directories. The script makes this process simple by handling all the tedious manual updates automatically.
 
 > [!NOTE]
 > This codemod helps maintain clean module boundaries and improves code organization by centralizing shared exports.
@@ -115,7 +115,7 @@ The script will:
 
 - [TypeScript Modules](https://www.typescriptlang.org/docs/handbook/modules.html)
 - [Export/Import Documentation](https://www.typescriptlang.org/docs/handbook/modules.html#export)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 - [Tutorial on Analyzing and Organizing Re-exports](https://graph-sitter.com/tutorials/managing-typescript-exports)
 - [More on exports ](https://graph-sitter.com/building-with-codegen/exports)
 

@@ -108,8 +108,7 @@ The analyzer tracks several key metrics:
 ## Running the Analysis
 
 ```bash
-# Install Codegen
-pip install codegen
+# Install Graph-sitter pip install codegen
 
 # Run the analysis
 python run.py
@@ -141,7 +140,7 @@ python run.py
 ## Learn More
 
 - [About Cyclomatic Complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity)
-- [Codegen Documentation](https://graph-sitter.com)
+- [Graph-sitter Documentation](https://graph-sitter.com)
 
 ## Contributing
 

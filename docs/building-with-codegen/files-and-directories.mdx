@@ -5,7 +5,7 @@ icon: "folder-tree"
 iconType: "solid"
 ---
 
-Codegen provides three primary abstractions for working with your codebase's file structure:
+Graph-sitter provides three primary abstractions for working with your codebase's file structure:
 
 - [File](/api-reference/core/File) - Represents a file in the codebase (e.g. README.md, package.json, etc.)
 - [SourceFile](/api-reference/core/SourceFile) - Represents a source code file (e.g. Python, TypeScript, React, etc.)
@@ -145,7 +145,7 @@ if main_function:
 
 ## Working with Non-Code Files (README, JSON, etc.)
 
-By default, Codegen focuses on source code files (Python, TypeScript, etc). However, you can access all files in your codebase, including documentation, configuration, and other non-code [files](/api-reference/core/File) like README.md, package.json, or .env:
+By default, Graph-sitter focuses on source code files (Python, TypeScript, etc). However, you can access all files in your codebase, including documentation, configuration, and other non-code [files](/api-reference/core/File) like README.md, package.json, or .env:
 
 ```python
 # Get all files in the codebase (including README, docs, config files)

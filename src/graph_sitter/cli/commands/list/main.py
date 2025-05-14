@@ -13,7 +13,7 @@ def list_command():
     """List available codegen functions."""
     functions = CodemodManager.get_decorated()
     if functions:
-        table = Table(title="Codegen Functions", border_style="blue")
+        table = Table(title="Graph-sitter Functions", border_style="blue")
         table.add_column("Name", style="cyan")
         table.add_column("Type", style="magenta")
         table.add_column("Path", style="dim")

@@ -22,7 +22,7 @@ def run(codebase: Codebase):
         for imp in file.imports:
             if imp.symbol_name and "freezegun" in imp.source:
                 if imp.name == "freeze_time":
-                    # required due to Codegen limitations
+                    # required due to Graph-sitter limitations
                     imp.edit("from time_machine import travel")
                 else:
                     imp.set_import_module("time_machine")
