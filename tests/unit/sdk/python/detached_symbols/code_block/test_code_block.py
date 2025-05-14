@@ -369,7 +369,8 @@ def my_db_query(
 ) -> None:
     from_record = (
         parent.proxy
-    )  # added by Graph-sitter from_logs: list[Log] = (
+    )  # added by Graph-sitter
+    from_logs: list[Log] = (
         db.session.execute(
             select(Log).where(
                 Log.proxy_id == from_record.id

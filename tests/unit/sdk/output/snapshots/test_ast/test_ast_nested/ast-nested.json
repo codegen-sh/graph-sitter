@@ -1,5 +1,5 @@
 {
-    "codegen_sdk_type": "PyClass",
+    "graph_sitter_type": "PyClass",
     "span": {
         "range": {
             "start_byte": 1,
@@ -20,7 +20,7 @@
         [
             "get_name()",
             {
-                "codegen_sdk_type": "Name",
+                "graph_sitter_type": "Name",
                 "span": {
                     "range": {
                         "start_byte": 7,
@@ -43,7 +43,7 @@
         [
             "methods",
             {
-                "codegen_sdk_type": "PyCodeBlock",
+                "graph_sitter_type": "PyCodeBlock",
                 "span": {
                     "range": {
                         "start_byte": 16,
@@ -64,7 +64,7 @@
                     [
                         "statements",
                         {
-                            "codegen_sdk_type": "MultiLineCollection",
+                            "graph_sitter_type": "MultiLineCollection",
                             "span": {
                                 "range": {
                                     "start_byte": 16,
@@ -85,7 +85,7 @@
                                 [
                                     null,
                                     {
-                                        "codegen_sdk_type": "SymbolStatement",
+                                        "graph_sitter_type": "SymbolStatement",
                                         "span": {
                                             "range": {
                                                 "start_byte": 16,
@@ -106,7 +106,7 @@
                                             [
                                                 null,
                                                 {
-                                                    "codegen_sdk_type": "Name",
+                                                    "graph_sitter_type": "Name",
                                                     "span": {
                                                         "range": {
                                                             "start_byte": 22,
@@ -129,7 +129,7 @@
                                             [
                                                 null,
                                                 {
-                                                    "codegen_sdk_type": "PyCodeBlock",
+                                                    "graph_sitter_type": "PyCodeBlock",
                                                     "span": {
                                                         "range": {
                                                             "start_byte": 35,
@@ -150,7 +150,7 @@
                                                         [
                                                             "statements",
                                                             {
-                                                                "codegen_sdk_type": "MultiLineCollection",
+                                                                "graph_sitter_type": "MultiLineCollection",
                                                                 "span": {
                                                                     "range": {
                                                                         "start_byte": 35,
@@ -171,7 +171,7 @@
                                                                     [
                                                                         null,
                                                                         {
-                                                                            "codegen_sdk_type": "SymbolStatement",
+                                                                            "graph_sitter_type": "SymbolStatement",
                                                                             "span": {
                                                                                 "range": {
                                                                                     "start_byte": 35,
@@ -192,7 +192,7 @@
                                                                                 [
                                                                                     null,
                                                                                     {
-                                                                                        "codegen_sdk_type": "Name",
+                                                                                        "graph_sitter_type": "Name",
                                                                                         "span": {
                                                                                             "range": {
                                                                                                 "start_byte": 39,
@@ -215,7 +215,7 @@
                                                                                 [
                                                                                     null,
                                                                                     {
-                                                                                        "codegen_sdk_type": "Collection",
+                                                                                        "graph_sitter_type": "Collection",
                                                                                         "span": {
                                                                                             "range": {
                                                                                                 "start_byte": 42,
@@ -236,7 +236,7 @@
                                                                                             [
                                                                                                 null,
                                                                                                 {
-                                                                                                    "codegen_sdk_type": "PyParameter",
+                                                                                                    "graph_sitter_type": "PyParameter",
                                                                                                     "span": {
                                                                                                         "range": {
                                                                                                             "start_byte": 43,
@@ -262,7 +262,7 @@
                                                                                 [
                                                                                     null,
                                                                                     {
-                                                                                        "codegen_sdk_type": "PyCodeBlock",
+                                                                                        "graph_sitter_type": "PyCodeBlock",
                                                                                         "span": {
                                                                                             "range": {
                                                                                                 "start_byte": 62,
@@ -283,7 +283,7 @@
                                                                                             [
                                                                                                 "statements",
                                                                                                 {
-                                                                                                    "codegen_sdk_type": "MultiLineCollection",
+                                                                                                    "graph_sitter_type": "MultiLineCollection",
                                                                                                     "span": {
                                                                                                         "range": {
                                                                                                             "start_byte": 62,
@@ -304,7 +304,7 @@
                                                                                                         [
                                                                                                             null,
                                                                                                             {
-                                                                                                                "codegen_sdk_type": "PyPassStatement",
+                                                                                                                "graph_sitter_type": "PyPassStatement",
                                                                                                                 "span": {
                                                                                                                     "range": {
                                                                                                                         "start_byte": 62,
@@ -351,7 +351,7 @@
         [
             null,
             {
-                "codegen_sdk_type": "Name",
+                "graph_sitter_type": "Name",
                 "span": {
                     "range": {
                         "start_byte": 22,
@@ -374,7 +374,7 @@
         [
             null,
             {
-                "codegen_sdk_type": "Name",
+                "graph_sitter_type": "Name",
                 "span": {
                     "range": {
                         "start_byte": 39,
@@ -397,7 +397,7 @@
         [
             null,
             {
-                "codegen_sdk_type": "Name",
+                "graph_sitter_type": "Name",
                 "span": {
                     "range": {
                         "start_byte": 43,
