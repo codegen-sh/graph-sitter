@@ -3,23 +3,6 @@ from rich import box
 from rich.markdown import Markdown
 from rich.panel import Panel
 
-from graph_sitter.cli.api.schemas import RunCodemodOutput
-
-
-def pretty_print_output(output: RunCodemodOutput):
-    """Pretty print the codemod run output with panels."""
-    if output.web_link:
-        rich.print("\n• [blue underline]" + output.web_link + "[/blue underline]\n")
-
-    if output.logs:
-        pretty_print_logs(output.logs)
-
-    if output.error:
-        pretty_print_error(output.error)
-
-    if output.observation:
-        pretty_print_diff(output.observation)
-
 
 def pretty_print_logs(logs: str):
     """Pretty print logs in a panel."""

@@ -13,23 +13,17 @@ from graph_sitter.cli.workspace.venv_manager import VenvManager
 @click.command(name="run")
 @requires_init
 @click.argument("label", required=True)
-@click.option("--web", is_flag=True, help="Run the function on the web service instead of locally")
 @click.option("--daemon", "-d", is_flag=True, help="Run the function against a running daemon")
 @click.option("--diff-preview", type=int, help="Show a preview of the first N lines of the diff")
 @click.option("--arguments", type=str, help="Arguments as a json string to pass as the function's 'arguments' parameter")
 def run_command(
     session: CodegenSession,
     label: str,
-    web: bool = False,
     daemon: bool = False,
     diff_preview: int | None = None,
     arguments: str | None = None,
 ):
     """Run a codegen function by its label."""
-    if web and daemon:
-        msg = "Cannot enable run on both the web and daemon"
-        raise ValueError(msg)
-
     # Ensure venv is initialized
     venv = VenvManager(session.codegen_dir)
     if not venv.is_initialized():
@@ -56,11 +50,7 @@ def run_command(
             raise click.ClickException(msg)
 
     # Run the codemod
-    if web:
-        from graph_sitter.cli.commands.run.run_cloud import run_cloud
-
-        run_cloud(session, codemod, diff_preview=diff_preview)
-    elif daemon:
+    if daemon:
         from graph_sitter.cli.commands.run.run_daemon import run_daemon
 
         run_daemon(session, codemod, diff_preview=diff_preview)

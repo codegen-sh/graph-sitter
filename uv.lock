@@ -1150,7 +1150,6 @@ dependencies = [
     { name = "giturlparse" },
     { name = "hatch-vcs" },
     { name = "hatchling" },
-    { name = "httpx" },
     { name = "humanize" },
     { name = "lazy-object-proxy" },
     { name = "lox" },
@@ -1182,7 +1181,6 @@ dependencies = [
     { name = "rich-click" },
     { name = "rustworkx" },
     { name = "sentry-sdk" },
-    { name = "slack-sdk" },
     { name = "starlette" },
     { name = "tabulate" },
     { name = "termcolor" },
@@ -1276,7 +1274,6 @@ requires-dist = [
     { name = "giturlparse" },
     { name = "hatch-vcs", specifier = ">=0.4.0" },
     { name = "hatchling", specifier = ">=1.25.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
     { name = "humanize", specifier = ">=4.10.0,<5.0.0" },
     { name = "lazy-object-proxy", specifier = ">=0.0.0" },
     { name = "lox", specifier = ">=0.12.0" },
@@ -1310,7 +1307,6 @@ requires-dist = [
     { name = "rich-click", specifier = ">=1.8.5" },
     { name = "rustworkx", specifier = ">=0.15.1" },
     { name = "sentry-sdk", specifier = "==2.28.0" },
-    { name = "slack-sdk" },
     { name = "starlette", specifier = ">=0.16.0,<1.0.0" },
     { name = "tabulate", specifier = ">=0.9.0,<1.0.0" },
     { name = "termcolor", specifier = ">=2.4.0" },
@@ -3920,15 +3916,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050 },
-]
-
-[[package]]
-name = "slack-sdk"
-version = "3.35.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/32/a5/13077a5696ded22cc955ff6314028b7e6140b1c989b19ca27a6b26590e6e/slack_sdk-3.35.0.tar.gz", hash = "sha256:8183b6cbf26a0c1e2441478cd9c0dc4eef08d60c1394cfdc9a769e309a9b6459", size = 232887 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/8e/eed71dc79a187ba32681f12a104786ab89355bc474082211d92e1fba6bcf/slack_sdk-3.35.0-py2.py3-none-any.whl", hash = "sha256:00933d171fbd8a068b321ebb5f89612cc781d3183d8e3447c85499eca9d865be", size = 293272 },
 ]
 
 [[package]]

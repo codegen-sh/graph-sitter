@@ -1,24 +1,16 @@
-import shutil
 from contextlib import nullcontext
 from pathlib import Path
 
-import requests
-import rich
 from rich.status import Status
 
-from graph_sitter.cli.api.client import RestAPI
-from graph_sitter.cli.api.endpoints import CODEGEN_SYSTEM_PROMPT_URL
 from graph_sitter.cli.auth.constants import CODEGEN_DIR, DOCS_DIR, EXAMPLES_DIR, PROMPTS_DIR
 from graph_sitter.cli.auth.session import CodegenSession
-from graph_sitter.cli.auth.token_manager import get_current_token
 from graph_sitter.cli.rich.spinners import create_spinner
 from graph_sitter.cli.utils.notebooks import create_notebook
-from graph_sitter.cli.workspace.docs_workspace import populate_api_docs
-from graph_sitter.cli.workspace.examples_workspace import populate_examples
 from graph_sitter.cli.workspace.venv_manager import VenvManager
 
 
-def initialize_codegen(session: CodegenSession, status: Status | str = "Initializing", fetch_docs: bool = False) -> CodegenSession:
+def initialize_codegen(session: CodegenSession, status: Status | str = "Initializing") -> CodegenSession:
     """Initialize or update the codegen directory structure and content.
 
     Args:
@@ -35,7 +27,6 @@ def initialize_codegen(session: CodegenSession, status: Status | str = "Initiali
     EXAMPLES_FOLDER = session.repo_path / EXAMPLES_DIR
     JUPYTER_DIR = CODEGEN_FOLDER / "jupyter"
     CODEMODS_DIR = CODEGEN_FOLDER / "codemods"
-    SYSTEM_PROMPT_PATH = CODEGEN_FOLDER / "codegen-system-prompt.txt"
 
     # If status is a string, create a new spinner
     context = create_spinner(f"   {status} folders...") if isinstance(status, str) else nullcontext()
@@ -56,32 +47,11 @@ def initialize_codegen(session: CodegenSession, status: Status | str = "Initiali
             venv.create_venv()
             venv.install_packages("codegen")
 
-        # Download system prompt
-        try:
-            response = requests.get(CODEGEN_SYSTEM_PROMPT_URL)
-            response.raise_for_status()
-            SYSTEM_PROMPT_PATH.write_text(response.text)
-        except Exception as e:
-            rich.print(f"[yellow]Warning: Could not download system prompt: {e}[/yellow]")
-
         status_obj.update(f"   {'Updating' if isinstance(status, Status) else status} .gitignore...")
         modify_gitignore(CODEGEN_FOLDER)
 
         # Create notebook template
         create_notebook(JUPYTER_DIR)
-
-        # Only fetch docs and examples if requested and session is provided
-        if fetch_docs and session:
-            status_obj.update("Fetching latest docs & examples...")
-            shutil.rmtree(DOCS_FOLDER, ignore_errors=True)
-            shutil.rmtree(EXAMPLES_FOLDER, ignore_errors=True)
-
-            DOCS_FOLDER.mkdir(parents=True, exist_ok=True)
-            EXAMPLES_FOLDER.mkdir(parents=True, exist_ok=True)
-
-            response = RestAPI(get_current_token()).get_docs()
-            populate_api_docs(DOCS_FOLDER, response.docs, status_obj)
-            populate_examples(session, EXAMPLES_FOLDER, response.examples, status_obj)
 
     return CODEGEN_FOLDER, DOCS_FOLDER, EXAMPLES_FOLDER
 
