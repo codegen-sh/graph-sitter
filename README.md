@@ -22,7 +22,7 @@
 
 <br />
 
-[Codegen](https://graph-sitter.com) is a python library for manipulating codebases.
+[Graph-sitter](https://graph-sitter.com) is a python library for manipulating codebases.
 
 ```python
 from codegen import Codebase
@@ -96,7 +96,7 @@ If you run into additional issues not listed here, please [join our slack commun
 - [Contributing](CONTRIBUTING.md)
 - [Contact Us](https://codegen.com/contact)
 
-## Why Codegen?
+## Why Graph-sitter?
 
 Software development is fundamentally programmatic. Refactoring a codebase, enforcing patterns, or analyzing control flow - these are all operations that can (and should) be expressed as programs themselves.
 
