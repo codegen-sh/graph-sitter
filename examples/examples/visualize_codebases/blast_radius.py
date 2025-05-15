@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 import networkx as nx
 from graph_sitter import Codebase
 from graph_sitter.core.dataclasses.usage import Usage
@@ -83,7 +83,7 @@ def create_blast_radius_visualization(symbol: PySymbol, depth: int = 0):
         create_blast_radius_visualization(usage_symbol, depth + 1)
 
 
-@codegen.function("visualize-function-blast-radius")
+@graph_sitter.function("visualize-function-blast-radius")
 def run(codebase: Codebase):
     """
     Generate a visualization showing the blast radius of changes to a function.

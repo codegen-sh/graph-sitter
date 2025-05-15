@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 import networkx as nx
 from graph_sitter import Codebase
 from graph_sitter.core.class_definition import Class
@@ -52,7 +52,7 @@ def create_dependencies_visualization(symbol: Symbol, depth: int = 0):
                 create_dependencies_visualization(dep_symbol, depth + 1)
 
 
-@codegen.function("visualize-symbol-dependencies")
+@graph_sitter.function("visualize-symbol-dependencies")
 def run(codebase: Codebase):
     """Generate a visualization of symbol dependencies in a codebase.
 

@@ -1358,7 +1358,7 @@ codebase = Codebase("./", programming_language=ProgrammingLanguage.TYPESCRIPT)
 To fetch and parse a repository directly from GitHub, use the `from_repo` function.
 
 ```python
-import codegen
+import graph_sitter
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 # Fetch and parse a repository (defaults to /tmp/codegen/{repo_name})
@@ -1454,7 +1454,7 @@ icon: "arrows-rotate"
 iconType: "solid"
 ---
 
-Graph-sitter enables you to create reusable code transformations using Python functions decorated with `@codegen.function`. These codemods can be shared, versioned, and run by your team.
+Graph-sitter enables you to create reusable code transformations using Python functions decorated with `@graph_sitter.function`. These codemods can be shared, versioned, and run by your team.
 
 ## Creating Codemods
 
@@ -1467,10 +1467,10 @@ gs create rename-function
 This creates a new codemod in your `.codegen/codemods` directory:
 
 ```python
-import codegen
+import graph_sitter
 from graph_sitter.core.codebase import Codebase
 
-@codegen.function("rename-function")
+@graph_sitter.function("rename-function")
 def run(codebase: Codebase):
     """Add a description of what this codemod does."""
     # Add your code here
@@ -1513,15 +1513,15 @@ The execution flow:
 
 A codemod consists of three main parts:
 
-1. The `@codegen.function` decorator that names your codemod
+1. The `@graph_sitter.function` decorator that names your codemod
 2. A `run` function that takes a `Codebase` parameter
 3. Your transformation logic using the Codebase API
 
 ```python
-import codegen
+import graph_sitter
 from graph_sitter.core.codebase import Codebase
 
-@codegen.function("update-imports")
+@graph_sitter.function("update-imports")
 def run(codebase: Codebase):
     """Update import statements to use new package names."""
     for file in codebase.files:
@@ -1542,7 +1542,7 @@ class RenameArgs(BaseModel):
     old_name: str
     new_name: str
 
-@codegen.function("rename-function")
+@graph_sitter.function("rename-function")
 def run(codebase: Codebase, arguments: RenameArgs):
     """Rename a function across the codebase."""
     old_func = codebase.get_function(arguments.old_name)
@@ -1701,7 +1701,7 @@ codegen deploy my-codemod
 
 ---
 title: Function Decorator
-sidebarTitle: "@codegen.function"
+sidebarTitle: "@graph_sitter.function"
 icon: "at"
 iconType: "solid"
 ---
@@ -1712,17 +1712,17 @@ The `function` decorator is used to define codegen functions within your applica
 
 ## Usage
 
-To use the `function` decorator, simply annotate your function with `@codegen.function` and provide a name as an argument.
+To use the `function` decorator, simply annotate your function with `@graph_sitter.function` and provide a name as an argument.
 
 ### Example
 
 ```python
-@codegen.function('my-function')
+@graph_sitter.function('my-function')
 def run(codebase):
     pass
 ```
 
-In this example, the function `run` is decorated with `@codegen.function` and given the name `'my-function'`. This name will be used when the function is ran.
+In this example, the function `run` is decorated with `@graph_sitter.function` and given the name `'my-function'`. This name will be used when the function is ran.
 
 ## Parameters
 
@@ -6768,7 +6768,7 @@ First, we will do a "graph expansion" for each function - grab the function's so
 First, let's import the types we need from Codegen:
 
 ```python
-import codegen
+import graph_sitter
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.core.external_module import ExternalModule
 from graph_sitter.core.import_resolution import Import

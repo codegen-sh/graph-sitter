@@ -3,7 +3,7 @@ import os
 
 import pygit2
 
-import codegen
+import graph_sitter
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.extensions.attribution.main import add_attribution_to_symbols, analyze_ai_impact
 
@@ -58,7 +58,7 @@ def diagnose_repository(codebase):
         print(f"⚠️ Error during repository diagnosis: {e}")
 
 
-@codegen.function("analyze-ai-impact")
+@graph_sitter.function("analyze-ai-impact")
 def run(codebase: Codebase):
     """Analyze the impact of AI on the codebase.
 

@@ -167,7 +167,7 @@ They live in the `.codegen/codemods/{name}/{name.py}` directory, and take the fo
 ```python
 from graph_sitter import Codebase
 
-@codegen.function('{name}')
+@graph_sitter.function('{name}')
 def codemod(codebase: Codebase):
     for function in codebase.functions:
         if not function.usages:

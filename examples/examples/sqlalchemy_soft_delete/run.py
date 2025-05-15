@@ -2,7 +2,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-import codegen
+import graph_sitter
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 
 
@@ -61,7 +61,7 @@ def clone_repo(repo_url: str, repo_path: Path) -> None:
     subprocess.run(["git", "clone", repo_url, str(repo_path)], check=True)
 
 
-@codegen.function("sqlalchemy-soft-delete")
+@graph_sitter.function("sqlalchemy-soft-delete")
 def process_soft_deletes(codebase):
     """Process soft delete conditions for join methods in the codebase."""
     soft_delete_models = {

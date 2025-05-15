@@ -25,7 +25,7 @@ Your `run.py` should follow this structure, demonstrated well in the `generate_t
 1. **Imports at the top**
 
    ```python
-   import codegen
+   import graph_sitter
    from graph_sitter import Codebase
    from codegen.sdk.core import Function
    # ... other imports
@@ -42,7 +42,7 @@ Your `run.py` should follow this structure, demonstrated well in the `generate_t
 1. **Main Graph-sitter function with decorator**
 
    ```python
-   @codegen.function("your-function-name")
+   @graph_sitter.function("your-function-name")
    def run(codebase: Codebase):
        """Clear docstring explaining what the function does.
 
@@ -98,7 +98,7 @@ Choose between these approaches based on:
 
 1. **Function Decorator**
 
-   - Always use `@codegen.function()` with a descriptive name
+   - Always use `@graph_sitter.function()` with a descriptive name
    - Name should match the example's purpose
 
 1. **Utility Functions**
@@ -136,7 +136,7 @@ def get_function_context(function) -> dict:
 
 
 # Main transformation with decorator
-@codegen.function("generate-training-data")
+@graph_sitter.function("generate-training-data")
 def run(codebase: Codebase):
     """Generate training data using a node2vec-like approach...
 

@@ -1,6 +1,6 @@
 import json
 
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.core.external_module import ExternalModule
 from graph_sitter.core.import_resolution import Import
@@ -42,7 +42,7 @@ def get_function_context(function) -> dict:
     return context
 
 
-@codegen.function("generate-training-data")
+@graph_sitter.function("generate-training-data")
 def run(codebase: Codebase):
     """Generate training data using a node2vec-like approach for code embeddings.
 

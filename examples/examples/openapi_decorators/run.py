@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
 
@@ -169,7 +169,7 @@ def analyze_method_params(method) -> dict:
     return schema
 
 
-@codegen.function("add-openapi-decorators")
+@graph_sitter.function("add-openapi-decorators")
 def run(codebase: Codebase):
     """Add OpenAPI decorators (@response and @expect) to API endpoints."""
     analytics = {}

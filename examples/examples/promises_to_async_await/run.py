@@ -1,9 +1,9 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.core.statements.statement import StatementType
 
 
-@codegen.function("promises-to-async-await")
+@graph_sitter.function("promises-to-async-await")
 def run(codebase: Codebase):
     """Convert a repeated use of a promise chain to async await in the official twilio js client library twilio/twilio-node repository.
 

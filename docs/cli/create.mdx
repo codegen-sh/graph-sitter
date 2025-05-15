@@ -41,10 +41,10 @@ When you run `gs create rename-function .`, it creates:
 The generated codemod will have this structure:
 
 ```python
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
-@codegen.function("rename-function")
+@graph_sitter.function("rename-function")
 def run(codebase: Codebase):
     """Add a description of what this codemod does."""
     # Add your code here

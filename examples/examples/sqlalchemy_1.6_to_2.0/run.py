@@ -1,10 +1,10 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 from graph_sitter.core.expressions.chained_attribute import ChainedAttribute
 
 
-@codegen.function("sqlalchemy-1.4-to-2.0")
+@graph_sitter.function("sqlalchemy-1.4-to-2.0")
 def run(codebase: Codebase):
     """
     Convert SQLAlchemy 1.4 codebases to 2.0.

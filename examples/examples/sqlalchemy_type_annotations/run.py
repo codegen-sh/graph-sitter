@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 
@@ -21,7 +21,7 @@ def cleanup_git_repo(repo_path: str) -> None:
         shutil.rmtree(git_dir)
 
 
-@codegen.function("sqlalchemy-type-annotations")
+@graph_sitter.function("sqlalchemy-type-annotations")
 def run(codebase: Codebase):
     """Add Mapped types to SQLAlchemy models in a codebase.
 

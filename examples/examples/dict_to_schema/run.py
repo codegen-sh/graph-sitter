@@ -1,8 +1,8 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
 
-@codegen.function("dict-to-pydantic-schema")
+@graph_sitter.function("dict-to-pydantic-schema")
 def run(codebase: Codebase):
     """Convert dictionary literals to Pydantic models in a Python codebase.
 

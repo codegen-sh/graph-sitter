@@ -1,8 +1,8 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
 
-@codegen.function("fragment_to_shorthand")
+@graph_sitter.function("fragment_to_shorthand")
 def run(codebase: Codebase):
     print("🔍 Starting Fragment syntax conversion...")
 

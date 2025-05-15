@@ -55,7 +55,7 @@ def function(name: str, subdirectories: list[str] | None = None, language: Progr
         name: The name of the function to be used when deployed
 
     Example:
-        @codegen.function('my-function')
+        @graph_sitter.function('my-function')
         def run(codebase):
             pass
 

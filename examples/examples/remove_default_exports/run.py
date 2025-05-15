@@ -1,9 +1,9 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.typescript.file import TSFile
 
 
-@codegen.function("remove-default-exports")
+@graph_sitter.function("remove-default-exports")
 def run(codebase: Codebase):
     """Convert default exports to named exports in TypeScript files.
 

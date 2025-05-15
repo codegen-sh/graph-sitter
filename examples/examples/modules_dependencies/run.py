@@ -1,9 +1,9 @@
-import codegen
+import graph_sitter
 import networkx as nx
 from graph_sitter import Codebase
 
 
-@codegen.function("visualize-modules-dependencies")
+@graph_sitter.function("visualize-modules-dependencies")
 def run(codebase: Codebase):
     # Create a directed graph
     G = nx.DiGraph()

@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.core.external_module import ExternalModule
 from graph_sitter.core.import_resolution import Import
@@ -54,7 +54,7 @@ def get_extended_context(symbol: Symbol, degree: int) -> tuple[set[Symbol], set[
     return dependencies, usages
 
 
-@codegen.function("document-functions")
+@graph_sitter.function("document-functions")
 def run(codebase: Codebase):
     # Define the maximum degree of dependencies and usages to consider for context
     N_DEGREE = 2

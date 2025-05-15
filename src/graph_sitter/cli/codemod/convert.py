@@ -6,11 +6,11 @@ def convert_to_cli(input: str, language: str, name: str) -> str:
 # Run this codemod using `gs run {name}` OR the `run_codemod` MCP tool.
 # Important: if you run this as a regular python file, you MUST run it such that
 #  the base directory './' is the base of your codebase, otherwise it will not work.
-import codegen
+import graph_sitter
 from graph_sitter.core.codebase import Codebase
 
 
-@codegen.function('{name}')
+@graph_sitter.function('{name}')
 def run(codebase: Codebase):
 {indent(input, "    ")}
 

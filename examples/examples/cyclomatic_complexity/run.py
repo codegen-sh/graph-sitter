@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.core.statements.for_loop_statement import ForLoopStatement
 from graph_sitter.core.statements.if_block_statement import IfBlockStatement
@@ -6,7 +6,7 @@ from graph_sitter.core.statements.try_catch_statement import TryCatchStatement
 from graph_sitter.core.statements.while_statement import WhileStatement
 
 
-@codegen.function("cyclomatic-complexity")
+@graph_sitter.function("cyclomatic-complexity")
 def run(codebase: Codebase):
     def calculate_cyclomatic_complexity(code_block):
         # Initialize cyclomatic complexity count

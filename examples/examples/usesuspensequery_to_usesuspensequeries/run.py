@@ -1,9 +1,9 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.core.detached_symbols.function_call import FunctionCall
 
 
-@codegen.function("useSuspenseQuery-to-useSuspenseQueries")
+@graph_sitter.function("useSuspenseQuery-to-useSuspenseQueries")
 def run(codebase: Codebase):
     """Convert useSuspenseQuery calls to useSuspenseQueries in a React codebase.
 

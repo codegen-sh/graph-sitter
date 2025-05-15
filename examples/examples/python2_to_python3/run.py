@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
 # Initialize codebase
@@ -115,7 +115,7 @@ def update_iterators(file):
                     stmt.edit(new_stmt)
 
 
-@codegen.function("python2-to-python3")
+@graph_sitter.function("python2-to-python3")
 def run():
     """Main function to run the Python 2 to 3 conversion"""
     print("🚀 Starting Python 2 to 3 conversion...\n")

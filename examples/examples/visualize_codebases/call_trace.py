@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 import networkx as nx
 from graph_sitter import Codebase
 from graph_sitter.core.class_definition import Class
@@ -86,7 +86,7 @@ def create_downstream_call_trace(src_func: Function, depth: int = 0):
             create_downstream_call_trace(func, depth + 1)
 
 
-@codegen.function("visualize-function-call-relationships")
+@graph_sitter.function("visualize-function-call-relationships")
 def run(codebase: Codebase):
     """Generate a visualization of function call relationships in a codebase.
 

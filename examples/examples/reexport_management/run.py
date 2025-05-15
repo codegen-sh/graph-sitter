@@ -1,11 +1,11 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 from graph_sitter.typescript.file import TSImport
 
 processed_imports = set()
 
 
-@codegen.function("reexport_management")
+@graph_sitter.function("reexport_management")
 def run(codebase: Codebase):
     print("🚀 Starting reexport analysis...")
     for file in codebase.files:

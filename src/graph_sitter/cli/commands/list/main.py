@@ -35,5 +35,5 @@ def list_command():
         rich.print(format_command("gs run <label>"))
     else:
         rich.print("[yellow]No codegen functions found in current directory.[/yellow]")
-        rich.print("\nAdd a function with @codegen.function decorator:")
-        rich.print(format_codeblock("@codegen.function('label')"))
+        rich.print("\nAdd a function with @graph_sitter.function decorator:")
+        rich.print(format_codeblock("@graph_sitter.function('label')"))

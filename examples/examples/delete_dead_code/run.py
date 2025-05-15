@@ -1,8 +1,8 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
 
-@codegen.function("delete-dead-code")
+@graph_sitter.function("delete-dead-code")
 def run(codebase: Codebase):
     removed_functions_count = 0
     removed_variables_count = 0

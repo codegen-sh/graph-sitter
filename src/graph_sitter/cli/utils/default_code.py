@@ -1,8 +1,8 @@
-DEFAULT_CODEMOD = '''import codegen
+DEFAULT_CODEMOD = '''import graph_sitter
 from graph_sitter.core.codebase import Codebase
 
 
-@codegen.function("{name}")
+@graph_sitter.function("{name}")
 def run(codebase: Codebase):
     """Add a description of what this codemod does."""
     # Add your code here

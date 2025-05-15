@@ -1,8 +1,8 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
 
-@codegen.function("freezegun-to-timemachine")
+@graph_sitter.function("freezegun-to-timemachine")
 def run(codebase: Codebase):
     """Convert FreezeGun usage to TimeMachine in test files.
 

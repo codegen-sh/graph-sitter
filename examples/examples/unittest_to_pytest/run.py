@@ -1,4 +1,4 @@
-import codegen
+import graph_sitter
 from graph_sitter import Codebase
 
 # Initialize codebase
@@ -53,7 +53,7 @@ def {fixture_name}():
             print(f"🗑️ Removed setUp method from class {cls.name}")
 
 
-@codegen.function("unittest-to-pytest")
+@graph_sitter.function("unittest-to-pytest")
 def run(codebase: Codebase):
     """Main function to run the unittest to pytest conversion"""
     print("🚀 Starting unittest to pytest conversion...")
