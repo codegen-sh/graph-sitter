@@ -116,11 +116,11 @@ class PyImport(Import["PyFile"]):
                     return ImportResolution(from_file=file, symbol=None, imports_file=True)
 
             # =====[ Default path ]=====
-            if file := self.ctx.get_file(filepath):
+            if file := self.ctx.get_file(filepath, relative_only=True):
                 return ImportResolution(from_file=file, symbol=None, imports_file=True)
 
             filepath = filepath.replace(".py", "/__init__.py")
-            if file := self.ctx.get_file(filepath):
+            if file := self.ctx.get_file(filepath, relative_only=True):
                 # TODO - I think this is another edge case, due to `dao/__init__.py` etc.
                 # You can't do `from a.b.c import foo` => `foo.utils.x` right now since `foo` is just a file...
                 return ImportResolution(from_file=file, symbol=None, imports_file=True)
@@ -136,7 +136,7 @@ class PyImport(Import["PyFile"]):
 
             # =====[ Check if `module.py` file exists in the graph ]=====
             filepath = os.path.join(base_path, filepath)
-            if file := self.ctx.get_file(filepath):
+            if file := self.ctx.get_file(filepath, relative_only=True):
                 symbol = file.get_node_by_name(symbol_name)
                 if symbol is None:
                     if file.get_node_from_wildcard_chain(symbol_name):
@@ -165,7 +165,7 @@ class PyImport(Import["PyFile"]):
                         return ImportResolution(from_file=from_file, symbol=symbol)
 
             # =====[ Check if `module/__init__.py` file exists in the graph ]=====
-            if from_file := self.ctx.get_file(filepath):
+            if from_file := self.ctx.get_file(filepath, relative_only=True):
                 symbol = from_file.get_node_by_name(symbol_name)
                 if symbol is None:
                     if from_file.get_node_from_wildcard_chain(symbol_name):
@@ -179,11 +179,13 @@ class PyImport(Import["PyFile"]):
 
             # =====[ Case: Can't resolve the import ]=====
             if base_path == "":
-                # Try to resolve with "src" as the base path
-                return self.resolve_import(base_path="src", add_module_name=add_module_name)
+                if self.ctx.get_directory("src"):
+                    # Try to resolve with "src" as the base path
+                    return self.resolve_import(base_path="src", add_module_name=add_module_name)
             if base_path == "src":
-                # Try "test" next
-                return self.resolve_import(base_path="test", add_module_name=add_module_name)
+                if self.ctx.get_directory("test"):
+                    # Try "test" next
+                    return self.resolve_import(base_path="test", add_module_name=add_module_name)
 
             # if not G_override:
             #     for resolver in ctx.import_resolvers:

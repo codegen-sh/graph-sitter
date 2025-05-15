@@ -116,7 +116,6 @@ class Editable(JSONable, Generic[Parent]):
     ctx: CodebaseContext
     parent: Parent
     node_type: NodeType
-    _file: File | None = None
     _hash: int | None = None
 
     def __init__(self, ts_node: TSNode, file_node_id: NodeId, ctx: CodebaseContext, parent: Parent) -> None:
@@ -379,9 +378,7 @@ class Editable(JSONable, Generic[Parent]):
         Returns:
             File: The File object containing this Editable instance.
         """
-        if self._file is None:
-            self._file = self.ctx.get_node(self.file_node_id)
-        return self._file  # type: ignore
+        return self.ctx.get_node(self.file_node_id)
 
     @property
     def filepath(self) -> str:

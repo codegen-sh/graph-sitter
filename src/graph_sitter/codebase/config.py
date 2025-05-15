@@ -43,7 +43,7 @@ class ProjectConfig(BaseModel):
     @classmethod
     def from_path(cls, path: str, programming_language: ProgrammingLanguage | None = None) -> Self:
         # Split repo_path into (git_root, base_path)
-        repo_path = os.path.abspath(path)
+        repo_path = os.path.realpath(os.path.abspath(path))
         git_root, base_path = split_git_path(repo_path)
         subdirectories = [base_path] if base_path else None
         programming_language = programming_language or determine_project_language(repo_path)

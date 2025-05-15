@@ -619,11 +619,13 @@ class CodebaseContext:
     def get_edges(self) -> list[tuple[NodeId, NodeId, EdgeType, Usage | None]]:
         return [(x[0], x[1], x[2].type, x[2].usage) for x in self._graph.weighted_edge_list()]
 
-    def get_file(self, file_path: os.PathLike, ignore_case: bool = False) -> SourceFile | None:
+    def get_file(self, file_path: os.PathLike, ignore_case: bool = False, relative_only: bool = False) -> SourceFile | None:
         # Performance hack: just use the relative path
         node_id = self.filepath_idx.get(str(file_path), None)
         if node_id is not None:
             return self.get_node(node_id)
+        if relative_only:
+            return None
         # If not part of repo path, return None
         absolute_path = self.to_absolute(file_path)
         if not self.is_subdir(absolute_path) and not self.config.allow_external:
