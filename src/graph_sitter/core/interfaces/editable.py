@@ -130,7 +130,7 @@ class Editable(JSONable, Generic[Parent]):
                 assert (parent.ts_node, parent.__class__) not in seen
                 seen.add((parent.ts_node, parent.__class__))
                 parent = parent.parent
-        if self.file and self.ctx.config.full_range_index:
+        if self.ctx.config.full_range_index and self.file:
             self._add_to_index
 
     def __hash__(self):
