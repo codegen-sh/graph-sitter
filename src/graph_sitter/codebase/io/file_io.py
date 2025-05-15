@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from pathlib import Path
 
 from graph_sitter.codebase.io.io import IO, BadWriteError
@@ -17,6 +18,7 @@ class FileIO(IO):
         self.files = {}
         self.allowed_paths = allowed_paths
 
+    @lru_cache(maxsize=10000)
     def _verify_path(self, path: Path) -> None:
         if self.allowed_paths is not None:
             if not any(path.resolve().is_relative_to(p.resolve()) for p in self.allowed_paths):

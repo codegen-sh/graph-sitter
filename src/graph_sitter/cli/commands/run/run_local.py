@@ -63,6 +63,7 @@ def parse_codebase(
         rich.progress.BarColumn(bar_width=None),
         rich.progress.TaskProgressColumn(),
         rich.progress.TimeRemainingColumn(),
+        rich.progress.TimeElapsedColumn(),
         expand=True,
     ) as progress:
         codebase = Codebase(
