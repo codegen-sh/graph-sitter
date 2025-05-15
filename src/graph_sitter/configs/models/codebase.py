@@ -37,6 +37,7 @@ class CodebaseConfig(BaseConfig):
     ts_language_engine: bool = False
     v8_ts_engine: bool = False
     unpacking_assignment_partial_removal: bool = True
+    conditional_type_resolution: bool = False
     use_pink: PinkMode = PinkMode.OFF
 
 

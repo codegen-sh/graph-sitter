@@ -114,7 +114,7 @@ class Name(Expression[Parent], Resolvable, Generic[Parent]):
         else:
             return
 
-        if hasattr(resolved_name, "parent") and (conditional_parent := resolved_name.parent_of_type(ConditionalBlock)):
+        if self.ctx.config.conditional_type_resolution and hasattr(resolved_name, "parent") and (conditional_parent := resolved_name.parent_of_type(ConditionalBlock)):
             if self.parent_of_type(ConditionalBlock) == conditional_parent:
                 # Use in the same block, should only depend on the inside of the block
                 return
