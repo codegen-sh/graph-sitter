@@ -11,10 +11,10 @@ import {HorizontalDivider} from '/snippets/HorizontalDivider.mdx';
 import {GithubLinkNote} from '/snippets/GithubLinkNote.mdx';
 import {Attribute} from '/snippets/Attribute.mdx';
 
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L44-L400" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L46-L416" />
 
 ### Inherits from
-[HasName](/api-reference/core/HasName), [TSHasBlock](/api-reference/typescript/TSHasBlock), [TSSymbol](/api-reference/typescript/TSSymbol), [HasBlock](/api-reference/core/HasBlock), [Exportable](/api-reference/core/Exportable), [Symbol](/api-reference/core/Symbol), [Expression](/api-reference/core/Expression), [Usable](/api-reference/core/Usable), [Editable](/api-reference/core/Editable), [Importable](/api-reference/core/Importable)
+[HasName](/api-reference/core/HasName), [TSHasBlock](/api-reference/typescript/TSHasBlock), [TSSymbol](/api-reference/typescript/TSSymbol), [Editable](/api-reference/core/Editable), [HasBlock](/api-reference/core/HasBlock), [Exportable](/api-reference/core/Exportable), [Symbol](/api-reference/core/Symbol), [Expression](/api-reference/core/Expression), [Usable](/api-reference/core/Usable), [Importable](/api-reference/core/Importable)
 
 ## Attributes
 <HorizontalDivider />
@@ -76,7 +76,7 @@ import {Attribute} from '/snippets/Attribute.mdx';
 
 ### <span className="text-primary">function_calls</span>
 <HorizontalDivider light={true} />
-<Attribute type={ <><span>list[</span> <a href="/api-reference/core/FunctionCall" style={ {fontWeight: "inherit", fontSize: "inherit"} }>FunctionCall</a> <span>]</span></> } description="Returns all function calls within the code block and its decorators." />
+<Attribute type={ <><span>list[</span> <a href="/api-reference/core/FunctionCall" style={ {fontWeight: "inherit", fontSize: "inherit"} }>FunctionCall</a> <span>]</span></> } description="Returns a list of all function calls contained within this expression." />
 
 ### <span className="text-primary">functions</span>
 <HorizontalDivider light={true} />
@@ -136,7 +136,7 @@ import {Attribute} from '/snippets/Attribute.mdx';
 
 ### <span className="text-primary">source</span>
 <HorizontalDivider light={true} />
-<Attribute type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">str</code> } description="Returns the source code of the symbol." />
+<Attribute type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">str</code> } description="Text representation of the Editable instance." />
 
 ### <span className="text-primary">symbol_type</span>
 <HorizontalDivider light={true} />
@@ -230,7 +230,7 @@ Insert a keyword in the appropriate place before this symbol if it doesn't alrea
 
 ### <span className="text-primary">add_symbol</span>
 Adds a new symbol to the namespace, optionally exporting it if applicable. If the symbol already exists in the namespace, returns the existing symbol.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L278-L303" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L286-L311" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSSymbol" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSSymbol</a> <span>| None</span></> } description="The existing symbol if it already exists in the file or None if it was added."/>
@@ -238,7 +238,7 @@ Adds a new symbol to the namespace, optionally exporting it if applicable. If th
 
 ### <span className="text-primary">add_symbol_from_source</span>
 Adds a symbol to a namespace from a string representation.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L258-L275" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L266-L283" />
 
 <ParameterWrapper>
 <Parameter
@@ -285,32 +285,32 @@ Returns a list of symbols that this symbol depends on.
 
 
 ### <span className="text-primary">edit</span>
-Replace the source of this node with new_src.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/symbol.py#L124-L139" />
+Replace the source of this `Editable` with `new_src`.
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/interfaces/editable.py#L637-L665" />
 
 <ParameterWrapper>
 <Parameter
     name="new_src"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">str</code> }
-    description="The new source code to replace the current source with."
+    description="The new source text to replace the current text with."
     defaultValue=""
 />
 <Parameter
     name="fix_indentation"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">bool</code> }
-    description="If True, adjusts the indentation of new_src to match the current text's indentation. Defaults to False."
+    description="If True, adjusts the indentation of `new_src` to match the current text's indentation level. Defaults to False."
     defaultValue="False"
 />
 <Parameter
     name="priority"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">int</code> }
-    description="The priority of this edit. Higher priority edits take precedence. Defaults to 0."
+    description="The priority of the edit transaction. Higher priority edits are applied first. Defaults to 0."
     defaultValue="0"
 />
 <Parameter
     name="dedupe"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">bool</code> }
-    description="If True, prevents duplicate edits. Defaults to True."
+    description="If True, deduplicates identical transactions. Defaults to True."
     defaultValue="True"
 />
 </ParameterWrapper>
@@ -375,7 +375,7 @@ Flags a TypeScript symbol by adding a flag comment and returning a CodeFlag.
 
 ### <span className="text-primary">get_class</span>
 Get a class by name from this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L182-L190" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L190-L198" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSClass" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSClass</a> <span>| None</span></> } description=""/>
@@ -400,7 +400,7 @@ Returns a specific JSX element from within this symbol's JSX elements.
 
 ### <span className="text-primary">get_enum</span>
 Get an enum by name from this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L212-L220" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L220-L228" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSEnum" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSEnum</a> <span>| None</span></> } description=""/>
@@ -408,7 +408,7 @@ Get an enum by name from this namespace.
 
 ### <span className="text-primary">get_function</span>
 Get a function by name from this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L163-L171" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L171-L179" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSFunction" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSFunction</a> <span>| None</span></> } description=""/>
@@ -451,7 +451,7 @@ Generates the appropriate import string for a symbol.
 
 ### <span className="text-primary">get_interface</span>
 Get an interface by name from this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L192-L200" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L200-L208" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSInterface" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSInterface</a> <span>| None</span></> } description=""/>
@@ -467,7 +467,7 @@ Returns the name node of the object.
 
 ### <span className="text-primary">get_namespace</span>
 Get a namespace by name from this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L222-L242" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L230-L250" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSNamespace" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSNamespace</a> <span>| None</span></> } description="The found namespace, or None if not found"/>
@@ -475,7 +475,7 @@ Get a namespace by name from this namespace.
 
 ### <span className="text-primary">get_nested_namespaces</span>
 Get all nested namespaces within this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L244-L255" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L252-L263" />
 
 
 <Return return_type={ <><span>list[</span> <a href="/api-reference/typescript/TSNamespace" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSNamespace</a> <span>]</span></> } description="List of all nested namespace objects"/>
@@ -483,7 +483,7 @@ Get all nested namespaces within this namespace.
 
 ### <span className="text-primary">get_symbol</span>
 Get an exported or private symbol by name from this namespace. Returns only exported symbols by default.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L88-L123" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L96-L131" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSSymbol" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSSymbol</a> <span>| None</span></> } description="The found symbol, or None if not found"/>
@@ -491,7 +491,7 @@ Get an exported or private symbol by name from this namespace. Returns only expo
 
 ### <span className="text-primary">get_type</span>
 Get a type alias by name from this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L202-L210" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L210-L218" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSTypeAlias" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSTypeAlias</a> <span>| None</span></> } description=""/>
@@ -562,44 +562,38 @@ Inserts code after this node.
 
 
 ### <span className="text-primary">insert_before</span>
-Inserts text before the current symbol node in the Abstract Syntax Tree.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/symbol.py#L243-L267" />
+Inserts text before this node's source with optional indentation and newline handling.
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/interfaces/editable.py#L575-L605" />
 
 <ParameterWrapper>
 <Parameter
     name="new_src"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">str</code> }
-    description="The source code text to insert."
+    description="The text to insert before this node."
     defaultValue=""
 />
 <Parameter
     name="fix_indentation"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">bool</code> }
-    description="Whether to adjust the indentation of new_src to match current text. Defaults to False."
+    description="Whether to fix the indentation of new_src to match the current node. Defaults to False."
     defaultValue="False"
 />
 <Parameter
     name="newline"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">bool</code> }
-    description="Whether to add a newline after insertion. Defaults to True."
+    description="Whether to add a newline after new_src. Defaults to True."
     defaultValue="True"
 />
 <Parameter
     name="priority"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">int</code> }
-    description="Priority of this edit operation. Higher priority edits are applied first. Defaults to 0."
+    description="Transaction priority for managing multiple edits. Defaults to 0."
     defaultValue="0"
 />
 <Parameter
     name="dedupe"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">bool</code> }
-    description="Whether to remove duplicate insertions. Defaults to True."
-    defaultValue="True"
-/>
-<Parameter
-    name="extended"
-    type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">bool</code> }
-    description="Whether to insert before extended nodes like comments and decorators. Defaults to True."
+    description="Whether to deduplicate identical transactions. Defaults to True."
     defaultValue="True"
 />
 </ParameterWrapper>
@@ -708,7 +702,7 @@ Deletes this Node and its related extended nodes (e.g. decorators, comments).
 
 ### <span className="text-primary">remove_symbol</span>
 Removes a symbol from the namespace by name.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L306-L323" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L314-L331" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSSymbol" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSSymbol</a> <span>| None</span></> } description=""/>
@@ -733,7 +727,7 @@ Sets the name of an object and updates all its usages.
 
 ### <span className="text-primary">rename_symbol</span>
 Renames a symbol within the namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L326-L335" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L334-L343" />
 
 
 <Return return_type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">None</code> } description=""/>
@@ -782,7 +776,7 @@ Search and replace occurrences of text within this node's source and its extende
 
 ### <span className="text-primary">resolve_attribute</span>
 Resolves an attribute access on the namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L391-L400" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L399-L408" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSSymbol" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSSymbol</a> <span>| None</span></> } description=""/>
@@ -790,7 +784,7 @@ Resolves an attribute access on the namespace.
 
 ### <span className="text-primary">resolve_import</span>
 Resolves an import name to a symbol within this namespace.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L368-L388" />
+<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/typescript/namespace.py#L376-L396" />
 
 
 <Return return_type={ <><a href="/api-reference/typescript/TSSymbol" style={ {fontWeight: "inherit", fontSize: "inherit"} }>TSSymbol</a> <span>| None</span></> } description=""/>
