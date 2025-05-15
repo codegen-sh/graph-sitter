@@ -213,7 +213,9 @@ class PyFile(SourceFile[PyImport, PyFunction, PyClass, PyAssignment, Interface[P
         if self.name == "__init__":
             ret = super().valid_import_names
             if self.directory:
-                if file := self.directory.get_file("__init__.py"):
+                for file in self.directory:
+                    if file.name == "__init__":
+                        continue
                     if isinstance(file, PyFile):
                         ret[file.name] = file
             return ret
