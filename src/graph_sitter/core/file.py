@@ -898,6 +898,8 @@ class SourceFile(
             Symbol | Import | WildcardImport: The resolved symbol, import, or wildcard import that matches
                 the name and scope requirements. Yields at most one result.
         """
+        from graph_sitter.core.function import Function
+
         if resolved := self.valid_symbol_names.get(name):
             # If we have a start_byte and the resolved symbol is after it,
             # we need to look for earlier definitions of the symbol
@@ -905,7 +907,7 @@ class SourceFile(
                 # Search backwards through symbols to find the most recent definition
                 # that comes before our start_byte position
                 for symbol in reversed(self.symbols):
-                    if symbol.start_byte <= start_byte and symbol.name == name:
+                    if symbol.name == name and (start_byte is None or (symbol.start_byte if isinstance(symbol, Class | Function) else symbol.end_byte) <= start_byte):
                         yield symbol
                         return
                 # If strict mode and no valid symbol found, return nothing
