@@ -207,7 +207,7 @@ class CodegenFunctionVisitor(ast.NodeVisitor):
                 and (len(decorator.args) > 0 or len(decorator.keywords) > 0)
                 and (
                     # Check if it's a direct codegen.X call
-                    (isinstance(decorator.func, ast.Attribute) and isinstance(decorator.func.value, ast.Name) and decorator.func.value.id == "codegen")
+                    (isinstance(decorator.func, ast.Attribute) and isinstance(decorator.func.value, ast.Name) and decorator.func.value.id in ("graph_sitter", "codegen"))
                     or
                     # Check if it starts with codegen.anything.anything...
                     (isinstance(decorator.func, ast.Attribute) and isinstance(decorator.func.value, ast.Attribute) and self._has_codegen_root(decorator.func.value))

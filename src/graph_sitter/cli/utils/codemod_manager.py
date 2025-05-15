@@ -15,7 +15,7 @@ def _might_have_decorators(file_path: Path) -> bool:
     try:
         # Read in binary mode and check for b'@codegen' to handle any encoding
         with open(file_path, "rb") as f:
-            return b"@codegen" in f.read()
+            return b"@graph_sitter" in f.read()
     except Exception:
         return False
 
