@@ -370,7 +370,7 @@ class Editable(JSONable, Generic[Parent]):
 
         return self.parent._parse_expression(previous_named_sibling_node)
 
-    @property
+    @cached_property
     def file(self) -> SourceFile:
         """The file object that this Editable instance belongs to.
 

@@ -4,7 +4,7 @@ import os
 from collections import Counter, defaultdict
 from contextlib import contextmanager
 from enum import IntEnum, auto, unique
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from os import PathLike
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -215,23 +215,19 @@ class CodebaseContext:
     def __repr__(self):
         return self.__class__.__name__
 
-    @property
+    @cached_property
     def _graph(self) -> PyDiGraph[Importable, Edge]:
         if not self.__graph_ready:
             logger.info("Lazily Computing Graph")
             self.build_graph(self.projects[0].repo_operator)
         return self.__graph
 
-    @_graph.setter
-    def _graph(self, value: PyDiGraph[Importable, Edge]) -> None:
-        self.__graph = value
-
     @stopwatch
     @commiter
     def build_graph(self, repo_operator: RepoOperator) -> None:
         """Builds a codebase graph based on the current file state of the given repo operator"""
         self.__graph_ready = True
-        self._graph.clear()
+        self.__graph.clear()
 
         # =====[ Add all files to the graph in parallel ]=====
         syncs = defaultdict(lambda: [])
@@ -752,6 +748,7 @@ class CodebaseContext:
             return path.relative_to(self.repo_path)
         return path
 
+    @lru_cache(maxsize=10000)
     def is_subdir(self, path: PathLike | str) -> bool:
         path = self.to_absolute(path)
         return path == Path(self.repo_path) or path.is_relative_to(self.repo_path) or Path(self.repo_path) in path.parents

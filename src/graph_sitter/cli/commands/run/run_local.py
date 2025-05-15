@@ -1,17 +1,48 @@
 from pathlib import Path
 
 import rich
+import rich.progress
 from rich.panel import Panel
 from rich.status import Status
 
 from graph_sitter.cli.auth.session import CodegenSession
 from graph_sitter.cli.utils.function_finder import DecoratedFunction
 from graph_sitter.codebase.config import ProjectConfig
+from graph_sitter.codebase.progress.progress import Progress
+from graph_sitter.codebase.progress.task import Task
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.git.schemas.repo_config import RepoConfig
 from graph_sitter.git.utils.language import determine_project_language
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+
+
+class RichTask(Task):
+    _task: rich.progress.Task
+    _progress: rich.progress.Progress
+    _total: int | None
+
+    def __init__(self, task: rich.progress.Task, progress: rich.progress.Progress, total: int | None = None) -> None:
+        self._task = task
+        self._progress = progress
+        self._total = total
+
+    def update(self, message: str, count: int | None = None) -> None:
+        self._progress.update(self._task, description=message, completed=count)
+
+    def end(self) -> None:
+        self._progress.update(self._task, completed=self._total)
+
+
+class RichProgress(Progress[RichTask]):
+    _progress: rich.progress.Progress
+
+    def __init__(self, progress: rich.progress.Progress) -> None:
+        self._progress = progress
+
+    def begin(self, message: str, count: int | None = None) -> RichTask:
+        task = self._progress.add_task(description=message, total=count)
+        return RichTask(task, progress=self._progress, total=count)
 
 
 def parse_codebase(
@@ -27,15 +58,17 @@ def parse_codebase(
     Returns:
         Parsed Codebase object
     """
-    codebase = Codebase(
-        projects=[
-            ProjectConfig(
-                repo_operator=RepoOperator(repo_config=RepoConfig.from_repo_path(repo_path=repo_path)),
-                subdirectories=subdirectories,
-                programming_language=language or determine_project_language(repo_path),
-            )
-        ]
-    )
+    with rich.progress.Progress(expand=True) as progress:
+        codebase = Codebase(
+            projects=[
+                ProjectConfig(
+                    repo_operator=RepoOperator(repo_config=RepoConfig.from_repo_path(repo_path=repo_path)),
+                    subdirectories=subdirectories,
+                    programming_language=language or determine_project_language(repo_path),
+                )
+            ],
+            progress=RichProgress(progress),
+        )
     return codebase
 
 
@@ -51,12 +84,11 @@ def run_local(
         function: The function to run
         diff_preview: Number of lines of diff to preview (None for all)
     """
+    rich.print("Parsing codebase at {session.repo_path} with subdirectories {function.subdirectories or 'ALL'} and language {function.language or 'AUTO'} ...")
     # Parse codebase and run
-    with Status(f"[bold]Parsing codebase at {session.repo_path} with subdirectories {function.subdirectories or 'ALL'} and language {function.language or 'AUTO'} ...", spinner="dots") as status:
-        codebase = parse_codebase(repo_path=session.repo_path, subdirectories=function.subdirectories, language=function.language)
-        status.update("[bold green]✓ Parsed codebase")
-
-        status.update("[bold]Running codemod...")
+    codebase = parse_codebase(repo_path=session.repo_path, subdirectories=function.subdirectories, language=function.language)
+    with Status("[bold]Running codemod...", spinner="dots") as status:
+        status.update("")
         function.run(codebase)  # Run the function
         status.update("[bold green]✓ Completed codemod")
 
