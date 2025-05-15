@@ -711,6 +711,11 @@ class WildcardImport(Chainable, Generic[TImport]):
     def filepath(self) -> str:
         return self.imp.filepath
 
+    @property
+    @noapidoc
+    def parent(self) -> Editable:
+        return self.imp.parent
+
 
 class ExternalImportResolver:
     def resolve(self, imp: Import) -> str | None:

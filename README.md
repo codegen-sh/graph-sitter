@@ -76,7 +76,7 @@ gs notebook
 See [Getting Started](https://graph-sitter.com/introduction/getting-started) for a full tutorial.
 
 ```
-from codegen import Codebase
+from graph_sitter import Codebase
 ```
 
 ## Troubleshooting

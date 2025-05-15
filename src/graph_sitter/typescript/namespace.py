@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Self, override
 
 from graph_sitter.compiled.autocommit import reader
+from graph_sitter.compiled.resolution import ResolutionStack
 from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.compiled.utils import cached_property
 from graph_sitter.core.autocommit import commiter
 from graph_sitter.core.autocommit.decorators import writer
 from graph_sitter.core.export import Export
+from graph_sitter.core.interfaces.chainable import Chainable
 from graph_sitter.core.interfaces.has_attribute import HasAttribute
 from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.enums import SymbolType
@@ -22,7 +24,7 @@ from graph_sitter.typescript.symbol import TSSymbol
 from graph_sitter.typescript.type_alias import TSTypeAlias
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Generator, Sequence
 
     from tree_sitter import Node as TSNode
 
@@ -41,7 +43,13 @@ logger = get_logger(__name__)
 
 
 @ts_apidoc
-class TSNamespace(TSSymbol, TSHasBlock, HasName, HasAttribute):
+class TSNamespace(
+    TSSymbol,
+    TSHasBlock,
+    Chainable,
+    HasName,
+    HasAttribute,
+):
     """Representation of a namespace module in TypeScript.
 
     Attributes:
@@ -398,3 +406,11 @@ class TSNamespace(TSSymbol, TSHasBlock, HasName, HasAttribute):
             The resolved symbol or None if not found
         """
         return self.valid_import_names.get(name, None)
+
+    @override
+    def _resolved_types(self) -> Generator[ResolutionStack[Self], None, None]:
+        """Returns the resolved types for this namespace.
+
+        This includes all exports and the namespace itself.
+        """
+        yield ResolutionStack(self)
