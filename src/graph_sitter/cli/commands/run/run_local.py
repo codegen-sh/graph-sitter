@@ -58,7 +58,13 @@ def parse_codebase(
     Returns:
         Parsed Codebase object
     """
-    with rich.progress.Progress(expand=True) as progress:
+    with rich.progress.Progress(
+        rich.progress.TextColumn("[progress.description]{task.description}"),
+        rich.progress.BarColumn(bar_width=None),
+        rich.progress.TaskProgressColumn(),
+        rich.progress.TimeRemainingColumn(),
+        expand=True,
+    ) as progress:
         codebase = Codebase(
             projects=[
                 ProjectConfig(
