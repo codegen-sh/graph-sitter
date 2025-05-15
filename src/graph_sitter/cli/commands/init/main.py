@@ -4,7 +4,7 @@ from pathlib import Path
 import rich
 import rich_click as click
 
-from graph_sitter.cli.auth.session import CodegenSession
+from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.commands.init.render import get_success_message
 from graph_sitter.cli.rich.codeblocks import format_command
 from graph_sitter.cli.workspace.initialize_workspace import initialize_codegen
@@ -30,7 +30,7 @@ def init_command(path: str | None = None, token: str | None = None, language: st
         rich.print(format_command("gs init"))
         sys.exit(1)
 
-    session = CodegenSession(repo_path=repo_path, git_token=token)
+    session = CliSession(repo_path=repo_path, git_token=token)
     if language:
         session.config.repository.language = language.upper()
         session.config.save()

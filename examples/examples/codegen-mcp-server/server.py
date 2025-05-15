@@ -355,9 +355,9 @@ async def run_codemod(
                 return {"error": "Invalid JSON in arguments parameter"}
 
         # Create a session for the codemod
-        from graph_sitter.cli.auth.session import CodegenSession
+        from graph_sitter.cli.auth.session import CliSession
 
-        session = CodegenSession(state.parsed_codebase.repo_path)
+        session = CliSession(state.parsed_codebase.repo_path)
         session.codebase = state.parsed_codebase
 
         # Capture output

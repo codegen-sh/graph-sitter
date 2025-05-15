@@ -5,7 +5,7 @@ import rich.progress
 from rich.panel import Panel
 from rich.status import Status
 
-from graph_sitter.cli.auth.session import CodegenSession
+from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.utils.function_finder import DecoratedFunction
 from graph_sitter.codebase.config import ProjectConfig
 from graph_sitter.codebase.progress.progress import Progress
@@ -80,7 +80,7 @@ def parse_codebase(
 
 
 def run_local(
-    session: CodegenSession,
+    session: CliSession,
     function: DecoratedFunction,
     diff_preview: int | None = None,
 ) -> None:

@@ -3,7 +3,7 @@ from pathlib import Path
 import rich
 import rich_click as click
 
-from graph_sitter.cli.auth.session import CodegenSession
+from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.errors import ServerError
 from graph_sitter.cli.rich.codeblocks import format_command, format_path
 from graph_sitter.cli.rich.pretty_print import pretty_print_error
@@ -52,7 +52,7 @@ def make_relative(path: Path) -> str:
 @click.argument("name", type=str)
 @click.argument("path", type=click.Path(path_type=Path), default=None)
 @click.option("--overwrite", is_flag=True, help="Overwrites function if it already exists.")
-def create_command(session: CodegenSession, name: str, path: Path | None, overwrite: bool = False):
+def create_command(session: CliSession, name: str, path: Path | None, overwrite: bool = False):
     """Create a new codegen function.
 
     NAME is the name/label for the function

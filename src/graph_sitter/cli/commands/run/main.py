@@ -3,7 +3,7 @@ import os
 
 import rich_click as click
 
-from graph_sitter.cli.auth.session import CodegenSession
+from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.utils.codemod_manager import CodemodManager
 from graph_sitter.cli.utils.json_schema import validate_json
 from graph_sitter.cli.workspace.decorators import requires_init
@@ -17,7 +17,7 @@ from graph_sitter.cli.workspace.venv_manager import VenvManager
 @click.option("--diff-preview", type=int, help="Show a preview of the first N lines of the diff")
 @click.option("--arguments", type=str, help="Arguments as a json string to pass as the function's 'arguments' parameter")
 def run_command(
-    session: CodegenSession,
+    session: CliSession,
     label: str,
     daemon: bool = False,
     diff_preview: int | None = None,

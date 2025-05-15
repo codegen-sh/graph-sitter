@@ -4,18 +4,18 @@ from pathlib import Path
 from rich.status import Status
 
 from graph_sitter.cli.auth.constants import CODEGEN_DIR, DOCS_DIR, EXAMPLES_DIR, PROMPTS_DIR
-from graph_sitter.cli.auth.session import CodegenSession
+from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.rich.spinners import create_spinner
 from graph_sitter.cli.utils.notebooks import create_notebook
 from graph_sitter.cli.workspace.venv_manager import VenvManager
 
 
-def initialize_codegen(session: CodegenSession, status: Status | str = "Initializing") -> CodegenSession:
+def initialize_codegen(session: CliSession, status: Status | str = "Initializing") -> CliSession:
     """Initialize or update the codegen directory structure and content.
 
     Args:
         status: Either a Status object to update, or a string action being performed ("Initializing" or "Updating")
-        session: Optional CodegenSession for fetching docs and examples
+        session: Optional CliSession for fetching docs and examples
         fetch_docs: Whether to fetch docs and examples (requires auth)
 
     Returns:

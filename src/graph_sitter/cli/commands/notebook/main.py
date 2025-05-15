@@ -4,7 +4,7 @@ from pathlib import Path
 
 import rich_click as click
 
-from graph_sitter.cli.auth.session import CodegenSession
+from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.rich.spinners import create_spinner
 from graph_sitter.cli.utils.notebooks import create_notebook
 from graph_sitter.cli.workspace.decorators import requires_init
@@ -22,7 +22,7 @@ def create_jupyter_dir(codegen_dir: Path) -> Path:
 @click.option("--background", is_flag=True, help="Run Jupyter Lab in the background")
 @click.option("--demo", is_flag=True, help="Create a demo notebook with FastAPI example code")
 @requires_init
-def notebook_command(session: CodegenSession, background: bool, demo: bool):
+def notebook_command(session: CliSession, background: bool, demo: bool):
     """Launch Jupyter Lab with a pre-configured notebook for exploring your codebase."""
     with create_spinner("Setting up Jupyter environment...") as status:
         venv = VenvManager(codegen_dir=session.codegen_dir)

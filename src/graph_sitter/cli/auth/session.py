@@ -13,7 +13,7 @@ from graph_sitter.configs.user_config import UserConfig
 from graph_sitter.git.repo_operator.local_git_repo import LocalGitRepo
 
 
-class CodegenSession:
+class CliSession:
     """Represents an authenticated codegen session with user and repository context"""
 
     repo_path: Path
@@ -38,7 +38,7 @@ class CodegenSession:
         session_manager.set_active_session(repo_path)
 
     @classmethod
-    def from_active_session(cls) -> "CodegenSession | None":
+    def from_active_session(cls) -> "CliSession | None":
         active_session = session_manager.get_active_session()
         if not active_session:
             return None
@@ -84,4 +84,4 @@ class CodegenSession:
             raise click.Abort()
 
     def __str__(self) -> str:
-        return f"CodegenSession(user={self.config.repository.user_name}, repo={self.config.repository.repo_name})"
+        return f"CliSession(user={self.config.repository.user_name}, repo={self.config.repository.repo_name})"

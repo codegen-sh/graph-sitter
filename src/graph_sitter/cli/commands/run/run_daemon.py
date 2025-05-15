@@ -2,7 +2,7 @@ import rich
 import rich_click as click
 from rich.panel import Panel
 
-from graph_sitter.cli.auth.session import CodegenSession
+from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.commands.start.docker_container import DockerContainer
 from graph_sitter.cli.errors import ServerError
 from graph_sitter.cli.rich.codeblocks import format_command
@@ -11,7 +11,7 @@ from graph_sitter.runner.clients.docker_client import DockerClient
 from graph_sitter.runner.enums.warmup_state import WarmupState
 
 
-def run_daemon(session: CodegenSession, function, diff_preview: int | None = None):
+def run_daemon(session: CliSession, function, diff_preview: int | None = None):
     """Run a function on the cloud service.
 
     Args:
@@ -65,7 +65,7 @@ def run_daemon(session: CodegenSession, function, diff_preview: int | None = Non
             raise click.ClickException(str(e))
 
 
-def _get_docker_client(session: CodegenSession) -> DockerClient:
+def _get_docker_client(session: CliSession) -> DockerClient:
     repo_name = session.config.repository.name
     if (container := DockerContainer.get(repo_name)) is None:
         msg = f"graph_sitter.runner does not exist for {repo_name}. Please run 'codegen start' from {session.config.repository.path}."
