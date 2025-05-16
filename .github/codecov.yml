@@ -62,7 +62,6 @@ cli:
   plugins:
     pycoverage:
       report_type: "json"
-      # include_contexts: true
   runners:
     pytest:
       coverage_root: "./"
