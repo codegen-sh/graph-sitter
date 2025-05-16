@@ -4,6 +4,7 @@ from typing import Any, ParamSpec, TypeVar, Union, overload
 
 import wrapt
 
+from graph_sitter.core.autocommit.constants import AutoCommitState, OutdatedNodeError, enabled
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -35,7 +36,6 @@ def reader(wrapped: Callable[P, T] | None = None, *, cache: bool | None = None) 
         cache (bool): Whether to cache the result of the function. By default enabled for functions without arguments
 
     """
-    from graph_sitter.core.autocommit.constants import AutoCommitState, OutdatedNodeError, enabled
     if wrapped is None:
         return functools.partial(reader, cache=cache)
 
@@ -120,7 +120,6 @@ def _delay_update(new_value) -> bool:
 
 
 def update_dict(seen: set["Editable"], obj: "Editable", new_obj: "Editable"):
-    from graph_sitter.core.autocommit.constants import AutoCommitState, OutdatedNodeError, enabled
     from graph_sitter.core.interfaces.editable import Editable
 
     if obj in seen or obj.removed:
@@ -195,7 +194,6 @@ def commiter(wrapped: Callable[P, T] | None = None, *, reset: bool = False) -> C
     """
     if wrapped is None:
         return functools.partial(commiter, reset=reset)
-    from graph_sitter.core.autocommit.constants import AutoCommitState, OutdatedNodeError, enabled
 
     @wrapt.decorator(enabled=enabled)
     def wrapper(wrapped: Callable[P, T], instance: Union["Editable", "CodebaseContext", None] = None, args: P.args = None, kwargs: P.kwargs = None) -> T:
