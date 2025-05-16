@@ -23,6 +23,10 @@ jobs:
   unit-tests:
     needs: access-check
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        group: [1, 2, 3, 4, 5, 6, 7, 8]
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,9 +42,10 @@ jobs:
           uv run pytest \
             -n auto \
             --cov src \
+            --splits 8 --group ${{ matrix.group }} \
             # --cov-report=json \
             --timeout 15 \
-            -o junit_suite_name="${{github.job}}" \
+            -o junit_suite_name="${{github.job}}-${{ matrix.group }}" \
             tests/unit
 
       - uses: ./.github/actions/report

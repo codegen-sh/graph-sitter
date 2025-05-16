@@ -160,6 +160,7 @@ dev-dependencies = [
   "modal>=0.73.25",
   "pytest-lsp>=1.0.0b1",
   "cython>=3.0.11",
+  "pytest-split>=0.10.0",
 ]
 
 [tool.uv.workspace]
