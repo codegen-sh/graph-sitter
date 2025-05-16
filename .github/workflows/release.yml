@@ -110,10 +110,3 @@ jobs:
           files: dist/*
           fail_on_unmatched_files: true
           generate_release_notes: ${{ startsWith(github.ref, 'refs/tags/') }}
-
-      - name: Slack notification
-        if: always()
-        uses: ./.github/actions/release-slack-bot
-        with:
-          release-tag: ${{ inputs.release-tag || github.ref_name }}
-          slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
