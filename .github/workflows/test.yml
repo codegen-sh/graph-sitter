@@ -43,7 +43,6 @@ jobs:
             -n auto \
             --cov src \
             --splits 8 --group ${{ matrix.group }} \
-            # --cov-report=json \
             --timeout 15 \
             -o junit_suite_name="${{github.job}}-${{ matrix.group }}" \
             tests/unit
