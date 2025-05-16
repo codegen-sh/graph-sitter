@@ -8,6 +8,7 @@ template = """
 version = {version!r}
 version_tuple = {version_tuple!r}
 from graph_sitter.cli.sdk.decorator import function
+from graph_sitter.core.codebase import Codebase
 """
 [metadata]
 allow-direct-references = true
