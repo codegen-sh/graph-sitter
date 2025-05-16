@@ -16,8 +16,6 @@ component_management:
           threshold: 0 # Shouldn't remove coverage
         - type: patch
           target: 50 # Language specific featues must be 100% covered
-      flags:
-        - unit-tests
     - component_id: graph-sitter-typescript
       name: graph-sitter-typescript
       paths:
@@ -27,14 +25,10 @@ component_management:
           threshold: 0 # Shouldn't remove coverage
         - type: patch
           target: 50 # Language specific featues must be 100% covered
-      flags:
-        - unit-tests
     - component_id: graph-sitter-core
       name: graph-sitter-core
       paths:
         - src/graph_sitter/**
-      flags:
-        - unit-tests
 
 flag_management:
   default_rules:
