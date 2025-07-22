@@ -14,7 +14,15 @@ jobs:
   access-check:
     runs-on: ubuntu-latest
     steps:
+      - name: Check if user is authorized
+        run: |
+          # Allow codegen-sh[bot] to run tests
+          if [[ "${{ github.triggering_actor }}" == "codegen-sh[bot]" ]]; then
+            echo "✅ Authorized bot account: ${{ github.triggering_actor }}"
+            exit 0
+          fi
       - uses: actions-cool/check-user-permission@v2
+        if: github.triggering_actor != 'codegen-sh[bot]'
         with:
           require: write
           username: ${{ github.triggering_actor }}
