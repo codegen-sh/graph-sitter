@@ -20,5 +20,6 @@
     - Manager
     - orchestrator
     - validator (integration validator)
+- When finding issues, NEVER adjust implementation to work it around or allow "a quick fix to be reviewed later", ALWAYS fix the issue before proceeding
 
 

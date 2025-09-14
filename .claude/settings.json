@@ -1,0 +1,45 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [{
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        }
+      ]
+    }],
+    "PostToolUse": [{
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        }
+      ]
+    }],
+    "Stop": [{
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        }
+      ]
+    }],
+    "SessionEnd": [{
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        }
+      ]
+    }],
+    "SessionStart": [{
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        }
+      ]
+    }]
+  }
+}
