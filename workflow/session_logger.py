@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 claude_root    = os.getenv("CLAUDE_PROJECT_DIR", "./")
-relative_path  = "docs/llm_history"
+relative_path  = "workflow/llm_history"
 current_branch = git.Repo(os.getcwd()).active_branch.name
 
 log_dir        = ( Path( claude_root ) /   relative_path            ).resolve()

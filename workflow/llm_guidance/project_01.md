@@ -1,4 +1,4 @@
-read docs/llm_guidance/graph-tree-system-prompt.txt
+read workflow/llm_guidance/graph-tree-system-prompt.txt
 
 # BACKGROUND
 About https://graph-sitter.com/introduction/overview

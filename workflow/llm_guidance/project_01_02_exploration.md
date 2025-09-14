@@ -2,16 +2,16 @@
 
 ## Scope:
 Project implementation consists of:
-Read @docs/llm_guidance/project_01.md
-Read @docs/llm_guidance/project_02.md
+Read @workflow/llm_guidance/project_01.md
+Read @workflow/llm_guidance/project_02.md
 
 Implementation reports:
-Read @docs/llm_memory/PROJECT_01_IMPLEMENTATION.md
-Read @docs/llm_memory/PROJECT_02_IMPLEMENTATION.md
+Read @workflow/llm_memory/PROJECT_01_IMPLEMENTATION.md
+Read @workflow/llm_memory/PROJECT_02_IMPLEMENTATION.md
 
 ## Task definition
 
-**Implement @docs/llm_memory/code_graph_kuzu_to_graphviz.py**
+**Implement @workflow/llm_memory/code_graph_kuzu_to_graphviz.py**
 
 This script should create a graphviz file with all the information contained in code_graph.kuzu.
 
@@ -19,12 +19,12 @@ read @.claude/commands/🧠.md
 
 # SOLUTION:
 
-● Perfect! I've read through all the documentation you've provided. Now let me check what's in the docs/llm_memory directory to see if the file mentioned in the task exists:
+● Perfect! I've read through all the documentation you've provided. Now let me check what's in the workflow/llm_memory directory to see if the file mentioned in the task exists:
 ● Let me check if the target file already exists:
 ● Let me also check the current background process to see what's happening with the sync command:
 ● Now I understand the task! Looking at the project exploration documentation, the task is to:
 
-  Implement docs/llm_memory/code_graph_kuzu_to_graphviz.py
+  Implement workflow/llm_memory/code_graph_kuzu_to_graphviz.py
 
   This script should create a Graphviz file with all the information contained in the KuzuDB database code_graph.kuzu.
 
@@ -97,7 +97,7 @@ read @.claude/commands/🧠.md
 ● Perfect! Let me demonstrate the script's capabilities:
 ● Task Completed Successfully! 🎉
 
-  I have successfully implemented docs/llm_memory/code_graph_kuzu_to_graphviz.py as requested in the exploration task.
+  I have successfully implemented workflow/llm_memory/code_graph_kuzu_to_graphviz.py as requested in the exploration task.
 
   Implementation Summary
 
@@ -145,16 +145,16 @@ read @.claude/commands/🧠.md
   ✅ Usage Examples:
 
   # Show database statistics
-  python docs/llm_memory/code_graph_kuzu_to_graphviz.py --stats
+  python workflow/llm_memory/code_graph_kuzu_to_graphviz.py --stats
 
   # Generate KuzuMap extension overview
-  python docs/llm_memory/code_graph_kuzu_to_graphviz.py \
+  python workflow/llm_memory/code_graph_kuzu_to_graphviz.py \
       --filter-files "*/kuzu_map/*" \
       --entities "files,functions,classes" \
       --output ./kuzu_map_overview.dot
 
   # Generate function-parameter relationships
-  python docs/llm_memory/code_graph_kuzu_to_graphviz.py \
+  python workflow/llm_memory/code_graph_kuzu_to_graphviz.py \
       --entities "functions,parameters" \
       --show-parameters \
       --max-nodes 15 \

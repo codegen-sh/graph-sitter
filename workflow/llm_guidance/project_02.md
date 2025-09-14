@@ -1,10 +1,10 @@
-Read docs/llm_guidance/project_01.md
+Read workflow/llm_guidance/project_01.md
 
 The project_01 was implemented in @src/graph_sitter/extensions/kuzu_map/
 
 This project aims to map other parts of the schema, completing the base kuzu mapping.
 
-Graph-sitter is installed, you can use it in your advantage. Instructions: read docs/llm_guidance/graph-tree-system-prompt.txt
+Graph-sitter is installed, you can use it in your advantage. Instructions: read workflow/llm_guidance/graph-tree-system-prompt.txt
 
 # Implementation Guide for Extending Graph-Sitter KuzuDB Mapping
 
