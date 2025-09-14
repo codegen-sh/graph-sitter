@@ -450,18 +450,16 @@ class KuzuSync:
         path_obj = Path(file_path)
         size = path_obj.stat().st_size if path_obj.exists() else 0
 
-        # Insert file node
+        # Insert or update file node (use MERGE to handle duplicates)
         self.conn.execute(
-            """CREATE (f:File {
-                path: $path,
-                name: $name,
-                extension: $ext,
-                size: $size,
-                hash: $hash,
-                language: $lang,
-                created_at: $created,
-                updated_at: $updated
-            })""",
+            """MERGE (f:File {path: $path})
+               SET f.name = $name,
+                   f.extension = $ext,
+                   f.size = $size,
+                   f.hash = $hash,
+                   f.language = $lang,
+                   f.created_at = CASE WHEN f.created_at IS NULL THEN $created ELSE f.created_at END,
+                   f.updated_at = $updated""",
             {
                 "path": file_path,
                 "name": path_obj.name,
@@ -495,23 +493,21 @@ class KuzuSync:
         func_id = f"{func.filepath}::{func.name}:{start_line}"
 
         self.conn.execute(
-            """CREATE (f:Function {
-                id: $id,
-                name: $name,
-                qualified_name: $qualified,
-                file_path: $path,
-                start_line: $start_line,
-                end_line: $end_line,
-                start_col: $start_col,
-                end_col: $end_col,
-                is_method: $is_method,
-                is_async: $is_async,
-                complexity: $complexity,
-                params_count: $params_count,
-                docstring: $docstring,
-                created_at: $created,
-                updated_at: $updated
-            })""",
+            """MERGE (f:Function {id: $id})
+               SET f.name = $name,
+                   f.qualified_name = $qualified,
+                   f.file_path = $path,
+                   f.start_line = $start_line,
+                   f.end_line = $end_line,
+                   f.start_col = $start_col,
+                   f.end_col = $end_col,
+                   f.is_method = $is_method,
+                   f.is_async = $is_async,
+                   f.complexity = $complexity,
+                   f.params_count = $params_count,
+                   f.docstring = $docstring,
+                   f.created_at = CASE WHEN f.created_at IS NULL THEN $created ELSE f.created_at END,
+                   f.updated_at = $updated""",
             {
                 "id": func_id,
                 "name": func.name,
@@ -561,19 +557,17 @@ class KuzuSync:
         cls_id = f"{cls.filepath}::{cls.name}:{start_line}"
 
         self.conn.execute(
-            """CREATE (c:Class {
-                id: $id,
-                name: $name,
-                qualified_name: $qualified,
-                file_path: $path,
-                start_line: $start_line,
-                end_line: $end_line,
-                is_abstract: $is_abstract,
-                methods_count: $methods_count,
-                docstring: $docstring,
-                created_at: $created,
-                updated_at: $updated
-            })""",
+            """MERGE (c:Class {id: $id})
+               SET c.name = $name,
+                   c.qualified_name = $qualified,
+                   c.file_path = $path,
+                   c.start_line = $start_line,
+                   c.end_line = $end_line,
+                   c.is_abstract = $is_abstract,
+                   c.methods_count = $methods_count,
+                   c.docstring = $docstring,
+                   c.created_at = CASE WHEN c.created_at IS NULL THEN $created ELSE c.created_at END,
+                   c.updated_at = $updated""",
             {
                 "id": cls_id,
                 "name": cls.name,
@@ -623,17 +617,15 @@ class KuzuSync:
         imp_id = f"{imp.filepath}::{module_name}::{imported_name}:{line_number}"
 
         self.conn.execute(
-            """CREATE (i:Import {
-                id: $id,
-                module_name: $module,
-                imported_name: $imported,
-                alias: $alias,
-                file_path: $path,
-                line_number: $line,
-                is_from_import: $is_from,
-                created_at: $created,
-                updated_at: $updated
-            })""",
+            """MERGE (i:Import {id: $id})
+               SET i.module_name = $module,
+                   i.imported_name = $imported,
+                   i.alias = $alias,
+                   i.file_path = $path,
+                   i.line_number = $line,
+                   i.is_from_import = $is_from,
+                   i.created_at = CASE WHEN i.created_at IS NULL THEN $created ELSE i.created_at END,
+                   i.updated_at = $updated""",
             {
                 "id": imp_id,
                 "module": module_name,
@@ -792,16 +784,19 @@ class KuzuSync:
         for cls in self.codebase.classes:
             if str(cls.filepath) == file_path:
                 if hasattr(cls, 'fields'):
+                    cls_start_line = cls.range.start_point[0] if hasattr(cls, 'range') else 0
                     for field in cls.fields:
-                        symbol_id = f"{file_path}::symbol::{field.name}:{cls.name}"
+                        field_start_line = field.range.start_point[0] if hasattr(field, 'range') else 0
+                        # Include both class and field line numbers for uniqueness
+                        symbol_id = f"{file_path}::symbol::{field.name}:{cls.name}:{field_start_line}"
                         symbols.append({
                             'id': symbol_id,
                             'name': field.name,
                             'kind': 'field',
                             'scope': 'class',
                             'file_path': file_path,
-                            'parent_id': f"{cls.filepath}::{cls.name}:{cls.range.start_point[0] if hasattr(cls, 'range') else 0}",
-                            'start_line': field.range.start_point[0] if hasattr(field, 'range') else 0,
+                            'parent_id': f"{cls.filepath}::{cls.name}:{cls_start_line}",
+                            'start_line': field_start_line,
                             'end_line': field.range.end_point[0] if hasattr(field, 'range') else 0,
                             'is_exported': getattr(field, 'is_exported', False),
                             'is_mutable': getattr(field, 'is_mutable', True),
@@ -815,17 +810,19 @@ class KuzuSync:
             if str(func.filepath) == file_path:
                 # For now, we'll extract from parameters as symbols
                 if hasattr(func, 'parameters'):
+                    func_start_line = func.range.start_point[0] if hasattr(func, 'range') else 0
                     for param in func.parameters:
-                        symbol_id = f"{file_path}::symbol::{param.name}:{func.name}"
+                        # Include function start line to ensure uniqueness for overloaded functions
+                        symbol_id = f"{file_path}::symbol::{param.name}:{func.name}:{func_start_line}"
                         symbols.append({
                             'id': symbol_id,
                             'name': param.name,
                             'kind': 'parameter',
                             'scope': 'function',
                             'file_path': file_path,
-                            'parent_id': f"{func.filepath}::{func.name}:{func.range.start_point[0] if hasattr(func, 'range') else 0}",
-                            'start_line': func.range.start_point[0] if hasattr(func, 'range') else 0,
-                            'end_line': func.range.start_point[0] if hasattr(func, 'range') else 0,
+                            'parent_id': f"{func.filepath}::{func.name}:{func_start_line}",
+                            'start_line': func_start_line,
+                            'end_line': func_start_line,
                             'is_exported': False,
                             'is_mutable': True,
                             'type_annotation': str(getattr(param, 'type_annotation', '')),
@@ -845,16 +842,17 @@ class KuzuSync:
         # For now, we'll create assignments based on function parameters as initialization
         for func in self.codebase.functions:
             if str(func.filepath) == file_path and hasattr(func, 'parameters'):
+                func_start_line = func.range.start_point[0] if hasattr(func, 'range') else 0
                 for param in func.parameters:
                     if hasattr(param, 'default_value') and param.default_value:
-                        assignment_id = f"{file_path}::assignment::{param.name}:{func.range.start_point[0] if hasattr(func, 'range') else 0}"
+                        assignment_id = f"{file_path}::assignment::{param.name}:{func_start_line}"
                         assignments.append({
                             'id': assignment_id,
-                            'target_symbol_id': f"{file_path}::symbol::{param.name}:{func.name}",
+                            'target_symbol_id': f"{file_path}::symbol::{param.name}:{func.name}:{func_start_line}",
                             'value_type': 'default_value',
                             'value_representation': str(param.default_value),
                             'file_path': file_path,
-                            'line_number': func.range.start_point[0] if hasattr(func, 'range') else 0,
+                            'line_number': func_start_line,
                             'is_initialization': True,
                             'created_at': timestamp,
                             'updated_at': timestamp
@@ -941,38 +939,34 @@ class KuzuSync:
     def _sync_single_symbol(self, symbol_data: Dict):
         """Sync a single symbol to KuzuDB."""
         self.conn.execute(
-            """CREATE (s:Symbol {
-                id: $id,
-                name: $name,
-                kind: $kind,
-                scope: $scope,
-                file_path: $file_path,
-                parent_id: $parent_id,
-                start_line: $start_line,
-                end_line: $end_line,
-                is_exported: $is_exported,
-                is_mutable: $is_mutable,
-                type_annotation: $type_annotation,
-                created_at: $created_at,
-                updated_at: $updated_at
-            })""",
+            """MERGE (s:Symbol {id: $id})
+               SET s.name = $name,
+                   s.kind = $kind,
+                   s.scope = $scope,
+                   s.file_path = $file_path,
+                   s.parent_id = $parent_id,
+                   s.start_line = $start_line,
+                   s.end_line = $end_line,
+                   s.is_exported = $is_exported,
+                   s.is_mutable = $is_mutable,
+                   s.type_annotation = $type_annotation,
+                   s.created_at = CASE WHEN s.created_at IS NULL THEN $created_at ELSE s.created_at END,
+                   s.updated_at = $updated_at""",
             symbol_data
         )
 
     def _sync_single_assignment(self, assignment_data: Dict):
         """Sync a single assignment to KuzuDB."""
         self.conn.execute(
-            """CREATE (a:Assignment {
-                id: $id,
-                target_symbol_id: $target_symbol_id,
-                value_type: $value_type,
-                value_representation: $value_representation,
-                file_path: $file_path,
-                line_number: $line_number,
-                is_initialization: $is_initialization,
-                created_at: $created_at,
-                updated_at: $updated_at
-            })""",
+            """MERGE (a:Assignment {id: $id})
+               SET a.target_symbol_id = $target_symbol_id,
+                   a.value_type = $value_type,
+                   a.value_representation = $value_representation,
+                   a.file_path = $file_path,
+                   a.line_number = $line_number,
+                   a.is_initialization = $is_initialization,
+                   a.created_at = CASE WHEN a.created_at IS NULL THEN $created_at ELSE a.created_at END,
+                   a.updated_at = $updated_at""",
             assignment_data
         )
 
@@ -1017,19 +1011,17 @@ class KuzuSync:
         timestamp = int(time.time())
 
         self.conn.execute(
-            """CREATE (p:Parameter {
-                id: $id,
-                name: $name,
-                function_id: $function_id,
-                position: $position,
-                type_annotation: $type_annotation,
-                default_value: $default_value,
-                is_optional: $is_optional,
-                is_rest: $is_rest,
-                is_keyword_only: $is_keyword_only,
-                created_at: $created_at,
-                updated_at: $updated_at
-            })""",
+            """MERGE (p:Parameter {id: $id})
+               SET p.name = $name,
+                   p.function_id = $function_id,
+                   p.position = $position,
+                   p.type_annotation = $type_annotation,
+                   p.default_value = $default_value,
+                   p.is_optional = $is_optional,
+                   p.is_rest = $is_rest,
+                   p.is_keyword_only = $is_keyword_only,
+                   p.created_at = CASE WHEN p.created_at IS NULL THEN $created_at ELSE p.created_at END,
+                   p.updated_at = $updated_at""",
             param_data
         )
 
@@ -1049,18 +1041,16 @@ class KuzuSync:
         timestamp = int(time.time())
 
         self.conn.execute(
-            """CREATE (b:CodeBlock {
-                id: $id,
-                block_type: $block_type,
-                parent_id: $parent_id,
-                file_path: $file_path,
-                start_line: $start_line,
-                end_line: $end_line,
-                condition: $condition,
-                complexity_contribution: $complexity_contribution,
-                created_at: $created_at,
-                updated_at: $updated_at
-            })""",
+            """MERGE (b:CodeBlock {id: $id})
+               SET b.block_type = $block_type,
+                   b.parent_id = $parent_id,
+                   b.file_path = $file_path,
+                   b.start_line = $start_line,
+                   b.end_line = $end_line,
+                   b.condition = $condition,
+                   b.complexity_contribution = $complexity_contribution,
+                   b.created_at = CASE WHEN b.created_at IS NULL THEN $created_at ELSE b.created_at END,
+                   b.updated_at = $updated_at""",
             block_data
         )
 
