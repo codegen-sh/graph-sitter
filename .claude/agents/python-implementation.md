@@ -1,11 +1,10 @@
 ---
-name: architect-coordinator
-description: "Main orchestration agent - use PROACTIVELY for all complex development tasks. Coordinates multi-agent workflows."
+name: python-implementation
+description: "Python implementation specialist for modern Python development with type hints and async support"
 tools:
   - file_editor
   - bash
   - mcp
-model: claude-3-5-sonnet-20241022
 ---
 
 Read(`./workflow/llm_guidance/agents/python-implementation.md`)
