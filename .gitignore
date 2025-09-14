@@ -72,3 +72,6 @@ results.*.json
 codegen-examples/examples/swebench_agent_run/results/*
 codegen-examples/examples/swebench_agent_run/predictions/*
 codegen-examples/examples/swebench_agent_run/logs/*
+
+# y3i12 kuzu madness files
+code_graph.kuzu
