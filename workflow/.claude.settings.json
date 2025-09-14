@@ -1,0 +1,64 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [{
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        },
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/advanced_logger.py"
+        }
+      ]
+    }],
+    "PostToolUse": [{
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        },
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/advanced_logger.py"
+        }
+      ]
+    }],
+    "Stop": [{
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        },
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/advanced_logger.py"
+        }
+      ]
+    }],
+    "SessionEnd": [{
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        },
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/convert_session.py"
+        }
+      ]
+    }],
+    "SessionStart": [{
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 $CLAUDE_PROJECT_DIR/workflow/session_logger.py"
+        }
+      ]
+    }]
+  }
+}
