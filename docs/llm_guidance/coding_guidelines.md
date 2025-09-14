@@ -5,6 +5,8 @@
 - NEVER create adaptors
 - NEVER create "integrations"
 - AVOID to create "Managers"
+- NEVER use "extended" or "enhanced" concepts to change the code.
+    - Changes ALWAYS must be done in the existing code as a formal change.
 - NEVER create what-so-ever-workaround-to-glue-legacy-code
 - ALWAYS use clever architecture
 - ALWAYS think and implement form broader architecture and creating a data flow and schema and then implement the details

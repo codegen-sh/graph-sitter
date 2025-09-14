@@ -130,6 +130,148 @@ class KuzuSync:
                 FROM Class TO Class,
                 inheritance_type STRING,
                 created_at INT64
+            )""",
+
+            # New entity tables from project_02
+            """CREATE NODE TABLE IF NOT EXISTS Symbol(
+                id STRING PRIMARY KEY,
+                name STRING,
+                kind STRING,
+                scope STRING,
+                file_path STRING,
+                parent_id STRING,
+                start_line INT64,
+                end_line INT64,
+                is_exported BOOLEAN,
+                is_mutable BOOLEAN,
+                type_annotation STRING,
+                created_at INT64,
+                updated_at INT64
+            )""",
+
+            """CREATE NODE TABLE IF NOT EXISTS Assignment(
+                id STRING PRIMARY KEY,
+                target_symbol_id STRING,
+                value_type STRING,
+                value_representation STRING,
+                file_path STRING,
+                line_number INT64,
+                is_initialization BOOLEAN,
+                created_at INT64,
+                updated_at INT64
+            )""",
+
+            """CREATE NODE TABLE IF NOT EXISTS Interface(
+                id STRING PRIMARY KEY,
+                name STRING,
+                qualified_name STRING,
+                file_path STRING,
+                start_line INT64,
+                end_line INT64,
+                is_exported BOOLEAN,
+                extends_interfaces STRING,
+                docstring STRING,
+                created_at INT64,
+                updated_at INT64
+            )""",
+
+            """CREATE NODE TABLE IF NOT EXISTS TypeAlias(
+                id STRING PRIMARY KEY,
+                name STRING,
+                target_type STRING,
+                file_path STRING,
+                line_number INT64,
+                is_exported BOOLEAN,
+                type_parameters STRING,
+                created_at INT64,
+                updated_at INT64
+            )""",
+
+            """CREATE NODE TABLE IF NOT EXISTS Parameter(
+                id STRING PRIMARY KEY,
+                name STRING,
+                function_id STRING,
+                position INT64,
+                type_annotation STRING,
+                default_value STRING,
+                is_optional BOOLEAN,
+                is_rest BOOLEAN,
+                is_keyword_only BOOLEAN,
+                created_at INT64,
+                updated_at INT64
+            )""",
+
+            """CREATE NODE TABLE IF NOT EXISTS CodeBlock(
+                id STRING PRIMARY KEY,
+                block_type STRING,
+                parent_id STRING,
+                file_path STRING,
+                start_line INT64,
+                end_line INT64,
+                condition STRING,
+                complexity_contribution INT64,
+                created_at INT64,
+                updated_at INT64
+            )""",
+
+            # New relationship tables
+            """CREATE REL TABLE IF NOT EXISTS DECLARES_SYMBOL(
+                FROM Function TO Symbol,
+                declaration_type STRING,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS CLASS_FIELD(
+                FROM Class TO Symbol,
+                visibility STRING,
+                is_static BOOLEAN,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS ASSIGNS_TO(
+                FROM Assignment TO Symbol,
+                assignment_operator STRING,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS ASSIGNMENT_IN_FUNCTION(
+                FROM Function TO Assignment,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS IMPLEMENTS(
+                FROM Class TO Interface,
+                is_partial BOOLEAN,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS INTERFACE_METHOD(
+                FROM Interface TO Function,
+                is_optional BOOLEAN,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS USES_TYPE(
+                FROM Symbol TO TypeAlias,
+                usage_context STRING,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS HAS_PARAMETER(
+                FROM Function TO Parameter,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS CONTAINS_BLOCK(
+                FROM Function TO CodeBlock,
+                nesting_level INT64,
+                created_at INT64
+            )""",
+
+            """CREATE REL TABLE IF NOT EXISTS NESTED_BLOCK(
+                FROM CodeBlock TO CodeBlock,
+                relationship_type STRING,
+                created_at INT64
             )"""
         ]
 
@@ -164,6 +306,14 @@ class KuzuSync:
             # Sync imports
             imports_synced = self._sync_imports()
 
+            # Sync new entities from project_02
+            symbols_synced = self._sync_symbols()
+            assignments_synced = self._sync_assignments()
+            interfaces_synced = self._sync_interfaces()
+            type_aliases_synced = self._sync_type_aliases()
+            parameters_synced = self._sync_parameters()
+            code_blocks_synced = self._sync_code_blocks()
+
             # Sync relationships
             relationships_synced = self._sync_relationships()
 
@@ -172,7 +322,10 @@ class KuzuSync:
             duration = time.time() - start_time
             logger.info(f"Full sync completed in {duration:.2f}s - Files: {files_synced}, "
                        f"Functions: {functions_synced}, Classes: {classes_synced}, "
-                       f"Imports: {imports_synced}, Relationships: {relationships_synced}")
+                       f"Imports: {imports_synced}, Symbols: {symbols_synced}, "
+                       f"Assignments: {assignments_synced}, Interfaces: {interfaces_synced}, "
+                       f"TypeAliases: {type_aliases_synced}, Parameters: {parameters_synced}, "
+                       f"CodeBlocks: {code_blocks_synced}, Relationships: {relationships_synced}")
 
         except Exception as e:
             try:
@@ -220,6 +373,7 @@ class KuzuSync:
     def _clear_data(self):
         """Clear all existing data from KuzuDB."""
         clear_queries = [
+            # Clear relationships first
             "MATCH (a)-[r:INHERITS]-(b) DELETE r",
             "MATCH (a)-[r:IMPORTS]-(b) DELETE r",
             "MATCH (a)-[r:FUNCTION_CALLS]-(b) DELETE r",
@@ -227,10 +381,29 @@ class KuzuSync:
             "MATCH (a)-[r:CONTAINS_IMPORT]-(b) DELETE r",
             "MATCH (a)-[r:CONTAINS_CLASS]-(b) DELETE r",
             "MATCH (a)-[r:CONTAINS_FUNCTION]-(b) DELETE r",
+            # Clear new relationships
+            "MATCH (a)-[r:DECLARES_SYMBOL]-(b) DELETE r",
+            "MATCH (a)-[r:CLASS_FIELD]-(b) DELETE r",
+            "MATCH (a)-[r:ASSIGNS_TO]-(b) DELETE r",
+            "MATCH (a)-[r:ASSIGNMENT_IN_FUNCTION]-(b) DELETE r",
+            "MATCH (a)-[r:IMPLEMENTS]-(b) DELETE r",
+            "MATCH (a)-[r:INTERFACE_METHOD]-(b) DELETE r",
+            "MATCH (a)-[r:USES_TYPE]-(b) DELETE r",
+            "MATCH (a)-[r:HAS_PARAMETER]-(b) DELETE r",
+            "MATCH (a)-[r:CONTAINS_BLOCK]-(b) DELETE r",
+            "MATCH (a)-[r:NESTED_BLOCK]-(b) DELETE r",
+            # Clear nodes
             "MATCH (n:Import) DELETE n",
             "MATCH (n:Class) DELETE n",
             "MATCH (n:Function) DELETE n",
-            "MATCH (n:File) DELETE n"
+            "MATCH (n:File) DELETE n",
+            # Clear new nodes
+            "MATCH (n:Symbol) DELETE n",
+            "MATCH (n:Assignment) DELETE n",
+            "MATCH (n:Interface) DELETE n",
+            "MATCH (n:TypeAlias) DELETE n",
+            "MATCH (n:Parameter) DELETE n",
+            "MATCH (n:CodeBlock) DELETE n"
         ]
 
         for query in clear_queries:
@@ -542,6 +715,365 @@ class KuzuSync:
                     count += 1
 
         return count
+
+    # New sync methods for project_02 entities
+
+    def _sync_symbols(self) -> int:
+        """Sync all symbols (variables, constants, fields, etc.)."""
+        count = 0
+        for file_obj in self.codebase.files:
+            symbols = self._extract_symbols(file_obj)
+            for symbol in symbols:
+                self._sync_single_symbol(symbol)
+                count += 1
+        return count
+
+    def _sync_assignments(self) -> int:
+        """Sync all assignment operations."""
+        count = 0
+        for file_obj in self.codebase.files:
+            assignments = self._extract_assignments(file_obj)
+            for assignment in assignments:
+                self._sync_single_assignment(assignment)
+                count += 1
+        return count
+
+    def _sync_interfaces(self) -> int:
+        """Sync interface definitions (TypeScript/Java)."""
+        count = 0
+        for file_obj in self.codebase.files:
+            if hasattr(file_obj, 'language') and file_obj.language.value in ['typescript', 'java']:
+                interfaces = self._extract_interfaces(file_obj)
+                for interface in interfaces:
+                    self._sync_single_interface(interface)
+                    count += 1
+        return count
+
+    def _sync_type_aliases(self) -> int:
+        """Sync type alias definitions."""
+        count = 0
+        for file_obj in self.codebase.files:
+            if hasattr(file_obj, 'language') and file_obj.language.value in ['typescript', 'java']:
+                type_aliases = self._extract_type_aliases(file_obj)
+                for type_alias in type_aliases:
+                    self._sync_single_type_alias(type_alias)
+                    count += 1
+        return count
+
+    def _sync_parameters(self) -> int:
+        """Sync function parameters with detailed information."""
+        count = 0
+        for func in self.codebase.functions:
+            parameters = self._extract_parameters(func)
+            for param in parameters:
+                self._sync_single_parameter(param)
+                count += 1
+        return count
+
+    def _sync_code_blocks(self) -> int:
+        """Sync code blocks (control structures) within functions."""
+        count = 0
+        for func in self.codebase.functions:
+            code_blocks = self._extract_code_blocks(func)
+            for block in code_blocks:
+                self._sync_single_code_block(block)
+                count += 1
+        return count
+
+    # Extraction methods for new entities
+
+    def _extract_symbols(self, file_obj) -> List[Dict]:
+        """Extract symbol declarations from a file."""
+        symbols = []
+        timestamp = int(time.time())
+        file_path = str(file_obj.filepath)
+
+        # Extract class fields/attributes
+        for cls in self.codebase.classes:
+            if str(cls.filepath) == file_path:
+                if hasattr(cls, 'fields'):
+                    for field in cls.fields:
+                        symbol_id = f"{file_path}::symbol::{field.name}:{cls.name}"
+                        symbols.append({
+                            'id': symbol_id,
+                            'name': field.name,
+                            'kind': 'field',
+                            'scope': 'class',
+                            'file_path': file_path,
+                            'parent_id': f"{cls.filepath}::{cls.name}:{cls.range.start_point[0] if hasattr(cls, 'range') else 0}",
+                            'start_line': field.range.start_point[0] if hasattr(field, 'range') else 0,
+                            'end_line': field.range.end_point[0] if hasattr(field, 'range') else 0,
+                            'is_exported': getattr(field, 'is_exported', False),
+                            'is_mutable': getattr(field, 'is_mutable', True),
+                            'type_annotation': str(getattr(field, 'type_annotation', '')),
+                            'created_at': timestamp,
+                            'updated_at': timestamp
+                        })
+
+        # Extract function-level variables (simplified approach)
+        for func in self.codebase.functions:
+            if str(func.filepath) == file_path:
+                # For now, we'll extract from parameters as symbols
+                if hasattr(func, 'parameters'):
+                    for param in func.parameters:
+                        symbol_id = f"{file_path}::symbol::{param.name}:{func.name}"
+                        symbols.append({
+                            'id': symbol_id,
+                            'name': param.name,
+                            'kind': 'parameter',
+                            'scope': 'function',
+                            'file_path': file_path,
+                            'parent_id': f"{func.filepath}::{func.name}:{func.range.start_point[0] if hasattr(func, 'range') else 0}",
+                            'start_line': func.range.start_point[0] if hasattr(func, 'range') else 0,
+                            'end_line': func.range.start_point[0] if hasattr(func, 'range') else 0,
+                            'is_exported': False,
+                            'is_mutable': True,
+                            'type_annotation': str(getattr(param, 'type_annotation', '')),
+                            'created_at': timestamp,
+                            'updated_at': timestamp
+                        })
+
+        return symbols
+
+    def _extract_assignments(self, file_obj) -> List[Dict]:
+        """Extract assignment operations from a file."""
+        assignments = []
+        timestamp = int(time.time())
+        file_path = str(file_obj.filepath)
+
+        # This is a simplified extraction - in practice would need AST parsing
+        # For now, we'll create assignments based on function parameters as initialization
+        for func in self.codebase.functions:
+            if str(func.filepath) == file_path and hasattr(func, 'parameters'):
+                for param in func.parameters:
+                    if hasattr(param, 'default_value') and param.default_value:
+                        assignment_id = f"{file_path}::assignment::{param.name}:{func.range.start_point[0] if hasattr(func, 'range') else 0}"
+                        assignments.append({
+                            'id': assignment_id,
+                            'target_symbol_id': f"{file_path}::symbol::{param.name}:{func.name}",
+                            'value_type': 'default_value',
+                            'value_representation': str(param.default_value),
+                            'file_path': file_path,
+                            'line_number': func.range.start_point[0] if hasattr(func, 'range') else 0,
+                            'is_initialization': True,
+                            'created_at': timestamp,
+                            'updated_at': timestamp
+                        })
+
+        return assignments
+
+    def _extract_interfaces(self, file_obj) -> List[Dict]:
+        """Extract interface definitions (TypeScript/Java specific)."""
+        interfaces = []
+        timestamp = int(time.time())
+        file_path = str(file_obj.filepath)
+
+        # For now, return empty list as graph-sitter doesn't expose interfaces directly
+        # In a full implementation, this would parse AST nodes for interface definitions
+        return interfaces
+
+    def _extract_type_aliases(self, file_obj) -> List[Dict]:
+        """Extract type alias definitions."""
+        type_aliases = []
+        timestamp = int(time.time())
+        file_path = str(file_obj.filepath)
+
+        # For now, return empty list as graph-sitter doesn't expose type aliases directly
+        # In a full implementation, this would parse AST nodes for type definitions
+        return type_aliases
+
+    def _extract_parameters(self, func_obj) -> List[Dict]:
+        """Extract detailed parameter information from a function."""
+        parameters = []
+        timestamp = int(time.time())
+
+        if hasattr(func_obj, 'parameters') and func_obj.parameters:
+            for idx, param in enumerate(func_obj.parameters):
+                param_id = f"{func_obj.filepath}::param::{param.name}:{func_obj.name}:{idx}"
+                func_id = f"{func_obj.filepath}::{func_obj.name}:{func_obj.range.start_point[0] if hasattr(func_obj, 'range') else 0}"
+
+                parameters.append({
+                    'id': param_id,
+                    'name': param.name,
+                    'function_id': func_id,
+                    'position': idx,
+                    'type_annotation': str(getattr(param, 'type_annotation', '')),
+                    'default_value': str(getattr(param, 'default_value', '')),
+                    'is_optional': hasattr(param, 'default_value') and param.default_value is not None,
+                    'is_rest': getattr(param, 'is_rest', False),
+                    'is_keyword_only': getattr(param, 'is_keyword_only', False),
+                    'created_at': timestamp,
+                    'updated_at': timestamp
+                })
+
+        return parameters
+
+    def _extract_code_blocks(self, func_obj) -> List[Dict]:
+        """Extract code blocks (control structures) from a function."""
+        code_blocks = []
+        timestamp = int(time.time())
+
+        # This is a simplified implementation
+        # In practice, would need to traverse the AST to find control structures
+        # For now, we'll estimate complexity as a proxy for code blocks
+        if hasattr(func_obj, 'complexity') and func_obj.complexity > 1:
+            # Create a single "complex" block for functions with high complexity
+            block_id = f"{func_obj.filepath}::block::complex:{func_obj.name}"
+            func_id = f"{func_obj.filepath}::{func_obj.name}:{func_obj.range.start_point[0] if hasattr(func_obj, 'range') else 0}"
+
+            code_blocks.append({
+                'id': block_id,
+                'block_type': 'complex',
+                'parent_id': func_id,
+                'file_path': str(func_obj.filepath),
+                'start_line': func_obj.range.start_point[0] if hasattr(func_obj, 'range') else 0,
+                'end_line': func_obj.range.end_point[0] if hasattr(func_obj, 'range') else 0,
+                'condition': '',
+                'complexity_contribution': func_obj.complexity - 1,
+                'created_at': timestamp,
+                'updated_at': timestamp
+            })
+
+        return code_blocks
+
+    # Individual sync methods for new entities
+
+    def _sync_single_symbol(self, symbol_data: Dict):
+        """Sync a single symbol to KuzuDB."""
+        self.conn.execute(
+            """CREATE (s:Symbol {
+                id: $id,
+                name: $name,
+                kind: $kind,
+                scope: $scope,
+                file_path: $file_path,
+                parent_id: $parent_id,
+                start_line: $start_line,
+                end_line: $end_line,
+                is_exported: $is_exported,
+                is_mutable: $is_mutable,
+                type_annotation: $type_annotation,
+                created_at: $created_at,
+                updated_at: $updated_at
+            })""",
+            symbol_data
+        )
+
+    def _sync_single_assignment(self, assignment_data: Dict):
+        """Sync a single assignment to KuzuDB."""
+        self.conn.execute(
+            """CREATE (a:Assignment {
+                id: $id,
+                target_symbol_id: $target_symbol_id,
+                value_type: $value_type,
+                value_representation: $value_representation,
+                file_path: $file_path,
+                line_number: $line_number,
+                is_initialization: $is_initialization,
+                created_at: $created_at,
+                updated_at: $updated_at
+            })""",
+            assignment_data
+        )
+
+    def _sync_single_interface(self, interface_data: Dict):
+        """Sync a single interface to KuzuDB."""
+        self.conn.execute(
+            """CREATE (i:Interface {
+                id: $id,
+                name: $name,
+                qualified_name: $qualified_name,
+                file_path: $file_path,
+                start_line: $start_line,
+                end_line: $end_line,
+                is_exported: $is_exported,
+                extends_interfaces: $extends_interfaces,
+                docstring: $docstring,
+                created_at: $created_at,
+                updated_at: $updated_at
+            })""",
+            interface_data
+        )
+
+    def _sync_single_type_alias(self, type_alias_data: Dict):
+        """Sync a single type alias to KuzuDB."""
+        self.conn.execute(
+            """CREATE (t:TypeAlias {
+                id: $id,
+                name: $name,
+                target_type: $target_type,
+                file_path: $file_path,
+                line_number: $line_number,
+                is_exported: $is_exported,
+                type_parameters: $type_parameters,
+                created_at: $created_at,
+                updated_at: $updated_at
+            })""",
+            type_alias_data
+        )
+
+    def _sync_single_parameter(self, param_data: Dict):
+        """Sync a single parameter to KuzuDB."""
+        timestamp = int(time.time())
+
+        self.conn.execute(
+            """CREATE (p:Parameter {
+                id: $id,
+                name: $name,
+                function_id: $function_id,
+                position: $position,
+                type_annotation: $type_annotation,
+                default_value: $default_value,
+                is_optional: $is_optional,
+                is_rest: $is_rest,
+                is_keyword_only: $is_keyword_only,
+                created_at: $created_at,
+                updated_at: $updated_at
+            })""",
+            param_data
+        )
+
+        # Create HAS_PARAMETER relationship
+        self.conn.execute(
+            """MATCH (f:Function {id: $function_id}), (p:Parameter {id: $param_id})
+               CREATE (f)-[:HAS_PARAMETER {created_at: $created}]->(p)""",
+            {
+                "function_id": param_data['function_id'],
+                "param_id": param_data['id'],
+                "created": timestamp
+            }
+        )
+
+    def _sync_single_code_block(self, block_data: Dict):
+        """Sync a single code block to KuzuDB."""
+        timestamp = int(time.time())
+
+        self.conn.execute(
+            """CREATE (b:CodeBlock {
+                id: $id,
+                block_type: $block_type,
+                parent_id: $parent_id,
+                file_path: $file_path,
+                start_line: $start_line,
+                end_line: $end_line,
+                condition: $condition,
+                complexity_contribution: $complexity_contribution,
+                created_at: $created_at,
+                updated_at: $updated_at
+            })""",
+            block_data
+        )
+
+        # Create CONTAINS_BLOCK relationship
+        self.conn.execute(
+            """MATCH (f:Function {id: $parent_id}), (b:CodeBlock {id: $block_id})
+               CREATE (f)-[:CONTAINS_BLOCK {nesting_level: 1, created_at: $created}]->(b)""",
+            {
+                "parent_id": block_data['parent_id'],
+                "block_id": block_data['id'],
+                "created": timestamp
+            }
+        )
 
     def query(self, cypher_query: str, params: Optional[Dict] = None):
         """Execute a Cypher query on the KuzuDB."""

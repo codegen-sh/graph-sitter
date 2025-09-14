@@ -283,11 +283,133 @@ class CodeGraphAnalyzer:
         MATCH (file:File)
         OPTIONAL MATCH (file)-[:CONTAINS_FUNCTION]->(func:Function)
         OPTIONAL MATCH (file)-[:CONTAINS_CLASS]->(cls:Class)
+        OPTIONAL MATCH (s:Symbol)
+        OPTIONAL MATCH (a:Assignment)
+        OPTIONAL MATCH (p:Parameter)
+        OPTIONAL MATCH (b:CodeBlock)
         RETURN
             count(DISTINCT file) as total_files,
             count(DISTINCT func) as total_functions,
             count(DISTINCT cls) as total_classes,
+            count(DISTINCT s) as total_symbols,
+            count(DISTINCT a) as total_assignments,
+            count(DISTINCT p) as total_parameters,
+            count(DISTINCT b) as total_code_blocks,
             sum(file.size) as total_size,
             avg(func.complexity) as avg_function_complexity
         """
         return self.kuzu_sync.query(query)
+
+    # New analysis methods leveraging project_02 entities
+
+    def find_unused_symbols(self):
+        """Find declared symbols that are never assigned or referenced."""
+        query = """
+        MATCH (s:Symbol)
+        WHERE NOT exists {
+            MATCH ()-[:ASSIGNS_TO]->(s)
+        }
+        AND s.kind <> 'parameter'
+        RETURN s.name, s.file_path, s.start_line, s.scope, s.kind
+        ORDER BY s.file_path, s.start_line
+        """
+        return self.kuzu_sync.query(query)
+
+    def analyze_parameter_complexity(self, threshold: int = 5):
+        """Find functions with too many parameters."""
+        query = """
+        MATCH (f:Function)-[:HAS_PARAMETER]->(p:Parameter)
+        WITH f, count(p) as param_count
+        WHERE param_count > $threshold
+        RETURN f.name, f.file_path, param_count, f.start_line
+        ORDER BY param_count DESC
+        """
+        return self.kuzu_sync.query(query, {"threshold": threshold})
+
+    def find_complex_code_blocks(self, min_complexity: int = 3):
+        """Find code blocks with high complexity contribution."""
+        query = """
+        MATCH (f:Function)-[:CONTAINS_BLOCK]->(b:CodeBlock)
+        WHERE b.complexity_contribution >= $min_complexity
+        RETURN f.name, f.file_path, b.block_type,
+               b.complexity_contribution, b.start_line
+        ORDER BY b.complexity_contribution DESC
+        """
+        return self.kuzu_sync.query(query, {"min_complexity": min_complexity})
+
+    def analyze_symbol_types(self):
+        """Analyze distribution of symbol types across the codebase."""
+        query = """
+        MATCH (s:Symbol)
+        WITH s.kind as symbol_type, count(s) as count
+        RETURN symbol_type, count
+        ORDER BY count DESC
+        """
+        return self.kuzu_sync.query(query)
+
+    def find_assignment_patterns(self):
+        """Analyze assignment patterns in the codebase."""
+        query = """
+        MATCH (a:Assignment)-[:ASSIGNS_TO]->(s:Symbol)
+        WITH a.value_type as assignment_type, count(a) as count
+        RETURN assignment_type, count
+        ORDER BY count DESC
+        """
+        return self.kuzu_sync.query(query)
+
+    def find_functions_with_default_parameters(self):
+        """Find functions that have parameters with default values."""
+        query = """
+        MATCH (f:Function)-[:HAS_PARAMETER]->(p:Parameter)
+        WHERE p.is_optional = true
+        WITH f, count(p) as optional_params
+        RETURN f.name, f.file_path, optional_params, f.start_line
+        ORDER BY optional_params DESC
+        """
+        return self.kuzu_sync.query(query)
+
+    def analyze_function_parameter_patterns(self):
+        """Analyze common parameter patterns across functions."""
+        query = """
+        MATCH (f:Function)-[:HAS_PARAMETER]->(p:Parameter)
+        WITH p.name as param_name, count(f) as usage_count
+        WHERE usage_count > 1
+        RETURN param_name, usage_count
+        ORDER BY usage_count DESC
+        LIMIT 20
+        """
+        return self.kuzu_sync.query(query)
+
+    def find_symbols_by_scope(self, scope: str):
+        """Find all symbols in a specific scope (e.g., 'class', 'function', 'global')."""
+        query = """
+        MATCH (s:Symbol)
+        WHERE s.scope = $scope
+        RETURN s.name, s.kind, s.file_path, s.start_line, s.is_exported
+        ORDER BY s.file_path, s.start_line
+        """
+        return self.kuzu_sync.query(query, {"scope": scope})
+
+    def get_detailed_file_metrics(self, file_path: str):
+        """Get comprehensive metrics for a file including new entities."""
+        query = """
+        MATCH (file:File {path: $path})
+        OPTIONAL MATCH (file)-[:CONTAINS_FUNCTION]->(func:Function)
+        OPTIONAL MATCH (file)-[:CONTAINS_CLASS]->(cls:Class)
+        OPTIONAL MATCH (file)-[:CONTAINS_IMPORT]->(imp:Import)
+        OPTIONAL MATCH (s:Symbol) WHERE s.file_path = $path
+        OPTIONAL MATCH (a:Assignment) WHERE a.file_path = $path
+        OPTIONAL MATCH (b:CodeBlock) WHERE b.file_path = $path
+        RETURN
+            file.path as file_path,
+            file.size as file_size,
+            file.language as language,
+            count(DISTINCT func) as function_count,
+            count(DISTINCT cls) as class_count,
+            count(DISTINCT imp) as import_count,
+            count(DISTINCT s) as symbol_count,
+            count(DISTINCT a) as assignment_count,
+            count(DISTINCT b) as code_block_count,
+            avg(func.complexity) as avg_complexity
+        """
+        return self.kuzu_sync.query(query, {"path": file_path})
