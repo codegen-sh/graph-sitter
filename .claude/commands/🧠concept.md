@@ -2,11 +2,13 @@
 
 ## Scope:
 Project implementation consists of:
-Read $(ls ./workflow/llm_guidance/tasks/project_{00..99}.md 2> /dev/null)
+Read( $(ls ./workflow/llm_guidance/tasks/project_*.md) )
 
 ## Task definition
 
 **Create new project files**
+
+The following definitions contain regular expressions in file name patterns
 
 This files must resemble the structure of @workflow/llm_guidance/tasks/project_[0-9]{2}.md
 
@@ -15,10 +17,12 @@ MUST contain information for any LLM to understand the project, context, what's 
 MUST be broken down in small digestible parts.
     - You can use @workflow/llm_guidance/tasks/project_[0-9]{2}.md as orchestrator and @workflow/llm_guidance/tasks/project_[0-9]{2}.[0-9]{2}.md as sub-tasks
 
-## Behavior
+/end of regular expressions in file name patterns
 
-Read @workflow/llm_guidance/brain.md
-Read @workflow/llm_guidance/coding_guidelines.md
+## CRITICAL Behavior
+
+Read(./workflow/llm_guidance/brain.md)
+Read(./workflow/llm_guidance/coding_guidelines.md)
 
 # Project orientation
 

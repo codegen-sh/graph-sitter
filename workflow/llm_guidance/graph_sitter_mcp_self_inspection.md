@@ -4,7 +4,7 @@
 Project implementation consists of:
 Read(./workflow/llm_guidance/tasks/project_01.md)
 Read(./workflow/llm_guidance/tasks/project_02.md)
-Read(./workflow/llm_guidance/tasks/project_03_concept.md)
+Read(./workflow/llm_guidance/tasks/concept_project_03.md)
 Read(./workflow/llm_guidance/tasks/project_03.md)
 
 # Idea
