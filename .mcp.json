@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "graph-sitter-kuzu": {
+      "command": "python",
+      "args": [
+        "./run_mcp_server.py",
+        "--project-path",
+        "./",
+        "--db-path",
+        "./code_graph.kuzu",
+        "--log-level",
+        "DEBUG"
+      ],
+      "env": {
+        "PYTHONPATH": "./src"
+      }
+    }
+  }
+}
