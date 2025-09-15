@@ -1,4 +1,4 @@
-Read workflow/llm_guidance/project_01.md
+Read workflow/llm_guidance/tasks/project_01.md
 
 The project_01 was implemented in @src/graph_sitter/extensions/kuzu_map/
 

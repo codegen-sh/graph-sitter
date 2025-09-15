@@ -2,18 +2,18 @@
 
 ## Scope:
 Project implementation consists of:
-Read @workflow/llm_guidance/project_01.md
-Read @workflow/llm_guidance/project_02.md
+Read @workflow/llm_guidance/tasks/project_01.md
+Read @workflow/llm_guidance/tasks/project_02.md
 
 Implementation reports:
-Read @workflow/llm_memory/PROJECT_01_IMPLEMENTATION.md
-Read @workflow/llm_memory/PROJECT_02_IMPLEMENTATION.md
+Read @workflow/llm_memory/tasks/PROJECT_01_IMPLEMENTATION.md
+Read @workflow/llm_memory/tasks/PROJECT_02_IMPLEMENTATION.md
 
 ## Task definition
 
-**Create @workflow/llm_guidance/project_03.md**
+**Create @workflow/llm_guidance/tasks/project_03.md**
 
-This file must resemble the structure of @workflow/llm_guidance/project_XX.md
+This file must resemble the structure of @workflow/llm_guidance/tasks/project_XX.md
 Must contain all important information to complete the project, using the workflow defined in @CLAUDE.md
 
 The idea of the task is to create a very lean and simple MCP server as a python script: `./src/graph_sitter/extensions/kuzu_map/kuzu_map_mcp.py`

@@ -283,12 +283,31 @@ class KuzuSync:
                 logger.error(f"Failed to execute schema query: {e}")
                 raise
 
+    def _ensure_transaction_closed(self):
+        """Ensure any pending transaction is properly closed."""
+        try:
+            # Try to commit any pending transaction
+            self.conn.execute("COMMIT")
+            logger.debug("Committed pending transaction")
+        except Exception:
+            try:
+                # If commit fails, rollback
+                self.conn.execute("ROLLBACK")
+                logger.debug("Rolled back pending transaction")
+            except Exception:
+                # No active transaction - this is fine
+                logger.debug("No active transaction to close")
+                pass
+
     def sync_full(self):
         """Perform full sync of codebase to KuzuDB."""
         logger.info("Starting full sync to KuzuDB")
         start_time = time.time()
 
         try:
+            # Ensure clean state before starting
+            self._ensure_transaction_closed()
+
             self.conn.execute("BEGIN TRANSACTION")
 
             # Clear existing data
@@ -328,10 +347,8 @@ class KuzuSync:
                        f"CodeBlocks: {code_blocks_synced}, Relationships: {relationships_synced}")
 
         except Exception as e:
-            try:
-                self.conn.execute("ROLLBACK")
-            except Exception:
-                pass  # No active transaction
+            # Use the new transaction cleanup method
+            self._ensure_transaction_closed()
             logger.error(f"Full sync failed: {e}")
             raise
 
@@ -340,6 +357,9 @@ class KuzuSync:
         logger.debug(f"Syncing file: {file_path}")
 
         try:
+            # Ensure clean state before starting
+            self._ensure_transaction_closed()
+
             self.conn.execute("BEGIN TRANSACTION")
 
             # Remove existing data for this file
@@ -363,10 +383,8 @@ class KuzuSync:
             logger.debug(f"Successfully synced file: {file_path}")
 
         except Exception as e:
-            try:
-                self.conn.execute("ROLLBACK")
-            except Exception:
-                pass  # No active transaction
+            # Use the new transaction cleanup method
+            self._ensure_transaction_closed()
             logger.error(f"Failed to sync file {file_path}: {e}")
             raise
 
@@ -1099,6 +1117,8 @@ class KuzuSync:
     def close(self):
         """Close the KuzuDB connection."""
         if hasattr(self, 'conn'):
+            # Ensure any pending transactions are cleaned up
+            self._ensure_transaction_closed()
             self.conn.close()
         if hasattr(self, 'db'):
             self.db.close()

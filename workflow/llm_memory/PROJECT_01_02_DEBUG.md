@@ -2,12 +2,12 @@
 
 ## Scope:
 Project implementation consists of:
-Read @workflow/llm_guidance/project_01.md
-Read @workflow/llm_guidance/project_02.md
+Read @workflow/llm_guidance/tasks/project_01.md
+Read @workflow/llm_guidance/tasks/project_02.md
 
 Implementation reports:
-Read @workflow/llm_memory/PROJECT_01_IMPLEMENTATION.md
-Read @workflow/llm_memory/PROJECT_02_IMPLEMENTATION.md
+Read @workflow/llm_memory/tasks/PROJECT_01_IMPLEMENTATION.md
+Read @workflow/llm_memory/tasks/PROJECT_02_IMPLEMENTATION.md
 
 # Bug to fix:
 

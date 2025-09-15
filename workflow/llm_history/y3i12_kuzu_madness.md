@@ -1,9 +1,9 @@
 # 🧠 remembers y3i12_kuzu_madness
 ---
 
-🧠 /🧠 Read workflow/llm_guidance/project_01.md
+🧠 /🧠 Read workflow/llm_guidance/tasks/project_01.md
 
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_01.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_01.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/coding_guidelines.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/.claude/commands/🧠.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/graph-tree-system-prompt.txt`)
@@ -175,12 +175,12 @@ The implementation demonstrates graph-sitter's power by using it to analyze itse
 
 **Session ended:** 11:39:06 (Reason: clear)
 
-🧠 /🧠 read workflow/llm_guidance/project_02.md
+🧠 /🧠 read workflow/llm_guidance/tasks/project_02.md
 
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_02.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_02.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/coding_guidelines.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/.claude/commands/🧠.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_01.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_01.md`)
 Glob(`{'pattern': 'src/graph_sitter/extensions/kuzu_map/**/*.py'}`)
 TodoWrite(`{'todos': [{'content': 'Analyze existing project_01 implementation', 'status': 'in_progress', 'activeForm': 'Analyzing existing project_01 implementation'}, {'content': 'Research graph-tree-system-prompt for guidance', 'status': 'pending', 'activeForm': 'Researching graph-tree-system-prompt for guidance'}, {'content': 'Extend database schema with Symbol, Assignment, Interface, TypeAlias, Parameter, CodeBlock tables', 'status': 'pending', 'activeForm': 'Extending database schema with new entity tables'}, {'content': 'Implement extraction logic for new entity types using graph-sitter AST', 'status': 'pending', 'activeForm': 'Implementing extraction logic for new entity types'}, {'content': 'Create synchronization methods for new entities', 'status': 'pending', 'activeForm': 'Creating synchronization methods for new entities'}, {'content': 'Add analysis queries leveraging new entity relationships', 'status': 'pending', 'activeForm': 'Adding analysis queries for new entity relationships'}, {'content': 'Test implementation with self-analysis', 'status': 'pending', 'activeForm': 'Testing implementation with self-analysis'}]}`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/src/graph_sitter/extensions/kuzu_map/sync.py`)
@@ -286,21 +286,21 @@ I have fully implemented the extension to the Graph-Sitter KuzuDB mapping as spe
 
 The implementation is **production-ready** and provides a complete foundation for advanced code analysis using KuzuDB's graph database capabilities with the full Graph-Sitter codebase structure.
 
-🧠 /🧠 workflow/llm_memory/PROJECT_01_02_DEBUG.md
+🧠 /🧠 workflow/llm_memory/tasks/PROJECT_01_02_DEBUG.md
 
 
 ---
 
 **Session ended:** 15:00:48 (Reason: clear)
 
-🧠 /🧠 workflow/llm_memory/PROJECT_01_02_DEBUG.md
+🧠 /🧠 workflow/llm_memory/tasks/PROJECT_01_02_DEBUG.md
 
 Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/coding_guidelines.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/PROJECT_01_02_DEBUG.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_02.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_01.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/PROJECT_01_IMPLEMENTATION.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/PROJECT_02_IMPLEMENTATION.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/tasks/PROJECT_01_02_DEBUG.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_02.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_01.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/tasks/PROJECT_01_IMPLEMENTATION.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/tasks/PROJECT_02_IMPLEMENTATION.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/.claude/commands/🧠.md`)
 TodoWrite(`{'todos': [{'content': 'Analyze the KuzuDB sync code to understand the duplicate key issue', 'status': 'in_progress', 'activeForm': 'Analyzing the KuzuDB sync code for duplicate key issue'}, {'content': 'Examine the symbol ID generation logic', 'status': 'pending', 'activeForm': 'Examining symbol ID generation logic'}, {'content': 'Fix the duplicate primary key issue', 'status': 'pending', 'activeForm': 'Fixing the duplicate primary key issue'}, {'content': 'Test the fix with a sync operation', 'status': 'pending', 'activeForm': 'Testing the fix with a sync operation'}]}`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/src/graph_sitter/extensions/kuzu_map/sync.py`)
@@ -391,14 +391,14 @@ The bug has been **successfully resolved**. The sync operation that was previous
 
 **Session ended:** 15:27:20 (Reason: clear)
 
-🧠 /🧠 read workflow/llm_guidance/project_01_02_exploration.md
+🧠 /🧠 read workflow/llm_guidance/tasks/project_01_02_exploration.md
 
 Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/coding_guidelines.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_01_02_exploration.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_02.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_01.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/PROJECT_01_IMPLEMENTATION.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/PROJECT_02_IMPLEMENTATION.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_01_02_exploration.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_02.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_01.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/tasks/PROJECT_01_IMPLEMENTATION.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/tasks/PROJECT_02_IMPLEMENTATION.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/.claude/commands/🧠.md`)
 Glob(`{'pattern': 'workflow/llm_memory/*'}`)
 Glob(`{'pattern': 'workflow/llm_memory/code_graph_kuzu_to_graphviz.py'}`)
@@ -590,14 +590,14 @@ Ready to visualize any aspect of the graph-sitter codebase structure! 🚀
 
 **Session ended:** 16:02:25 (Reason: clear)
 
-🧠 /🧠 read @workflow/llm_guidance/project_01_02_pr.md 
+🧠 /🧠 read @workflow/llm_guidance/tasks/project_01_02_pr.md 
 
 TodoWrite(`{'todos': [{'content': 'Read project definition documents (project_01.md and project_02.md)', 'status': 'pending', 'activeForm': 'Reading project definition documents'}, {'content': 'Read implementation reports (PROJECT_01_IMPLEMENTATION.md and PROJECT_02_IMPLEMENTATION.md)', 'status': 'pending', 'activeForm': 'Reading implementation reports'}, {'content': 'Read .claude/commands/🧠.md for context', 'status': 'pending', 'activeForm': 'Reading brain command documentation'}, {'content': 'Analyze current branch state and changes', 'status': 'pending', 'activeForm': 'Analyzing branch state and changes'}, {'content': 'Create PR with appropriate title and description', 'status': 'pending', 'activeForm': 'Creating PR'}]}`)
 TodoWrite(`{'todos': [{'content': 'Read project definition documents (project_01.md and project_02.md)', 'status': 'in_progress', 'activeForm': 'Reading project definition documents'}, {'content': 'Read implementation reports (PROJECT_01_IMPLEMENTATION.md and PROJECT_02_IMPLEMENTATION.md)', 'status': 'pending', 'activeForm': 'Reading implementation reports'}, {'content': 'Read .claude/commands/🧠.md for context', 'status': 'pending', 'activeForm': 'Reading brain command documentation'}, {'content': 'Analyze current branch state and changes', 'status': 'pending', 'activeForm': 'Analyzing branch state and changes'}, {'content': 'Create PR with appropriate title and description', 'status': 'pending', 'activeForm': 'Creating PR'}]}`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_02.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/project_01.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/PROJECT_01_IMPLEMENTATION.md`)
-Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/PROJECT_02_IMPLEMENTATION.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_02.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/tasks/project_01.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/tasks/PROJECT_01_IMPLEMENTATION.md`)
+Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_memory/tasks/PROJECT_02_IMPLEMENTATION.md`)
 TodoWrite(`{'todos': [{'content': 'Read project definition documents (project_01.md and project_02.md)', 'status': 'completed', 'activeForm': 'Reading project definition documents'}, {'content': 'Read implementation reports (PROJECT_01_IMPLEMENTATION.md and PROJECT_02_IMPLEMENTATION.md)', 'status': 'completed', 'activeForm': 'Reading implementation reports'}, {'content': 'Read .claude/commands/🧠.md for context', 'status': 'in_progress', 'activeForm': 'Reading brain command documentation'}, {'content': 'Analyze current branch state and changes', 'status': 'pending', 'activeForm': 'Analyzing branch state and changes'}, {'content': 'Create PR with appropriate title and description', 'status': 'pending', 'activeForm': 'Creating PR'}]}`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/.claude/commands/🧠.md`)
 Read(`/home/y3i12/graph_sitter_kuzu_git/workflow/llm_guidance/coding_guidelines.md`)
