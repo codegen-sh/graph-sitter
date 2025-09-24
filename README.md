@@ -12,7 +12,7 @@
 
 <div align="center">
 
-[![PyPI](https://img.shields.io/badge/PyPi-codegen-gray?style=flat-square&color=blue)](https://pypi.org/project/codegen/)
+[![PyPI](https://img.shields.io/badge/PyPi-graph--sitter-gray?style=flat-square&color=blue)](https://pypi.org/project/graph-sitter/)
 [![Documentation](https://img.shields.io/badge/Docs-graph-sitter.com-purple?style=flat-square)](https://graph-sitter.com)
 [![Slack Community](https://img.shields.io/badge/Slack-Join-4A154B?logo=slack&style=flat-square)](https://community.codegen.com)
 [![License](https://img.shields.io/badge/Code%20License-Apache%202.0-gray?&color=gray)](https://github.com/codegen-sh/graph-sitter/tree/develop?tab=Apache-2.0-1-ov-file)
@@ -25,7 +25,7 @@
 [Graph-sitter](https://graph-sitter.com) is a python library for manipulating codebases.
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Graph-sitter builds a complete graph connecting
 # functions, classes, imports and their relationships
@@ -67,7 +67,7 @@ gs create test-function
 # Run the codemod
 gs run test-function
 
-# Create an isolated venv with codegen => open jupyter
+# Create an isolated venv with graph-sitter => open jupyter
 gs notebook
 ```
 
@@ -84,7 +84,7 @@ from graph_sitter import Codebase
 Having issues? Here are some common problems and their solutions:
 
 - **I'm hitting an UV error related to `[[ packages ]]`**: This means you're likely using an outdated version of UV. Try updating to the latest version with: `uv self update`.
-- **I'm hitting an error about `No module named 'codegen.sdk.extensions.utils'`**: The compiled cython extensions are out of sync. Update them with `uv sync --reinstall-package codegen`.
+- **I'm hitting an error about `No module named 'graph_sitter.sdk.extensions.utils'`**: The compiled cython extensions are out of sync. Update them with `uv sync --reinstall-package graph-sitter`.
 - **I'm hitting a `RecursionError: maximum recursion depth exceeded` error while parsing my codebase**: If you are using python 3.12, try upgrading to 3.13. If you are already on 3.13, try upping the recursion limit with `sys.setrecursionlimit(10000)`.
 
 If you run into additional issues not listed here, please [join our slack community](https://community.codegen.com) and we'll help you out!

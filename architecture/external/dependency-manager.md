@@ -1,6 +1,6 @@
 # Dependency Manager
 
-> WARNING: Dependency manager is an experimental feature designed for Codegen Cloud! The current implementation WILL delete any existing `node_modules` folder!
+> WARNING: Dependency manager is an experimental feature designed for Graph-sitter Cloud! The current implementation WILL delete any existing `node_modules` folder!
 
 ## Motivation
 

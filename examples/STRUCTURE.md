@@ -27,7 +27,7 @@ Your `run.py` should follow this structure, demonstrated well in the `generate_t
    ```python
    import graph_sitter
    from graph_sitter import Codebase
-   from codegen.sdk.core import Function
+   from graph_sitter.core import Function
    # ... other imports
    ```
 
@@ -177,4 +177,4 @@ Before submitting:
 1. Ensure the example runs with minimal setup
 1. Check that documentation is clear and accurate
 
-Remember: Your example might be used by both humans and AI to understand Codegen's capabilities. Clear structure and documentation help everyone use your code effectively.
+Remember: Your example might be used by both humans and AI to understand Graph-sitter's capabilities. Clear structure and documentation help everyone use your code effectively.

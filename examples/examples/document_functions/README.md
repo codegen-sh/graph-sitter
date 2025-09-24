@@ -4,7 +4,7 @@ This example demonstrates how to use Graph-sitter to automatically generate comp
 
 ## Overview
 
-The script uses Codegen's symbol analysis capabilities to:
+The script uses Graph-sitter's symbol analysis capabilities to:
 
 1. Identify functions without docstrings
 1. Analyze their dependencies and usages up to N degrees deep

@@ -14,7 +14,22 @@ jobs:
   access-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions-cool/check-user-permission@v2
+      - name: Check if bot account
+        id: bot-check
+        run: |
+          actor="${{ github.triggering_actor }}"
+          echo "Checking actor: $actor"
+          if [[ "$actor" == *"[bot]" ]] || [[ "$actor" == "renovate" ]] || [[ "$actor" == "dependabot" ]]; then
+            echo "is_bot=true" >> $GITHUB_OUTPUT
+            echo "Detected bot account: $actor - skipping permission check"
+            exit 0
+          else
+            echo "is_bot=false" >> $GITHUB_OUTPUT
+            echo "Detected human account: $actor"
+          fi
+      - name: Check user permissions
+        if: steps.bot-check.outputs.is_bot == 'false'
+        uses: actions-cool/check-user-permission@v2
         with:
           require: write
           username: ${{ github.triggering_actor }}

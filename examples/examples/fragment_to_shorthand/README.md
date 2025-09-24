@@ -39,7 +39,7 @@ The script automates the entire conversion process in a few key steps:
 
 1. **Zero Manual Updates**
 
-   - Codegen SDK handles all Fragment replacements
+   - Graph-sitter SDK handles all Fragment replacements
    - Automatically cleans up imports
 
 1. **Consistent Changes**
@@ -66,7 +66,7 @@ The script will:
 - [React Fragments](https://react.dev/reference/react/Fragment)
 - [JSX Fragments](https://react.dev/reference/jsx#jsx-fragments)
 - [Graph-sitter Documentation](https://graph-sitter.com)
-- [More on Codegen SDK jsx elements API](https://graph-sitter.com/api-reference/typescript/JSXElement#jsxelement)
+- [More on Graph-sitter SDK jsx elements API](https://graph-sitter.com/api-reference/typescript/JSXElement#jsxelement)
 
 ## Contributing
 

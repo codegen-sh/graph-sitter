@@ -11,7 +11,7 @@ A web dashboard for visualizing AI-generated code contributions in your codebase
 ```bash
 uv venv
 source .venv/bin/activate
-uv pip install modal codegen fastapi
+uv pip install modal graph-sitter fastapi
 ```
 
 2. Deploy or serve the Modal endpoint:

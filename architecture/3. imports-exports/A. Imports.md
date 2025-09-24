@@ -2,7 +2,7 @@
 
 Import resolution follows AST construction in the code analysis pipeline. It identifies dependencies between modules and builds a graph of relationships across the codebase.
 
-> NOTE: This is an actively evolving part of Codegen SDK, so some details here may be imcomplete, outdated, or incorrect.
+> NOTE: This is an actively evolving part of Graph-sitter SDK, so some details here may be imcomplete, outdated, or incorrect.
 
 ## Purpose
 

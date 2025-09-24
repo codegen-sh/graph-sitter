@@ -15,7 +15,7 @@ The script (`run.py`) automates the entire conversion process in a few key steps
    codebase = Codebase.from_repo("modal-labs/modal-client")
    ```
 
-   - Loads your codebase into Codegen's intelligent code analysis engine
+   - Loads your codebase into Graph-sitter's intelligent code analysis engine
    - Provides a simple SDK for making codebase-wide changes
    - Supports any Git repository as input
 
