@@ -17,10 +17,14 @@ jobs:
       - name: Check if bot account
         id: bot-check
         run: |
-          if [[ "${{ github.triggering_actor }}" == *"[bot]" ]] || [[ "${{ github.triggering_actor }}" == "renovate" ]] || [[ "${{ github.triggering_actor }}" == "dependabot" ]]; then
+          actor="${{ github.triggering_actor }}"
+          echo "Checking actor: $actor"
+          if [[ "$actor" == *"[bot]" ]] || [[ "$actor" == "renovate" ]] || [[ "$actor" == "dependabot" ]]; then
             echo "is_bot=true" >> $GITHUB_OUTPUT
+            echo "Detected bot account: $actor"
           else
             echo "is_bot=false" >> $GITHUB_OUTPUT
+            echo "Detected human account: $actor"
           fi
       - uses: actions-cool/check-user-permission@v2
         if: steps.bot-check.outputs.is_bot == 'false'
