@@ -14,7 +14,16 @@ jobs:
   access-check:
     runs-on: ubuntu-latest
     steps:
+      - name: Check if bot account
+        id: bot-check
+        run: |
+          if [[ "${{ github.triggering_actor }}" == *"[bot]" ]] || [[ "${{ github.triggering_actor }}" == "renovate" ]] || [[ "${{ github.triggering_actor }}" == "dependabot" ]]; then
+            echo "is_bot=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_bot=false" >> $GITHUB_OUTPUT
+          fi
       - uses: actions-cool/check-user-permission@v2
+        if: steps.bot-check.outputs.is_bot == 'false'
         with:
           require: write
           username: ${{ github.triggering_actor }}
