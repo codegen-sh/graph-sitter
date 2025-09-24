@@ -1,6 +1,6 @@
-# Architecture of the Codegen SDK
+# Architecture of the Graph-sitter SDK
 
-This is a technical document explaining the architecture of the Codegen SDK.
+This is a technical document explaining the architecture of the Graph-sitter SDK.
 
 ## Purpose of the SDK
 
@@ -17,7 +17,7 @@ This SDK is designed to accomplish a large set of use cases in one tool:
 
 ### Performance
 
-A key problem is performance. We must be able to quickly respond to user requests on enterprise codebases (IE: renaming a symbol). However, we don't know what those requests are in advance and the scope of these requests can be quite massive (They may choose to iterate over a large number of symbols and their usages). To respond to these problems, we introduced codegen cloud. We split operations into two parts:
+A key problem is performance. We must be able to quickly respond to user requests on enterprise codebases (IE: renaming a symbol). However, we don't know what those requests are in advance and the scope of these requests can be quite massive (They may choose to iterate over a large number of symbols and their usages). To respond to these problems, we introduced graph-sitter cloud. We split operations into two parts:
 
 - A "parse" step that builds up a graph of the codebase
   - This can take a long time to complete, but it only needs to be done once
@@ -34,12 +34,12 @@ To accomplish these goals, we can look at existing classes of solutions:
 
 ### Language Server Architecture
 
-The immediate question is: why not use a language server? They have a lot of the same goals as codegen, but do not address many of our goals:
+The immediate question is: why not use a language server? They have a lot of the same goals as graph-sitter, but do not address many of our goals:
 
 - Language servers can handle many of these same use cases, but they are not as performant as we need.
 - Generally, language servers compute their results lazily. This doesn't work for us because we need to perform a large number of operations on the codebase.
-- While the LSP protocol is powerful, it is not designed to be scriptable the way codegen is.
-- In Python, many of the language servers are an aglamation of many different tools and libraries. None are very good at refactoring or offer the comprehensive set of features that codegen does.
+- While the LSP protocol is powerful, it is not designed to be scriptable the way graph-sitter is.
+- In Python, many of the language servers are an aglamation of many different tools and libraries. None are very good at refactoring or offer the comprehensive set of features that graph-sitter does.
 
 Generally language servers parse codebases in response to user actions. This is not a good fit for us because we need to perform a large number of operations on the codebase without knowing which symbols are being changed or queried.
 
@@ -56,7 +56,7 @@ Generally compilers build up knowledge of the entire codebase in a single pass. 
 
 ## Architecture
 
-The codegen SDK combines aspects of both systems to accomplish our goals.
+The graph-sitter SDK combines aspects of both systems to accomplish our goals.
 At a high level our architecture is:
 
 1. We discover files to parse

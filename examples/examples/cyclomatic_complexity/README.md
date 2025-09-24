@@ -1,6 +1,6 @@
 # Cyclomatic Complexity Analyzer
 
-This example demonstrates how to analyze the cyclomatic complexity of Python codebases using Codegen. The script provides detailed insights into code complexity by analyzing control flow structures and providing a comprehensive report.
+This example demonstrates how to analyze the cyclomatic complexity of Python codebases using Graph-sitter. The script provides detailed insights into code complexity by analyzing control flow structures and providing a comprehensive report.
 
 > [!NOTE]
 > The cyclomatic complexity metric helps identify complex code that might need refactoring. A higher score indicates more complex code with multiple decision points.
@@ -15,7 +15,7 @@ The script (`run.py`) performs the complexity analysis in several key steps:
    codebase = Codebase.from_repo("fastapi/fastapi")
    ```
 
-   - Loads any Python codebase into Codegen's analysis engine
+   - Loads any Python codebase into Graph-sitter's analysis engine
    - Works with local or remote Git repositories
    - Supports analyzing specific commits
 

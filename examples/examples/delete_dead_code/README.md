@@ -1,6 +1,6 @@
 # Delete Dead Code
 
-This example demonstrates how to identify and remove dead code from a codebase using Codegen. The script efficiently cleans up unused functions and variables, helping maintain a lean and efficient codebase.
+This example demonstrates how to identify and remove dead code from a codebase using Graph-sitter. The script efficiently cleans up unused functions and variables, helping maintain a lean and efficient codebase.
 
 > [!NOTE]
 > Dead code refers to code that is not being used or referenced anywhere in your codebase. However, some code might appear unused but should not be deleted, such as test files, functions with decorators, public API endpoints, and event handlers.

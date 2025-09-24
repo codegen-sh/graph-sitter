@@ -7,7 +7,7 @@
 </p>
 
 <h2 align="center">
-  An MCP server implementation that integrates the codegen sdk.
+  An MCP server implementation that integrates the graph-sitter sdk.
 
 </h2>
 
@@ -18,10 +18,10 @@
 
 </div>
 
-This example demonstrates how to run a Model Control Protocol (MCP) server that integrates with Codegen. The server provides:
+This example demonstrates how to run a Model Control Protocol (MCP) server that integrates with Graph-sitter. The server provides:
 
 1. A standardized interface for model inference
-1. Integration with Codegen's core functionality, parsing codebases and executing codemods
+1. Integration with Graph-sitter's core functionality, parsing codebases and executing codemods
 1. Support for various LLM providers through the MCP protocol
 
 ## Quick Start
@@ -64,4 +64,4 @@ Here is an example mcp config that can be used with Cline or Claude desktop to i
 
 - `parse_codebase`: Parses a codebase located at the provided path.
 - `check_parse_status`: Provides the current parsing status for the provided codebase.
-- `execute_codemod`: Executes a codemod script on a parsed codebase. This is where the codegen sdk leveraged to run simple or sophisticated codemods on the codebase.
+- `execute_codemod`: Executes a codemod script on a parsed codebase. This is where the graph-sitter sdk leveraged to run simple or sophisticated codemods on the codebase.
