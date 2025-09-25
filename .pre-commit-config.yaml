@@ -68,7 +68,7 @@ repos:
         files: "docs/.*/.*.mdx"
 
   - repo: https://github.com/fpgmaas/deptry.git
-    rev: "0.23.0"
+    rev: "0.23.1"
     hooks:
       - id: deptry
         pass_filenames: false
