@@ -9,7 +9,7 @@ Graph-sitter is designed to be used with AI assistants. This document describes 
 
 ## System Prompt
 
-Graph-sitter provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Codegen.
+Graph-sitter provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Graph-sitter.
 
 import {
   CODEGEN_SYSTEM_PROMPT
@@ -33,8 +33,8 @@ gs create delete-dead-imports . --description "Delete unused imports"
 
 Graph-sitter automatically generates an optimized ["system prompt"](https://news.ycombinator.com/item?id=37880023) that includes:
 
-- An introduction to Codegen
-- Codegen API documentation
+- An introduction to Graph-sitter
+- Graph-sitter API documentation
 - Examples of relevant transformations
 
 You can find this generated prompt in the `.codegen/prompts/<codemod-name>-system-prompt.md` file.
@@ -73,13 +73,13 @@ This `.md` file can be used with any AI assistant (Claude, GPT-4, etc.) to get m
 
 ## Copilot, Cursor and Windsurf (IDEs)
 
-When using IDE chat assistants, you can leverage Codegen's context by mentioning your codemod in composer mode:
+When using IDE chat assistants, you can leverage Graph-sitter's context by mentioning your codemod in composer mode:
 
 ```bash
 @.codegen/codemods/upgrade-react18 @.codegen/prompts/system-prompt.md
 ```
 
-This will ensure that the IDE's native chat model is aware of the APIs and common patterns for Codegen.
+This will ensure that the IDE's native chat model is aware of the APIs and common patterns for Graph-sitter.
 
 ## Devin, OpenHands and Semi-autonomous Code Agents
 

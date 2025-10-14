@@ -1,16 +1,16 @@
 ---
-title: "Codegen"
+title: "Graph-sitter"
 sidebarTitle: "Overview"
 icon: "robot"
 iconType: "solid"
 ---
 
-[Codegen](https://github.com/codegen-sh/graph-sitter) is a python library for manipulating codebases.
+[Graph-sitter](https://github.com/codegen-sh/graph-sitter) is a python library for manipulating codebases.
 
 It provides a scriptable interface to a powerful, multi-lingual language server built on top of [Tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Graph-sitter builds a complete graph connecting
 # functions, classes, imports and their relationships
@@ -59,9 +59,9 @@ pipx install graph-sitter
 For further & more in depth installation instructions, see the [installation guide](/introduction/installation).
 </Note>
 
-## What can I do with Codegen?
+## What can I do with Graph-sitter?
 
-Codegen's simple yet powerful APIs enable a range of applications, including:
+Graph-sitter's simple yet powerful APIs enable a range of applications, including:
 
 <CardGroup cols={2}>
   <Card
@@ -87,7 +87,7 @@ Codegen's simple yet powerful APIs enable a range of applications, including:
   </Card>
 </CardGroup>
 
-See below for an example call graph visualization generated with Codegen.
+See below for an example call graph visualization generated with Graph-sitter.
 
 <Frame caption="Call graph visualization for modal/modal-client/_Client">
 <iframe
@@ -118,7 +118,7 @@ import {
     icon="graduation-cap"
     href="/introduction/getting-started"
   >
-    Follow our step-by-step tutorial to start manipulating code with Codegen.
+    Follow our step-by-step tutorial to start manipulating code with Graph-sitter.
   </Card>
   <Card title="Tutorials" icon="diagram-project" href="/tutorials/at-a-glance">
     Learn how to use Graph-sitter for common code transformation tasks.
@@ -131,7 +131,7 @@ import {
   </Card>
 </CardGroup>
 
-## Why Codegen?
+## Why Graph-sitter?
 
 Many software engineering tasks - refactors, enforcing patterns, analyzing control flow, etc. - are fundamentally programmatic operations. Yet the tools we use to express these transformations often feel disconnected from how we think about code.
 

@@ -69,8 +69,8 @@ You can customize the behavior of your Codebase instance by passing a `CodebaseC
 
 ```python
 from graph_sitter import Codebase
-from codegen.configs.models.codebase import CodebaseConfig
-from codegen.configs.models.secrets import SecretsConfig
+from graph_sitter.configs.models.codebase import CodebaseConfig
+from graph_sitter.configs.models.secrets import SecretsConfig
 
 codebase = Codebase(
     "path/to/repository",
@@ -97,9 +97,9 @@ Here's an example:
 
 ```python
 from graph_sitter import Codebase
-from codegen.git.repo_operator.local_repo_operator import LocalRepoOperator
-from codegen.git.schemas.repo_config import BaseRepoConfig
-from codegen.sdk.codebase.config import ProjectConfig
+from graph_sitter.git.repo_operator.local_repo_operator import LocalRepoOperator
+from graph_sitter.git.schemas.repo_config import BaseRepoConfig
+from graph_sitter.sdk.codebase.config import ProjectConfig
 
 codebase = Codebase(
     projects = [

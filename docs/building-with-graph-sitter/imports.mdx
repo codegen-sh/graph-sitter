@@ -20,7 +20,7 @@ for imp in file.imports:
 imp = file.get_import('math')
 
 # Grab and filter from a codebase
-from codegen.sdk import ExternalModule
+from graph_sitter.sdk import ExternalModule
 
 external_imports = [i for i in codebase.imports if isinstance(i, ExternalModule)]
 ```
