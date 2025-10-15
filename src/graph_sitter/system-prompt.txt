@@ -1,16 +1,16 @@
 ---
-title: "Codegen"
+title: "Graph-sitter"
 sidebarTitle: "Overview"
 icon: "robot"
 iconType: "solid"
 ---
 
-[Codegen](https://github.com/codegen-sh/graph-sitter) is a python library for manipulating codebases.
+[Graph-sitter](https://github.com/codegen-sh/graph-sitter) is a python library for manipulating codebases.
 
 It provides a scriptable interface to a powerful, multi-lingual language server built on top of [Tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 
 ```python
-from codegen import Codebase
+from graph_sitter import Codebase
 
 # Graph-sitter builds a complete graph connecting
 # functions, classes, imports and their relationships
@@ -59,9 +59,9 @@ pipx install graph-sitter
 For further & more in depth installation instructions, see the [installation guide](/introduction/installation).
 </Note>
 
-## What can I do with Codegen?
+## What can I do with Graph-sitter?
 
-Codegen's simple yet powerful APIs enable a range of applications, including:
+Graph-sitter's simple yet powerful APIs enable a range of applications, including:
 
 <CardGroup cols={2}>
   <Card
@@ -87,7 +87,7 @@ Codegen's simple yet powerful APIs enable a range of applications, including:
   </Card>
 </CardGroup>
 
-See below for an example call graph visualization generated with Codegen.
+See below for an example call graph visualization generated with Graph-sitter.
 
 <Frame caption="Call graph visualization for modal/modal-client/_Client">
 <iframe
@@ -118,7 +118,7 @@ import {
     icon="graduation-cap"
     href="/introduction/getting-started"
   >
-    Follow our step-by-step tutorial to start manipulating code with Codegen.
+    Follow our step-by-step tutorial to start manipulating code with Graph-sitter.
   </Card>
   <Card title="Tutorials" icon="diagram-project" href="/tutorials/at-a-glance">
     Learn how to use Graph-sitter for common code transformation tasks.
@@ -131,7 +131,7 @@ import {
   </Card>
 </CardGroup>
 
-## Why Codegen?
+## Why Graph-sitter?
 
 Many software engineering tasks - refactors, enforcing patterns, analyzing control flow, etc. - are fundamentally programmatic operations. Yet the tools we use to express these transformations often feel disconnected from how we think about code.
 
@@ -438,7 +438,7 @@ These flags are helpful for debugging problematic repos, optimizing Codegen’s 
 
 ```python
 from graph_sitter import Codebase
-from codegen.configs import CodebaseConfig
+from graph_sitter.configs import CodebaseConfig
 
 # Initialize a Codebase with custom configuration
 codebase = Codebase(
@@ -520,7 +520,7 @@ We recommend using [uv](https://github.com/astral-sh/uv) for installation. If yo
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-## Installing Codegen
+## Installing Graph-sitter
 
 ```bash
 uv tool install graph-sitter --python 3.13
@@ -528,7 +528,7 @@ uv tool install graph-sitter --python 3.13
 
 
 <Note>
-This makes the `codegen` command available globally in your terminal, while keeping its dependencies isolated.
+This makes the `graph-sitter` command available globally in your terminal, while keeping its dependencies isolated.
 </Note>
 
 ## Quick Start
@@ -581,7 +581,7 @@ Let's walk through a minimal example of using Graph-sitter in a project:
 Having issues? Here are some common problems and their solutions:
 
 - **I'm hitting an UV error related to `[[ packages ]]`**: This means you're likely using an outdated version of UV. Try updating to the latest version with: `uv self update`.
-- **I'm hitting an error about `No module named 'codegen.sdk.extensions.utils'`**: The compiled cython extensions are out of sync. Update them with `uv sync --reinstall-package codegen`.
+- **I'm hitting an error about `No module named 'graph_sitter.sdk.extensions.utils'`**: The compiled cython extensions are out of sync. Update them with `uv sync --reinstall-package graph-sitter`.
 - **I'm hitting a `RecursionError: maximum recursion depth exceeded` error while parsing my codebase**: If you are using python 3.12, try upgrading to 3.13. If you are already on 3.13, try upping the recursion limit with `sys.setrecursionlimit(10000)`.
 
 <Note>
@@ -617,7 +617,7 @@ For more help, join our [community Slack](/introduction/community) or check the 
     icon="hammer"
     href="/building-with-graph-sitter/at-a-glance"
   >
-    Learn more about building with Codegen
+    Learn more about building with Graph-sitter
     </Card>
 
 </CardGroup>
@@ -814,7 +814,7 @@ Graph-sitter is designed to be used with AI assistants. This document describes 
 
 ## System Prompt
 
-Graph-sitter provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Codegen.
+Graph-sitter provides a `.txt` file that you can drag-and-drop into any chat assistant. This is roughly 60k tokens and will enable chat assistants like, ChatGPT, Claude 3.5 etc. to build effectively with Graph-sitter.
 
 import {
   CODEGEN_SYSTEM_PROMPT
@@ -838,8 +838,8 @@ gs create delete-dead-imports . --description "Delete unused imports"
 
 Graph-sitter automatically generates an optimized ["system prompt"](https://news.ycombinator.com/item?id=37880023) that includes:
 
-- An introduction to Codegen
-- Codegen API documentation
+- An introduction to Graph-sitter
+- Graph-sitter API documentation
 - Examples of relevant transformations
 
 You can find this generated prompt in the `.codegen/prompts/<codemod-name>-system-prompt.md` file.
@@ -878,13 +878,13 @@ This `.md` file can be used with any AI assistant (Claude, GPT-4, etc.) to get m
 
 ## Copilot, Cursor and Windsurf (IDEs)
 
-When using IDE chat assistants, you can leverage Codegen's context by mentioning your codemod in composer mode:
+When using IDE chat assistants, you can leverage Graph-sitter's context by mentioning your codemod in composer mode:
 
 ```bash
 @.codegen/codemods/upgrade-react18 @.codegen/prompts/system-prompt.md
 ```
 
-This will ensure that the IDE's native chat model is aware of the APIs and common patterns for Codegen.
+This will ensure that the IDE's native chat model is aware of the APIs and common patterns for Graph-sitter.
 
 ## Devin, OpenHands and Semi-autonomous Code Agents
 
@@ -1011,7 +1011,7 @@ You can customize the behavior of the graph construction process when initializi
 
 ```python
 from graph_sitter import Codebase
-from codegen.configs import CodebaseConfig
+from graph_sitter.configs import CodebaseConfig
 
 # Initialize a Codebase with custom configuration
 codebase = Codebase(
@@ -1200,7 +1200,7 @@ This experimental flag pushes the graph creation back until the graph is needed.
 **Example Codemod:**
 ```python
 from graph_sitter import Codebase
-from codegen.configs import CodebaseConfig
+from graph_sitter.configs import CodebaseConfig
 
 # Enable lazy graph parsing
 codebase = Codebase("<repo_path>", config=CodebaseConfig(exp_lazy_graph=True))
@@ -1865,8 +1865,8 @@ You can customize the behavior of your Codebase instance by passing a `CodebaseC
 
 ```python
 from graph_sitter import Codebase
-from codegen.configs.models.codebase import CodebaseConfig
-from codegen.configs.models.secrets import SecretsConfig
+from graph_sitter.configs.models.codebase import CodebaseConfig
+from graph_sitter.configs.models.secrets import SecretsConfig
 
 codebase = Codebase(
     "path/to/repository",
@@ -1893,9 +1893,9 @@ Here's an example:
 
 ```python
 from graph_sitter import Codebase
-from codegen.git.repo_operator.local_repo_operator import LocalRepoOperator
-from codegen.git.schemas.repo_config import BaseRepoConfig
-from codegen.sdk.codebase.config import ProjectConfig
+from graph_sitter.git.repo_operator.local_repo_operator import LocalRepoOperator
+from graph_sitter.git.schemas.repo_config import BaseRepoConfig
+from graph_sitter.sdk.codebase.config import ProjectConfig
 
 codebase = Codebase(
     projects = [
@@ -2178,7 +2178,7 @@ iconType: "solid"
 
 # Function Decorator
 
-The `function` decorator is used to define codegen functions within your application. It allows you to specify a name for the function that will be ran making it easier to run specific codemods
+The `function` decorator is used to define graph-sitter functions within your application. It allows you to specify a name for the function that will be ran making it easier to run specific codemods
 
 ## Usage
 
@@ -2200,7 +2200,7 @@ In this example, the function `run` is decorated with `@graph_sitter.function` a
 
 ## Description
 
-The `function` decorator is part of the codegen SDK CLI and is used to mark functions that are intended to be ran as part of a code generation process. It ensures that the function is properly registered and can be invoked with the specified name.
+The `function` decorator is part of the graph-sitter SDK CLI and is used to mark functions that are intended to be ran as part of a code generation process. It ensures that the function is properly registered and can be invoked with the specified name.
 
 
 ## CLI Examples
@@ -2534,9 +2534,9 @@ exists = codebase.has_directory("path/to/dir")
 ## Differences between SourceFile and File
 
 - [File](/api-reference/core/File) - a general purpose class that represents any file in the codebase including non-code files like README.md, .env, .json, image files, etc.
-- [SourceFile](/api-reference/core/SourceFile) - a subclass of [File](/api-reference/core/File) that provides additional functionality for source code files written in languages supported by the [codegen-sdk](/introduction/overview) (Python, TypeScript, JavaScript, React).
+- [SourceFile](/api-reference/core/SourceFile) - a subclass of [File](/api-reference/core/File) that provides additional functionality for source code files written in languages supported by [graph-sitter](/introduction/overview) (Python, TypeScript, JavaScript, React).
 
-The majority of intended use cases involve using exclusively [SourceFile](/api-reference/core/SourceFile) objects as these contain code that can be parsed and manipulated by the [codegen-sdk](/introduction/overview). However, there may be cases where it will be necessary to work with non-code files. In these cases, the [File](/api-reference/core/File) class can be used.
+The majority of intended use cases involve using exclusively [SourceFile](/api-reference/core/SourceFile) objects as these contain code that can be parsed and manipulated by [graph-sitter](/introduction/overview). However, there may be cases where it will be necessary to work with non-code files. In these cases, the [File](/api-reference/core/File) class can be used.
 
 By default, the `codebase.files` property will only return [SourceFile](/api-reference/core/SourceFile) objects. To include non-code files the `extensions='*'` argument must be used.
 
@@ -3278,7 +3278,7 @@ for imp in file.imports:
 imp = file.get_import('math')
 
 # Grab and filter from a codebase
-from codegen.sdk import ExternalModule
+from graph_sitter.sdk import ExternalModule
 
 external_imports = [i for i in codebase.imports if isinstance(i, ExternalModule)]
 ```
@@ -5466,9 +5466,9 @@ Here's how to build a directed graph of function calls using NetworkX:
 
 ```python
 import networkx as nx
-from codegen.sdk.core.interfaces.callable import FunctionCallDefinition
-from codegen.sdk.core.function import Function
-from codegen.sdk.core.external_module import ExternalModule
+from graph_sitter.sdk.core.interfaces.callable import FunctionCallDefinition
+from graph_sitter.sdk.core.function import Function
+from graph_sitter.sdk.core.external_module import ExternalModule
 
 def create_call_graph(start_func, end_func, max_depth=5):
     G = nx.DiGraph()
@@ -7092,7 +7092,7 @@ icon: "calculator"
 iconType: "solid"
 ---
 
-This tutorial explains how codebase metrics are efficiently calculated using the `codegen` library in the Codebase Analytics Dashboard. The metrics include indices of codebase maintainabilith and complexity.
+This tutorial explains how codebase metrics are efficiently calculated using the `graph-sitter` library in the Codebase Analytics Dashboard. The metrics include indices of codebase maintainabilith and complexity.
 
 View the full code and setup instructions in our [codebase-analytics repository](https://github.com/codegen-sh/codebase-analytics).
 
@@ -7137,7 +7137,7 @@ Halstead Volume is a software metric which measures the complexity of a codebase
 
 **Halstead Volume**: `V = (N1 + N2) * log2(n1 + n2)`
 
-This calculation uses codegen's expression types to make this calculation very efficient - these include BinaryExpression, UnaryExpression and ComparisonExpression. The function extracts operators and operands from the codebase object and calculated in `calculate_halstead_volume()` function.
+This calculation uses graph-sitter's expression types to make this calculation very efficient - these include BinaryExpression, UnaryExpression and ComparisonExpression. The function extracts operators and operands from the codebase object and calculated in `calculate_halstead_volume()` function.
 
 ```python
 def calculate_halstead_volume(operators, operands):
@@ -7157,7 +7157,7 @@ def calculate_halstead_volume(operators, operands):
 ```
 
 ### Depth of Inheritance (DOI)
-Depth of Inheritance measures the length of inheritance chain for each class. It is calculated by counting the length of the superclasses list for each class in the codebase.  The implementation is handled through a simple calculation using codegen's class information in the `calculate_doi()` function.
+Depth of Inheritance measures the length of inheritance chain for each class. It is calculated by counting the length of the superclasses list for each class in the codebase.  The implementation is handled through a simple calculation using graph-sitter's class information in the `calculate_doi()` function.
 
 ```python
 def calculate_doi(cls):
@@ -7171,7 +7171,7 @@ Maintainability Index is a software metric which measures how maintainable a cod
 
 This formula is then normalized to a scale of 0-100, where 100 is the maximum maintainability.
 
-The implementation is handled through the `calculate_maintainability_index()` function. The codegen codebase object is used to efficiently extract the Cyclomatic Complexity and Halstead Volume for each function and class in the codebase, which are then used to calculate the maintainability index.
+The implementation is handled through the `calculate_maintainability_index()` function. The graph-sitter codebase object is used to efficiently extract the Cyclomatic Complexity and Halstead Volume for each function and class in the codebase, which are then used to calculate the maintainability index.
 
 ```python
 def calculate_maintainability_index(
@@ -7217,7 +7217,7 @@ Comment density is calculated by dividing the lines of code which contain commen
 It measures the proportion of comments in the codebase and is a good indicator of how much code is properly documented. Accordingly, it can show how maintainable and easy to understand the codebase is.
 
 ## General Codebase Statistics
-The number of files is determined by traversing codegen's FileNode objects in the parsed codebase. The number of functions is calculated by counting FunctionDef nodes across all parsed files. The number of classes is obtained by summing ClassDef nodes throughout the codebase.
+The number of files is determined by traversing graph-sitter's FileNode objects in the parsed codebase. The number of functions is calculated by counting FunctionDef nodes across all parsed files. The number of classes is obtained by summing ClassDef nodes throughout the codebase.
 
 ```python
 num_files = len(codebase.files(extensions="*"))
@@ -7234,7 +7234,7 @@ The tool is implemented as a FastAPI application wrapped in a Modal deployment. 
 1. Send a POST request to `/analyze_repo` with the repository URL
 2. The tool will:
    - Clone the repository
-   - Parse the codebase using codegen
+   - Parse the codebase using graph-sitter
    - Calculate all metrics
    - Return a comprehensive JSON response with all metrics
 
@@ -7279,9 +7279,9 @@ First, let's import the types we need from Codegen:
 ```python
 import graph_sitter
 from graph_sitter import Codebase
-from codegen.sdk.core.external_module import ExternalModule
-from codegen.sdk.core.import_resolution import Import
-from codegen.sdk.core.symbol import Symbol
+from graph_sitter.sdk.core.external_module import ExternalModule
+from graph_sitter.sdk.core.import_resolution import Import
+from graph_sitter.sdk.core.symbol import Symbol
 ```
 
 Here's how we get the full context for each function:
@@ -7451,7 +7451,7 @@ examples = [create_training_example(f) for f in training_data["functions"]]
 ---
 title: "Codebase Visualization"
 sidebarTitle: "Visualization"
-description: "This guide will show you how to create codebase visualizations using [codegen](/introduction/overview)."
+description: "This guide will show you how to create codebase visualizations using [graph-sitter](/introduction/overview)."
 icon: "share-nodes"
 iconType: "solid"
 ---
@@ -7472,7 +7472,7 @@ iconType: "solid"
 
 ## Overview
 
-To demonstrate the visualization capabilities of the codegen we will generate three different visualizations of PostHog's open source [repository](https://github.com/PostHog/posthog).
+To demonstrate the visualization capabilities of graph-sitter we will generate three different visualizations of PostHog's open source [repository](https://github.com/PostHog/posthog).
  - [Call Trace Visualization](#call-trace-visualization)
  - [Function Dependency Graph](#function-dependency-graph)
  - [Blast Radius Visualization](#blast-radius-visualization)
@@ -11501,7 +11501,7 @@ iconType: "solid"
 
 # AI Impact Analysis
 
-This tutorial shows how to use Codegen's attribution extension to analyze the impact of AI on your 
+This tutorial shows how to use Graph-sitter's attribution extension to analyze the impact of AI on your 
 codebase. You'll learn how to identify which parts of your code were written by AI tools like 
 GitHub Copilot, Devin, or other AI assistants.
 
@@ -11519,7 +11519,7 @@ The attribution extension analyzes git history to:
 
 ## Installation
 
-The attribution extension is included with Codegen. No additional installation is required.
+The attribution extension is included with Graph-sitter. No additional installation is required.
 
 ## Basic Usage
 
@@ -11528,7 +11528,7 @@ The attribution extension is included with Codegen. No additional installation i
 You can run the AI impact analysis using the graph_sitter.cli:
 
 ```bash
-codegen analyze-ai-impact
+graph-sitter analyze-ai-impact
 ```
 
 Or from Python code:
@@ -11614,17 +11614,17 @@ from collections import Counter
 
 from graph_sitter import Codebase
 from graph_sitter.extensions.attribution.main import add_attribution_to_symbols
-from codegen.git.repo_operator.repo_operator import RepoOperator
-from codegen.git.schemas.repo_config import RepoConfig
-from codegen.sdk.codebase.config import ProjectConfig
-from codegen.shared.enums.programming_language import ProgrammingLanguage
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
+from graph_sitter.git.schemas.repo_config import RepoConfig
+from graph_sitter.sdk.codebase.config import ProjectConfig
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 def analyze_contributors(codebase):
     """Analyze contributors to the codebase and their impact."""
     print("\n🔍 Contributor Analysis:")
     
     # Define which authors are considered AI
-    ai_authors = ['devin[bot]', 'codegen[bot]', 'github-actions[bot]', 'dependabot[bot]']
+    ai_authors = ['devin[bot]', 'graph-sitter[bot]', 'github-actions[bot]', 'dependabot[bot]']
     
     # Add attribution information to all symbols
     print("Adding attribution information to symbols...")
