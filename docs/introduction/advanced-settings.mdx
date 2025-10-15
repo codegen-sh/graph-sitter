@@ -27,7 +27,7 @@ You can customize the behavior of the graph construction process when initializi
 
 ```python
 from graph_sitter import Codebase
-from codegen.configs import CodebaseConfig
+from graph_sitter.configs import CodebaseConfig
 
 # Initialize a Codebase with custom configuration
 codebase = Codebase(
@@ -216,7 +216,7 @@ This experimental flag pushes the graph creation back until the graph is needed.
 **Example Codemod:**
 ```python
 from graph_sitter import Codebase
-from codegen.configs import CodebaseConfig
+from graph_sitter.configs import CodebaseConfig
 
 # Enable lazy graph parsing
 codebase = Codebase("<repo_path>", config=CodebaseConfig(exp_lazy_graph=True))

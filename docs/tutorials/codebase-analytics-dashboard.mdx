@@ -5,7 +5,7 @@ icon: "calculator"
 iconType: "solid"
 ---
 
-This tutorial explains how codebase metrics are efficiently calculated using the `codegen` library in the Codebase Analytics Dashboard. The metrics include indices of codebase maintainabilith and complexity.
+This tutorial explains how codebase metrics are efficiently calculated using the `graph-sitter` library in the Codebase Analytics Dashboard. The metrics include indices of codebase maintainabilith and complexity.
 
 View the full code and setup instructions in our [codebase-analytics repository](https://github.com/codegen-sh/codebase-analytics).
 
@@ -50,7 +50,7 @@ Halstead Volume is a software metric which measures the complexity of a codebase
 
 **Halstead Volume**: `V = (N1 + N2) * log2(n1 + n2)`
 
-This calculation uses codegen's expression types to make this calculation very efficient - these include BinaryExpression, UnaryExpression and ComparisonExpression. The function extracts operators and operands from the codebase object and calculated in `calculate_halstead_volume()` function.
+This calculation uses graph-sitter's expression types to make this calculation very efficient - these include BinaryExpression, UnaryExpression and ComparisonExpression. The function extracts operators and operands from the codebase object and calculated in `calculate_halstead_volume()` function.
 
 ```python
 def calculate_halstead_volume(operators, operands):
@@ -70,7 +70,7 @@ def calculate_halstead_volume(operators, operands):
 ```
 
 ### Depth of Inheritance (DOI)
-Depth of Inheritance measures the length of inheritance chain for each class. It is calculated by counting the length of the superclasses list for each class in the codebase.  The implementation is handled through a simple calculation using codegen's class information in the `calculate_doi()` function.
+Depth of Inheritance measures the length of inheritance chain for each class. It is calculated by counting the length of the superclasses list for each class in the codebase.  The implementation is handled through a simple calculation using graph-sitter's class information in the `calculate_doi()` function.
 
 ```python
 def calculate_doi(cls):
@@ -84,7 +84,7 @@ Maintainability Index is a software metric which measures how maintainable a cod
 
 This formula is then normalized to a scale of 0-100, where 100 is the maximum maintainability.
 
-The implementation is handled through the `calculate_maintainability_index()` function. The codegen codebase object is used to efficiently extract the Cyclomatic Complexity and Halstead Volume for each function and class in the codebase, which are then used to calculate the maintainability index.
+The implementation is handled through the `calculate_maintainability_index()` function. The graph-sitter codebase object is used to efficiently extract the Cyclomatic Complexity and Halstead Volume for each function and class in the codebase, which are then used to calculate the maintainability index.
 
 ```python
 def calculate_maintainability_index(
@@ -130,7 +130,7 @@ Comment density is calculated by dividing the lines of code which contain commen
 It measures the proportion of comments in the codebase and is a good indicator of how much code is properly documented. Accordingly, it can show how maintainable and easy to understand the codebase is.
 
 ## General Codebase Statistics
-The number of files is determined by traversing codegen's FileNode objects in the parsed codebase. The number of functions is calculated by counting FunctionDef nodes across all parsed files. The number of classes is obtained by summing ClassDef nodes throughout the codebase.
+The number of files is determined by traversing graph-sitter's FileNode objects in the parsed codebase. The number of functions is calculated by counting FunctionDef nodes across all parsed files. The number of classes is obtained by summing ClassDef nodes throughout the codebase.
 
 ```python
 num_files = len(codebase.files(extensions="*"))
@@ -147,7 +147,7 @@ The tool is implemented as a FastAPI application wrapped in a Modal deployment. 
 1. Send a POST request to `/analyze_repo` with the repository URL
 2. The tool will:
    - Clone the repository
-   - Parse the codebase using codegen
+   - Parse the codebase using graph-sitter
    - Calculate all metrics
    - Return a comprehensive JSON response with all metrics
 
