@@ -1,0 +1,363 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-secondary;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground rounded-md;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary;
+}
+
+/* Code Editor Styles */
+.code-editor {
+  @apply font-mono text-sm;
+}
+
+.code-editor .line-numbers {
+  @apply text-muted-foreground select-none;
+}
+
+.code-editor .line-highlight {
+  @apply bg-accent/50;
+}
+
+/* Syntax Highlighting */
+.syntax-highlighter {
+  @apply rounded-md overflow-auto;
+}
+
+.syntax-highlighter pre {
+  @apply m-0 p-4;
+}
+
+.syntax-highlighter code {
+  @apply font-mono text-sm;
+}
+
+/* Diff Viewer Styles */
+.diff-viewer {
+  @apply font-mono text-sm;
+}
+
+.diff-viewer .diff-line-added {
+  @apply bg-green-500/10 text-green-700 dark:text-green-300;
+}
+
+.diff-viewer .diff-line-removed {
+  @apply bg-red-500/10 text-red-700 dark:text-red-300;
+}
+
+.diff-viewer .diff-line-number {
+  @apply text-muted-foreground select-none;
+}
+
+/* Loading Spinner */
+.spinner {
+  @apply inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+}
+
+/* Toast Notifications */
+.toast {
+  @apply rounded-md shadow-lg p-4 mb-4 flex items-center gap-3;
+}
+
+.toast-success {
+  @apply bg-success text-success-foreground;
+}
+
+.toast-error {
+  @apply bg-destructive text-destructive-foreground;
+}
+
+.toast-warning {
+  @apply bg-warning text-warning-foreground;
+}
+
+.toast-info {
+  @apply bg-info text-info-foreground;
+}
+
+/* Status Indicators */
+.status-dot {
+  @apply inline-block w-2 h-2 rounded-full;
+}
+
+.status-dot-success {
+  @apply bg-green-500;
+}
+
+.status-dot-error {
+  @apply bg-red-500;
+}
+
+.status-dot-warning {
+  @apply bg-yellow-500;
+}
+
+.status-dot-info {
+  @apply bg-blue-500;
+}
+
+.status-dot-pending {
+  @apply bg-gray-500 animate-pulse-slow;
+}
+
+/* Progress Bar */
+.progress-bar {
+  @apply relative h-2 w-full overflow-hidden rounded-full bg-secondary;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-primary transition-all duration-300 ease-in-out;
+}
+
+/* Card Hover Effects */
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Focus Visible (Accessibility) */
+*:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+/* Button Focus */
+button:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2;
+}
+
+/* Link Focus */
+a:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2 rounded-sm;
+}
+
+/* Skip to Main Content Link (Accessibility) */
+.skip-to-main {
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 0%;
+  }
+
+  .dark {
+    --border: 0 0% 100%;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    @apply text-black bg-white;
+  }
+
+  a[href]:after {
+    content: ' (' attr(href) ')';
+  }
+}
+
+/* Grid Layout */
+.grid-layout {
+  @apply grid gap-4;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+/* Sidebar Layout */
+.sidebar-layout {
+  @apply grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-6;
+}
+
+/* Split View */
+.split-view {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-4;
+}
+
+/* File Tree */
+.file-tree {
+  @apply font-mono text-sm;
+}
+
+.file-tree-item {
+  @apply flex items-center gap-2 px-2 py-1 hover:bg-accent rounded-sm cursor-pointer;
+}
+
+.file-tree-item.selected {
+  @apply bg-accent font-semibold;
+}
+
+.file-tree-icon {
+  @apply flex-shrink-0 w-4 h-4;
+}
+
+/* Command Palette */
+.command-palette {
+  @apply fixed inset-0 z-50 bg-background/80 backdrop-blur-sm;
+}
+
+.command-palette-content {
+  @apply fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl;
+}
+
+/* Tooltip */
+.tooltip {
+  @apply absolute z-50 px-3 py-1.5 text-sm bg-popover text-popover-foreground rounded-md shadow-md animate-fade-in;
+}
+
+/* Badge */
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
+
+.badge-primary {
+  @apply bg-primary text-primary-foreground;
+}
+
+.badge-secondary {
+  @apply bg-secondary text-secondary-foreground;
+}
+
+.badge-success {
+  @apply bg-success text-success-foreground;
+}
+
+.badge-warning {
+  @apply bg-warning text-warning-foreground;
+}
+
+.badge-error {
+  @apply bg-destructive text-destructive-foreground;
+}
+
+/* Graph Visualization */
+.graph-container {
+  @apply w-full h-full min-h-[400px] border rounded-md;
+}
+
+.graph-node {
+  @apply cursor-pointer transition-all hover:scale-110;
+}
+
+.graph-edge {
+  @apply transition-all;
+}
+
+/* Empty State */
+.empty-state {
+  @apply flex flex-col items-center justify-center p-8 text-center text-muted-foreground;
+}
+
+.empty-state-icon {
+  @apply w-12 h-12 mb-4 opacity-50;
+}
+
+/* Loading State */
+.loading-skeleton {
+  @apply animate-pulse bg-muted rounded;
+}
+
+/* Error State */
+.error-state {
+  @apply border-l-4 border-destructive bg-destructive/10 p-4 rounded-r-md;
+}
+
+/* Success State */
+.success-state {
+  @apply border-l-4 border-success bg-success/10 p-4 rounded-r-md;
+}
