@@ -30,7 +30,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           match_pattern: "(unit-tests|integration-tests)"
 
-      - uses: codfish/semantic-release-action@v3
+      - uses: codfish/semantic-release-action@v4
         id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
