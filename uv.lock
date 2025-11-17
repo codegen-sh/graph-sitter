@@ -1308,7 +1308,7 @@ requires-dist = [
     { name = "rich", specifier = ">=13.7.1,<14.0.0" },
     { name = "rich-click", specifier = ">=1.8.5" },
     { name = "rustworkx", specifier = ">=0.15.1" },
-    { name = "scikit-learn" },
+    { name = "scikit-learn", specifier = ">=1.7.2" },
     { name = "sentry-sdk", specifier = "==2.41.0" },
     { name = "starlette", specifier = ">=0.16.0,<1.0.0" },
     { name = "tabulate", specifier = ">=0.9.0,<1.0.0" },
