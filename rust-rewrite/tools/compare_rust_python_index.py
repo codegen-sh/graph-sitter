@@ -190,7 +190,7 @@ def print_human(report: dict[str, Any]) -> None:
         f"files={rust_summary['files']} symbols={rust_summary['symbols']} "
         f"global_variables={rust_summary['global_variables']} "
         f"imports={rust_summary['imports']} import_resolutions={rust_summary['import_resolutions']} "
-        f"references={rust_summary['references']}"
+        f"references={rust_summary['references']} dependencies={rust_summary['dependencies']}"
     )
     print(
         "ratios: "

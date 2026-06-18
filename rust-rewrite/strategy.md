@@ -182,7 +182,8 @@ Recommended task format:
 - [ ] Implement lexical scope tables for name resolution.
 - [x] Implement first compact Python symbol reference extraction by identifier ranges. owner: codex. Result: records same-file and imported top-level symbol references inside top-level Python classes/functions.
 - [ ] Expand symbol usage extraction to nested scopes, attributes, module references, and full lexical shadowing behavior.
-- [ ] Implement dependency edge construction from usage records.
+- [x] Implement first compact dependency edge construction from usage records. owner: codex. Result: emits de-duplicated Python `DependencyRecord` edges from compact references with contributing reference IDs.
+- [ ] Expand dependency edge construction to full lexical/reference coverage, external modules, and TypeScript.
 - [ ] Implement superclass/interface dependency edges.
 - [ ] Add graph debug dump for nodes, edges, and usage metadata.
 - [ ] Add parity tests comparing Python backend and Rust backend graph edges on fixtures.
@@ -251,3 +252,4 @@ Recommended task format:
 - [x] 2026-06-18: Made opt-in `CodebaseConfig(graph_backend="rust")` skip eager Python graph construction and expose compact `rust_*` record properties on `Codebase`. owner: codex. Notes: current checkout constructs 4.0x faster with 4.6x lower process max RSS than Python parse/object materialization while blocking lazy Python graph materialization.
 - [x] 2026-06-18: Added lightweight Rust compact handles for Python `Codebase.files`, `symbols`, `classes`, `functions`, `global_vars`, `imports`, and basic `get_*` queries. owner: codex. Notes: current checkout constructs and exercises public read handles 5.3x faster with 4.6x lower process max RSS than Python parse/object materialization while keeping `CodebaseContext.nodes` blocked.
 - [x] 2026-06-18: Added compact Python `ReferenceRecord` extraction for same-file and imported top-level symbol references inside top-level classes/functions. owner: codex. Notes: current checkout emits 3,666 compact references and remains 5.0x faster with 4.1x lower process max RSS than Python parse/object materialization.
+- [x] 2026-06-18: Added compact Python `DependencyRecord` construction from references. owner: codex. Notes: current checkout emits 2,020 de-duplicated dependency edges and remains 4.6x faster with 4.1x lower process max RSS than Python parse/object materialization.

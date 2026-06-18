@@ -19,6 +19,7 @@ class FakeSummary:
             "imports": 1,
             "import_resolutions": 1,
             "references": 1,
+            "dependencies": 1,
             "bytes": 64,
             "lines": 8,
             "files_with_errors": 0,
@@ -161,6 +162,21 @@ class FakeIndex:
             ]
         )
 
+    def dependencies_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "source_file_id": 0,
+                    "target_file_id": 0,
+                    "reference_ids": [0],
+                    "reference_count": 1,
+                }
+            ]
+        )
+
 
 def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch) -> tuple[list[str], list[list[str]]]:
     indexed_paths: list[str] = []
@@ -204,11 +220,13 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.ctx.rust_index.summary.imports == 1
         assert codebase.ctx.rust_index.summary.import_resolutions == 1
         assert codebase.ctx.rust_index.summary.references == 1
+        assert codebase.ctx.rust_index.summary.dependencies == 1
         assert codebase.ctx.rust_index.files[0].path == "pkg/service.py"
         assert codebase.ctx.rust_index.symbols[0].name == "Service"
         assert codebase.ctx.rust_index.imports[0].name == "os"
         assert codebase.ctx.rust_index.import_resolutions[0].target_symbol_id == 0
         assert codebase.ctx.rust_index.references[0].target_symbol_id == 0
+        assert codebase.ctx.rust_index.dependencies[0].target_symbol_id == 0
         assert codebase.rust_index_summary == codebase.ctx.rust_index.summary
         assert codebase.rust_files[0].path == "pkg/service.py"
         assert codebase.rust_classes[0].name == "Service"
@@ -216,6 +234,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.rust_imports[0].name == "os"
         assert codebase.rust_import_resolutions[0].target_symbol_id == 0
         assert codebase.rust_references[0].name == "Service"
+        assert codebase.rust_dependencies[0].reference_ids == [0]
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]
 

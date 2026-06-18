@@ -166,13 +166,13 @@ This shell-facing number is intentionally more conservative than the standalone 
 
 These measurements use real `Codebase(...)` construction with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. In this mode, once the compact Rust index builds successfully, `CodebaseContext` does not build the eager Python graph. The Rust path now exercises public `Codebase.files`, `symbols`, `classes`, `functions`, `global_vars`, and `imports` compatibility handles while `CodebaseContext.nodes` remains blocked so the old graph cannot be materialized accidentally.
 
-| Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Python graph blocked | Wall ratio | RSS ratio |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.825s | 537.2 MB | 0.568s | 131.9 MB | 1130 | 1130 | 3955 | 6460 | 432 | 3666 | yes | 4.976x | 4.073x |
+| Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.818s | 539.5 MB | 0.617s | 132.1 MB | 1130 | 1130 | 3956 | 6460 | 432 | 3669 | 2020 | yes | 4.568x | 4.085x |
 
 Important caveats:
 
-- The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions/globals, imports, internal import-resolution records, and first-slice top-level Python symbol reference records for indexed Python modules.
+- The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions/globals, imports, internal import-resolution records, first-slice top-level Python symbol reference records, and de-duplicated dependency records for indexed Python modules.
 - The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.

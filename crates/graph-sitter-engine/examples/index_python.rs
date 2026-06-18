@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("repo: {repo_path}");
         println!("wall: {:.6}s", elapsed.as_secs_f64());
         println!(
-            "index: files={} symbols={} classes={} functions={} global_variables={} imports={} import_resolutions={} references={} bytes={} lines={} files_with_errors={}",
+            "index: files={} symbols={} classes={} functions={} global_variables={} imports={} import_resolutions={} references={} dependencies={} bytes={} lines={} files_with_errors={}",
             summary.files,
             summary.symbols,
             summary.classes,
@@ -38,6 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             summary.imports,
             summary.import_resolutions,
             summary.references,
+            summary.dependencies,
             summary.bytes,
             summary.lines,
             summary.files_with_errors

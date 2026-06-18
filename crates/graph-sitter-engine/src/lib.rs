@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use serde::Serialize;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fmt;
 use std::fs;
 use std::io;
@@ -136,6 +136,7 @@ pub struct PythonIndex {
     pub imports: Vec<ImportRecord>,
     pub import_resolutions: Vec<ImportResolutionRecord>,
     pub references: Vec<ReferenceRecord>,
+    pub dependencies: Vec<DependencyRecord>,
 }
 
 impl PythonIndex {
@@ -161,6 +162,7 @@ impl PythonIndex {
             imports: self.imports.len(),
             import_resolutions: self.import_resolutions.len(),
             references: self.references.len(),
+            dependencies: self.dependencies.len(),
             bytes: self.files.iter().map(|file| file.byte_len).sum(),
             lines: self.files.iter().map(|file| file.line_count).sum(),
             files_with_errors: self.files.iter().filter(|file| file.has_error).count(),
@@ -178,6 +180,7 @@ pub struct IndexSummary {
     pub imports: usize,
     pub import_resolutions: usize,
     pub references: usize,
+    pub dependencies: usize,
     pub bytes: usize,
     pub lines: usize,
     pub files_with_errors: usize,
@@ -249,6 +252,17 @@ pub struct ReferenceRecord {
     pub import_id: Option<u32>,
     pub name: String,
     pub range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct DependencyRecord {
+    pub id: u32,
+    pub source_symbol_id: u32,
+    pub target_symbol_id: u32,
+    pub source_file_id: u32,
+    pub target_file_id: u32,
+    pub reference_ids: Vec<u32>,
+    pub reference_count: usize,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -335,6 +349,7 @@ impl PythonIndexer {
             imports: Vec::new(),
             import_resolutions: Vec::new(),
             references: Vec::new(),
+            dependencies: Vec::new(),
         };
         let mut reference_candidates = Vec::new();
         paths.sort();
@@ -376,6 +391,7 @@ impl PythonIndexer {
 
         resolve_python_imports(&mut index);
         resolve_python_references(&mut index, reference_candidates);
+        build_python_dependencies(&mut index);
         Ok(index)
     }
 }
@@ -818,6 +834,49 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
     index.references = references;
 }
 
+fn build_python_dependencies(index: &mut PythonIndex) {
+    let symbol_file_ids: HashMap<u32, u32> = index
+        .symbols
+        .iter()
+        .map(|symbol| (symbol.id, symbol.file_id))
+        .collect();
+    let mut dependency_reference_ids: BTreeMap<(u32, u32), Vec<u32>> = BTreeMap::new();
+
+    for reference in &index.references {
+        let Some(source_symbol_id) = reference.source_symbol_id else {
+            continue;
+        };
+        dependency_reference_ids
+            .entry((source_symbol_id, reference.target_symbol_id))
+            .or_default()
+            .push(reference.id);
+    }
+
+    let dependencies = dependency_reference_ids
+        .into_iter()
+        .filter_map(|((source_symbol_id, target_symbol_id), reference_ids)| {
+            let source_file_id = symbol_file_ids.get(&source_symbol_id).copied()?;
+            let target_file_id = symbol_file_ids.get(&target_symbol_id).copied()?;
+            Some(DependencyRecord {
+                id: 0,
+                source_symbol_id,
+                target_symbol_id,
+                source_file_id,
+                target_file_id,
+                reference_count: reference_ids.len(),
+                reference_ids,
+            })
+        })
+        .enumerate()
+        .map(|(id, mut dependency)| {
+            dependency.id = id as u32;
+            dependency
+        })
+        .collect();
+
+    index.dependencies = dependencies;
+}
+
 fn import_binding_name(import: &ImportRecord) -> Option<String> {
     if let Some(alias) = import.alias.as_deref() {
         return Some(alias.to_owned());
@@ -990,6 +1049,7 @@ mod tests {
         assert_eq!(index.summary().imports, 4);
         assert_eq!(index.summary().import_resolutions, 0);
         assert_eq!(index.summary().references, 0);
+        assert_eq!(index.summary().dependencies, 0);
         assert_eq!(index.symbols[0].name, "Service");
         assert_eq!(index.symbols[1].name, "helper");
         assert!(index
@@ -1043,6 +1103,7 @@ mod tests {
         assert_eq!(index.summary().imports, 6);
         assert_eq!(index.summary().import_resolutions, 4);
         assert_eq!(index.summary().references, 1);
+        assert_eq!(index.summary().dependencies, 1);
 
         let base_file_id = index
             .files
@@ -1083,6 +1144,11 @@ mod tests {
                 && reference.source_symbol_id.is_some()
                 && reference.target_symbol_id == base_symbol_id
                 && reference.import_id.is_some()
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.target_symbol_id == base_symbol_id
+                && dependency.reference_count == 1
+                && dependency.reference_ids == vec![0]
         }));
     }
 
@@ -1156,6 +1222,21 @@ mod tests {
                 })
             })
             .collect::<Vec<_>>();
+        let dependencies = index
+            .dependencies
+            .iter()
+            .map(|dependency| {
+                serde_json::json!({
+                    "id": dependency.id,
+                    "source_symbol_id": dependency.source_symbol_id,
+                    "target_symbol_id": dependency.target_symbol_id,
+                    "source_file_id": dependency.source_file_id,
+                    "target_file_id": dependency.target_file_id,
+                    "reference_ids": dependency.reference_ids,
+                    "reference_count": dependency.reference_count,
+                })
+            })
+            .collect::<Vec<_>>();
 
         assert_eq!(
             serde_json::json!({
@@ -1164,6 +1245,7 @@ mod tests {
                 "imports": imports,
                 "import_resolutions": index.import_resolutions,
                 "references": references,
+                "dependencies": dependencies,
             }),
             serde_json::json!({
                 "files": [
@@ -1191,6 +1273,9 @@ mod tests {
                 ],
                 "references": [
                     {"id": 0, "source_file_id": 2, "source_symbol_id": 2, "target_symbol_id": 1, "import_id": 0, "name": "Base"}
+                ],
+                "dependencies": [
+                    {"id": 0, "source_symbol_id": 2, "target_symbol_id": 1, "source_file_id": 2, "target_file_id": 1, "reference_ids": [0], "reference_count": 1}
                 ]
             })
         );

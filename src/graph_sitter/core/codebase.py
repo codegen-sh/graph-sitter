@@ -313,6 +313,11 @@ class Codebase(
     def rust_references(self):
         return self._require_rust_index().references
 
+    @property
+    @noapidoc
+    def rust_dependencies(self):
+        return self._require_rust_index().dependencies
+
     def _require_rust_index(self):
         if self.ctx.rust_index is None:
             msg = "Rust compact index is unavailable; construct Codebase with CodebaseConfig(graph_backend='rust')"

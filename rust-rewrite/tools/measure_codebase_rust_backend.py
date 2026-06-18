@@ -61,6 +61,7 @@ def make_report(repo: Path) -> dict:
             "imports": summary.imports,
             "import_resolutions": summary.import_resolutions,
             "references": summary.references,
+            "dependencies": summary.dependencies,
             "bytes": summary.bytes,
             "lines": summary.lines,
             "files_with_errors": summary.files_with_errors,
@@ -74,6 +75,7 @@ def make_report(repo: Path) -> dict:
             "rust_imports": len(codebase.rust_imports),
             "rust_import_resolutions": len(codebase.rust_import_resolutions),
             "rust_references": len(codebase.rust_references),
+            "rust_dependencies": len(codebase.rust_dependencies),
         },
         "compat_handles": {
             "files": len(codebase.files),
@@ -109,7 +111,8 @@ def print_human(report: dict) -> None:
         f"global_variables={summary['global_variables']} "
         f"imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']} "
-        f"references={summary['references']}"
+        f"references={summary['references']} "
+        f"dependencies={summary['dependencies']}"
     )
     print(
         "records: "
@@ -117,7 +120,8 @@ def print_human(report: dict) -> None:
         f"symbols={records['rust_symbols']} "
         f"imports={records['rust_imports']} "
         f"import_resolutions={records['rust_import_resolutions']} "
-        f"references={records['rust_references']}"
+        f"references={records['rust_references']} "
+        f"dependencies={records['rust_dependencies']}"
     )
     print(
         "compat handles: "

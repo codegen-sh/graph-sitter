@@ -75,6 +75,8 @@ mod bindings {
         #[pyo3(get)]
         references: usize,
         #[pyo3(get)]
+        dependencies: usize,
+        #[pyo3(get)]
         bytes: usize,
         #[pyo3(get)]
         lines: usize,
@@ -93,6 +95,7 @@ mod bindings {
                 imports: summary.imports,
                 import_resolutions: summary.import_resolutions,
                 references: summary.references,
+                dependencies: summary.dependencies,
                 bytes: summary.bytes,
                 lines: summary.lines,
                 files_with_errors: summary.files_with_errors,
@@ -112,6 +115,7 @@ mod bindings {
                 ("imports", self.imports),
                 ("import_resolutions", self.import_resolutions),
                 ("references", self.references),
+                ("dependencies", self.dependencies),
                 ("bytes", self.bytes),
                 ("lines", self.lines),
                 ("files_with_errors", self.files_with_errors),
@@ -120,7 +124,7 @@ mod bindings {
 
         fn __repr__(&self) -> String {
             format!(
-                "IndexSummary(files={}, symbols={}, classes={}, functions={}, global_variables={}, imports={}, import_resolutions={}, references={}, bytes={}, lines={}, files_with_errors={})",
+                "IndexSummary(files={}, symbols={}, classes={}, functions={}, global_variables={}, imports={}, import_resolutions={}, references={}, dependencies={}, bytes={}, lines={}, files_with_errors={})",
                 self.files,
                 self.symbols,
                 self.classes,
@@ -129,6 +133,7 @@ mod bindings {
                 self.imports,
                 self.import_resolutions,
                 self.references,
+                self.dependencies,
                 self.bytes,
                 self.lines,
                 self.files_with_errors
@@ -184,6 +189,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn dependencies_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.dependencies)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         #[getter]
         fn file_count(&self) -> usize {
             self.inner.files.len()
@@ -209,15 +219,21 @@ mod bindings {
             self.inner.references.len()
         }
 
+        #[getter]
+        fn dependency_count(&self) -> usize {
+            self.inner.dependencies.len()
+        }
+
         fn __repr__(&self) -> String {
             let summary = self.inner.summary();
             format!(
-                "PythonIndex(files={}, symbols={}, imports={}, import_resolutions={}, references={})",
+                "PythonIndex(files={}, symbols={}, imports={}, import_resolutions={}, references={}, dependencies={})",
                 summary.files,
                 summary.symbols,
                 summary.imports,
                 summary.import_resolutions,
-                summary.references
+                summary.references,
+                summary.dependencies
             )
         }
     }
@@ -412,8 +428,10 @@ mod bindings {
             assert_eq!(summary.global_variables, 1);
             assert_eq!(summary.import_resolutions, 2);
             assert_eq!(summary.references, 1);
+            assert_eq!(summary.dependencies, 1);
             assert_eq!(index.import_resolution_count(), 2);
             assert_eq!(index.reference_count(), 1);
+            assert_eq!(index.dependency_count(), 1);
             assert!(index.files_json().unwrap().contains("\"pkg/base.py\""));
             assert!(index.symbols_json().unwrap().contains("\"CONSTANT\""));
             assert!(index.symbols_json().unwrap().contains("\"Base\""));
@@ -423,8 +441,13 @@ mod bindings {
                 .unwrap()
                 .contains("target_symbol_id"));
             assert!(index.references_json().unwrap().contains("\"Base\""));
+            assert!(index
+                .dependencies_json()
+                .unwrap()
+                .contains("reference_count"));
             assert!(index.to_json().unwrap().contains("import_resolutions"));
             assert!(index.to_json().unwrap().contains("references"));
+            assert!(index.to_json().unwrap().contains("dependencies"));
         }
 
         fn temp_repo_path(prefix: &str) -> PathBuf {

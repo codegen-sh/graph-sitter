@@ -47,6 +47,7 @@ class RustIndexSummary:
     imports: int
     import_resolutions: int
     references: int
+    dependencies: int
     bytes: int
     lines: int
     files_with_errors: int
@@ -174,6 +175,29 @@ class RustReferenceRecord:
         )
 
 
+@dataclass(frozen=True)
+class RustDependencyRecord:
+    id: int
+    source_symbol_id: int
+    target_symbol_id: int
+    source_file_id: int
+    target_file_id: int
+    reference_ids: list[int]
+    reference_count: int
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustDependencyRecord:
+        return cls(
+            id=int(data["id"]),
+            source_symbol_id=int(data["source_symbol_id"]),
+            target_symbol_id=int(data["target_symbol_id"]),
+            source_file_id=int(data["source_file_id"]),
+            target_file_id=int(data["target_file_id"]),
+            reference_ids=[int(reference_id) for reference_id in data["reference_ids"]],
+            reference_count=int(data["reference_count"]),
+        )
+
+
 @dataclass
 class RustIndexBackend:
     repo_path: Path
@@ -185,6 +209,7 @@ class RustIndexBackend:
     _imports: list[RustImportRecord] | None = None
     _import_resolutions: list[RustImportResolutionRecord] | None = None
     _references: list[RustReferenceRecord] | None = None
+    _dependencies: list[RustDependencyRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
     _symbol_handles: list[RustCompactSymbol] | None = None
     _import_handles: list[RustCompactImport] | None = None
@@ -248,6 +273,12 @@ class RustIndexBackend:
         if self._references is None:
             self._references = [RustReferenceRecord.from_dict(record) for record in json.loads(self.index.references_json())]
         return self._references
+
+    @property
+    def dependencies(self) -> list[RustDependencyRecord]:
+        if self._dependencies is None:
+            self._dependencies = [RustDependencyRecord.from_dict(record) for record in json.loads(self.index.dependencies_json())]
+        return self._dependencies
 
     @property
     def file_handles(self) -> list[RustCompactFile]:
