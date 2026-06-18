@@ -135,6 +135,7 @@ pub struct PythonIndex {
     pub symbols: Vec<SymbolRecord>,
     pub imports: Vec<ImportRecord>,
     pub import_resolutions: Vec<ImportResolutionRecord>,
+    pub references: Vec<ReferenceRecord>,
 }
 
 impl PythonIndex {
@@ -159,6 +160,7 @@ impl PythonIndex {
                 .count(),
             imports: self.imports.len(),
             import_resolutions: self.import_resolutions.len(),
+            references: self.references.len(),
             bytes: self.files.iter().map(|file| file.byte_len).sum(),
             lines: self.files.iter().map(|file| file.line_count).sum(),
             files_with_errors: self.files.iter().filter(|file| file.has_error).count(),
@@ -175,6 +177,7 @@ pub struct IndexSummary {
     pub global_variables: usize,
     pub imports: usize,
     pub import_resolutions: usize,
+    pub references: usize,
     pub bytes: usize,
     pub lines: usize,
     pub files_with_errors: usize,
@@ -237,6 +240,17 @@ pub struct ImportResolutionRecord {
     pub target_symbol_id: Option<u32>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ReferenceRecord {
+    pub id: u32,
+    pub source_file_id: u32,
+    pub source_symbol_id: Option<u32>,
+    pub target_symbol_id: u32,
+    pub import_id: Option<u32>,
+    pub name: String,
+    pub range: SourceRange,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct SourceRange {
     pub start_byte: usize,
@@ -262,6 +276,14 @@ impl From<Range> for SourceRange {
 
 struct PythonIndexer {
     parser: Parser,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ReferenceCandidate {
+    source_file_id: u32,
+    source_symbol_id: Option<u32>,
+    name: String,
+    range: SourceRange,
 }
 
 impl PythonIndexer {
@@ -312,7 +334,9 @@ impl PythonIndexer {
             symbols: Vec::new(),
             imports: Vec::new(),
             import_resolutions: Vec::new(),
+            references: Vec::new(),
         };
+        let mut reference_candidates = Vec::new();
         paths.sort();
 
         for path in paths {
@@ -341,10 +365,17 @@ impl PythonIndexer {
                 has_error: root.has_error(),
                 root_range: root.range().into(),
             });
-            extract_python_file(file_id, &content, &tree, &mut index);
+            extract_python_file(
+                file_id,
+                &content,
+                &tree,
+                &mut index,
+                &mut reference_candidates,
+            );
         }
 
         resolve_python_imports(&mut index);
+        resolve_python_references(&mut index, reference_candidates);
         Ok(index)
     }
 }
@@ -386,18 +417,50 @@ fn should_skip_dir(path: &Path) -> bool {
     )
 }
 
-fn extract_python_file(file_id: u32, source: &str, tree: &Tree, index: &mut PythonIndex) {
+fn extract_python_file(
+    file_id: u32,
+    source: &str,
+    tree: &Tree,
+    index: &mut PythonIndex,
+    reference_candidates: &mut Vec<ReferenceCandidate>,
+) {
     let root = tree.root_node();
     let mut cursor = root.walk();
     for child in root.named_children(&mut cursor) {
-        extract_top_level_node(file_id, source, child, index);
+        extract_top_level_node(file_id, source, child, index, reference_candidates);
     }
 }
 
-fn extract_top_level_node(file_id: u32, source: &str, node: Node<'_>, index: &mut PythonIndex) {
+fn extract_top_level_node(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut PythonIndex,
+    reference_candidates: &mut Vec<ReferenceCandidate>,
+) {
     match node.kind() {
-        "class_definition" => push_symbol(file_id, source, node, SymbolKind::Class, index),
-        "function_definition" => push_symbol(file_id, source, node, SymbolKind::Function, index),
+        "class_definition" => {
+            push_symbol(file_id, source, node, SymbolKind::Class, index).inspect(|symbol_id| {
+                collect_symbol_reference_candidates(
+                    file_id,
+                    *symbol_id,
+                    source,
+                    node,
+                    reference_candidates,
+                );
+            });
+        }
+        "function_definition" => {
+            push_symbol(file_id, source, node, SymbolKind::Function, index).inspect(|symbol_id| {
+                collect_symbol_reference_candidates(
+                    file_id,
+                    *symbol_id,
+                    source,
+                    node,
+                    reference_candidates,
+                );
+            });
+        }
         "decorated_definition" => {
             if let Some(definition) =
                 first_child_of_kind(node, &["class_definition", "function_definition"])
@@ -407,7 +470,16 @@ fn extract_top_level_node(file_id: u32, source: &str, node: Node<'_>, index: &mu
                 } else {
                     SymbolKind::Function
                 };
-                push_symbol_with_range(file_id, source, definition, node.range(), kind, index);
+                push_symbol_with_range(file_id, source, definition, node.range(), kind, index)
+                    .inspect(|symbol_id| {
+                        collect_symbol_reference_candidates(
+                            file_id,
+                            *symbol_id,
+                            source,
+                            node,
+                            reference_candidates,
+                        );
+                    });
             }
         }
         "import_statement" => push_import_statement(file_id, source, node, index),
@@ -434,8 +506,8 @@ fn push_symbol(
     node: Node<'_>,
     kind: SymbolKind,
     index: &mut PythonIndex,
-) {
-    push_symbol_with_range(file_id, source, node, node.range(), kind, index);
+) -> Option<u32> {
+    push_symbol_with_range(file_id, source, node, node.range(), kind, index)
 }
 
 fn push_symbol_with_range(
@@ -445,21 +517,23 @@ fn push_symbol_with_range(
     declaration_range: Range,
     kind: SymbolKind,
     index: &mut PythonIndex,
-) {
+) -> Option<u32> {
     let Some(name_node) = node.child_by_field_name("name") else {
-        return;
+        return None;
     };
     let Ok(name) = name_node.utf8_text(source.as_bytes()) else {
-        return;
+        return None;
     };
+    let symbol_id = index.symbols.len() as u32;
     index.symbols.push(SymbolRecord {
-        id: index.symbols.len() as u32,
+        id: symbol_id,
         file_id,
         name: name.to_owned(),
         kind,
         range: declaration_range.into(),
         name_range: name_node.range().into(),
     });
+    Some(symbol_id)
 }
 
 fn push_global_assignment(file_id: u32, source: &str, node: Node<'_>, index: &mut PythonIndex) {
@@ -494,6 +568,64 @@ fn collect_assignment_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree
         }
         _ => {}
     }
+}
+
+fn collect_symbol_reference_candidates(
+    file_id: u32,
+    source_symbol_id: u32,
+    source: &str,
+    symbol_node: Node<'_>,
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    let excluded_name_range = symbol_node
+        .child_by_field_name("name")
+        .map(|name_node| name_node.range());
+    collect_identifier_candidates(
+        file_id,
+        Some(source_symbol_id),
+        source,
+        symbol_node,
+        excluded_name_range,
+        out,
+    );
+}
+
+fn collect_identifier_candidates(
+    file_id: u32,
+    source_symbol_id: Option<u32>,
+    source: &str,
+    node: Node<'_>,
+    excluded_range: Option<Range>,
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    if node.kind() == "identifier" && !range_matches(node.range(), excluded_range) {
+        if let Ok(name) = node.utf8_text(source.as_bytes()) {
+            out.push(ReferenceCandidate {
+                source_file_id: file_id,
+                source_symbol_id,
+                name: name.to_owned(),
+                range: node.range().into(),
+            });
+        }
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_identifier_candidates(
+            file_id,
+            source_symbol_id,
+            source,
+            child,
+            excluded_range,
+            out,
+        );
+    }
+}
+
+fn range_matches(range: Range, other: Option<Range>) -> bool {
+    other
+        .map(|other| range.start_byte == other.start_byte && range.end_byte == other.end_byte)
+        .unwrap_or(false)
 }
 
 fn push_import_statement(file_id: u32, source: &str, node: Node<'_>, index: &mut PythonIndex) {
@@ -626,6 +758,78 @@ fn resolve_python_imports(index: &mut PythonIndex) {
         }
     }
     index.import_resolutions = resolutions;
+}
+
+fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceCandidate>) {
+    let symbol_to_id: HashMap<(u32, &str), u32> = index
+        .symbols
+        .iter()
+        .map(|symbol| ((symbol.file_id, symbol.name.as_str()), symbol.id))
+        .collect();
+    let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
+        .import_resolutions
+        .iter()
+        .map(|resolution| (resolution.import_id, resolution))
+        .collect();
+    let mut imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
+
+    for import in &index.imports {
+        let Some(resolution) = resolution_by_import_id.get(&import.id) else {
+            continue;
+        };
+        let Some(target_symbol_id) = resolution.target_symbol_id else {
+            continue;
+        };
+        let Some(binding) = import_binding_name(import) else {
+            continue;
+        };
+        imported_symbol_by_binding.insert((import.file_id, binding), (target_symbol_id, import.id));
+    }
+
+    let mut references = Vec::new();
+    for candidate in candidates {
+        let imported_target = imported_symbol_by_binding
+            .get(&(candidate.source_file_id, candidate.name.clone()))
+            .copied();
+        let same_file_target = symbol_to_id
+            .get(&(candidate.source_file_id, candidate.name.as_str()))
+            .copied()
+            .map(|symbol_id| (symbol_id, None));
+        let Some((target_symbol_id, import_id)) = imported_target
+            .map(|(symbol_id, import_id)| (symbol_id, Some(import_id)))
+            .or(same_file_target)
+        else {
+            continue;
+        };
+        if candidate.source_symbol_id == Some(target_symbol_id) {
+            continue;
+        }
+
+        references.push(ReferenceRecord {
+            id: references.len() as u32,
+            source_file_id: candidate.source_file_id,
+            source_symbol_id: candidate.source_symbol_id,
+            target_symbol_id,
+            import_id,
+            name: candidate.name,
+            range: candidate.range,
+        });
+    }
+    index.references = references;
+}
+
+fn import_binding_name(import: &ImportRecord) -> Option<String> {
+    if let Some(alias) = import.alias.as_deref() {
+        return Some(alias.to_owned());
+    }
+    match import.kind {
+        ImportKind::Import => import
+            .name
+            .as_deref()
+            .and_then(|name| name.split('.').next())
+            .map(str::to_owned),
+        ImportKind::FromImport | ImportKind::FutureImport => import.name.clone(),
+    }
 }
 
 fn resolve_plain_import(import: &ImportRecord, module_to_file: &HashMap<&str, u32>) -> Option<u32> {
@@ -785,6 +989,7 @@ mod tests {
         assert_eq!(index.summary().global_variables, 0);
         assert_eq!(index.summary().imports, 4);
         assert_eq!(index.summary().import_resolutions, 0);
+        assert_eq!(index.summary().references, 0);
         assert_eq!(index.symbols[0].name, "Service");
         assert_eq!(index.symbols[1].name, "helper");
         assert!(index
@@ -837,6 +1042,7 @@ mod tests {
         assert_eq!(index.summary().global_variables, 1);
         assert_eq!(index.summary().imports, 6);
         assert_eq!(index.summary().import_resolutions, 4);
+        assert_eq!(index.summary().references, 1);
 
         let base_file_id = index
             .files
@@ -872,6 +1078,12 @@ mod tests {
                 .count(),
             4
         );
+        assert!(index.references.iter().any(|reference| {
+            reference.name == "Base"
+                && reference.source_symbol_id.is_some()
+                && reference.target_symbol_id == base_symbol_id
+                && reference.import_id.is_some()
+        }));
     }
 
     #[test]
@@ -930,6 +1142,20 @@ mod tests {
                 })
             })
             .collect::<Vec<_>>();
+        let references = index
+            .references
+            .iter()
+            .map(|reference| {
+                serde_json::json!({
+                    "id": reference.id,
+                    "source_file_id": reference.source_file_id,
+                    "source_symbol_id": reference.source_symbol_id,
+                    "target_symbol_id": reference.target_symbol_id,
+                    "import_id": reference.import_id,
+                    "name": reference.name,
+                })
+            })
+            .collect::<Vec<_>>();
 
         assert_eq!(
             serde_json::json!({
@@ -937,6 +1163,7 @@ mod tests {
                 "symbols": symbols,
                 "imports": imports,
                 "import_resolutions": index.import_resolutions,
+                "references": references,
             }),
             serde_json::json!({
                 "files": [
@@ -961,6 +1188,9 @@ mod tests {
                     {"id": 1, "import_id": 1, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": 0},
                     {"id": 2, "import_id": 2, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null},
                     {"id": 3, "import_id": 3, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null}
+                ],
+                "references": [
+                    {"id": 0, "source_file_id": 2, "source_symbol_id": 2, "target_symbol_id": 1, "import_id": 0, "name": "Base"}
                 ]
             })
         );

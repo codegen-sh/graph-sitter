@@ -121,11 +121,13 @@ Current implemented bridge status:
 - `PythonIndex.summary()` returns `IndexSummary` with file, symbol, class, function, global-variable, import, import-resolution, byte, line, and error counts.
 - `PythonIndex.to_json()` serializes the compact Rust records for debug and benchmark use.
 - `PythonIndex.files_json()`, `symbols_json()`, `imports_json()`, and `import_resolutions_json()` expose each record family without forcing callers to deserialize the full index payload.
-- `RustIndexBackend.files`, `.symbols`, `.imports`, and `.import_resolutions` parse those record-family payloads into typed Python dataclasses for shell/debug/golden-test use.
+- `PythonIndex.references_json()` exposes compact symbol reference records.
+- `RustIndexBackend.files`, `.symbols`, `.imports`, `.import_resolutions`, and `.references` parse those record-family payloads into typed Python dataclasses for shell/debug/golden-test use.
 - Rust currently emits compact `ImportResolutionRecord` rows for indexed internal Python modules: direct `import pkg.mod`, absolute `from pkg.mod import Symbol`, and relative `from .mod import Symbol` forms. Target symbols now include top-level classes, functions, and simple top-level globals.
+- Rust currently emits compact `ReferenceRecord` rows for same-file and imported top-level symbol references inside top-level Python classes/functions. Full lexical scoping, nested references, attributes, and module references remain future work.
 - `CodebaseConfig(graph_backend="rust" | "auto")` builds a `CodebaseContext.rust_index` compact index when the extension is available and the codebase is Python.
 - `CodebaseConfig(graph_backend="rust")` now keeps the eager Python graph unbuilt when the compact index succeeds. Raw Python graph APIs such as `CodebaseContext.nodes` remain blocked in that mode.
-- `Codebase.rust_index_summary`, `.rust_files`, `.rust_symbols`, `.rust_classes`, `.rust_functions`, `.rust_global_vars`, `.rust_imports`, and `.rust_import_resolutions` expose the attached compact records for shell smoke checks and golden tests.
+- `Codebase.rust_index_summary`, `.rust_files`, `.rust_symbols`, `.rust_classes`, `.rust_functions`, `.rust_global_vars`, `.rust_imports`, `.rust_import_resolutions`, and `.rust_references` expose the attached compact records for shell smoke checks and golden tests.
 - `Codebase.files`, `.symbols`, `.classes`, `.functions`, `.global_vars`, `.imports`, `get_file(...)`, `get_symbol(...)`, `get_class(...)`, and `get_function(...)` now return lightweight compact handles in strict Rust mode for Python codebases.
 - Compact file handles expose basic identity/content plus file-local `symbols`, `classes`, `functions`, `global_vars`, and `imports`. Compact symbol and import handles expose basic identity/source and implemented import-resolution targets. Edit-heavy and dependency/reference graph methods are still unsupported until the full lazy engine facade exists.
 - This surface is a bridge for the compact-index vertical slice. It is not yet the final lazy `CodebaseContext` backend facade and it does not yet provide full P0 `SourceFile`, `Symbol`, or `Import` parity.

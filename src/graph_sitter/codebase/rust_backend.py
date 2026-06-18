@@ -46,6 +46,7 @@ class RustIndexSummary:
     global_variables: int
     imports: int
     import_resolutions: int
+    references: int
     bytes: int
     lines: int
     files_with_errors: int
@@ -148,6 +149,31 @@ class RustImportResolutionRecord:
         )
 
 
+@dataclass(frozen=True)
+class RustReferenceRecord:
+    id: int
+    source_file_id: int
+    source_symbol_id: int | None
+    target_symbol_id: int
+    import_id: int | None
+    name: str
+    range: RustSourceRange
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustReferenceRecord:
+        source_symbol_id = data["source_symbol_id"]
+        import_id = data["import_id"]
+        return cls(
+            id=int(data["id"]),
+            source_file_id=int(data["source_file_id"]),
+            source_symbol_id=None if source_symbol_id is None else int(source_symbol_id),
+            target_symbol_id=int(data["target_symbol_id"]),
+            import_id=None if import_id is None else int(import_id),
+            name=str(data["name"]),
+            range=RustSourceRange.from_dict(data["range"]),
+        )
+
+
 @dataclass
 class RustIndexBackend:
     repo_path: Path
@@ -158,6 +184,7 @@ class RustIndexBackend:
     _symbols: list[RustSymbolRecord] | None = None
     _imports: list[RustImportRecord] | None = None
     _import_resolutions: list[RustImportResolutionRecord] | None = None
+    _references: list[RustReferenceRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
     _symbol_handles: list[RustCompactSymbol] | None = None
     _import_handles: list[RustCompactImport] | None = None
@@ -215,6 +242,12 @@ class RustIndexBackend:
         if self._import_resolutions is None:
             self._import_resolutions = [RustImportResolutionRecord.from_dict(record) for record in json.loads(self.index.import_resolutions_json())]
         return self._import_resolutions
+
+    @property
+    def references(self) -> list[RustReferenceRecord]:
+        if self._references is None:
+            self._references = [RustReferenceRecord.from_dict(record) for record in json.loads(self.index.references_json())]
+        return self._references
 
     @property
     def file_handles(self) -> list[RustCompactFile]:

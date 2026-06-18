@@ -180,7 +180,8 @@ Recommended task format:
 - [ ] Implement full import-to-file and import-to-symbol edges for all Python and TypeScript rules.
 - [ ] Implement export-to-symbol/import/file edges.
 - [ ] Implement lexical scope tables for name resolution.
-- [ ] Implement symbol usage extraction by identifier ranges.
+- [x] Implement first compact Python symbol reference extraction by identifier ranges. owner: codex. Result: records same-file and imported top-level symbol references inside top-level Python classes/functions.
+- [ ] Expand symbol usage extraction to nested scopes, attributes, module references, and full lexical shadowing behavior.
 - [ ] Implement dependency edge construction from usage records.
 - [ ] Implement superclass/interface dependency edges.
 - [ ] Add graph debug dump for nodes, edges, and usage metadata.
@@ -249,3 +250,4 @@ Recommended task format:
 - [x] 2026-06-18: Added compact Rust extraction for top-level Python globals and symbol-target import resolution for imported globals. owner: codex.
 - [x] 2026-06-18: Made opt-in `CodebaseConfig(graph_backend="rust")` skip eager Python graph construction and expose compact `rust_*` record properties on `Codebase`. owner: codex. Notes: current checkout constructs 4.0x faster with 4.6x lower process max RSS than Python parse/object materialization while blocking lazy Python graph materialization.
 - [x] 2026-06-18: Added lightweight Rust compact handles for Python `Codebase.files`, `symbols`, `classes`, `functions`, `global_vars`, `imports`, and basic `get_*` queries. owner: codex. Notes: current checkout constructs and exercises public read handles 5.3x faster with 4.6x lower process max RSS than Python parse/object materialization while keeping `CodebaseContext.nodes` blocked.
+- [x] 2026-06-18: Added compact Python `ReferenceRecord` extraction for same-file and imported top-level symbol references inside top-level classes/functions. owner: codex. Notes: current checkout emits 3,666 compact references and remains 5.0x faster with 4.1x lower process max RSS than Python parse/object materialization.

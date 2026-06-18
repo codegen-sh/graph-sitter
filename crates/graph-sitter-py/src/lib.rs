@@ -73,6 +73,8 @@ mod bindings {
         #[pyo3(get)]
         import_resolutions: usize,
         #[pyo3(get)]
+        references: usize,
+        #[pyo3(get)]
         bytes: usize,
         #[pyo3(get)]
         lines: usize,
@@ -90,6 +92,7 @@ mod bindings {
                 global_variables: summary.global_variables,
                 imports: summary.imports,
                 import_resolutions: summary.import_resolutions,
+                references: summary.references,
                 bytes: summary.bytes,
                 lines: summary.lines,
                 files_with_errors: summary.files_with_errors,
@@ -108,6 +111,7 @@ mod bindings {
                 ("global_variables", self.global_variables),
                 ("imports", self.imports),
                 ("import_resolutions", self.import_resolutions),
+                ("references", self.references),
                 ("bytes", self.bytes),
                 ("lines", self.lines),
                 ("files_with_errors", self.files_with_errors),
@@ -116,7 +120,7 @@ mod bindings {
 
         fn __repr__(&self) -> String {
             format!(
-                "IndexSummary(files={}, symbols={}, classes={}, functions={}, global_variables={}, imports={}, import_resolutions={}, bytes={}, lines={}, files_with_errors={})",
+                "IndexSummary(files={}, symbols={}, classes={}, functions={}, global_variables={}, imports={}, import_resolutions={}, references={}, bytes={}, lines={}, files_with_errors={})",
                 self.files,
                 self.symbols,
                 self.classes,
@@ -124,6 +128,7 @@ mod bindings {
                 self.global_variables,
                 self.imports,
                 self.import_resolutions,
+                self.references,
                 self.bytes,
                 self.lines,
                 self.files_with_errors
@@ -174,6 +179,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn references_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.references)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         #[getter]
         fn file_count(&self) -> usize {
             self.inner.files.len()
@@ -194,11 +204,20 @@ mod bindings {
             self.inner.import_resolutions.len()
         }
 
+        #[getter]
+        fn reference_count(&self) -> usize {
+            self.inner.references.len()
+        }
+
         fn __repr__(&self) -> String {
             let summary = self.inner.summary();
             format!(
-                "PythonIndex(files={}, symbols={}, imports={}, import_resolutions={})",
-                summary.files, summary.symbols, summary.imports, summary.import_resolutions
+                "PythonIndex(files={}, symbols={}, imports={}, import_resolutions={}, references={})",
+                summary.files,
+                summary.symbols,
+                summary.imports,
+                summary.import_resolutions,
+                summary.references
             )
         }
     }
@@ -392,7 +411,9 @@ mod bindings {
             let summary = index.summary();
             assert_eq!(summary.global_variables, 1);
             assert_eq!(summary.import_resolutions, 2);
+            assert_eq!(summary.references, 1);
             assert_eq!(index.import_resolution_count(), 2);
+            assert_eq!(index.reference_count(), 1);
             assert!(index.files_json().unwrap().contains("\"pkg/base.py\""));
             assert!(index.symbols_json().unwrap().contains("\"CONSTANT\""));
             assert!(index.symbols_json().unwrap().contains("\"Base\""));
@@ -401,7 +422,9 @@ mod bindings {
                 .import_resolutions_json()
                 .unwrap()
                 .contains("target_symbol_id"));
+            assert!(index.references_json().unwrap().contains("\"Base\""));
             assert!(index.to_json().unwrap().contains("import_resolutions"));
+            assert!(index.to_json().unwrap().contains("references"));
         }
 
         fn temp_repo_path(prefix: &str) -> PathBuf {
