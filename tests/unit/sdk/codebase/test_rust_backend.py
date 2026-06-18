@@ -311,6 +311,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert [symbol.name for symbol in codebase.files[0].symbols(nested=True)] == ["Service", "run", "helper"]
         assert codebase.files[0].import_statements == [codebase.imports[0], codebase.imports[1]]
         assert codebase.files[0].get_nodes() == [codebase.imports[0], codebase.imports[1], codebase.classes[0], codebase.files[0].symbols(nested=True)[1], codebase.functions[0]]
+        assert codebase.files[0].descendant_symbols == codebase.files[0].get_nodes()
         assert codebase.files[0].find_by_byte_range(codebase.rust_imports[0].range) == [codebase.imports[0]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_imports[1].range) == [codebase.imports[1]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_symbols[0].range) == [codebase.classes[0], codebase.files[0].symbols(nested=True)[1]]
@@ -367,6 +368,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert service.get_import_string(import_type=ImportType.WILDCARD) == "from pkg.service import * as service"
         assert import_handle.get_import_string() == "from pkg.service import os"
         assert import_handle.get_import_string(alias="operating_system") == "from pkg.service import os as operating_system"
+        assert import_handle.descendant_symbols == [import_handle]
         assert import_handle.imported_exports == [service]
         assert module_import.imported_symbol == codebase.files[0]
         assert module_import.imported_exports == [service, helper, import_handle, module_import]

@@ -746,6 +746,10 @@ class RustCompactFile(RustCompactHandle):
         return [node for node in self.get_nodes() if _ranges_overlap(node.range, start_byte, end_byte)]
 
     @property
+    def descendant_symbols(self) -> list[RustCompactImport | RustCompactSymbol]:
+        return self.get_nodes()
+
+    @property
     def valid_symbol_names(self) -> dict[str, RustCompactImport | RustCompactSymbol]:
         valid_symbol_names: dict[str, RustCompactImport | RustCompactSymbol] = {}
         for symbol in self.symbols:
@@ -1170,6 +1174,10 @@ class RustCompactImport(RustCompactHandle):
     @property
     def parent_symbol(self) -> RustCompactImport:
         return self
+
+    @property
+    def descendant_symbols(self) -> list[RustCompactImport]:
+        return [self]
 
     def is_aliased_import(self) -> bool:
         return self.record.alias is not None and self.record.alias != self.record.name
