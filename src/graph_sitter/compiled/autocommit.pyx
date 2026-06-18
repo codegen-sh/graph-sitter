@@ -1,6 +1,6 @@
 import functools
 from collections.abc import Callable
-from typing import Any, ParamSpec, TypeVar, Union, overload
+from typing import Any, ParamSpec, TypeVar, Union
 
 import wrapt
 
@@ -18,14 +18,6 @@ def is_outdated(c) -> bool:
     if isinstance(c, list):
         return any(is_outdated(i) for i in c)
     return False
-
-
-@overload
-def reader(wrapped: Callable[P, T]) -> Callable[P, T]: ...
-
-
-@overload
-def reader(wrapped: None = None, *, cache: bool | None = ...) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
 
 
 def reader(wrapped: Callable[P, T] | None = None, *, cache: bool | None = None) -> Callable[P, T] | Callable[[Callable[P, T]], Callable[P, T]]:
@@ -174,14 +166,6 @@ def update_dict(seen: set["Editable"], obj: "Editable", new_obj: "Editable"):
     assert new_obj.ts_node == obj.ts_node
     assert new_obj.is_same_version(obj)
     assert not obj.is_outdated
-
-
-@overload
-def commiter(wrapped: Callable[P, T]) -> Callable[P, T]: ...
-
-
-@overload
-def commiter(wrapped: None = None, *, reset: bool = ...) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
 
 
 def commiter(wrapped: Callable[P, T] | None = None, *, reset: bool = False) -> Callable[P, T] | Callable[[Callable[P, T]], Callable[P, T]]:

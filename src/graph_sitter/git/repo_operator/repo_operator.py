@@ -488,7 +488,7 @@ class RepoOperator:
 
     def commit_changes(self, message: str, verify: bool = False) -> bool:
         """Returns True if a commit was made and False otherwise."""
-        staged_changes = self.git_cli.git.diff("--staged")
+        staged_changes = self.git_cli.git.diff("--no-ext-diff", "--staged")
         if staged_changes:
             if self.bot_commit and (info := self._get_username_email()):
                 user, email = info
