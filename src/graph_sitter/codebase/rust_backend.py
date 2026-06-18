@@ -1079,6 +1079,12 @@ class RustCompactImport(RustCompactHandle):
             return [*imported.symbols, *imported.imports]
         return [imported]
 
+    def resolve_attribute(self, attribute: str) -> RustCompactImport | RustCompactSymbol | RustCompactFile | None:
+        imported = self.imported_symbol
+        if isinstance(imported, RustCompactFile):
+            return imported.valid_import_names.get(attribute)
+        return None
+
     def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
         import_module = module if module is not None else self.file.import_module_name
         if import_type == ImportType.WILDCARD:

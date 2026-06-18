@@ -331,6 +331,10 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert import_handle.imported_exports == [service]
         assert module_import.imported_symbol == codebase.files[0]
         assert module_import.imported_exports == [service, helper, import_handle, module_import]
+        assert module_import.resolve_attribute("Service") == service
+        assert module_import.resolve_attribute("helper") == helper
+        assert module_import.resolve_attribute("os") == import_handle
+        assert module_import.resolve_attribute("missing") is None
         assert helper.dependencies == [service]
         assert helper.dependencies(usage_types=UsageType.CHAINED) == []
         assert helper.dependencies(max_depth=2) == [service]
