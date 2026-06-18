@@ -98,6 +98,13 @@ PYTHONPATH=/path/to/dir/containing/graph_sitter_py_extension \
 
 Use `--raw-rust-walk` to measure Rust's standalone recursive walk instead of Python-selected file discovery.
 
+`rust-rewrite/tools/measure_codebase_rust_backend.py` measures actual `Codebase(...)` construction with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. It verifies that the lazy Python graph is blocked and reports compact Rust record counts:
+
+```bash
+PYTHONPATH=/path/to/dir/containing/graph_sitter_py_extension \
+  uv run python rust-rewrite/tools/measure_codebase_rust_backend.py . --json
+```
+
 ## Metrics
 
 The JSON report includes:
@@ -154,6 +161,14 @@ Commands were run on this branch on 2026-06-18 after adding selected-file PyO3 i
 | `graph-sitter` repo checkout | `--disable-graph` | 2.987s | 535.0 MB | 0.692s | 115.3 MB | 1129 | 1129 | 799 | 432 | 4.317x | 4.638x |
 
 This shell-facing number is intentionally more conservative than the standalone Rust process benchmark because it includes Python startup, imports, and repo file discovery. The important result is that the selected-file integration preserves Python file-discovery parity for the current repo while still cutting parse/index/import-resolution wall time and process max RSS substantially for the implemented compact graph slice.
+
+## Rust `Codebase` Construction Evidence
+
+These measurements use real `Codebase(...)` construction with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. In this mode, once the compact Rust index builds successfully, `CodebaseContext` does not build the eager Python graph. Existing Python graph APIs are intentionally blocked for now rather than silently materializing the memory-heavy graph.
+
+| Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust globals | Rust import resolutions | Python graph blocked | Wall ratio | RSS ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.777s | 535.6 MB | 0.696s | 115.8 MB | 1130 | 1130 | 801 | 432 | yes | 3.992x | 4.627x |
 
 Important caveats:
 

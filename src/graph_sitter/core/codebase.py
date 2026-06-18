@@ -273,6 +273,47 @@ class Codebase(
             return None
         return self.ctx.rust_index.summary
 
+    @property
+    @noapidoc
+    def rust_files(self):
+        return self._require_rust_index().files
+
+    @property
+    @noapidoc
+    def rust_symbols(self):
+        return self._require_rust_index().symbols
+
+    @property
+    @noapidoc
+    def rust_classes(self):
+        return [symbol for symbol in self.rust_symbols if symbol.kind == "class"]
+
+    @property
+    @noapidoc
+    def rust_functions(self):
+        return [symbol for symbol in self.rust_symbols if symbol.kind == "function"]
+
+    @property
+    @noapidoc
+    def rust_global_vars(self):
+        return [symbol for symbol in self.rust_symbols if symbol.kind == "global_variable"]
+
+    @property
+    @noapidoc
+    def rust_imports(self):
+        return self._require_rust_index().imports
+
+    @property
+    @noapidoc
+    def rust_import_resolutions(self):
+        return self._require_rust_index().import_resolutions
+
+    def _require_rust_index(self):
+        if self.ctx.rust_index is None:
+            msg = "Rust compact index is unavailable; construct Codebase with CodebaseConfig(graph_backend='rust')"
+            raise RuntimeError(msg)
+        return self.ctx.rust_index
+
     ####################################################################################################################
     # NODES
     ####################################################################################################################

@@ -207,7 +207,7 @@ class CodebaseContext:
         self._build_rust_index_if_configured()
 
         # Build the graph
-        if not self.config.exp_lazy_graph and self.config.use_pink != PinkMode.ALL_FILES:
+        if not self.rust_compact_mode and not self.config.exp_lazy_graph and self.config.use_pink != PinkMode.ALL_FILES:
             self.build_graph(context.repo_operator)
         try:
             self.synced_commit = context.repo_operator.head_commit
@@ -221,6 +221,10 @@ class CodebaseContext:
 
     def __repr__(self):
         return self.__class__.__name__
+
+    @property
+    def rust_compact_mode(self) -> bool:
+        return self.config.graph_backend == GraphBackend.RUST and self.rust_index is not None
 
     def _build_rust_index_if_configured(self) -> None:
         if self.config.graph_backend == GraphBackend.PYTHON:
@@ -268,6 +272,9 @@ class CodebaseContext:
     @cached_property
     def _graph(self) -> PyDiGraph[Importable, Edge]:
         if not self.__graph_ready:
+            if self.rust_compact_mode:
+                msg = "Python graph is not built when CodebaseConfig(graph_backend='rust') uses the compact Rust backend; use rust_* record APIs or select graph_backend='python'"
+                raise RuntimeError(msg)
             logger.info("Lazily Computing Graph")
             self.build_graph(self.projects[0].repo_operator)
         return self.__graph

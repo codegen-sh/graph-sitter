@@ -168,8 +168,10 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         tmpdir=tmp_path,
         files={"pkg/service.py": "import os\n\nclass Service:\n    pass\n\ndef helper():\n    return os.getcwd()\n"},
         config=config,
+        verify_input=False,
         verify_output=False,
     ) as codebase:
+        assert codebase.ctx.rust_compact_mode is True
         assert codebase.ctx.rust_index is not None
         assert codebase.ctx.rust_index.engine_version == "test-rust-engine"
         assert codebase.ctx.rust_index.summary.files == 1
@@ -183,8 +185,15 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.ctx.rust_index.imports[0].name == "os"
         assert codebase.ctx.rust_index.import_resolutions[0].target_symbol_id == 0
         assert codebase.rust_index_summary == codebase.ctx.rust_index.summary
+        assert codebase.rust_files[0].path == "pkg/service.py"
+        assert codebase.rust_classes[0].name == "Service"
+        assert codebase.rust_functions[0].name == "helper"
+        assert codebase.rust_imports[0].name == "os"
+        assert codebase.rust_import_resolutions[0].target_symbol_id == 0
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.files)
 
 
 def test_missing_rust_extension_falls_back_to_python_graph(monkeypatch, tmp_path):
@@ -197,6 +206,7 @@ def test_missing_rust_extension_falls_back_to_python_graph(monkeypatch, tmp_path
         config=config,
         verify_output=False,
     ) as codebase:
+        assert codebase.ctx.rust_compact_mode is False
         assert codebase.ctx.rust_index is None
         assert codebase.rust_index_summary is None
         assert "graph_sitter_py" in codebase.ctx.rust_backend_error

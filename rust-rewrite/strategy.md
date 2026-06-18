@@ -127,8 +127,8 @@ Recommended task format:
 - [x] Inventory all public `SourceFile`, `Symbol`, `Import`, `Export`, and `Directory` APIs used by tests/docs. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [x] Define P0 compatibility surface for the first Rust backend slice. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [ ] Define large-repo success targets for memory and time.
-- [ ] Select pinned large Python repo commits for golden parity and latency benchmarks. Notes: Airflow is a good first candidate.
-- [ ] Build golden reference/import/dependency graph snapshots for the pinned large Python repo commits.
+- [ ] Select pinned large Python repo commits for golden parity and latency benchmarks. Notes: Airflow is a good first candidate; record the exact upstream URL, commit SHA, Python version, and checkout/bootstrap command.
+- [ ] Build golden reference/import/dependency graph snapshots for the pinned large Python repo commits. Notes: fixtures should assert file/module records, import graph edges, symbol reference graph edges, dependency graph edges, and deterministic sort order.
 - [x] Draft compact Rust data model with module boundaries and Python integration points. owner: Pasteur. Result: documented in `rust-rewrite/data-model.md`.
 - [ ] Draft full Rust engine RFC with module boundaries and Python integration points.
 - [ ] Decide build tooling: `maturin`, setuptools-rust, or hatch custom hook.
@@ -139,11 +139,13 @@ Recommended task format:
 - [x] Add PyO3 module import smoke test. owner: codex. Result: built the extension module and imported it from Python, then indexed this repo through `index_python_path`.
 - [x] Add `graph_backend` config flag with default `python`. owner: codex. Result: added `GraphBackend` and `RustFallbackMode` to `CodebaseConfig`.
 - [x] Add compact Rust index facade that can be constructed from `CodebaseContext`. owner: codex. Result: `ctx.rust_index` builds through the optional PyO3 extension when `graph_backend` is `rust` or `auto`.
+- [x] Skip eager Python graph construction in opt-in Rust compact mode. owner: codex. Result: `CodebaseConfig(graph_backend="rust")` leaves the Python graph unbuilt when the Rust compact index succeeds.
 - [ ] Add full Rust engine facade object that can back existing `CodebaseContext` graph query APIs.
 - [x] Add a minimal debug API returning engine version and enabled features. owner: Beauvoir. Result: added Rust `Engine::debug_info` and feature-gated PyO3 bindings.
 - [ ] Add CI job that builds the Rust extension on supported Python versions.
 - [x] Add benchmark command comparing Python backend with Rust compact indexer. owner: codex. Result: added `rust-rewrite/tools/compare_rust_python_index.py`.
 - [x] Add benchmark command for the Python-facing Rust facade. owner: codex. Result: added `rust-rewrite/tools/measure_rust_facade.py`.
+- [x] Add benchmark command for real `Codebase` construction with the Rust compact backend. owner: codex. Result: added `rust-rewrite/tools/measure_codebase_rust_backend.py`.
 - [ ] Add benchmark command that can select full `Codebase` `--backend python|rust` once Rust backend is wired into Python.
 
 ## Phase 2: Parser And Compact Index Vertical Slice
@@ -216,7 +218,7 @@ Recommended task format:
 - [ ] Run full unit suite with Python backend.
 - [ ] Run full unit suite with Rust backend where supported.
 - [ ] Add large-repo memory regression benchmark to CI or nightly.
-- [ ] Add pinned large-repo parity test for reference graph, import graph, dependency graph, and latency/RSS.
+- [ ] Add pinned large-repo parity test for reference graph, import graph, dependency graph, and latency/RSS. Notes: run against the exact checked-out commit and emit backend, wall time, max RSS, file count, node/edge counts, and mismatch summaries.
 - [ ] Add feature flag documentation.
 - [ ] Add migration notes for unsupported APIs.
 - [ ] Decide default backend criteria.
@@ -244,3 +246,4 @@ Recommended task format:
 - [x] 2026-06-18: Added compact Rust Python import resolution records. owner: codex. Notes: the Python-facing Rust facade now emits 432 internal import-resolution records on this checkout and remains 4.3x faster with 4.6x lower process max RSS than Python parse/object materialization.
 - [x] 2026-06-18: Added typed Python facade accessors and a deterministic compact graph snapshot for record-level parity testing. owner: codex. Notes: this prepares the large-repo golden import/reference graph workflow.
 - [x] 2026-06-18: Added compact Rust extraction for top-level Python globals and symbol-target import resolution for imported globals. owner: codex.
+- [x] 2026-06-18: Made opt-in `CodebaseConfig(graph_backend="rust")` skip eager Python graph construction and expose compact `rust_*` record properties on `Codebase`. owner: codex. Notes: current checkout constructs 4.0x faster with 4.6x lower process max RSS than Python parse/object materialization while blocking lazy Python graph materialization.
