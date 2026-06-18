@@ -134,7 +134,7 @@ Recommended task format:
 ## Phase 1: Rust Engine Skeleton
 
 - [x] Add Rust workspace/crate skeleton without changing default behavior. owner: Beauvoir. Result: added standalone Cargo workspace under `crates/`.
-- [ ] Add PyO3 module import smoke test.
+- [x] Add PyO3 module import smoke test. owner: codex. Result: built the extension module and imported it from Python, then indexed this repo through `index_python_path`.
 - [ ] Add `graph_backend` config flag with default `python`.
 - [ ] Add Rust engine facade object that can be constructed from `CodebaseContext`.
 - [x] Add a minimal debug API returning engine version and enabled features. owner: Beauvoir. Result: added Rust `Engine::debug_info` and feature-gated PyO3 bindings.
@@ -157,6 +157,7 @@ Recommended task format:
 - [x] Extract imports for Python. owner: codex. Result: compact `ImportRecord` extraction for `import`, `from`, and future imports.
 - [ ] Extract imports and exports for TypeScript.
 - [ ] Build path and string interners.
+- [x] Expose compact Python index summary and JSON through PyO3. owner: codex. Result: added `PythonIndex`, `IndexSummary`, `Engine.index_python_path`, and module-level `index_python_path`.
 - [ ] Expose `files`, `symbols`, `classes`, `functions`, `imports`, and `exports` ID queries through PyO3.
 - [ ] Add golden snapshots for compact IR on small Python fixtures.
 - [ ] Add golden snapshots for compact IR on small TypeScript fixtures.
@@ -231,3 +232,4 @@ Recommended task format:
 - [x] 2026-06-18: Six completed helper branches reviewed and their artifacts staged for integration. owner: codex. Notes: PyO3 compatibility agent is now running as Wegener.
 - [x] 2026-06-18: PyO3 compatibility helper completed and its planning artifact was staged for integration. owner: codex.
 - [x] 2026-06-18: Implemented first Rust Python compact-index slice and benchmark comparison; initial measurements show 9x-22x wall-time improvement and 70x-104x RSS improvement on this repo for the implemented slice. owner: codex.
+- [x] 2026-06-18: Exposed the compact Python index through the PyO3 module and verified a Python import smoke against this repo. owner: codex. Notes: extension returned 1127 files, 3117 symbols, and 6414 imports for the current checkout.

@@ -113,6 +113,14 @@ class Engine:
     def source_slice(file_id: int, start_byte: int, end_byte: int) -> str: ...
 ```
 
+Current implemented bridge status:
+
+- `crates/graph-sitter-py` builds a PyO3 module named `graph_sitter_py` behind the `extension-module` feature.
+- `Engine.index_python_path(repo_path)` and module-level `index_python_path(repo_path)` return a compact `PythonIndex` for Python files.
+- `PythonIndex.summary()` returns `IndexSummary` with file, symbol, class, function, import, byte, line, and error counts.
+- `PythonIndex.to_json()` serializes the compact Rust records for debug and benchmark use.
+- This surface is a bridge for the compact-index vertical slice. It is not yet the final lazy `CodebaseContext` backend facade and it does not yet return stable Python compatibility handles.
+
 Rust can keep typed IDs internally. Python needs a compatibility `node_id: int`, so `RustGraphBackend` should maintain a per-context mapping between Python node IDs and typed Rust refs:
 
 - `python_node_id -> ObjectRef(kind, rust_id)`

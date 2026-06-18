@@ -10,8 +10,10 @@ pub fn enabled_features() -> &'static [&'static str] {
 
 #[cfg(feature = "pyo3-bindings")]
 mod bindings {
-    use graph_sitter_engine::{self, Engine, EngineInfo};
+    use graph_sitter_engine::{self, Engine, EngineInfo, IndexSummary, PythonIndex};
+    use pyo3::exceptions::{PyRuntimeError, PyValueError};
     use pyo3::prelude::*;
+    use std::path::Path;
 
     #[pyclass(name = "EngineInfo", module = "graph_sitter_py")]
     #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,6 +55,119 @@ mod bindings {
         }
     }
 
+    #[pyclass(name = "IndexSummary", module = "graph_sitter_py")]
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct PyIndexSummary {
+        #[pyo3(get)]
+        files: usize,
+        #[pyo3(get)]
+        symbols: usize,
+        #[pyo3(get)]
+        classes: usize,
+        #[pyo3(get)]
+        functions: usize,
+        #[pyo3(get)]
+        imports: usize,
+        #[pyo3(get)]
+        bytes: usize,
+        #[pyo3(get)]
+        lines: usize,
+        #[pyo3(get)]
+        files_with_errors: usize,
+    }
+
+    impl From<IndexSummary> for PyIndexSummary {
+        fn from(summary: IndexSummary) -> Self {
+            Self {
+                files: summary.files,
+                symbols: summary.symbols,
+                classes: summary.classes,
+                functions: summary.functions,
+                imports: summary.imports,
+                bytes: summary.bytes,
+                lines: summary.lines,
+                files_with_errors: summary.files_with_errors,
+            }
+        }
+    }
+
+    #[pymethods]
+    impl PyIndexSummary {
+        fn as_dict(&self) -> std::collections::BTreeMap<&'static str, usize> {
+            std::collections::BTreeMap::from([
+                ("files", self.files),
+                ("symbols", self.symbols),
+                ("classes", self.classes),
+                ("functions", self.functions),
+                ("imports", self.imports),
+                ("bytes", self.bytes),
+                ("lines", self.lines),
+                ("files_with_errors", self.files_with_errors),
+            ])
+        }
+
+        fn __repr__(&self) -> String {
+            format!(
+                "IndexSummary(files={}, symbols={}, classes={}, functions={}, imports={}, bytes={}, lines={}, files_with_errors={})",
+                self.files,
+                self.symbols,
+                self.classes,
+                self.functions,
+                self.imports,
+                self.bytes,
+                self.lines,
+                self.files_with_errors
+            )
+        }
+    }
+
+    #[pyclass(name = "PythonIndex", module = "graph_sitter_py")]
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct PyPythonIndex {
+        inner: PythonIndex,
+    }
+
+    impl From<PythonIndex> for PyPythonIndex {
+        fn from(inner: PythonIndex) -> Self {
+            Self { inner }
+        }
+    }
+
+    #[pymethods]
+    impl PyPythonIndex {
+        fn summary(&self) -> PyIndexSummary {
+            self.inner.summary().into()
+        }
+
+        fn to_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        #[getter]
+        fn file_count(&self) -> usize {
+            self.inner.files.len()
+        }
+
+        #[getter]
+        fn symbol_count(&self) -> usize {
+            self.inner.symbols.len()
+        }
+
+        #[getter]
+        fn import_count(&self) -> usize {
+            self.inner.imports.len()
+        }
+
+        fn __repr__(&self) -> String {
+            let summary = self.inner.summary();
+            format!(
+                "PythonIndex(files={}, symbols={}, imports={})",
+                summary.files, summary.symbols, summary.imports
+            )
+        }
+    }
+
     #[pyclass(name = "Engine", module = "graph_sitter_py")]
     #[derive(Debug, Default, Clone)]
     pub struct PyEngine {
@@ -84,6 +199,10 @@ mod bindings {
         fn debug_info(&self) -> PyEngineInfo {
             self.inner.debug_info().into()
         }
+
+        fn index_python_path(&self, repo_path: &str) -> PyResult<PyPythonIndex> {
+            index_python_path_impl(repo_path)
+        }
     }
 
     #[pyfunction(name = "engine_version")]
@@ -96,18 +215,41 @@ mod bindings {
         graph_sitter_engine::debug_info().into()
     }
 
+    #[pyfunction(name = "index_python_path")]
+    fn py_index_python_path(repo_path: &str) -> PyResult<PyPythonIndex> {
+        index_python_path_impl(repo_path)
+    }
+
+    fn index_python_path_impl(repo_path: &str) -> PyResult<PyPythonIndex> {
+        let path = Path::new(repo_path);
+        if !path.exists() {
+            return Err(PyValueError::new_err(format!(
+                "repo path does not exist: {repo_path}"
+            )));
+        }
+        graph_sitter_engine::index_python_path(path)
+            .map(PyPythonIndex::from)
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+    }
+
     #[pymodule]
     fn graph_sitter_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.add_class::<PyEngine>()?;
         m.add_class::<PyEngineInfo>()?;
+        m.add_class::<PyIndexSummary>()?;
+        m.add_class::<PyPythonIndex>()?;
         m.add_function(wrap_pyfunction!(py_engine_version, m)?)?;
         m.add_function(wrap_pyfunction!(py_debug_info, m)?)?;
+        m.add_function(wrap_pyfunction!(py_index_python_path, m)?)?;
         Ok(())
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
+        use std::fs;
+        use std::path::PathBuf;
+        use std::time::{SystemTime, UNIX_EPOCH};
 
         #[test]
         fn debug_info_forwards_core_engine_metadata() {
@@ -118,6 +260,37 @@ mod bindings {
                 info.enabled_features,
                 vec!["skeleton".to_owned(), "python-index".to_owned()]
             );
+        }
+
+        #[test]
+        fn py_engine_indexes_python_path() {
+            let repo = temp_repo_path("py-binding-index");
+            fs::create_dir_all(repo.join("pkg")).unwrap();
+            fs::write(
+                repo.join("pkg/mod.py"),
+                "import os\n\nclass Service:\n    pass\n\ndef helper():\n    return os.getcwd()\n",
+            )
+            .unwrap();
+
+            let index = PyEngine::new()
+                .index_python_path(repo.to_str().unwrap())
+                .unwrap();
+            fs::remove_dir_all(&repo).unwrap();
+
+            let summary = index.summary();
+            assert_eq!(summary.files, 1);
+            assert_eq!(summary.classes, 1);
+            assert_eq!(summary.functions, 1);
+            assert_eq!(summary.imports, 1);
+            assert!(index.to_json().unwrap().contains("\"Service\""));
+        }
+
+        fn temp_repo_path(prefix: &str) -> PathBuf {
+            let nanos = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            std::env::temp_dir().join(format!("graph-sitter-{prefix}-{nanos}"))
         }
     }
 }

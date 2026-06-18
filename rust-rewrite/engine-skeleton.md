@@ -19,6 +19,16 @@ The PyO3 crate intentionally does not enable PyO3 by default so normal `cargo te
 cargo build -p graph-sitter-py --features extension-module
 ```
 
+On macOS, local extension smoke tests currently need PyO3 pointed at the active Python interpreter and dynamic lookup linker flags:
+
+```sh
+PYO3_PYTHON="$(uv run python -c 'import sys; print(sys.executable)')" \
+RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup" \
+cargo build --release -p graph-sitter-py --features extension-module
+```
+
+The current module exports `Engine`, `EngineInfo`, `PythonIndex`, `IndexSummary`, `engine_version`, `debug_info`, and `index_python_path`. A successful smoke import on this repo returned 1127 files, 3117 symbols, and 6414 imports for the compact Python index.
+
 ## Integration Choice
 
 This skeleton does not alter the Hatch/Cython Python packaging path. The current `hatch.toml` custom hook is disabled by default, so wiring Rust into wheels should be a separate packaging/CI task after the backend facade and import smoke test are defined.
