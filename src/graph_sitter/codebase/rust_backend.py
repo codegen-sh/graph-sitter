@@ -226,6 +226,7 @@ class RustIndexBackend:
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
     _references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
+    _references_by_import_id: dict[int, list[RustReferenceRecord]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
 
@@ -375,6 +376,15 @@ class RustIndexBackend:
                     references_by_source_symbol_id.setdefault(reference.source_symbol_id, []).append(reference)
             self._references_by_source_symbol_id = references_by_source_symbol_id
         return self._references_by_source_symbol_id.get(symbol_id, [])
+
+    def references_for_import(self, import_id: int) -> list[RustReferenceRecord]:
+        if self._references_by_import_id is None:
+            references_by_import_id: dict[int, list[RustReferenceRecord]] = {}
+            for reference in self.references:
+                if reference.import_id is not None:
+                    references_by_import_id.setdefault(reference.import_id, []).append(reference)
+            self._references_by_import_id = references_by_import_id
+        return self._references_by_import_id.get(import_id, [])
 
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies_by_source_symbol_id is None:
@@ -853,6 +863,29 @@ class RustCompactImport(RustCompactHandle):
         imported = self.imported_symbol
         return [] if imported is None else [imported]
 
+    @proxy_property
+    def usages(self, usage_types: UsageType | None = None) -> list[RustCompactUsage]:
+        if not _usage_types_include_direct(usage_types):
+            return []
+
+        usages = [RustCompactUsage(self.backend, reference) for reference in self.backend.references_for_import(self.record.id)]
+        return sorted(dict.fromkeys(usages), key=lambda usage: (usage.file.filepath, usage.match.start_byte), reverse=True)
+
+    @proxy_property
+    def symbol_usages(self, usage_types: UsageType | None = None) -> list[object]:
+        if not _usage_types_include_direct(usage_types):
+            return []
+
+        symbol_usages: list[object] = []
+        seen: set[object] = set()
+        for usage in self.usages(usage_types=usage_types):
+            usage_symbol = usage.usage_symbol.parent_symbol
+            if usage_symbol in seen:
+                continue
+            seen.add(usage_symbol)
+            symbol_usages.append(usage_symbol)
+        return symbol_usages
+
     @property
     def namespace(self) -> str | None:
         if not self.is_module_import():
@@ -866,6 +899,10 @@ class RustCompactImport(RustCompactHandle):
     @property
     def is_reexport(self) -> bool:
         return False
+
+    @property
+    def parent_symbol(self) -> RustCompactImport:
+        return self
 
     def is_aliased_import(self) -> bool:
         return self.record.alias is not None and self.record.alias != self.record.name

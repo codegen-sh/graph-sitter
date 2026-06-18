@@ -262,6 +262,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.imports[0].imported_symbol == codebase.classes[0]
         helper = codebase.get_function("helper")
         service = codebase.get_class("Service")
+        import_handle = codebase.imports[0]
         assert helper.dependencies == [service]
         assert helper.dependencies(usage_types=UsageType.CHAINED) == []
         assert helper.dependencies(max_depth=2) == [service]
@@ -276,6 +277,12 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert service.usages[0].match.source == "Service"
         assert service.usages[0].match.file == codebase.files[0]
         assert service.usages[0].match.start_point == (6, 11)
+        assert import_handle.symbol_usages == [helper]
+        assert import_handle.symbol_usages(UsageType.CHAINED) == []
+        assert len(import_handle.usages) == 1
+        assert import_handle.usages[0].usage_symbol == helper
+        assert import_handle.usages[0].imported_by == import_handle
+        assert import_handle.usages[0].match.source == "Service"
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 
