@@ -256,6 +256,12 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.get_function("helper").filepath == "pkg/service.py"
         assert codebase.files[0].classes[0].name == "Service"
         assert codebase.files[0].functions[0].name == "helper"
+        assert codebase.files[0].import_statements == [codebase.imports[0]]
+        assert codebase.files[0].has_import("os")
+        assert codebase.files[0].has_import("import os")
+        assert codebase.files[0].get_import("os") == codebase.imports[0]
+        assert codebase.files[0].get_import("import os") == codebase.imports[0]
+        assert codebase.files[0].get_import("missing") is None
         assert codebase.imports[0].source == "import os"
         assert codebase.imports[0].is_module_import()
         assert codebase.imports[0].from_file == codebase.files[0]

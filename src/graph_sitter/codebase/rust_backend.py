@@ -634,6 +634,18 @@ class RustCompactFile(RustCompactHandle):
     def imports(self) -> list[RustCompactImport]:
         return self.backend.imports_for_file(self.record.id)
 
+    @property
+    def import_statements(self) -> list[RustCompactImport]:
+        import_statements: list[RustCompactImport] = []
+        seen: set[tuple[int, int, str]] = set()
+        for import_handle in self.imports:
+            key = (import_handle.start_byte, import_handle.end_byte, import_handle.source)
+            if key in seen:
+                continue
+            seen.add(key)
+            import_statements.append(import_handle.import_statement)
+        return import_statements
+
     @proxy_property
     def symbols(self, nested: bool = False) -> list[RustCompactSymbol]:
         if nested:
@@ -665,10 +677,10 @@ class RustCompactFile(RustCompactHandle):
         return next((symbol for symbol in self.functions if symbol.name == name), None)
 
     def has_import(self, symbol_alias: str) -> bool:
-        return any(import_handle.name == symbol_alias for import_handle in self.imports)
+        return self.get_import(symbol_alias) is not None
 
     def get_import(self, symbol_alias: str) -> RustCompactImport | None:
-        return next((import_handle for import_handle in self.imports if import_handle.name == symbol_alias), None)
+        return next((import_handle for import_handle in self.imports if import_handle.matches_lookup(symbol_alias)), None)
 
     @property
     def inbound_imports(self) -> list[RustCompactImport]:
@@ -950,6 +962,21 @@ class RustCompactImport(RustCompactHandle):
 
     def is_wildcard_import(self) -> bool:
         return self.import_type == ImportType.WILDCARD
+
+    def matches_lookup(self, name_or_source: str) -> bool:
+        return name_or_source in self._lookup_names()
+
+    def _lookup_names(self) -> set[str]:
+        names = {self.source}
+        if self.name is not None:
+            names.add(self.name)
+        if self.module is not None:
+            names.add(self.module.source)
+        if self.symbol_name is not None:
+            names.add(self.symbol_name.source)
+        if self.import_specifier is not None:
+            names.add(self.import_specifier)
+        return names
 
     def _module_source(self) -> str | None:
         if self.record.kind == "import":
