@@ -350,6 +350,10 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         import_handle = codebase.imports[0]
         module_import = codebase.imports[1]
         assert run.name == "run"
+        assert run.full_name == "Service.run"
+        assert run.is_exported
+        assert service.full_name == "Service"
+        assert service.is_exported
         assert run.parent_symbol == service
         assert service.parent_symbol == service
         assert [symbol.name for symbol in service.child_symbols] == ["run"]

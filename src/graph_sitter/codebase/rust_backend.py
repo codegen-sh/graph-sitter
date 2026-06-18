@@ -904,6 +904,10 @@ class RustCompactSymbol(RustCompactHandle):
 
     @property
     def full_name(self) -> str:
+        if self.record.parent_symbol_id is not None:
+            parent = self.backend.symbol_handle_by_id(self.record.parent_symbol_id)
+            if parent is not None:
+                return f"{parent.full_name}.{self.name}"
         return self.name
 
     @property
@@ -996,7 +1000,7 @@ class RustCompactSymbol(RustCompactHandle):
 
     @property
     def is_exported(self) -> bool:
-        return False
+        return True
 
     @property
     def parent_symbol(self) -> RustCompactSymbol:
