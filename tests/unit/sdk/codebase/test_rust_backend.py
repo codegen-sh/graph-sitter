@@ -339,6 +339,9 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.files[0].get_import("missing") is None
         assert codebase.imports[0].source == "import os"
         assert codebase.imports[1].source == "import pkg.service"
+        assert codebase.imports[0].get_name().source == "os"
+        assert codebase.imports[0].get_name()._source == "os"
+        assert codebase.imports[1].get_name().source == "pkg.service"
         assert codebase.imports[0].is_module_import()
         assert codebase.imports[0].from_file == codebase.files[0]
         assert codebase.imports[0].imported_symbol == codebase.classes[0]

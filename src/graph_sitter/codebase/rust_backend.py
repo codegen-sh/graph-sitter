@@ -1186,6 +1186,13 @@ class RustCompactImport(RustCompactHandle):
     def matches_lookup(self, name_or_source: str) -> bool:
         return name_or_source in self._lookup_names()
 
+    def get_name(self) -> RustCompactName | None:
+        if self.alias is not None:
+            return self.alias
+        if self.symbol_name is not None:
+            return self.symbol_name
+        return self.module
+
     def _lookup_names(self) -> set[str]:
         names = {self.source}
         if self.name is not None:
