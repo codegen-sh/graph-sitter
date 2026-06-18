@@ -195,8 +195,8 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 
 | Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.933s | 544.8 MB | 0.752s | 123.7 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4110 | 2953 | yes | 3.899x | 4.404x |
-| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 18.409s | 3469.2 MB | 4.209s | 268.1 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109817 | 71932 | yes | 4.374x | 12.940x |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.731s | 543.0 MB | 0.681s | 124.0 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4110 | 2953 | yes | 4.009x | 4.378x |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 18.150s | 3468.5 MB | 4.075s | 266.6 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109817 | 71932 | yes | 4.454x | 13.010x |
 
 ## Pinned Compact Snapshot Evidence
 
@@ -216,7 +216,7 @@ The snapshot tool also validates internal compact graph integrity: import-resolu
 Important caveats:
 
 - The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions/globals, nested Python class/function records for source attribution, imports, internal import-resolution records, first-slice Python symbol reference records, and de-duplicated dependency records for indexed Python modules.
-- Direct package re-exports and wildcard import/re-export chains are resolved for indexed internal modules when the package file exposes a matching imported binding. `__all__`, order-sensitive wildcard binding semantics, and ambiguous external re-export chains remain future work.
+- Direct package re-exports and wildcard import/re-export chains are resolved for indexed internal modules when the package file exposes a matching imported binding. Static literal `__all__` assignments restrict wildcard expansion; dynamic `__all__` construction, order-sensitive wildcard binding semantics, and ambiguous external re-export chains remain future work.
 - Public Python handles still expose top-level `Codebase.symbols`, `classes`, and `functions`; nested compact symbols are currently internal records for dependency-source precision and `file.symbols(nested=True)`.
 - Function parameters, lambda parameters, local assignment targets, local imports, `for` targets, `with ... as ...` targets, `except ... as ...` targets, comprehension targets, match-pattern captures, nested definitions, and `nonlocal` declarations now shadow imported/top-level names in the compact reference pass, reducing false-positive dependency edges before full lexical scope tables exist. Comprehension targets are scoped to the comprehension expression instead of leaking to the whole enclosing function. `global` declarations now remove matching names from the local-shadow set so module-level writes and uses remain visible in the compact reference/dependency graph.
 - Imported module member references such as `module.some_func`, `alias.SomeClass`, `pkg.module.some_func`, and namespace-style nested module chains like `from a import b; b.c.d()` now resolve when the qualifier maps to an indexed internal Python module. Other attribute field names are skipped as bare-name references until full attribute/type resolution exists. The object side of an attribute expression is still scanned, so `helper.attr` preserves the `helper` reference while `obj.helper` no longer pretends `helper` is a standalone symbol use.

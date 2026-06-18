@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use serde::Serialize;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt;
 use std::fs;
 use std::io;
@@ -137,6 +137,8 @@ pub struct PythonIndex {
     pub import_resolutions: Vec<ImportResolutionRecord>,
     pub references: Vec<ReferenceRecord>,
     pub dependencies: Vec<DependencyRecord>,
+    #[serde(skip)]
+    pub all_exports_by_file: HashMap<u32, BTreeSet<String>>,
 }
 
 impl PythonIndex {
@@ -362,6 +364,7 @@ impl PythonIndexer {
             import_resolutions: Vec::new(),
             references: Vec::new(),
             dependencies: Vec::new(),
+            all_exports_by_file: HashMap::new(),
         };
         let mut reference_candidates = Vec::new();
         paths.sort();
@@ -691,6 +694,19 @@ fn push_global_assignment(
     };
     let mut targets = Vec::new();
     collect_assignment_targets(left, &mut targets);
+    let defines_static_all_exports = targets.iter().any(|target| {
+        target
+            .utf8_text(source.as_bytes())
+            .is_ok_and(|name| name == "__all__")
+    });
+    if defines_static_all_exports {
+        if let Some(exports) = node
+            .child_by_field_name("right")
+            .and_then(|right| collect_static_all_exports(source, right))
+        {
+            index.all_exports_by_file.insert(file_id, exports);
+        }
+    }
     for target in targets {
         let Ok(name) = target.utf8_text(source.as_bytes()) else {
             continue;
@@ -707,6 +723,57 @@ fn push_global_assignment(
         });
         excluded_name_ranges.push(target.range().into());
     }
+}
+
+fn collect_static_all_exports(source: &str, node: Node<'_>) -> Option<BTreeSet<String>> {
+    match node.kind() {
+        "list" | "tuple" | "set" => {
+            let mut exports = BTreeSet::new();
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                if child.kind() != "string" {
+                    return None;
+                }
+                let value = python_string_literal_value(node_text(source, child))?;
+                exports.insert(value);
+            }
+            Some(exports)
+        }
+        "parenthesized_expression" => {
+            first_named_child(node).and_then(|child| collect_static_all_exports(source, child))
+        }
+        _ => None,
+    }
+}
+
+fn python_string_literal_value(text: &str) -> Option<String> {
+    let mut literal = text.trim();
+    let mut has_f_prefix = false;
+    while let Some(prefix) = literal.chars().next() {
+        if matches!(prefix, '\'' | '"') {
+            break;
+        }
+        if matches!(prefix, 'f' | 'F') {
+            has_f_prefix = true;
+        }
+        if matches!(prefix, 'r' | 'R' | 'b' | 'B' | 'u' | 'U' | 'f' | 'F') {
+            literal = &literal[prefix.len_utf8()..];
+        } else {
+            return None;
+        }
+    }
+    if has_f_prefix {
+        return None;
+    }
+    for quote in ["'''", "\"\"\"", "'", "\""] {
+        if let Some(value) = literal
+            .strip_prefix(quote)
+            .and_then(|value| value.strip_suffix(quote))
+        {
+            return Some(value.to_owned());
+        }
+    }
+    None
 }
 
 fn collect_assignment_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
@@ -1616,7 +1683,9 @@ fn python_exported_symbols_by_file(index: &PythonIndex) -> ExportedSymbolsByFile
                     continue;
                 };
                 let file_exports = exports.entry(import.file_id).or_default();
-                for (name, target_symbol_id) in target_exports {
+                for (name, target_symbol_id) in
+                    wildcard_visible_exports(index, resolution.target_file_id, target_exports)
+                {
                     file_exports.insert(name.clone(), *target_symbol_id);
                 }
                 continue;
@@ -1640,6 +1709,20 @@ fn python_exported_symbols_by_file(index: &PythonIndex) -> ExportedSymbolsByFile
     }
 
     exports
+}
+
+fn wildcard_visible_exports<'a>(
+    index: &'a PythonIndex,
+    file_id: u32,
+    exports: &'a BTreeMap<String, u32>,
+) -> Vec<(&'a String, &'a u32)> {
+    let Some(all_exports) = index.all_exports_by_file.get(&file_id) else {
+        return exports.iter().collect();
+    };
+    all_exports
+        .iter()
+        .filter_map(|name| exports.get_key_value(name))
+        .collect()
 }
 
 fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceCandidate>) {
@@ -1677,14 +1760,18 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         }
         let resolution = resolution_by_import_id.get(&import.id);
         if is_wildcard_import(import) {
-            if let Some(target_exports) = resolution
-                .and_then(|resolution| exported_symbols_by_file.get(&resolution.target_file_id))
-            {
-                for (binding, target_symbol_id) in target_exports {
-                    imported_symbol_by_binding.insert(
-                        (import.file_id, binding.clone()),
-                        (*target_symbol_id, import.id),
-                    );
+            if let Some(resolution) = resolution {
+                if let Some(target_exports) =
+                    exported_symbols_by_file.get(&resolution.target_file_id)
+                {
+                    for (binding, target_symbol_id) in
+                        wildcard_visible_exports(index, resolution.target_file_id, target_exports)
+                    {
+                        imported_symbol_by_binding.insert(
+                            (import.file_id, binding.clone()),
+                            (*target_symbol_id, import.id),
+                        );
+                    }
                 }
             }
             continue;
@@ -2346,6 +2433,74 @@ mod tests {
         }));
         assert!(index.dependencies.iter().any(|dependency| {
             dependency.source_symbol_id == run.id && dependency.target_symbol_id == constant.id
+        }));
+    }
+
+    #[test]
+    fn restricts_python_wildcard_imports_with_static_all_exports() {
+        let repo = temp_repo_path("resolve-python-wildcard-all-exports");
+        fs::create_dir_all(&repo).unwrap();
+        fs::write(
+            repo.join("provider.py"),
+            "__all__ = ['Public']\nclass Public:\n    pass\nclass Hidden:\n    pass\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("wildcard_consumer.py"),
+            "from provider import *\n\nclass UsesPublic(Public):\n    pass\n\ndef unresolved():\n    return Hidden\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("named_consumer.py"),
+            "from provider import Hidden\n\nclass UsesHidden(Hidden):\n    pass\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let public = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Public")
+            .unwrap();
+        let hidden = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Hidden")
+            .unwrap();
+        let uses_public = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "UsesPublic")
+            .unwrap();
+        let uses_hidden = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "UsesHidden")
+            .unwrap();
+        let unresolved = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "unresolved")
+            .unwrap();
+
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(uses_public.id)
+                && reference.name == "Public"
+                && reference.target_symbol_id == public.id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(uses_hidden.id)
+                && reference.name == "Hidden"
+                && reference.target_symbol_id == hidden.id
+                && reference.import_id.is_some()
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(unresolved.id)
+                && reference.name == "Hidden"
+                && reference.target_symbol_id == hidden.id
         }));
     }
 
