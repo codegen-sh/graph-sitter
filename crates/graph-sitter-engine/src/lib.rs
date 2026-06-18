@@ -1643,6 +1643,12 @@ fn python_exported_symbols_by_file(index: &PythonIndex) -> ExportedSymbolsByFile
 }
 
 fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceCandidate>) {
+    let module_to_file: HashMap<&str, u32> = index
+        .files
+        .iter()
+        .filter_map(|file| file.module_name.as_deref().map(|module| (module, file.id)))
+        .collect();
+    let internal_module_prefixes = internal_python_module_prefixes(&index.files);
     let symbol_to_id: HashMap<(u32, &str), u32> = index
         .symbols
         .iter()
@@ -1657,13 +1663,23 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
     let exported_symbols_by_file = python_exported_symbols_by_file(index);
     let mut imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
     let mut imported_module_by_qualifier: HashMap<(u32, String), (u32, u32)> = HashMap::new();
+    let mut imported_module_prefix_by_binding: HashMap<(u32, String), (String, u32)> =
+        HashMap::new();
 
     for import in &index.imports {
-        let Some(resolution) = resolution_by_import_id.get(&import.id) else {
-            continue;
-        };
+        if let Some(source_file) = index.files.get(import.file_id as usize) {
+            for (binding, module_prefix) in
+                import_module_prefix_bindings(import, source_file, &internal_module_prefixes)
+            {
+                imported_module_prefix_by_binding
+                    .insert((import.file_id, binding), (module_prefix, import.id));
+            }
+        }
+        let resolution = resolution_by_import_id.get(&import.id);
         if is_wildcard_import(import) {
-            if let Some(target_exports) = exported_symbols_by_file.get(&resolution.target_file_id) {
+            if let Some(target_exports) = resolution
+                .and_then(|resolution| exported_symbols_by_file.get(&resolution.target_file_id))
+            {
                 for (binding, target_symbol_id) in target_exports {
                     imported_symbol_by_binding.insert(
                         (import.file_id, binding.clone()),
@@ -1673,6 +1689,9 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
             }
             continue;
         }
+        let Some(resolution) = resolution else {
+            continue;
+        };
         if resolution.target_symbol_id.is_none() {
             for qualifier in import_module_qualifiers(import) {
                 imported_module_by_qualifier.insert(
@@ -1700,6 +1719,16 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
                         .get(&(*target_file_id, candidate.name.as_str()))
                         .copied()
                         .map(|symbol_id| (symbol_id, Some(*import_id)))
+                })
+                .or_else(|| {
+                    resolve_imported_module_attribute(
+                        candidate.source_file_id,
+                        qualifier,
+                        &candidate.name,
+                        &imported_module_prefix_by_binding,
+                        &module_to_file,
+                        &symbol_to_id,
+                    )
                 })
         } else {
             let imported_target = imported_symbol_by_binding
@@ -1731,6 +1760,88 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         });
     }
     index.references = references;
+}
+
+fn internal_python_module_prefixes(files: &[FileRecord]) -> HashSet<String> {
+    let mut prefixes = HashSet::new();
+    for module in files.iter().filter_map(|file| file.module_name.as_deref()) {
+        let parts = module.split('.').collect::<Vec<_>>();
+        for i in 1..=parts.len() {
+            prefixes.insert(parts[..i].join("."));
+        }
+    }
+    prefixes
+}
+
+fn import_module_prefix_bindings(
+    import: &ImportRecord,
+    source_file: &FileRecord,
+    internal_module_prefixes: &HashSet<String>,
+) -> Vec<(String, String)> {
+    if is_wildcard_import(import) || import.kind == ImportKind::FutureImport {
+        return Vec::new();
+    }
+
+    let mut bindings = Vec::new();
+    match import.kind {
+        ImportKind::Import => {
+            let Some(name) = import.name.as_deref() else {
+                return bindings;
+            };
+            if let Some(alias) = import.alias.as_deref() {
+                if internal_module_prefixes.contains(name) {
+                    bindings.push((alias.to_owned(), name.to_owned()));
+                }
+            } else if let Some(root) = name.split('.').next() {
+                if internal_module_prefixes.contains(root) {
+                    bindings.push((root.to_owned(), root.to_owned()));
+                }
+            }
+        }
+        ImportKind::FromImport => {
+            let Some(module) = import
+                .module
+                .as_deref()
+                .and_then(|module| resolve_module_name(source_file, module))
+            else {
+                return bindings;
+            };
+            let Some(name) = import.name.as_deref() else {
+                return bindings;
+            };
+            let binding = import.alias.as_deref().unwrap_or(name);
+            let module_prefix = join_module(&module, name);
+            if internal_module_prefixes.contains(&module_prefix) {
+                bindings.push((binding.to_owned(), module_prefix));
+            }
+        }
+        ImportKind::FutureImport => {}
+    }
+    bindings
+}
+
+fn resolve_imported_module_attribute(
+    source_file_id: u32,
+    qualifier: &str,
+    name: &str,
+    imported_module_prefix_by_binding: &HashMap<(u32, String), (String, u32)>,
+    module_to_file: &HashMap<&str, u32>,
+    symbol_to_id: &HashMap<(u32, &str), u32>,
+) -> Option<(u32, Option<u32>)> {
+    let (binding, suffix) = qualifier
+        .split_once('.')
+        .map_or((qualifier, None), |(binding, suffix)| {
+            (binding, Some(suffix))
+        });
+    let (module_prefix, import_id) =
+        imported_module_prefix_by_binding.get(&(source_file_id, binding.to_owned()))?;
+    let target_module = suffix.map_or_else(
+        || module_prefix.clone(),
+        |suffix| join_module(module_prefix, suffix),
+    );
+    let target_file_id = module_to_file.get(target_module.as_str()).copied()?;
+    let target_symbol_id = symbol_to_id.get(&(target_file_id, name)).copied()?;
+    Some((target_symbol_id, Some(*import_id)))
 }
 
 fn import_module_qualifiers(import: &ImportRecord) -> Vec<String> {
@@ -2360,6 +2471,52 @@ def caller():\n    return base.helper(), base_alias.Base, pkg.base.helper()\n",
             dependency.source_symbol_id == caller.id
                 && dependency.target_symbol_id == base.id
                 && dependency.reference_count == 1
+        }));
+    }
+
+    #[test]
+    fn resolves_python_nested_module_attribute_references() {
+        let repo = temp_repo_path("python-nested-module-attribute-references");
+        fs::create_dir_all(repo.join("a/b")).unwrap();
+        fs::write(repo.join("a/b/c.py"), "def d():\n    pass\n").unwrap();
+        fs::write(
+            repo.join("consumer.py"),
+            "from a import b\nimport a.b\nimport a.b.c as c_alias\n\n\
+def caller():\n    return b.c.d(), a.b.c.d(), c_alias.d()\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let caller = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "caller")
+            .unwrap();
+        let d = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "d")
+            .unwrap();
+
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| {
+                    reference.source_symbol_id == Some(caller.id)
+                        && reference.name == "d"
+                        && reference.target_symbol_id == d.id
+                        && reference.import_id.is_some()
+                })
+                .count(),
+            3
+        );
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == caller.id
+                && dependency.target_symbol_id == d.id
+                && dependency.reference_count == 3
         }));
     }
 
