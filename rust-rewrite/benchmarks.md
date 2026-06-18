@@ -164,11 +164,11 @@ This shell-facing number is intentionally more conservative than the standalone 
 
 ## Rust `Codebase` Construction Evidence
 
-These measurements use real `Codebase(...)` construction with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. In this mode, once the compact Rust index builds successfully, `CodebaseContext` does not build the eager Python graph. Existing Python graph APIs are intentionally blocked for now rather than silently materializing the memory-heavy graph.
+These measurements use real `Codebase(...)` construction with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. In this mode, once the compact Rust index builds successfully, `CodebaseContext` does not build the eager Python graph. The Rust path now exercises public `Codebase.files`, `symbols`, `classes`, `functions`, `global_vars`, and `imports` compatibility handles while `CodebaseContext.nodes` remains blocked so the old graph cannot be materialized accidentally.
 
-| Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust globals | Rust import resolutions | Python graph blocked | Wall ratio | RSS ratio |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.777s | 535.6 MB | 0.696s | 115.8 MB | 1130 | 1130 | 801 | 432 | yes | 3.992x | 4.627x |
+| Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Python graph blocked | Wall ratio | RSS ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.728s | 537.5 MB | 0.510s | 116.0 MB | 1130 | 1130 | 3954 | 6460 | 432 | yes | 5.348x | 4.636x |
 
 Important caveats:
 

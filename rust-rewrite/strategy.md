@@ -189,16 +189,17 @@ Recommended task format:
 ## Phase 4: Lazy Python Compatibility Layer
 
 - [x] Plan Python/PyO3 compatibility layer and lazy handle migration. owner: Wegener. Result: documented in `rust-rewrite/python-compat.md`.
-- [ ] Define Python handle base class that stores engine reference and stable ID.
+- [x] Add temporary Python compact handle base for Rust record-backed read APIs. owner: codex. Result: added `RustCompactHandle` with stable compact node IDs for files, symbols, and imports.
 - [ ] Implement Rust-backed file handles for P0 `SourceFile` APIs.
 - [ ] Implement Rust-backed symbol handles for P0 `Symbol`, `Class`, and `Function` APIs.
 - [ ] Implement Rust-backed import handles for P0 `Import` APIs.
 - [ ] Implement Rust-backed export handles for P0 TypeScript `Export` APIs.
-- [ ] Make `Codebase.files` return lazy handles under Rust backend.
-- [ ] Make `Codebase.symbols`, `classes`, `functions`, `imports`, and `exports` return lazy handles under Rust backend.
+- [x] Make `Codebase.files` return compact read handles under the Python Rust backend. owner: codex.
+- [x] Make `Codebase.symbols`, `classes`, `functions`, `global_vars`, and `imports` return compact read handles under the Python Rust backend. owner: codex.
+- [ ] Make TypeScript `Codebase.exports`, `interfaces`, and `types` return lazy handles under Rust backend.
 - [ ] Preserve existing sorting behavior for public query results.
 - [ ] Add fallback path to Python backend for unsupported methods.
-- [ ] Add tests that verify no full Python object graph is materialized for simple list queries.
+- [x] Add tests that verify no full Python object graph is materialized for simple list queries. owner: codex.
 
 ## Phase 5: Incremental Sync And Edits
 
@@ -247,3 +248,4 @@ Recommended task format:
 - [x] 2026-06-18: Added typed Python facade accessors and a deterministic compact graph snapshot for record-level parity testing. owner: codex. Notes: this prepares the large-repo golden import/reference graph workflow.
 - [x] 2026-06-18: Added compact Rust extraction for top-level Python globals and symbol-target import resolution for imported globals. owner: codex.
 - [x] 2026-06-18: Made opt-in `CodebaseConfig(graph_backend="rust")` skip eager Python graph construction and expose compact `rust_*` record properties on `Codebase`. owner: codex. Notes: current checkout constructs 4.0x faster with 4.6x lower process max RSS than Python parse/object materialization while blocking lazy Python graph materialization.
+- [x] 2026-06-18: Added lightweight Rust compact handles for Python `Codebase.files`, `symbols`, `classes`, `functions`, `global_vars`, `imports`, and basic `get_*` queries. owner: codex. Notes: current checkout constructs and exercises public read handles 5.3x faster with 4.6x lower process max RSS than Python parse/object materialization while keeping `CodebaseContext.nodes` blocked.

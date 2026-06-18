@@ -124,9 +124,11 @@ Current implemented bridge status:
 - `RustIndexBackend.files`, `.symbols`, `.imports`, and `.import_resolutions` parse those record-family payloads into typed Python dataclasses for shell/debug/golden-test use.
 - Rust currently emits compact `ImportResolutionRecord` rows for indexed internal Python modules: direct `import pkg.mod`, absolute `from pkg.mod import Symbol`, and relative `from .mod import Symbol` forms. Target symbols now include top-level classes, functions, and simple top-level globals.
 - `CodebaseConfig(graph_backend="rust" | "auto")` builds a `CodebaseContext.rust_index` compact index when the extension is available and the codebase is Python.
-- `CodebaseConfig(graph_backend="rust")` now keeps the eager Python graph unbuilt when the compact index succeeds. Existing Python graph APIs are blocked in that mode until lazy compatibility handles exist.
+- `CodebaseConfig(graph_backend="rust")` now keeps the eager Python graph unbuilt when the compact index succeeds. Raw Python graph APIs such as `CodebaseContext.nodes` remain blocked in that mode.
 - `Codebase.rust_index_summary`, `.rust_files`, `.rust_symbols`, `.rust_classes`, `.rust_functions`, `.rust_global_vars`, `.rust_imports`, and `.rust_import_resolutions` expose the attached compact records for shell smoke checks and golden tests.
-- This surface is a bridge for the compact-index vertical slice. It is not yet the final lazy `CodebaseContext` backend facade and it does not yet return stable Python compatibility handles.
+- `Codebase.files`, `.symbols`, `.classes`, `.functions`, `.global_vars`, `.imports`, `get_file(...)`, `get_symbol(...)`, `get_class(...)`, and `get_function(...)` now return lightweight compact handles in strict Rust mode for Python codebases.
+- Compact file handles expose basic identity/content plus file-local `symbols`, `classes`, `functions`, `global_vars`, and `imports`. Compact symbol and import handles expose basic identity/source and implemented import-resolution targets. Edit-heavy and dependency/reference graph methods are still unsupported until the full lazy engine facade exists.
+- This surface is a bridge for the compact-index vertical slice. It is not yet the final lazy `CodebaseContext` backend facade and it does not yet provide full P0 `SourceFile`, `Symbol`, or `Import` parity.
 
 Rust can keep typed IDs internally. Python needs a compatibility `node_id: int`, so `RustGraphBackend` should maintain a per-context mapping between Python node IDs and typed Rust refs:
 

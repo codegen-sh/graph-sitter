@@ -192,8 +192,26 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.rust_import_resolutions[0].target_symbol_id == 0
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]
+
+        assert len(codebase.files) == 1
+        assert codebase.files[0].filepath == "pkg/service.py"
+        assert codebase.files[0].content.startswith("import os")
+        assert codebase.get_file("pkg/service.py") == codebase.files[0]
+        assert codebase.has_file("PKG/SERVICE.PY", ignore_case=True)
+        assert [symbol.name for symbol in codebase.symbols] == ["Service", "helper"]
+        assert [symbol.name for symbol in codebase.classes] == ["Service"]
+        assert [symbol.name for symbol in codebase.functions] == ["helper"]
+        assert codebase.get_symbol("Service").source.startswith("class Service")
+        assert codebase.get_class("Service").file == codebase.files[0]
+        assert codebase.get_function("helper").filepath == "pkg/service.py"
+        assert codebase.files[0].classes[0].name == "Service"
+        assert codebase.files[0].functions[0].name == "helper"
+        assert codebase.imports[0].source == "import os"
+        assert codebase.imports[0].is_module_import()
+        assert codebase.imports[0].from_file == codebase.files[0]
+        assert codebase.imports[0].imported_symbol == codebase.classes[0]
         with pytest.raises(RuntimeError, match="Python graph is not built"):
-            len(codebase.files)
+            len(codebase.ctx.nodes)
 
 
 def test_missing_rust_extension_falls_back_to_python_graph(monkeypatch, tmp_path):

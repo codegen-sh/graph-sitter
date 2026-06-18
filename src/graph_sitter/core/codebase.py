@@ -314,12 +314,25 @@ class Codebase(
             raise RuntimeError(msg)
         return self.ctx.rust_index
 
+    def _rust_compact_files(self, extensions: list[str] | Literal["*"] | None = None):
+        if isinstance(extensions, str) and extensions != "*":
+            msg = "extensions must be a list of extensions or '*'"
+            raise ValueError(msg)
+        files = self._require_rust_index().file_handles
+        if isinstance(extensions, list):
+            allowed = set(extensions)
+            files = [file for file in files if file.extension in allowed]
+        return sorted(files, key=lambda file: file.name)
+
     ####################################################################################################################
     # NODES
     ####################################################################################################################
 
     @noapidoc
     def _symbols(self, symbol_type: SymbolType | None = None) -> list[TSymbol | TClass | TFunction | TGlobalVar]:
+        if self.ctx.rust_compact_mode:
+            symbols = self._require_rust_index().symbol_handles
+            return [x for x in symbols if symbol_type is None or x.symbol_type == symbol_type]
         matches: list[Symbol] = self.ctx.get_nodes(NodeType.SYMBOL)
         return [x for x in matches if x.is_top_level and (symbol_type is None or x.symbol_type == symbol_type)]
 
@@ -349,6 +362,8 @@ class Codebase(
         Returns:
             list[TSourceFile]: A sorted list of source files in the codebase.
         """
+        if self.ctx.rust_compact_mode:
+            return self._rust_compact_files(extensions)
         if self.ctx.config.use_pink == PinkMode.ALL_FILES:
             return self._pink_codebase.files
         if extensions is None and len(self.ctx.get_nodes(NodeType.FILE)) > 0:
@@ -409,6 +424,8 @@ class Codebase(
             list[TImport]: A list of Import nodes representing all imports in the codebase.
             TImport can be PyImport for Python codebases or TSImport for TypeScript codebases.
         """
+        if self.ctx.rust_compact_mode:
+            return self._require_rust_index().import_handles
         return self.ctx.get_nodes(NodeType.IMPORT)
 
     @property
@@ -498,6 +515,8 @@ class Codebase(
         Returns:
             list[TInterface]: A list of Interface objects defined in the codebase's source files.
         """
+        if self.ctx.rust_compact_mode:
+            return []
         return self._symbols(symbol_type=SymbolType.Interface)
 
     @property
@@ -510,6 +529,8 @@ class Codebase(
         Returns:
             list[TTypeAlias]: A list of all type aliases defined in the codebase.
         """
+        if self.ctx.rust_compact_mode:
+            return []
         return self._symbols(symbol_type=SymbolType.Type)
 
     ####################################################################################################################
@@ -615,6 +636,14 @@ class Codebase(
         if self.ctx.config.use_pink == PinkMode.ALL_FILES:
             absolute_path = self.ctx.to_absolute(filepath)
             return self._pink_codebase.get_file(absolute_path)
+        if self.ctx.rust_compact_mode:
+            file = self._require_rust_index().get_file_handle(filepath, ignore_case=ignore_case)
+            if file is not None:
+                return file
+            if not optional:
+                msg = f"File {filepath} not found in Rust compact index. Use optional=True to return None instead."
+                raise ValueError(msg)
+            return None
         # Try to get the file from the graph first
         file = self.ctx.get_file(filepath, ignore_case=ignore_case)
         if file is not None:

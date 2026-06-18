@@ -36,7 +36,7 @@ def make_report(repo: Path) -> dict:
     wall = time.perf_counter() - start
     python_graph_blocked = False
     try:
-        len(codebase.files)
+        len(codebase.ctx.nodes)
     except RuntimeError:
         python_graph_blocked = True
 
@@ -73,6 +73,14 @@ def make_report(repo: Path) -> dict:
             "rust_imports": len(codebase.rust_imports),
             "rust_import_resolutions": len(codebase.rust_import_resolutions),
         },
+        "compat_handles": {
+            "files": len(codebase.files),
+            "symbols": len(codebase.symbols),
+            "classes": len(codebase.classes),
+            "functions": len(codebase.functions),
+            "global_vars": len(codebase.global_vars),
+            "imports": len(codebase.imports),
+        },
     }
 
 
@@ -88,6 +96,7 @@ def print_human(report: dict) -> None:
     totals = report["totals"]
     summary = report["summary"]
     records = report["records"]
+    compat_handles = report["compat_handles"]
     print(f"repo: {report['metadata']['repo_path']}")
     print(f"rust Codebase: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB")
     print(f"python graph blocked: {report['metadata']['python_graph_blocked']}")
@@ -105,6 +114,12 @@ def print_human(report: dict) -> None:
         f"symbols={records['rust_symbols']} "
         f"imports={records['rust_imports']} "
         f"import_resolutions={records['rust_import_resolutions']}"
+    )
+    print(
+        "compat handles: "
+        f"files={compat_handles['files']} "
+        f"symbols={compat_handles['symbols']} "
+        f"imports={compat_handles['imports']}"
     )
 
 
