@@ -114,7 +114,10 @@ mod bindings {
             let info = py_debug_info();
 
             assert_eq!(info.version, graph_sitter_engine::engine_version());
-            assert_eq!(info.enabled_features, vec!["skeleton".to_owned()]);
+            assert_eq!(
+                info.enabled_features,
+                vec!["skeleton".to_owned(), "python-index".to_owned()]
+            );
         }
     }
 }
@@ -126,6 +129,6 @@ mod tests {
     #[test]
     fn forwards_core_engine_metadata_without_python_linking() {
         assert_eq!(engine_version(), graph_sitter_engine::engine_version());
-        assert_eq!(enabled_features(), ["skeleton"]);
+        assert_eq!(enabled_features(), ["skeleton", "python-index"]);
     }
 }

@@ -48,6 +48,7 @@ alembic_versions_backup
 **/*.c
 **/build/
 **/dist/
+target/
 **/*.so
 **/.diffs/**
 **/.coverage*

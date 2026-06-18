@@ -119,7 +119,8 @@ Recommended task format:
 ## Phase 0: Baseline, RFC, And Contracts
 
 - [x] Add memory benchmark harness for current Python backend. owner: Poincare. Result: added `rust-rewrite/tools/measure_python_backend.py`.
-- [ ] Measure cold parse RSS and wall time for representative repos.
+- [x] Measure initial cold parse RSS and wall time for generated fixture and this repo. owner: codex. Result: recorded in `rust-rewrite/benchmarks.md`.
+- [ ] Measure cold parse RSS and wall time for canonical small, medium, and huge repos.
 - [ ] Measure graph node/edge counts, Python object counts, and per-phase allocation peaks.
 - [x] Document the exact current build phases with timings: file enumeration, parse, directory tree, config parse, import resolution, export resolution, dependency recompute. owner: Poincare. Result: added phase map in `rust-rewrite/benchmarks.md`; representative repo timings remain open.
 - [x] Inventory all public `Codebase` properties and methods. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
@@ -138,18 +139,22 @@ Recommended task format:
 - [ ] Add Rust engine facade object that can be constructed from `CodebaseContext`.
 - [x] Add a minimal debug API returning engine version and enabled features. owner: Beauvoir. Result: added Rust `Engine::debug_info` and feature-gated PyO3 bindings.
 - [ ] Add CI job that builds the Rust extension on supported Python versions.
-- [ ] Add benchmark command that can select `--backend python|rust`.
+- [x] Add benchmark command comparing Python backend with Rust compact indexer. owner: codex. Result: added `rust-rewrite/tools/compare_rust_python_index.py`.
+- [ ] Add benchmark command that can select full `Codebase` `--backend python|rust` once Rust backend is wired into Python.
 
 ## Phase 2: Parser And Compact Index Vertical Slice
 
 - [x] Specify parser/index vertical slice and extraction rules. owner: Meitner. Result: documented in `rust-rewrite/parser-index.md`.
+- [x] Implement standalone Rust Python file discovery for the first compact-index slice. owner: codex. Result: recursive repo walk with common generated/cache directory skips.
 - [ ] Implement Rust file discovery input format from Python repo operator.
-- [ ] Implement tree-sitter parser setup for Python.
+- [x] Implement tree-sitter parser setup for Python. owner: codex. Result: `graph-sitter-engine` uses `tree-sitter-python` and indexes Python files.
 - [ ] Implement tree-sitter parser setup for TypeScript/TSX.
 - [ ] Extract file records with path, language, content hash, and root ranges.
-- [ ] Extract top-level Python classes, functions, and globals.
+- [x] Extract file records with path, byte length, line count, error status, and root ranges for Python. owner: codex.
+- [x] Extract top-level Python classes and functions. owner: codex. Result: compact `SymbolRecord` extraction for class/function definitions and decorated definitions.
+- [ ] Extract top-level Python globals.
 - [ ] Extract top-level TypeScript classes, functions, interfaces, type aliases, enums, and globals.
-- [ ] Extract imports for Python.
+- [x] Extract imports for Python. owner: codex. Result: compact `ImportRecord` extraction for `import`, `from`, and future imports.
 - [ ] Extract imports and exports for TypeScript.
 - [ ] Build path and string interners.
 - [ ] Expose `files`, `symbols`, `classes`, `functions`, `imports`, and `exports` ID queries through PyO3.
@@ -225,3 +230,4 @@ Recommended task format:
 - [x] 2026-06-18: Integrator created seven worktrees and spawned six helper agents; PyO3 compatibility was queued due to agent concurrency limit. owner: codex.
 - [x] 2026-06-18: Six completed helper branches reviewed and their artifacts staged for integration. owner: codex. Notes: PyO3 compatibility agent is now running as Wegener.
 - [x] 2026-06-18: PyO3 compatibility helper completed and its planning artifact was staged for integration. owner: codex.
+- [x] 2026-06-18: Implemented first Rust Python compact-index slice and benchmark comparison; initial measurements show 9x-22x wall-time improvement and 70x-104x RSS improvement on this repo for the implemented slice. owner: codex.

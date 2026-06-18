@@ -64,6 +64,31 @@ uv run python rust-rewrite/tools/measure_python_backend.py /path/to/repo --langu
   --disable-graph --output /tmp/python-backend-parse-only.json
 ```
 
+`rust-rewrite/tools/compare_rust_python_index.py` compares that current Python backend path with the Rust compact Python indexer. It builds the Rust release example once, generates or accepts a repo, and samples the Rust indexer process RSS.
+
+Generated fixture comparison:
+
+```bash
+uv run python rust-rewrite/tools/compare_rust_python_index.py \
+  --fixture-files 150 --fixture-functions 20 \
+  --output /tmp/graph-sitter-rust-compare.json
+```
+
+Current repo comparison:
+
+```bash
+uv run python rust-rewrite/tools/compare_rust_python_index.py . \
+  --output /tmp/graph-sitter-rust-compare-repo.json
+```
+
+Compare against the current full Python graph instead of parse/object materialization only:
+
+```bash
+uv run python rust-rewrite/tools/compare_rust_python_index.py . \
+  --python-full-graph \
+  --output /tmp/graph-sitter-rust-compare-repo-full.json
+```
+
 ## Metrics
 
 The JSON report includes:
@@ -93,6 +118,28 @@ Use pinned commits and record hardware, Python version, OS, and command line fro
 | Huge | known memory-stressing monorepo | Rust rewrite target | 3 |
 
 For each real repo, capture both default graph mode and `--disable-graph` parse-only mode. The delta approximates resolution/dependency graph cost.
+
+## Initial Rust Index Evidence
+
+These measurements are for the first Rust vertical slice only: repo walk, tree-sitter Python parsing, top-level class/function extraction, and import extraction into compact Rust records. This is not yet full `Codebase` API parity and does not yet include dependency graph resolution.
+
+Commands were run on this branch on 2026-06-18.
+
+| Input | Python mode | Python wall | Python max RSS | Rust index wall | Rust process wall | Rust sampled RSS | Wall ratio | RSS ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Generated fixture, 150 modules x 20 helpers | `--disable-graph` | 0.460s | 166.3 MB | 0.047s | 0.281s | 3.3 MB | 9.875x | 50.918x |
+| Generated fixture, 150 modules x 20 helpers | full graph | 1.147s | 208.5 MB | 0.038s | 0.051s | 3.1 MB | 30.502x | 66.380x |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.874s | 531.9 MB | 0.317s | 0.333s | 7.6 MB | 9.069x | 70.045x |
+| `graph-sitter` repo checkout | full graph | 7.448s | 788.8 MB | 0.331s | 0.342s | 7.6 MB | 22.480x | 103.877x |
+
+The most conservative current-repo comparison is parse/object materialization only: Rust is about 9x faster and about 70x lower RSS for the implemented compact-index slice. Against today's full graph construction on this repo, Rust is about 22x faster and about 104x lower RSS for the same implemented slice.
+
+Important caveats:
+
+- The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions, and imports.
+- The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
+- The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.
+- The generated fixture and this repo are useful proof points, but the huge-repo target still needs canonical pinned baselines.
 
 ## Open Questions
 

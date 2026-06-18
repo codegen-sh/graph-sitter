@@ -9,3 +9,11 @@ repository.workspace = true
 [lib]
 name = "graph_sitter_engine"
 path = "src/lib.rs"
+
+[dependencies]
+serde.workspace = true
+tree-sitter.workspace = true
+tree-sitter-python.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
