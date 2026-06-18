@@ -451,6 +451,18 @@ class _RustCompatTreeNode:
 class RustCompactName:
     source: str
 
+    @property
+    def _source(self) -> str:
+        return self.source
+
+    @property
+    def name(self) -> str:
+        return self.source
+
+    @property
+    def full_name(self) -> str:
+        return self.source
+
     def __str__(self) -> str:
         return self.source
 
@@ -1009,8 +1021,8 @@ class RustCompactSymbol(RustCompactHandle):
         parent = self.backend.symbol_handle_by_id(self.record.parent_symbol_id)
         return self if parent is None else parent
 
-    def get_name(self) -> str:
-        return self.name
+    def get_name(self) -> RustCompactName:
+        return self._name_node
 
     def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
         import_module = module if module is not None else self.file.import_module_name
