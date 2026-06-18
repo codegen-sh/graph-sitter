@@ -302,6 +302,13 @@ struct ReferenceCandidate {
     range: SourceRange,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct LocalBindingScope {
+    source_symbol_id: u32,
+    range: SourceRange,
+    names: HashSet<String>,
+}
+
 impl PythonIndexer {
     fn new() -> Result<Self, IndexError> {
         let mut parser = Parser::new();
@@ -454,7 +461,7 @@ fn extract_python_file(
         .filter(|symbol| symbol.file_id == file_id)
         .map(|symbol| (symbol.id, symbol.range))
         .collect::<Vec<_>>();
-    let local_bindings_by_symbol_id =
+    let (local_bindings_by_symbol_id, local_binding_scopes) =
         collect_local_bindings(file_id, source, root, index, &symbol_ranges);
     collect_identifier_candidates(
         file_id,
@@ -462,6 +469,7 @@ fn extract_python_file(
         root,
         &symbol_ranges,
         &local_bindings_by_symbol_id,
+        &local_binding_scopes,
         &excluded_name_ranges,
         reference_candidates,
     );
@@ -717,8 +725,9 @@ fn collect_local_bindings(
     root: Node<'_>,
     index: &PythonIndex,
     symbol_ranges: &[(u32, SourceRange)],
-) -> HashMap<u32, HashSet<String>> {
+) -> (HashMap<u32, HashSet<String>>, Vec<LocalBindingScope>) {
     let mut bindings: HashMap<u32, HashSet<String>> = HashMap::new();
+    let mut scoped_bindings: Vec<LocalBindingScope> = Vec::new();
 
     for symbol in index
         .symbols
@@ -733,8 +742,14 @@ fn collect_local_bindings(
         }
     }
 
-    collect_local_bindings_from_node(source, root, symbol_ranges, &mut bindings);
-    bindings
+    collect_local_bindings_from_node(
+        source,
+        root,
+        symbol_ranges,
+        &mut bindings,
+        &mut scoped_bindings,
+    );
+    (bindings, scoped_bindings)
 }
 
 fn collect_local_bindings_from_node(
@@ -742,6 +757,7 @@ fn collect_local_bindings_from_node(
     node: Node<'_>,
     symbol_ranges: &[(u32, SourceRange)],
     bindings: &mut HashMap<u32, HashSet<String>>,
+    scoped_bindings: &mut Vec<LocalBindingScope>,
 ) {
     match node.kind() {
         "parameters" => {
@@ -753,6 +769,9 @@ fn collect_local_bindings_from_node(
                 push_local_binding_names(source, source_symbol_id, targets, bindings);
             }
             return;
+        }
+        "lambda" => {
+            push_lambda_binding_scope(source, node, symbol_ranges, scoped_bindings);
         }
         "assignment" | "annotated_assignment" | "augmented_assignment" => {
             if let Some(left) = node.child_by_field_name("left") {
@@ -804,7 +823,41 @@ fn collect_local_bindings_from_node(
 
     let mut cursor = node.walk();
     for child in node.named_children(&mut cursor) {
-        collect_local_bindings_from_node(source, child, symbol_ranges, bindings);
+        collect_local_bindings_from_node(source, child, symbol_ranges, bindings, scoped_bindings);
+    }
+}
+
+fn push_lambda_binding_scope(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    scoped_bindings: &mut Vec<LocalBindingScope>,
+) {
+    let Some(parameters) = node.child_by_field_name("parameters") else {
+        return;
+    };
+    let Some(body) = node.child_by_field_name("body") else {
+        return;
+    };
+    let Some(source_symbol_id) = innermost_symbol_for_range(symbol_ranges, body.range().into())
+    else {
+        return;
+    };
+
+    let mut targets = Vec::new();
+    collect_parameter_targets(parameters, &mut targets);
+    let mut names = HashSet::new();
+    for target in targets {
+        if let Ok(name) = target.utf8_text(source.as_bytes()) {
+            names.insert(name.to_owned());
+        }
+    }
+    if !names.is_empty() {
+        scoped_bindings.push(LocalBindingScope {
+            source_symbol_id,
+            range: body.range().into(),
+            names,
+        });
     }
 }
 
@@ -948,7 +1001,7 @@ fn collect_parameter_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>
                 collect_parameter_targets(first_child, out);
             }
         }
-        "parameters" => {
+        "parameters" | "lambda_parameters" => {
             let mut cursor = node.walk();
             for child in node.named_children(&mut cursor) {
                 collect_parameter_targets(child, out);
@@ -1025,9 +1078,24 @@ fn collect_identifier_candidates(
     node: Node<'_>,
     symbol_ranges: &[(u32, SourceRange)],
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
     out: &mut Vec<ReferenceCandidate>,
 ) {
+    if node.kind() == "lambda_parameters" {
+        collect_lambda_parameter_value_identifier_candidates(
+            file_id,
+            source,
+            node,
+            symbol_ranges,
+            local_bindings_by_symbol_id,
+            local_binding_scopes,
+            excluded_ranges,
+            out,
+        );
+        return;
+    }
+
     if matches!(
         node.kind(),
         "import_statement" | "import_from_statement" | "future_import_statement"
@@ -1039,7 +1107,13 @@ fn collect_identifier_candidates(
     if node.kind() == "identifier" && !range_matches_any(range, excluded_ranges) {
         if let Ok(name) = node.utf8_text(source.as_bytes()) {
             let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
-            if is_shadowed_local_binding(source_symbol_id, name, local_bindings_by_symbol_id) {
+            if is_shadowed_local_binding(
+                source_symbol_id,
+                name,
+                range,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+            ) {
                 return;
             }
             out.push(ReferenceCandidate {
@@ -1059,20 +1133,78 @@ fn collect_identifier_candidates(
             child,
             symbol_ranges,
             local_bindings_by_symbol_id,
+            local_binding_scopes,
             excluded_ranges,
             out,
         );
     }
 }
 
+fn collect_lambda_parameter_value_identifier_candidates(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    match node.kind() {
+        "default_parameter" | "typed_default_parameter" => {
+            if let Some(value) = node.child_by_field_name("value") {
+                collect_identifier_candidates(
+                    file_id,
+                    source,
+                    value,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    out,
+                );
+            }
+        }
+        "lambda_parameters" => {
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                collect_lambda_parameter_value_identifier_candidates(
+                    file_id,
+                    source,
+                    child,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    out,
+                );
+            }
+        }
+        _ => {}
+    }
+}
+
 fn is_shadowed_local_binding(
     source_symbol_id: Option<u32>,
     name: &str,
+    range: SourceRange,
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
 ) -> bool {
-    source_symbol_id
-        .and_then(|symbol_id| local_bindings_by_symbol_id.get(&symbol_id))
+    let Some(source_symbol_id) = source_symbol_id else {
+        return false;
+    };
+    if local_bindings_by_symbol_id
+        .get(&source_symbol_id)
         .is_some_and(|bindings| bindings.contains(name))
+    {
+        return true;
+    }
+    local_binding_scopes.iter().any(|scope| {
+        scope.source_symbol_id == source_symbol_id
+            && contains_range(scope.range, range)
+            && scope.names.contains(name)
+    })
 }
 
 fn innermost_symbol_for_range(
@@ -1694,6 +1826,8 @@ def import_shadowed():\n    import other.module\n    import other.module as help
 def control_flow_shadowed(items, manager):\n    for Base, helper in items:\n        pass\n    with manager as other:\n        pass\n    try:\n        pass\n    except Error as helper:\n        return Base, helper, other\n\n\
 def comprehension_shadowed(items):\n    return [Base + helper + other for Base, helper, other in items if Base]\n\n\
 def match_shadowed(subject):\n    match subject:\n        case Point(x=Base, y=helper) as other if Base:\n            return Base, helper, other\n        case {\"base\": Base, \"helper\": helper, **other}:\n            return Base, helper, other\n\n\
+def lambda_shadowed():\n    return (lambda Base, helper, *other: (Base, helper, other))\n\n\
+def lambda_default_ref():\n    return (lambda local=Base: local)\n\n\
 def caller():\n    return helper()\n",
         )
         .unwrap();
@@ -1730,6 +1864,16 @@ def caller():\n    return helper()\n",
             .symbols
             .iter()
             .find(|symbol| symbol.name == "match_shadowed")
+            .unwrap();
+        let lambda_shadowed = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "lambda_shadowed")
+            .unwrap();
+        let lambda_default_ref = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "lambda_default_ref")
             .unwrap();
         let helper = index
             .symbols
@@ -1795,6 +1939,17 @@ def caller():\n    return helper()\n",
             reference.source_symbol_id == Some(match_shadowed.id)
                 && reference.name == "Point"
                 && reference.target_symbol_id == point.id
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(lambda_shadowed.id)
+                && (reference.target_symbol_id == base.id
+                    || reference.target_symbol_id == helper.id
+                    || reference.target_symbol_id == other.id)
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(lambda_default_ref.id)
+                && reference.name == "Base"
+                && reference.target_symbol_id == base.id
         }));
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(caller.id)
