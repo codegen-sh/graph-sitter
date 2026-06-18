@@ -310,6 +310,8 @@ struct LocalBindingScope {
     names: HashSet<String>,
 }
 
+type ExportedSymbolsByFile = HashMap<u32, BTreeMap<String, u32>>;
+
 impl PythonIndexer {
     fn new() -> Result<Self, IndexError> {
         let mut parser = Parser::new();
@@ -1550,25 +1552,7 @@ fn resolve_python_reexport_imports(index: &mut PythonIndex) {
         .collect();
 
     for _ in 0..index.import_resolutions.len() {
-        let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
-            .import_resolutions
-            .iter()
-            .map(|resolution| (resolution.import_id, resolution))
-            .collect();
-        let mut reexported_symbol_by_file_binding: HashMap<(u32, String), u32> = HashMap::new();
-
-        for import in &index.imports {
-            let Some(binding) = import_binding_name(import) else {
-                continue;
-            };
-            let Some(resolution) = resolution_by_import_id.get(&import.id) else {
-                continue;
-            };
-            let Some(target_symbol_id) = resolution.target_symbol_id else {
-                continue;
-            };
-            reexported_symbol_by_file_binding.insert((import.file_id, binding), target_symbol_id);
-        }
+        let exported_symbols_by_file = python_exported_symbols_by_file(index);
 
         let mut changed = false;
         for resolution in &mut index.import_resolutions {
@@ -1587,8 +1571,9 @@ fn resolve_python_reexport_imports(index: &mut PythonIndex) {
             if name == "*" {
                 continue;
             }
-            if let Some(target_symbol_id) =
-                reexported_symbol_by_file_binding.get(&(resolution.target_file_id, name.to_owned()))
+            if let Some(target_symbol_id) = exported_symbols_by_file
+                .get(&resolution.target_file_id)
+                .and_then(|exports| exports.get(name))
             {
                 resolution.target_symbol_id = Some(*target_symbol_id);
                 changed = true;
@@ -1599,6 +1584,62 @@ fn resolve_python_reexport_imports(index: &mut PythonIndex) {
             break;
         }
     }
+}
+
+fn python_exported_symbols_by_file(index: &PythonIndex) -> ExportedSymbolsByFile {
+    let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
+        .import_resolutions
+        .iter()
+        .map(|resolution| (resolution.import_id, resolution))
+        .collect();
+    let mut exports: ExportedSymbolsByFile = HashMap::new();
+
+    for symbol in index.symbols.iter().filter(|symbol| symbol.is_top_level) {
+        exports
+            .entry(symbol.file_id)
+            .or_default()
+            .insert(symbol.name.clone(), symbol.id);
+    }
+
+    for _ in 0..index.imports.len().max(1) {
+        let previous_exports = exports.clone();
+
+        for import in &index.imports {
+            if import.kind == ImportKind::FutureImport {
+                continue;
+            }
+            let Some(resolution) = resolution_by_import_id.get(&import.id) else {
+                continue;
+            };
+            if is_wildcard_import(import) {
+                let Some(target_exports) = previous_exports.get(&resolution.target_file_id) else {
+                    continue;
+                };
+                let file_exports = exports.entry(import.file_id).or_default();
+                for (name, target_symbol_id) in target_exports {
+                    file_exports.insert(name.clone(), *target_symbol_id);
+                }
+                continue;
+            }
+
+            let Some(binding) = import_binding_name(import) else {
+                continue;
+            };
+            let Some(target_symbol_id) = resolution.target_symbol_id else {
+                continue;
+            };
+            exports
+                .entry(import.file_id)
+                .or_default()
+                .insert(binding, target_symbol_id);
+        }
+
+        if exports == previous_exports {
+            break;
+        }
+    }
+
+    exports
 }
 
 fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceCandidate>) {
@@ -1613,6 +1654,7 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         .iter()
         .map(|resolution| (resolution.import_id, resolution))
         .collect();
+    let exported_symbols_by_file = python_exported_symbols_by_file(index);
     let mut imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
     let mut imported_module_by_qualifier: HashMap<(u32, String), (u32, u32)> = HashMap::new();
 
@@ -1620,6 +1662,17 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         let Some(resolution) = resolution_by_import_id.get(&import.id) else {
             continue;
         };
+        if is_wildcard_import(import) {
+            if let Some(target_exports) = exported_symbols_by_file.get(&resolution.target_file_id) {
+                for (binding, target_symbol_id) in target_exports {
+                    imported_symbol_by_binding.insert(
+                        (import.file_id, binding.clone()),
+                        (*target_symbol_id, import.id),
+                    );
+                }
+            }
+            continue;
+        }
         if resolution.target_symbol_id.is_none() {
             for qualifier in import_module_qualifiers(import) {
                 imported_module_by_qualifier.insert(
@@ -1757,8 +1810,19 @@ fn import_binding_name(import: &ImportRecord) -> Option<String> {
             .as_deref()
             .and_then(|name| name.split('.').next())
             .map(str::to_owned),
-        ImportKind::FromImport | ImportKind::FutureImport => import.name.clone(),
+        ImportKind::FromImport | ImportKind::FutureImport => import
+            .name
+            .as_ref()
+            .filter(|name| name.as_str() != "*")
+            .cloned(),
     }
+}
+
+fn is_wildcard_import(import: &ImportRecord) -> bool {
+    matches!(
+        import.kind,
+        ImportKind::FromImport | ImportKind::FutureImport
+    ) && import.name.as_deref() == Some("*")
 }
 
 fn resolve_plain_import(import: &ImportRecord, module_to_file: &HashMap<&str, u32>) -> Option<u32> {
@@ -2076,6 +2140,101 @@ mod tests {
         assert!(index.dependencies.iter().any(|dependency| {
             dependency.source_symbol_id == service.id
                 && dependency.target_symbol_id == base_symbol_id
+        }));
+    }
+
+    #[test]
+    fn resolves_python_wildcard_import_chains_to_symbols() {
+        let repo = temp_repo_path("resolve-python-wildcard-reexports");
+        fs::create_dir_all(repo.join("pkg/inner")).unwrap();
+        fs::write(
+            repo.join("pkg/base.py"),
+            "CONSTANT = 1\nclass Base:\n    pass\n\ndef helper():\n    return CONSTANT\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("pkg/inner/__init__.py"),
+            "from ..base import *\nINNER = CONSTANT\n",
+        )
+        .unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "from .inner import *\n").unwrap();
+        fs::write(repo.join("facade.py"), "from pkg import *\n").unwrap();
+        fs::write(
+            repo.join("service.py"),
+            "from pkg import Base\nfrom facade import *\n\nclass Service(Base):\n    def run(self):\n        return helper(), CONSTANT\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let base = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Base")
+            .unwrap();
+        let constant = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "CONSTANT")
+            .unwrap();
+        let helper = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "helper")
+            .unwrap();
+        let inner = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "INNER")
+            .unwrap();
+        let service = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Service")
+            .unwrap();
+        let run = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "run")
+            .unwrap();
+
+        assert!(index
+            .import_resolutions
+            .iter()
+            .any(|resolution| { resolution.target_symbol_id == Some(base.id) }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(inner.id)
+                && reference.name == "CONSTANT"
+                && reference.target_symbol_id == constant.id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(service.id)
+                && reference.name == "Base"
+                && reference.target_symbol_id == base.id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run.id)
+                && reference.name == "helper"
+                && reference.target_symbol_id == helper.id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run.id)
+                && reference.name == "CONSTANT"
+                && reference.target_symbol_id == constant.id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == service.id && dependency.target_symbol_id == base.id
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == run.id && dependency.target_symbol_id == helper.id
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == run.id && dependency.target_symbol_id == constant.id
         }));
     }
 
