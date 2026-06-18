@@ -256,6 +256,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.get_function("helper").filepath == "pkg/service.py"
         assert codebase.files[0].classes[0].name == "Service"
         assert codebase.files[0].functions[0].name == "helper"
+        assert [symbol.name for symbol in codebase.files[0].symbols_sorted_topologically] == ["helper", "Service"]
         assert codebase.files[0].import_statements == [codebase.imports[0]]
         assert codebase.files[0].has_import("os")
         assert codebase.files[0].has_import("import os")

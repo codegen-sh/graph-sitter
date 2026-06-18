@@ -664,6 +664,38 @@ class RustCompactFile(RustCompactHandle):
     def functions(self) -> list[RustCompactSymbol]:
         return [symbol for symbol in self.symbols if symbol.symbol_type == SymbolType.Function]
 
+    @property
+    def symbols_sorted_topologically(self) -> list[RustCompactSymbol]:
+        symbols = self.symbols
+        symbols_by_id = {symbol.record.id: symbol for symbol in symbols}
+        original_index = {symbol.record.id: index for index, symbol in enumerate(symbols)}
+        outgoing: dict[int, list[int]] = {symbol.record.id: [] for symbol in symbols}
+        indegrees: dict[int, int] = {symbol.record.id: 0 for symbol in symbols}
+
+        for symbol in symbols:
+            for dependency in self.backend.dependencies_from_symbol(symbol.record.id):
+                if dependency.target_symbol_id not in symbols_by_id:
+                    continue
+                outgoing[symbol.record.id].append(dependency.target_symbol_id)
+                indegrees[dependency.target_symbol_id] += 1
+
+        ready = sorted((symbol_id for symbol_id, indegree in indegrees.items() if indegree == 0), key=original_index.__getitem__)
+        ordered_ids: list[int] = []
+        while ready:
+            symbol_id = ready.pop(0)
+            ordered_ids.append(symbol_id)
+            for target_symbol_id in sorted(outgoing[symbol_id], key=original_index.__getitem__):
+                indegrees[target_symbol_id] -= 1
+                if indegrees[target_symbol_id] == 0:
+                    ready.append(target_symbol_id)
+                    ready.sort(key=original_index.__getitem__)
+
+        if len(ordered_ids) != len(symbols):
+            ordered_set = set(ordered_ids)
+            ordered_ids.extend(symbol.record.id for symbol in symbols if symbol.record.id not in ordered_set)
+
+        return [symbols_by_id[symbol_id] for symbol_id in ordered_ids]
+
     def get_symbol(self, name: str) -> RustCompactSymbol | None:
         return next((symbol for symbol in self.symbols if symbol.name == name), None)
 
