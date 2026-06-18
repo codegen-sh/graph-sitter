@@ -1,0 +1,21 @@
+[package]
+name = "graph-sitter-py"
+description = "PyO3 binding placeholder for graph-sitter-engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "graph_sitter_py"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+pyo3-bindings = ["dep:pyo3"]
+extension-module = ["pyo3-bindings", "pyo3/extension-module"]
+
+[dependencies]
+graph-sitter-engine.workspace = true
+pyo3 = { workspace = true, optional = true }

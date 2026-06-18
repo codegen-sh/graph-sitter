@@ -108,39 +108,41 @@ Recommended task format:
 
 ## Active Worktrees
 
-- [ ] Benchmarks/profiling. owner: Poincare. Agent: `019edc37-802c-7223-8d37-75a51b65abbd`. Branch: `codex/rust-rewrite-benchmarks`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-benchmarks`.
-- [ ] API inventory. owner: Dewey. Agent: `019edc37-82ff-7b92-9fac-5364e2d8098b`. Branch: `codex/rust-rewrite-api-inventory`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-api-inventory`.
-- [ ] Rust data model. owner: Pasteur. Agent: `019edc37-859c-71b2-b884-ab7a2bfc707e`. Branch: `codex/rust-rewrite-data-model`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-data-model`.
-- [ ] Parser/index vertical slice. owner: Meitner. Agent: `019edc37-8867-7a83-a18e-b0ec0ca29d11`. Branch: `codex/rust-rewrite-parser-index`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-parser-index`.
-- [ ] Resolver/dependency algorithms. owner: Gauss. Agent: `019edc37-8c34-7f93-b0ae-746cbd579962`. Branch: `codex/rust-rewrite-resolver`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-resolver`.
-- [ ] Rust engine skeleton. owner: Beauvoir. Agent: `019edc37-8f2d-7dd3-b3ed-a1f9e1b191a7`. Branch: `codex/rust-rewrite-engine-skeleton`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-engine-skeleton`.
-- [ ] PyO3/Python compatibility. owner: queued. Branch: `codex/rust-rewrite-pyo3-compat`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-pyo3-compat`. Notes: agent spawn queued until an active helper completes.
+- [x] Benchmarks/profiling. owner: Poincare. Agent: `019edc37-802c-7223-8d37-75a51b65abbd`. Branch: `codex/rust-rewrite-benchmarks`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-benchmarks`. Result: benchmark plan and Python backend harness committed.
+- [x] API inventory. owner: Dewey. Agent: `019edc37-82ff-7b92-9fac-5364e2d8098b`. Branch: `codex/rust-rewrite-api-inventory`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-api-inventory`. Result: P0/P1/P2 API compatibility inventory committed.
+- [x] Rust data model. owner: Pasteur. Agent: `019edc37-859c-71b2-b884-ab7a2bfc707e`. Branch: `codex/rust-rewrite-data-model`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-data-model`. Result: compact Rust-side schema and migration risks committed.
+- [x] Parser/index vertical slice. owner: Meitner. Agent: `019edc37-8867-7a83-a18e-b0ec0ca29d11`. Branch: `codex/rust-rewrite-parser-index`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-parser-index`. Result: parser/index extraction plan committed.
+- [x] Resolver/dependency algorithms. owner: Gauss. Agent: `019edc37-8c34-7f93-b0ae-746cbd579962`. Branch: `codex/rust-rewrite-resolver`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-resolver`. Result: resolver algorithm inventory and Rust port plan committed.
+- [x] Rust engine skeleton. owner: Beauvoir. Agent: `019edc37-8f2d-7dd3-b3ed-a1f9e1b191a7`. Branch: `codex/rust-rewrite-engine-skeleton`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-engine-skeleton`. Result: standalone Cargo workspace and smoke tests committed.
+- [ ] PyO3/Python compatibility. owner: Wegener. Agent: `019edc4e-72b1-7a00-8644-e43503f0cdc3`. Branch: `codex/rust-rewrite-pyo3-compat`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-pyo3-compat`. Notes: spawned after completed agents freed capacity.
 
 ## Phase 0: Baseline, RFC, And Contracts
 
-- [ ] Add memory benchmark harness for current Python backend.
+- [x] Add memory benchmark harness for current Python backend. owner: Poincare. Result: added `rust-rewrite/tools/measure_python_backend.py`.
 - [ ] Measure cold parse RSS and wall time for representative repos.
 - [ ] Measure graph node/edge counts, Python object counts, and per-phase allocation peaks.
-- [ ] Document the exact current build phases with timings: file enumeration, parse, directory tree, config parse, import resolution, export resolution, dependency recompute.
-- [ ] Inventory all public `Codebase` properties and methods.
-- [ ] Inventory all public `SourceFile`, `Symbol`, `Import`, `Export`, and `Directory` APIs used by tests/docs.
-- [ ] Define P0 compatibility surface for the first Rust backend slice.
+- [x] Document the exact current build phases with timings: file enumeration, parse, directory tree, config parse, import resolution, export resolution, dependency recompute. owner: Poincare. Result: added phase map in `rust-rewrite/benchmarks.md`; representative repo timings remain open.
+- [x] Inventory all public `Codebase` properties and methods. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
+- [x] Inventory all public `SourceFile`, `Symbol`, `Import`, `Export`, and `Directory` APIs used by tests/docs. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
+- [x] Define P0 compatibility surface for the first Rust backend slice. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [ ] Define large-repo success targets for memory and time.
-- [ ] Draft Rust engine RFC with module boundaries and Python integration points.
+- [x] Draft compact Rust data model with module boundaries and Python integration points. owner: Pasteur. Result: documented in `rust-rewrite/data-model.md`.
+- [ ] Draft full Rust engine RFC with module boundaries and Python integration points.
 - [ ] Decide build tooling: `maturin`, setuptools-rust, or hatch custom hook.
 
 ## Phase 1: Rust Engine Skeleton
 
-- [ ] Add Rust workspace/crate skeleton without changing default behavior.
+- [x] Add Rust workspace/crate skeleton without changing default behavior. owner: Beauvoir. Result: added standalone Cargo workspace under `crates/`.
 - [ ] Add PyO3 module import smoke test.
 - [ ] Add `graph_backend` config flag with default `python`.
 - [ ] Add Rust engine facade object that can be constructed from `CodebaseContext`.
-- [ ] Add a minimal debug API returning engine version and enabled features.
+- [x] Add a minimal debug API returning engine version and enabled features. owner: Beauvoir. Result: added Rust `Engine::debug_info` and feature-gated PyO3 bindings.
 - [ ] Add CI job that builds the Rust extension on supported Python versions.
 - [ ] Add benchmark command that can select `--backend python|rust`.
 
 ## Phase 2: Parser And Compact Index Vertical Slice
 
+- [x] Specify parser/index vertical slice and extraction rules. owner: Meitner. Result: documented in `rust-rewrite/parser-index.md`.
 - [ ] Implement Rust file discovery input format from Python repo operator.
 - [ ] Implement tree-sitter parser setup for Python.
 - [ ] Implement tree-sitter parser setup for TypeScript/TSX.
@@ -156,6 +158,7 @@ Recommended task format:
 
 ## Phase 3: Resolution And Dependency Graph
 
+- [x] Inventory current resolver/dependency algorithms and Rust relation-table plan. owner: Gauss. Result: documented in `rust-rewrite/resolution-algorithms.md`.
 - [ ] Port Python import resolution rules.
 - [ ] Port TypeScript relative import resolution rules.
 - [ ] Port TypeScript config/path alias handling.
@@ -217,5 +220,6 @@ Recommended task format:
 
 ## Agent Log
 
-- [ ] 2026-06-18: Initial strategy file created on `rust-rewrite` branch. owner: codex. Notes: ready for helper agents to claim phase tasks.
-- [ ] 2026-06-18: Integrator created seven worktrees and spawned six helper agents; PyO3 compatibility is queued due to agent concurrency limit. owner: codex.
+- [x] 2026-06-18: Initial strategy file created on `rust-rewrite` branch. owner: codex. Notes: ready for helper agents to claim phase tasks.
+- [x] 2026-06-18: Integrator created seven worktrees and spawned six helper agents; PyO3 compatibility was queued due to agent concurrency limit. owner: codex.
+- [x] 2026-06-18: Six completed helper branches reviewed and their artifacts staged for integration. owner: codex. Notes: PyO3 compatibility agent is now running as Wegener.
