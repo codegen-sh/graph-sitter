@@ -781,6 +781,12 @@ fn collect_local_bindings_from_node(
         "lambda" => {
             push_lambda_binding_scope(source, node, symbol_ranges, scoped_bindings);
         }
+        "list_comprehension"
+        | "set_comprehension"
+        | "dictionary_comprehension"
+        | "generator_expression" => {
+            push_comprehension_binding_scope(source, node, symbol_ranges, scoped_bindings);
+        }
         "global_statement" => {
             if let Some(source_symbol_id) =
                 innermost_symbol_for_range(symbol_ranges, node.range().into())
@@ -798,14 +804,19 @@ fn collect_local_bindings_from_node(
             if let Some(left) = node.child_by_field_name("left") {
                 push_local_binding_targets(source, left, symbol_ranges, bindings);
             }
+            if let Some(right) = node.child_by_field_name("right") {
+                collect_local_bindings_from_node(
+                    source,
+                    right,
+                    symbol_ranges,
+                    bindings,
+                    global_declarations,
+                    scoped_bindings,
+                );
+            }
             return;
         }
         "for_statement" => {
-            if let Some(left) = node.child_by_field_name("left") {
-                push_local_binding_targets(source, left, symbol_ranges, bindings);
-            }
-        }
-        "for_in_clause" => {
             if let Some(left) = node.child_by_field_name("left") {
                 push_local_binding_targets(source, left, symbol_ranges, bindings);
             }
@@ -867,6 +878,48 @@ fn declaration_names(source: &str, node: Node<'_>) -> Vec<String> {
         }
     }
     names
+}
+
+fn push_comprehension_binding_scope(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    scoped_bindings: &mut Vec<LocalBindingScope>,
+) {
+    let Some(source_symbol_id) = innermost_symbol_for_range(symbol_ranges, node.range().into())
+    else {
+        return;
+    };
+
+    let mut targets = Vec::new();
+    collect_comprehension_targets(node, &mut targets);
+    let mut names = HashSet::new();
+    for target in targets {
+        if let Ok(name) = target.utf8_text(source.as_bytes()) {
+            names.insert(name.to_owned());
+        }
+    }
+    if !names.is_empty() {
+        scoped_bindings.push(LocalBindingScope {
+            source_symbol_id,
+            range: node.range().into(),
+            names,
+        });
+    }
+}
+
+fn collect_comprehension_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
+    if node.kind() == "for_in_clause" {
+        if let Some(left) = node.child_by_field_name("left") {
+            collect_assignment_targets(left, out);
+        }
+        return;
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_comprehension_targets(child, out);
+    }
 }
 
 fn push_lambda_binding_scope(
@@ -1887,6 +1940,7 @@ def shadowed(Base):\n    helper = Base\n    return helper, Base\n\n\
 def import_shadowed():\n    import other.module\n    import other.module as helper\n    from other import Base\n    return helper, Base, other\n\n\
 def control_flow_shadowed(items, manager):\n    for Base, helper in items:\n        pass\n    with manager as other:\n        pass\n    try:\n        pass\n    except Error as helper:\n        return Base, helper, other\n\n\
 def comprehension_shadowed(items):\n    return [Base + helper + other for Base, helper, other in items if Base]\n\n\
+def comprehension_scope_does_not_leak(items):\n    values = [Base + helper for Base, helper in items]\n    return Base, helper, other\n\n\
 def match_shadowed(subject):\n    match subject:\n        case Point(x=Base, y=helper) as other if Base:\n            return Base, helper, other\n        case {\"base\": Base, \"helper\": helper, **other}:\n            return Base, helper, other\n\n\
 def lambda_shadowed():\n    return (lambda Base, helper, *other: (Base, helper, other))\n\n\
 def lambda_default_ref():\n    return (lambda local=Base: local)\n\n\
@@ -1923,6 +1977,11 @@ def caller():\n    return helper()\n",
             .symbols
             .iter()
             .find(|symbol| symbol.name == "comprehension_shadowed")
+            .unwrap();
+        let comprehension_scope_does_not_leak = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "comprehension_scope_does_not_leak")
             .unwrap();
         let match_shadowed = index
             .symbols
@@ -2003,6 +2062,24 @@ def caller():\n    return helper()\n",
                     || reference.target_symbol_id == helper.id
                     || reference.target_symbol_id == other.id)
         }));
+        for (name, target_symbol_id) in [
+            ("Base", base.id),
+            ("helper", helper.id),
+            ("other", other.id),
+        ] {
+            assert_eq!(
+                index
+                    .references
+                    .iter()
+                    .filter(|reference| {
+                        reference.source_symbol_id == Some(comprehension_scope_does_not_leak.id)
+                            && reference.name == name
+                            && reference.target_symbol_id == target_symbol_id
+                    })
+                    .count(),
+                1
+            );
+        }
         assert!(!index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(match_shadowed.id)
                 && (reference.target_symbol_id == base.id
