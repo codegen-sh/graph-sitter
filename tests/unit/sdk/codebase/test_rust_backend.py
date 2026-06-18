@@ -258,6 +258,11 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.files[0].functions[0].name == "helper"
         assert [symbol.name for symbol in codebase.files[0].symbols_sorted_topologically] == ["helper", "Service"]
         assert codebase.files[0].import_statements == [codebase.imports[0]]
+        assert codebase.files[0].get_nodes() == [codebase.imports[0], codebase.classes[0], codebase.functions[0]]
+        assert codebase.files[0].find_by_byte_range(codebase.rust_imports[0].range) == [codebase.imports[0]]
+        assert codebase.files[0].find_by_byte_range(codebase.rust_symbols[0].range) == [codebase.classes[0]]
+        assert codebase.files[0].find_by_byte_range(codebase.rust_references[0].range) == [codebase.functions[0]]
+        assert codebase.files[0].find_by_byte_range({"start_byte": 31, "end_byte": 33}) == []
         assert codebase.files[0].has_import("os")
         assert codebase.files[0].has_import("import os")
         assert codebase.files[0].get_import("os") == codebase.imports[0]

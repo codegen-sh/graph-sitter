@@ -547,6 +547,28 @@ def _usage_types_include_direct(usage_types: UsageType | None) -> bool:
     return usage_types is None or bool(usage_types & UsageType.DIRECT)
 
 
+def _byte_range_bounds(range_like: Any) -> tuple[int, int]:
+    if isinstance(range_like, dict):
+        start_byte = range_like["start_byte"]
+        end_byte = range_like["end_byte"]
+    else:
+        start_byte = getattr(range_like, "start_byte")
+        end_byte = getattr(range_like, "end_byte")
+
+    start = int(start_byte)
+    end = int(end_byte)
+    if end < start:
+        msg = f"Invalid byte range: end_byte {end} is before start_byte {start}"
+        raise ValueError(msg)
+    return start, end
+
+
+def _ranges_overlap(record_range: RustSourceRange, query_start: int, query_end: int) -> bool:
+    if query_start == query_end:
+        return record_range.start_byte <= query_start < record_range.end_byte
+    return record_range.start_byte < query_end and query_start < record_range.end_byte
+
+
 class RustCompactHandle:
     node_type: NodeType
 
@@ -645,6 +667,19 @@ class RustCompactFile(RustCompactHandle):
             seen.add(key)
             import_statements.append(import_handle.import_statement)
         return import_statements
+
+    def get_nodes(self, *, sort_by_id: bool = False, sort: bool = True) -> list[RustCompactImport | RustCompactSymbol]:
+        nodes: list[RustCompactImport | RustCompactSymbol] = [*self.imports, *self.backend.symbols_for_file(self.record.id)]
+        if not sort:
+            return nodes
+
+        if sort_by_id:
+            return sorted(nodes, key=lambda node: (node.node_id, int(node.node_type), node.start_byte, node.end_byte))
+        return sorted(nodes, key=lambda node: (node.start_byte, node.end_byte, int(node.node_type), node.node_id))
+
+    def find_by_byte_range(self, range: Any) -> list[RustCompactImport | RustCompactSymbol]:
+        start_byte, end_byte = _byte_range_bounds(range)
+        return [node for node in self.get_nodes() if _ranges_overlap(node.range, start_byte, end_byte)]
 
     @proxy_property
     def symbols(self, nested: bool = False) -> list[RustCompactSymbol]:
