@@ -120,14 +120,17 @@ Recommended task format:
 
 - [x] Add memory benchmark harness for current Python backend. owner: Poincare. Result: added `rust-rewrite/tools/measure_python_backend.py`.
 - [x] Measure initial cold parse RSS and wall time for generated fixture and this repo. owner: codex. Result: recorded in `rust-rewrite/benchmarks.md`.
-- [ ] Measure cold parse RSS and wall time for canonical small, medium, and huge repos.
+- [x] Add pinned Python repository benchmark harness. owner: codex. Result: added `rust-rewrite/tools/benchmark_pinned_python_repo.py` to clone/fetch a pinned repo, build the PyO3 extension, run Python and Rust `Codebase` measurements, and enforce wall/RSS/file-count gates.
+- [x] Measure first canonical huge Python repo cold parse/Rust compact backend baseline. owner: codex. Result: Apache Airflow `2.10.5` at `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf` records 4,789 Python files, 6.218x wall improvement, and 9.882x max-RSS improvement for the current compact Rust slice.
+- [ ] Measure cold parse RSS and wall time for additional canonical small, medium, and huge repos.
 - [ ] Measure graph node/edge counts, Python object counts, and per-phase allocation peaks.
 - [x] Document the exact current build phases with timings: file enumeration, parse, directory tree, config parse, import resolution, export resolution, dependency recompute. owner: Poincare. Result: added phase map in `rust-rewrite/benchmarks.md`; representative repo timings remain open.
 - [x] Inventory all public `Codebase` properties and methods. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [x] Inventory all public `SourceFile`, `Symbol`, `Import`, `Export`, and `Directory` APIs used by tests/docs. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [x] Define P0 compatibility surface for the first Rust backend slice. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [ ] Define large-repo success targets for memory and time.
-- [ ] Select pinned large Python repo commits for golden parity and latency benchmarks. Notes: Airflow is a good first candidate; record the exact upstream URL, commit SHA, Python version, and checkout/bootstrap command.
+- [x] Select first pinned large Python repo commit for golden parity and latency benchmarks. owner: codex. Result: Apache Airflow `2.10.5`, upstream `https://github.com/apache/airflow.git`, ref `refs/tags/2.10.5`, commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`, measured with Python 3.13.11 on macOS.
+- [ ] Select additional pinned large Python repo commits for golden parity and latency benchmarks.
 - [ ] Build golden reference/import/dependency graph snapshots for the pinned large Python repo commits. Notes: fixtures should assert file/module records, import graph edges, symbol reference graph edges, dependency graph edges, and deterministic sort order.
 - [x] Draft compact Rust data model with module boundaries and Python integration points. owner: Pasteur. Result: documented in `rust-rewrite/data-model.md`.
 - [ ] Draft full Rust engine RFC with module boundaries and Python integration points.
@@ -146,7 +149,7 @@ Recommended task format:
 - [x] Add benchmark command comparing Python backend with Rust compact indexer. owner: codex. Result: added `rust-rewrite/tools/compare_rust_python_index.py`.
 - [x] Add benchmark command for the Python-facing Rust facade. owner: codex. Result: added `rust-rewrite/tools/measure_rust_facade.py`.
 - [x] Add benchmark command for real `Codebase` construction with the Rust compact backend. owner: codex. Result: added `rust-rewrite/tools/measure_codebase_rust_backend.py`.
-- [ ] Add benchmark command that can select full `Codebase` `--backend python|rust` once Rust backend is wired into Python.
+- [x] Add benchmark command that can select full `Codebase` `--backend python|rust` once Rust backend is wired into Python. owner: codex. Result: `benchmark_pinned_python_repo.py` runs Python and Rust `Codebase` measurements in child processes for pinned external repos.
 
 ## Phase 2: Parser And Compact Index Vertical Slice
 
@@ -221,6 +224,7 @@ Recommended task format:
 - [ ] Run full unit suite with Python backend.
 - [ ] Run full unit suite with Rust backend where supported.
 - [ ] Add large-repo memory regression benchmark to CI or nightly.
+- [x] Add pinned large-repo latency/RSS benchmark harness. owner: codex. Result: Airflow `2.10.5` benchmark command emits backend, wall time, max RSS, file count, node/edge counts, compact Rust record counts, mismatch summaries, and pass/fail gates.
 - [ ] Add pinned large-repo parity test for reference graph, import graph, dependency graph, and latency/RSS. Notes: run against the exact checked-out commit and emit backend, wall time, max RSS, file count, node/edge counts, and mismatch summaries.
 - [ ] Add feature flag documentation.
 - [ ] Add migration notes for unsupported APIs.
@@ -253,3 +257,4 @@ Recommended task format:
 - [x] 2026-06-18: Added lightweight Rust compact handles for Python `Codebase.files`, `symbols`, `classes`, `functions`, `global_vars`, `imports`, and basic `get_*` queries. owner: codex. Notes: current checkout constructs and exercises public read handles 5.3x faster with 4.6x lower process max RSS than Python parse/object materialization while keeping `CodebaseContext.nodes` blocked.
 - [x] 2026-06-18: Added compact Python `ReferenceRecord` extraction for same-file and imported top-level symbol references inside top-level classes/functions. owner: codex. Notes: current checkout emits 3,666 compact references and remains 5.0x faster with 4.1x lower process max RSS than Python parse/object materialization.
 - [x] 2026-06-18: Added compact Python `DependencyRecord` construction from references. owner: codex. Notes: current checkout emits 2,020 de-duplicated dependency edges and remains 4.6x faster with 4.1x lower process max RSS than Python parse/object materialization.
+- [x] 2026-06-18: Added first pinned large-repo benchmark runner and Airflow baseline. owner: codex. Notes: Apache Airflow `2.10.5` at `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf` matched 4,789 Python files and measured 6.218x faster wall time with 9.882x lower max RSS for the current compact Rust `Codebase` slice.

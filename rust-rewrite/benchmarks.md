@@ -105,6 +105,14 @@ PYTHONPATH=/path/to/dir/containing/graph_sitter_py_extension \
   uv run python rust-rewrite/tools/measure_codebase_rust_backend.py . --json
 ```
 
+`rust-rewrite/tools/benchmark_pinned_python_repo.py` prepares a pinned external Python repository, builds the PyO3 extension, runs the Python parse/object-materialization harness, runs the Rust compact `Codebase` harness, and fails if the configured wall/RSS ratio gates are not met. The default pinned repo is Apache Airflow `2.10.5`, resolved to commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`:
+
+```bash
+uv run python rust-rewrite/tools/benchmark_pinned_python_repo.py \
+  --output /tmp/graph-sitter-airflow-2.10.5-benchmark.json \
+  --json
+```
+
 ## Metrics
 
 The JSON report includes:
@@ -169,6 +177,7 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 | Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
 | `graph-sitter` repo checkout | `--disable-graph` | 2.818s | 539.5 MB | 0.617s | 132.1 MB | 1130 | 1130 | 3956 | 6460 | 432 | 3669 | 2020 | yes | 4.568x | 4.085x |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 19.863s | 3471.4 MB | 3.194s | 351.3 MB | 4789 | 4789 | 23663 | 40580 | 19011 | 95292 | 35489 | yes | 6.218x | 9.882x |
 
 Important caveats:
 
@@ -176,11 +185,11 @@ Important caveats:
 - The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.
-- The generated fixture and this repo are useful proof points, but the huge-repo target still needs canonical pinned baselines.
+- The generated fixture, this repo, and the pinned Airflow baseline are useful proof points, but full parity snapshots and additional canonical repos are still open.
 
 ## Open Questions
 
-- Which exact small, medium, and huge repositories should become canonical Phase 0 baselines?
+- Which additional small, medium, and huge repositories should become canonical Phase 0 baselines?
 - Should TypeScript baselines run with dependency manager and language engine flags off, on, or both?
 - Do we need allocator-level attribution with `memray`, `tracemalloc`, or `py-spy` in addition to RSS sampling?
 - What commit, dependency lockfile, and Python minor version should define the official baseline?
