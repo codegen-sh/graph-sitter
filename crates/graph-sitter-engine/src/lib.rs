@@ -701,7 +701,7 @@ fn push_global_assignment(
 fn collect_assignment_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
     match node.kind() {
         "identifier" => out.push(node),
-        "pattern_list" | "tuple_pattern" | "list_pattern" => {
+        "as_pattern_target" | "pattern" | "pattern_list" | "tuple_pattern" | "list_pattern" => {
             let mut cursor = node.walk();
             for child in node.named_children(&mut cursor) {
                 collect_assignment_targets(child, out);
@@ -756,15 +756,27 @@ fn collect_local_bindings_from_node(
         }
         "assignment" | "annotated_assignment" | "augmented_assignment" => {
             if let Some(left) = node.child_by_field_name("left") {
-                if let Some(source_symbol_id) =
-                    innermost_symbol_for_range(symbol_ranges, left.range().into())
-                {
-                    let mut targets = Vec::new();
-                    collect_assignment_targets(left, &mut targets);
-                    push_local_binding_names(source, source_symbol_id, targets, bindings);
-                }
+                push_local_binding_targets(source, left, symbol_ranges, bindings);
             }
             return;
+        }
+        "for_statement" => {
+            if let Some(left) = node.child_by_field_name("left") {
+                push_local_binding_targets(source, left, symbol_ranges, bindings);
+            }
+        }
+        "with_statement" => {
+            if let Some(with_clause) = first_child_of_kind(node, &["with_clause"]) {
+                push_as_pattern_binding_targets(source, with_clause, symbol_ranges, bindings);
+            }
+        }
+        "except_clause" => {
+            if let Some(alias) = node.child_by_field_name("alias") {
+                push_local_binding_targets(source, alias, symbol_ranges, bindings);
+            }
+            if let Some(value) = node.child_by_field_name("value") {
+                push_as_pattern_binding_targets(source, value, symbol_ranges, bindings);
+            }
         }
         "import_statement" | "import_from_statement" | "future_import_statement" => {
             if let Some(source_symbol_id) =
@@ -785,6 +797,48 @@ fn collect_local_bindings_from_node(
     let mut cursor = node.walk();
     for child in node.named_children(&mut cursor) {
         collect_local_bindings_from_node(source, child, symbol_ranges, bindings);
+    }
+}
+
+fn push_local_binding_targets(
+    source: &str,
+    target_root: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    bindings: &mut HashMap<u32, HashSet<String>>,
+) {
+    if let Some(source_symbol_id) =
+        innermost_symbol_for_range(symbol_ranges, target_root.range().into())
+    {
+        let mut targets = Vec::new();
+        collect_assignment_targets(target_root, &mut targets);
+        push_local_binding_names(source, source_symbol_id, targets, bindings);
+    }
+}
+
+fn push_as_pattern_binding_targets(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    bindings: &mut HashMap<u32, HashSet<String>>,
+) {
+    let mut targets = Vec::new();
+    collect_as_pattern_alias_targets(node, &mut targets);
+    for target in targets {
+        push_local_binding_targets(source, target, symbol_ranges, bindings);
+    }
+}
+
+fn collect_as_pattern_alias_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
+    if node.kind() == "as_pattern" {
+        if let Some(alias) = node.child_by_field_name("alias") {
+            collect_assignment_targets(alias, out);
+        }
+        return;
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_as_pattern_alias_targets(child, out);
     }
 }
 
@@ -1543,8 +1597,10 @@ mod tests {
             repo.join("pkg/service.py"),
             "from .base import Base, helper\n\n\
 other = object()\n\n\
+Error = Exception\n\n\
 def shadowed(Base):\n    helper = Base\n    return helper, Base\n\n\
 def import_shadowed():\n    import other.module\n    import other.module as helper\n    from other import Base\n    return helper, Base, other\n\n\
+def control_flow_shadowed(items, manager):\n    for Base, helper in items:\n        pass\n    with manager as other:\n        pass\n    try:\n        pass\n    except Error as helper:\n        return Base, helper, other\n\n\
 def caller():\n    return helper()\n",
         )
         .unwrap();
@@ -1567,6 +1623,11 @@ def caller():\n    return helper()\n",
             .iter()
             .find(|symbol| symbol.name == "import_shadowed")
             .unwrap();
+        let control_flow_shadowed = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "control_flow_shadowed")
+            .unwrap();
         let helper = index
             .symbols
             .iter()
@@ -1582,6 +1643,11 @@ def caller():\n    return helper()\n",
             .iter()
             .find(|symbol| symbol.name == "Base")
             .unwrap();
+        let error = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Error")
+            .unwrap();
 
         assert!(!index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(shadowed.id)
@@ -1593,6 +1659,17 @@ def caller():\n    return helper()\n",
                 && (reference.target_symbol_id == base.id
                     || reference.target_symbol_id == helper.id
                     || reference.target_symbol_id == other.id)
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(control_flow_shadowed.id)
+                && (reference.target_symbol_id == base.id
+                    || reference.target_symbol_id == helper.id
+                    || reference.target_symbol_id == other.id)
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(control_flow_shadowed.id)
+                && reference.name == "Error"
+                && reference.target_symbol_id == error.id
         }));
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(caller.id)
