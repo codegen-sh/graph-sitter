@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
 
 
@@ -219,9 +220,14 @@ class RustIndexBackend:
     _import_handles: list[RustCompactImport] | None = None
     _file_handles_by_id: dict[int, RustCompactFile] | None = None
     _symbol_handles_by_id: dict[int, RustCompactSymbol] | None = None
+    _import_handles_by_id: dict[int, RustCompactImport] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
     _imports_by_file_id: dict[int, list[RustCompactImport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
+    _references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
+    _references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
+    _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
+    _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
 
     @classmethod
     def build(cls, repo_path: str | Path, file_paths: Sequence[str] | None = None) -> RustIndexBackend:
@@ -343,10 +349,48 @@ class RustIndexBackend:
             self._symbol_handles_by_id = {symbol.record.id: symbol for symbol in self.symbol_handles}
         return self._symbol_handles_by_id.get(symbol_id)
 
+    def import_handle_by_id(self, import_id: int) -> RustCompactImport | None:
+        if self._import_handles_by_id is None:
+            self._import_handles_by_id = {import_handle.record.id: import_handle for import_handle in self.import_handles}
+        return self._import_handles_by_id.get(import_id)
+
     def import_resolution_for_import(self, import_id: int) -> RustImportResolutionRecord | None:
         if self._import_resolutions_by_import_id is None:
             self._import_resolutions_by_import_id = {resolution.import_id: resolution for resolution in self.import_resolutions}
         return self._import_resolutions_by_import_id.get(import_id)
+
+    def references_to_symbol(self, symbol_id: int) -> list[RustReferenceRecord]:
+        if self._references_by_target_symbol_id is None:
+            references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] = {}
+            for reference in self.references:
+                references_by_target_symbol_id.setdefault(reference.target_symbol_id, []).append(reference)
+            self._references_by_target_symbol_id = references_by_target_symbol_id
+        return self._references_by_target_symbol_id.get(symbol_id, [])
+
+    def references_from_symbol(self, symbol_id: int) -> list[RustReferenceRecord]:
+        if self._references_by_source_symbol_id is None:
+            references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] = {}
+            for reference in self.references:
+                if reference.source_symbol_id is not None:
+                    references_by_source_symbol_id.setdefault(reference.source_symbol_id, []).append(reference)
+            self._references_by_source_symbol_id = references_by_source_symbol_id
+        return self._references_by_source_symbol_id.get(symbol_id, [])
+
+    def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
+        if self._dependencies_by_source_symbol_id is None:
+            dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] = {}
+            for dependency in self.dependencies:
+                dependencies_by_source_symbol_id.setdefault(dependency.source_symbol_id, []).append(dependency)
+            self._dependencies_by_source_symbol_id = dependencies_by_source_symbol_id
+        return self._dependencies_by_source_symbol_id.get(symbol_id, [])
+
+    def dependencies_to_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
+        if self._dependencies_by_target_symbol_id is None:
+            dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] = {}
+            for dependency in self.dependencies:
+                dependencies_by_target_symbol_id.setdefault(dependency.target_symbol_id, []).append(dependency)
+            self._dependencies_by_target_symbol_id = dependencies_by_target_symbol_id
+        return self._dependencies_by_target_symbol_id.get(symbol_id, [])
 
     def to_json(self) -> str:
         return str(self.index.to_json())
@@ -380,6 +424,108 @@ class RustCompactName:
 
     def __str__(self) -> str:
         return self.source
+
+
+@dataclass(frozen=True)
+class RustCompactReferenceMatch:
+    backend: RustIndexBackend
+    record: RustReferenceRecord
+
+    @property
+    def source(self) -> str:
+        return self.record.name
+
+    @property
+    def file(self) -> RustCompactFile:
+        file = self.backend.file_handle_by_id(self.record.source_file_id)
+        if file is None:
+            msg = f"Rust compact reference {self.record.id} references missing file {self.record.source_file_id}"
+            raise RuntimeError(msg)
+        return file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def range(self) -> RustSourceRange:
+        return self.record.range
+
+    @property
+    def ts_node(self) -> _RustCompatTreeNode:
+        return _RustCompatTreeNode(self.record.range, int(NodeType.SYMBOL))
+
+    @property
+    def start_byte(self) -> int:
+        return self.record.range.start_byte
+
+    @property
+    def end_byte(self) -> int:
+        return self.record.range.end_byte
+
+    @property
+    def start_point(self) -> tuple[int, int]:
+        return (self.record.range.start_row, self.record.range.start_column)
+
+    @property
+    def end_point(self) -> tuple[int, int]:
+        return (self.record.range.end_row, self.record.range.end_column)
+
+
+@dataclass(frozen=True)
+class RustCompactUsage:
+    backend: RustIndexBackend
+    record: RustReferenceRecord
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, RustCompactUsage) and self.backend is other.backend and self.record.id == other.record.id
+
+    def __hash__(self) -> int:
+        return hash(("rust-compact-usage", id(self.backend), self.record.id))
+
+    @property
+    def match(self) -> RustCompactReferenceMatch:
+        return RustCompactReferenceMatch(self.backend, self.record)
+
+    @property
+    def usage_symbol(self) -> RustCompactSymbol | RustCompactFile:
+        if self.record.source_symbol_id is not None:
+            symbol = self.backend.symbol_handle_by_id(self.record.source_symbol_id)
+            if symbol is None:
+                msg = f"Rust compact reference {self.record.id} references missing source symbol {self.record.source_symbol_id}"
+                raise RuntimeError(msg)
+            return symbol
+        file = self.backend.file_handle_by_id(self.record.source_file_id)
+        if file is None:
+            msg = f"Rust compact reference {self.record.id} references missing source file {self.record.source_file_id}"
+            raise RuntimeError(msg)
+        return file
+
+    @property
+    def imported_by(self) -> RustCompactImport | None:
+        if self.record.import_id is None:
+            return None
+        return self.backend.import_handle_by_id(self.record.import_id)
+
+    @property
+    def usage_type(self) -> UsageType:
+        return UsageType.DIRECT
+
+    @property
+    def kind(self) -> UsageKind:
+        return UsageKind.BODY
+
+    @property
+    def file(self) -> RustCompactFile:
+        return self.match.file
+
+    @property
+    def filepath(self) -> str:
+        return self.match.filepath
+
+
+def _usage_types_include_direct(usage_types: UsageType | None) -> bool:
+    return usage_types is None or bool(usage_types & UsageType.DIRECT)
 
 
 class RustCompactHandle:
@@ -435,6 +581,10 @@ class RustCompactFile(RustCompactHandle):
 
     @property
     def file(self) -> RustCompactFile:
+        return self
+
+    @property
+    def parent_symbol(self) -> RustCompactFile:
         return self
 
     @property
@@ -551,21 +701,70 @@ class RustCompactSymbol(RustCompactHandle):
     def extended_nodes(self) -> list[RustCompactSymbol]:
         return [self]
 
-    @property
-    def dependencies(self) -> list[object]:
-        return []
+    @proxy_property
+    def dependencies(self, usage_types: UsageType | None = UsageType.DIRECT, max_depth: int | None = None) -> list[object]:
+        if not _usage_types_include_direct(usage_types):
+            return []
 
-    @property
-    def usages(self) -> list[object]:
-        return []
+        dependencies = self._direct_dependencies()
+        if max_depth is None or max_depth <= 1:
+            return dependencies
 
-    @property
-    def symbol_usages(self) -> list[object]:
-        return []
+        seen = set(dependencies)
+        frontier = list(dependencies)
+        for _ in range(1, max_depth):
+            next_frontier: list[RustCompactSymbol] = []
+            for dependency in frontier:
+                if not isinstance(dependency, RustCompactSymbol):
+                    continue
+                for nested_dependency in dependency._direct_dependencies():
+                    if nested_dependency in seen:
+                        continue
+                    seen.add(nested_dependency)
+                    dependencies.append(nested_dependency)
+                    next_frontier.append(nested_dependency)
+            if not next_frontier:
+                break
+            frontier = next_frontier
+        return dependencies
+
+    def _direct_dependencies(self) -> list[RustCompactSymbol]:
+        dependencies: list[RustCompactSymbol] = []
+        seen: set[RustCompactSymbol] = set()
+        for dependency in self.backend.dependencies_from_symbol(self.record.id):
+            target = self.backend.symbol_handle_by_id(dependency.target_symbol_id)
+            if target is None or target in seen:
+                continue
+            seen.add(target)
+            dependencies.append(target)
+        return dependencies
+
+    @proxy_property
+    def usages(self, usage_types: UsageType | None = None) -> list[RustCompactUsage]:
+        if not _usage_types_include_direct(usage_types):
+            return []
+
+        usages = [RustCompactUsage(self.backend, reference) for reference in self.backend.references_to_symbol(self.record.id)]
+        return sorted(dict.fromkeys(usages), key=lambda usage: (usage.file.filepath, usage.match.start_byte), reverse=True)
+
+    @proxy_property
+    def symbol_usages(self, usage_types: UsageType | None = None) -> list[object]:
+        if not _usage_types_include_direct(usage_types):
+            return []
+
+        symbol_usages: list[object] = []
+        seen: set[object] = set()
+        for usage in self.usages(usage_types=usage_types):
+            usage_symbol = usage.usage_symbol.parent_symbol
+            if usage_symbol in seen:
+                continue
+            seen.add(usage_symbol)
+            symbol_usages.append(usage_symbol)
+        return symbol_usages
 
     @property
     def descendant_symbols(self) -> list[RustCompactSymbol]:
-        return []
+        return [self]
 
     @property
     def function_calls(self) -> list[object]:
@@ -574,6 +773,10 @@ class RustCompactSymbol(RustCompactHandle):
     @property
     def is_exported(self) -> bool:
         return False
+
+    @property
+    def parent_symbol(self) -> RustCompactSymbol:
+        return self
 
     def get_name(self) -> str:
         return self.name

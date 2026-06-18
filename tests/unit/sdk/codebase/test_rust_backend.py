@@ -6,6 +6,7 @@ import pytest
 
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
+from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 
 
 class FakeSummary:
@@ -259,6 +260,22 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.imports[0].is_module_import()
         assert codebase.imports[0].from_file == codebase.files[0]
         assert codebase.imports[0].imported_symbol == codebase.classes[0]
+        helper = codebase.get_function("helper")
+        service = codebase.get_class("Service")
+        assert helper.dependencies == [service]
+        assert helper.dependencies(usage_types=UsageType.CHAINED) == []
+        assert helper.dependencies(max_depth=2) == [service]
+        assert helper.symbol_usages == []
+        assert service.symbol_usages == [helper]
+        assert service.symbol_usages(UsageType.DIRECT | UsageType.CHAINED) == [helper]
+        assert len(service.usages) == 1
+        assert service.usages[0].usage_symbol == helper
+        assert service.usages[0].imported_by == codebase.imports[0]
+        assert service.usages[0].usage_type == UsageType.DIRECT
+        assert service.usages[0].kind == UsageKind.BODY
+        assert service.usages[0].match.source == "Service"
+        assert service.usages[0].match.file == codebase.files[0]
+        assert service.usages[0].match.start_point == (6, 11)
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 
