@@ -765,6 +765,11 @@ fn collect_local_bindings_from_node(
                 push_local_binding_targets(source, left, symbol_ranges, bindings);
             }
         }
+        "for_in_clause" => {
+            if let Some(left) = node.child_by_field_name("left") {
+                push_local_binding_targets(source, left, symbol_ranges, bindings);
+            }
+        }
         "with_statement" => {
             if let Some(with_clause) = first_child_of_kind(node, &["with_clause"]) {
                 push_as_pattern_binding_targets(source, with_clause, symbol_ranges, bindings);
@@ -777,6 +782,9 @@ fn collect_local_bindings_from_node(
             if let Some(value) = node.child_by_field_name("value") {
                 push_as_pattern_binding_targets(source, value, symbol_ranges, bindings);
             }
+        }
+        "case_clause" => {
+            push_match_pattern_binding_targets(source, node, symbol_ranges, bindings);
         }
         "import_statement" | "import_from_statement" | "future_import_statement" => {
             if let Some(source_symbol_id) =
@@ -797,6 +805,89 @@ fn collect_local_bindings_from_node(
     let mut cursor = node.walk();
     for child in node.named_children(&mut cursor) {
         collect_local_bindings_from_node(source, child, symbol_ranges, bindings);
+    }
+}
+
+fn push_match_pattern_binding_targets(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    bindings: &mut HashMap<u32, HashSet<String>>,
+) {
+    let mut targets = Vec::new();
+    collect_case_clause_binding_targets(node, &mut targets);
+    for target in targets {
+        push_local_binding_targets(source, target, symbol_ranges, bindings);
+    }
+}
+
+fn collect_case_clause_binding_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
+    let mut cursor = node.walk();
+    for (index, child) in node.children(&mut cursor).enumerate() {
+        if !child.is_named() || node.field_name_for_child(index as u32).is_some() {
+            continue;
+        }
+        if child.kind() == "case_pattern" {
+            collect_match_pattern_targets(child, out);
+        }
+    }
+}
+
+fn collect_match_pattern_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
+    match node.kind() {
+        "identifier" => out.push(node),
+        "dotted_name" => {
+            let mut cursor = node.walk();
+            let identifiers: Vec<_> = node
+                .named_children(&mut cursor)
+                .filter(|child| child.kind() == "identifier")
+                .collect();
+            if identifiers.len() == 1 {
+                out.push(identifiers[0]);
+            }
+        }
+        "dict_pattern" => {
+            let mut cursor = node.walk();
+            for child in node.children_by_field_name("value", &mut cursor) {
+                collect_match_pattern_targets(child, out);
+            }
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                if child.kind() == "splat_pattern" {
+                    collect_match_pattern_targets(child, out);
+                }
+            }
+        }
+        "class_pattern" => {
+            let mut seen_constructor = false;
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                if !seen_constructor && child.kind() == "dotted_name" {
+                    seen_constructor = true;
+                    continue;
+                }
+                collect_match_pattern_targets(child, out);
+            }
+        }
+        "keyword_pattern" => {
+            let mut skipped_keyword = false;
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                if !skipped_keyword && child.kind() == "identifier" {
+                    skipped_keyword = true;
+                    continue;
+                }
+                collect_match_pattern_targets(child, out);
+            }
+        }
+        "case_pattern" | "as_pattern" | "list_pattern" | "tuple_pattern" | "splat_pattern"
+        | "union_pattern" => {
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                collect_match_pattern_targets(child, out);
+            }
+        }
+        _ => {}
     }
 }
 
@@ -1590,17 +1681,19 @@ mod tests {
         fs::write(repo.join("pkg/__init__.py"), "").unwrap();
         fs::write(
             repo.join("pkg/base.py"),
-            "class Base:\n    pass\n\ndef helper():\n    return Base\n",
+            "class Base:\n    pass\n\nclass Point:\n    pass\n\ndef helper():\n    return Base\n",
         )
         .unwrap();
         fs::write(
             repo.join("pkg/service.py"),
-            "from .base import Base, helper\n\n\
+            "from .base import Base, helper, Point\n\n\
 other = object()\n\n\
 Error = Exception\n\n\
 def shadowed(Base):\n    helper = Base\n    return helper, Base\n\n\
 def import_shadowed():\n    import other.module\n    import other.module as helper\n    from other import Base\n    return helper, Base, other\n\n\
 def control_flow_shadowed(items, manager):\n    for Base, helper in items:\n        pass\n    with manager as other:\n        pass\n    try:\n        pass\n    except Error as helper:\n        return Base, helper, other\n\n\
+def comprehension_shadowed(items):\n    return [Base + helper + other for Base, helper, other in items if Base]\n\n\
+def match_shadowed(subject):\n    match subject:\n        case Point(x=Base, y=helper) as other if Base:\n            return Base, helper, other\n        case {\"base\": Base, \"helper\": helper, **other}:\n            return Base, helper, other\n\n\
 def caller():\n    return helper()\n",
         )
         .unwrap();
@@ -1628,6 +1721,16 @@ def caller():\n    return helper()\n",
             .iter()
             .find(|symbol| symbol.name == "control_flow_shadowed")
             .unwrap();
+        let comprehension_shadowed = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "comprehension_shadowed")
+            .unwrap();
+        let match_shadowed = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "match_shadowed")
+            .unwrap();
         let helper = index
             .symbols
             .iter()
@@ -1647,6 +1750,11 @@ def caller():\n    return helper()\n",
             .symbols
             .iter()
             .find(|symbol| symbol.name == "Error")
+            .unwrap();
+        let point = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Point")
             .unwrap();
 
         assert!(!index.references.iter().any(|reference| {
@@ -1670,6 +1778,23 @@ def caller():\n    return helper()\n",
             reference.source_symbol_id == Some(control_flow_shadowed.id)
                 && reference.name == "Error"
                 && reference.target_symbol_id == error.id
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(comprehension_shadowed.id)
+                && (reference.target_symbol_id == base.id
+                    || reference.target_symbol_id == helper.id
+                    || reference.target_symbol_id == other.id)
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(match_shadowed.id)
+                && (reference.target_symbol_id == base.id
+                    || reference.target_symbol_id == helper.id
+                    || reference.target_symbol_id == other.id)
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(match_shadowed.id)
+                && reference.name == "Point"
+                && reference.target_symbol_id == point.id
         }));
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(caller.id)
