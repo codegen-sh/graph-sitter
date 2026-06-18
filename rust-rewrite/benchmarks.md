@@ -113,6 +113,25 @@ uv run python rust-rewrite/tools/benchmark_pinned_python_repo.py \
   --json
 ```
 
+`rust-rewrite/tools/snapshot_pinned_python_repo.py` verifies a deterministic compact Rust graph snapshot for the same pinned Airflow checkout. The committed golden stores counts, stable SHA-256 digests, and sorted sample rows for files, symbols, imports, import resolutions, references, and dependencies:
+
+```bash
+uv run python rust-rewrite/tools/snapshot_pinned_python_repo.py
+```
+
+Refresh the committed snapshot after intentional compact-IR changes:
+
+```bash
+uv run python rust-rewrite/tools/snapshot_pinned_python_repo.py --update
+```
+
+The same check is available as an opt-in pytest integration test:
+
+```bash
+GRAPH_SITTER_RUN_PINNED_AIRFLOW_SNAPSHOT=1 \
+  uv run pytest tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py -q
+```
+
 ## Metrics
 
 The JSON report includes:
@@ -179,13 +198,28 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 | `graph-sitter` repo checkout | `--disable-graph` | 2.818s | 539.5 MB | 0.617s | 132.1 MB | 1130 | 1130 | 3956 | 6460 | 432 | 3669 | 2020 | yes | 4.568x | 4.085x |
 | Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 19.863s | 3471.4 MB | 3.194s | 351.3 MB | 4789 | 4789 | 23663 | 40580 | 19011 | 95292 | 35489 | yes | 6.218x | 9.882x |
 
+## Pinned Compact Snapshot Evidence
+
+The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json`. It was generated from Apache Airflow `2.10.5` at commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`.
+
+| Graph family | Count | SHA-256 |
+| --- | ---: | --- |
+| Files | 4789 | `226e8cb32dc0a23ec956e97b036e7c505037df979cce7182514f39a43b07cb80` |
+| Symbols | 23663 | `02fd17a7c0ba4f8fa0f29dcdfc642bffcc8116c20b86f5519f15fd0447d08781` |
+| Imports | 40580 | `fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0` |
+| Import resolutions | 19011 | `84477dc0f9cd1caea726c1305b8c642ae2104769e8dbd1a9e97faa2f7726d8c9` |
+| References | 95292 | `677270b43e9578c64f08d85f8635d5bf4bea027ad513649e8767d1147633af5c` |
+| Dependencies | 35489 | `0e18b4147f49a3bc58ae8bab3972535b0df3cbede968c7e14324e2b23fb31f70` |
+
+The snapshot tool also validates internal compact graph integrity: import-resolution links, reference links, dependency links, dependency reference counts, and dependency reference source/target consistency must all be zero-mismatch before the snapshot can pass.
+
 Important caveats:
 
 - The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions/globals, imports, internal import-resolution records, first-slice top-level Python symbol reference records, and de-duplicated dependency records for indexed Python modules.
 - The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.
-- The generated fixture, this repo, and the pinned Airflow baseline are useful proof points, but full parity snapshots and additional canonical repos are still open.
+- The generated fixture, this repo, and the pinned Airflow baseline are useful proof points, but Python-vs-Rust semantic parity snapshots and additional canonical repos are still open.
 
 ## Open Questions
 

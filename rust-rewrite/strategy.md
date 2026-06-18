@@ -131,7 +131,8 @@ Recommended task format:
 - [ ] Define large-repo success targets for memory and time.
 - [x] Select first pinned large Python repo commit for golden parity and latency benchmarks. owner: codex. Result: Apache Airflow `2.10.5`, upstream `https://github.com/apache/airflow.git`, ref `refs/tags/2.10.5`, commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`, measured with Python 3.13.11 on macOS.
 - [ ] Select additional pinned large Python repo commits for golden parity and latency benchmarks.
-- [ ] Build golden reference/import/dependency graph snapshots for the pinned large Python repo commits. Notes: fixtures should assert file/module records, import graph edges, symbol reference graph edges, dependency graph edges, and deterministic sort order.
+- [x] Build first compact Rust golden graph snapshot for the pinned large Python repo commit. owner: codex. Result: committed `rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json` with stable files, symbols, imports, import-resolution, reference, and dependency counts/hashes/samples plus integrity checks.
+- [ ] Compare golden reference/import/dependency graph snapshots against the Python backend semantics for the pinned large Python repo commits. Notes: fixtures should assert file/module records, import graph edges, symbol reference graph edges, dependency graph edges, and deterministic sort order.
 - [x] Draft compact Rust data model with module boundaries and Python integration points. owner: Pasteur. Result: documented in `rust-rewrite/data-model.md`.
 - [ ] Draft full Rust engine RFC with module boundaries and Python integration points.
 - [ ] Decide build tooling: `maturin`, setuptools-rust, or hatch custom hook.
@@ -189,6 +190,7 @@ Recommended task format:
 - [ ] Expand dependency edge construction to full lexical/reference coverage, external modules, and TypeScript.
 - [ ] Implement superclass/interface dependency edges.
 - [ ] Add graph debug dump for nodes, edges, and usage metadata.
+- [x] Add compact Rust graph debug snapshot for pinned Airflow. owner: codex. Result: `snapshot_pinned_python_repo.py` normalizes compact records by stable paths/symbol keys and emits deterministic counts, hashes, and sample rows for large-repo review.
 - [ ] Add parity tests comparing Python backend and Rust backend graph edges on fixtures.
 
 ## Phase 4: Lazy Python Compatibility Layer
@@ -225,6 +227,7 @@ Recommended task format:
 - [ ] Run full unit suite with Rust backend where supported.
 - [ ] Add large-repo memory regression benchmark to CI or nightly.
 - [x] Add pinned large-repo latency/RSS benchmark harness. owner: codex. Result: Airflow `2.10.5` benchmark command emits backend, wall time, max RSS, file count, node/edge counts, compact Rust record counts, mismatch summaries, and pass/fail gates.
+- [x] Add opt-in pinned large-repo compact snapshot test. owner: codex. Result: `tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py` runs the committed Airflow compact golden check when `GRAPH_SITTER_RUN_PINNED_AIRFLOW_SNAPSHOT=1`.
 - [ ] Add pinned large-repo parity test for reference graph, import graph, dependency graph, and latency/RSS. Notes: run against the exact checked-out commit and emit backend, wall time, max RSS, file count, node/edge counts, and mismatch summaries.
 - [ ] Add feature flag documentation.
 - [ ] Add migration notes for unsupported APIs.
@@ -258,3 +261,4 @@ Recommended task format:
 - [x] 2026-06-18: Added compact Python `ReferenceRecord` extraction for same-file and imported top-level symbol references inside top-level classes/functions. owner: codex. Notes: current checkout emits 3,666 compact references and remains 5.0x faster with 4.1x lower process max RSS than Python parse/object materialization.
 - [x] 2026-06-18: Added compact Python `DependencyRecord` construction from references. owner: codex. Notes: current checkout emits 2,020 de-duplicated dependency edges and remains 4.6x faster with 4.1x lower process max RSS than Python parse/object materialization.
 - [x] 2026-06-18: Added first pinned large-repo benchmark runner and Airflow baseline. owner: codex. Notes: Apache Airflow `2.10.5` at `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf` matched 4,789 Python files and measured 6.218x faster wall time with 9.882x lower max RSS for the current compact Rust `Codebase` slice.
+- [x] 2026-06-18: Added first pinned Airflow compact graph golden. owner: codex. Notes: committed stable hashes/samples for 4,789 files, 23,663 symbols, 40,580 imports, 19,011 import resolutions, 95,292 references, and 35,489 dependencies; the opt-in pytest wrapper can verify it against the pinned checkout.
