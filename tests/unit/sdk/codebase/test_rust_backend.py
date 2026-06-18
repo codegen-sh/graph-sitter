@@ -14,16 +14,16 @@ class FakeSummary:
     def as_dict(self):
         return {
             "files": 1,
-            "symbols": 2,
+            "symbols": 3,
             "classes": 1,
-            "functions": 1,
+            "functions": 2,
             "global_variables": 0,
             "imports": 2,
             "import_resolutions": 2,
             "references": 1,
             "dependencies": 1,
-            "bytes": 92,
-            "lines": 9,
+            "bytes": 127,
+            "lines": 10,
             "files_with_errors": 0,
         }
 
@@ -42,15 +42,15 @@ class FakeIndex:
                     "id": 0,
                     "path": "pkg/service.py",
                     "module_name": "pkg.service",
-                    "byte_len": 92,
-                    "line_count": 9,
+                    "byte_len": 127,
+                    "line_count": 10,
                     "has_error": False,
                     "root_range": {
                         "start_byte": 0,
-                        "end_byte": 92,
+                        "end_byte": 127,
                         "start_row": 0,
                         "start_column": 0,
-                        "end_row": 8,
+                        "end_row": 9,
                         "end_column": 0,
                     },
                 }
@@ -69,11 +69,11 @@ class FakeIndex:
                     "kind": "class",
                     "range": {
                         "start_byte": 30,
-                        "end_byte": 54,
+                        "end_byte": 91,
                         "start_row": 3,
                         "start_column": 0,
-                        "end_row": 4,
-                        "end_column": 8,
+                        "end_row": 6,
+                        "end_column": 0,
                     },
                     "name_range": {
                         "start_byte": 36,
@@ -87,24 +87,48 @@ class FakeIndex:
                 {
                     "id": 1,
                     "file_id": 0,
+                    "parent_symbol_id": 0,
+                    "is_top_level": False,
+                    "name": "run",
+                    "kind": "function",
+                    "range": {
+                        "start_byte": 49,
+                        "end_byte": 91,
+                        "start_row": 4,
+                        "start_column": 4,
+                        "end_row": 6,
+                        "end_column": 0,
+                    },
+                    "name_range": {
+                        "start_byte": 53,
+                        "end_byte": 56,
+                        "start_row": 4,
+                        "start_column": 8,
+                        "end_row": 4,
+                        "end_column": 11,
+                    },
+                },
+                {
+                    "id": 2,
+                    "file_id": 0,
                     "parent_symbol_id": None,
                     "is_top_level": True,
                     "name": "helper",
                     "kind": "function",
                     "range": {
-                        "start_byte": 55,
-                        "end_byte": 92,
-                        "start_row": 6,
+                        "start_byte": 92,
+                        "end_byte": 127,
+                        "start_row": 7,
                         "start_column": 0,
-                        "end_row": 8,
+                        "end_row": 9,
                         "end_column": 0,
                     },
                     "name_range": {
-                        "start_byte": 59,
-                        "end_byte": 65,
-                        "start_row": 6,
+                        "start_byte": 96,
+                        "end_byte": 102,
+                        "start_row": 7,
                         "start_column": 4,
-                        "end_row": 6,
+                        "end_row": 7,
                         "end_column": 10,
                     },
                 },
@@ -175,17 +199,17 @@ class FakeIndex:
                 {
                     "id": 0,
                     "source_file_id": 0,
-                    "source_symbol_id": 1,
+                    "source_symbol_id": 2,
                     "target_symbol_id": 0,
                     "import_id": 0,
                     "name": "Service",
                     "range": {
-                        "start_byte": 80,
-                        "end_byte": 82,
-                        "start_row": 7,
+                        "start_byte": 117,
+                        "end_byte": 124,
+                        "start_row": 8,
                         "start_column": 11,
-                        "end_row": 7,
-                        "end_column": 13,
+                        "end_row": 8,
+                        "end_column": 18,
                     },
                 }
             ]
@@ -196,7 +220,7 @@ class FakeIndex:
             [
                 {
                     "id": 0,
-                    "source_symbol_id": 1,
+                    "source_symbol_id": 2,
                     "target_symbol_id": 0,
                     "source_file_id": 0,
                     "target_file_id": 0,
@@ -234,7 +258,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n\ndef helper():\n    return os.getcwd()\n"},
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         verify_input=False,
         verify_output=False,
@@ -244,7 +268,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.ctx.rust_index.engine_version == "test-rust-engine"
         assert codebase.ctx.rust_index.summary.files == 1
         assert codebase.ctx.rust_index.summary.classes == 1
-        assert codebase.ctx.rust_index.summary.functions == 1
+        assert codebase.ctx.rust_index.summary.functions == 2
         assert codebase.ctx.rust_index.summary.global_variables == 0
         assert codebase.ctx.rust_index.summary.imports == 2
         assert codebase.ctx.rust_index.summary.import_resolutions == 2
@@ -259,7 +283,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.rust_index_summary == codebase.ctx.rust_index.summary
         assert codebase.rust_files[0].path == "pkg/service.py"
         assert codebase.rust_classes[0].name == "Service"
-        assert codebase.rust_functions[0].name == "helper"
+        assert [symbol.name for symbol in codebase.rust_functions] == ["run", "helper"]
         assert codebase.rust_imports[0].name == "os"
         assert codebase.rust_imports[1].name == "pkg.service"
         assert codebase.rust_import_resolutions[0].target_symbol_id == 0
@@ -284,11 +308,12 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.files[0].classes[0].name == "Service"
         assert codebase.files[0].functions[0].name == "helper"
         assert [symbol.name for symbol in codebase.files[0].symbols_sorted_topologically] == ["helper", "Service"]
+        assert [symbol.name for symbol in codebase.files[0].symbols(nested=True)] == ["Service", "run", "helper"]
         assert codebase.files[0].import_statements == [codebase.imports[0], codebase.imports[1]]
-        assert codebase.files[0].get_nodes() == [codebase.imports[0], codebase.imports[1], codebase.classes[0], codebase.functions[0]]
+        assert codebase.files[0].get_nodes() == [codebase.imports[0], codebase.imports[1], codebase.classes[0], codebase.files[0].symbols(nested=True)[1], codebase.functions[0]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_imports[0].range) == [codebase.imports[0]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_imports[1].range) == [codebase.imports[1]]
-        assert codebase.files[0].find_by_byte_range(codebase.rust_symbols[0].range) == [codebase.classes[0]]
+        assert codebase.files[0].find_by_byte_range(codebase.rust_symbols[0].range) == [codebase.classes[0], codebase.files[0].symbols(nested=True)[1]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_references[0].range) == [codebase.functions[0]]
         assert codebase.files[0].find_by_byte_range({"start_byte": 28, "end_byte": 30}) == []
         assert codebase.files[0].valid_symbol_names["Service"] == codebase.classes[0]
@@ -321,8 +346,15 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.files[0].importers == [codebase.imports[1]]
         helper = codebase.get_function("helper")
         service = codebase.get_class("Service")
+        run = codebase.files[0].symbols(nested=True)[1]
         import_handle = codebase.imports[0]
         module_import = codebase.imports[1]
+        assert run.name == "run"
+        assert run.parent_symbol == service
+        assert service.parent_symbol == service
+        assert [symbol.name for symbol in service.child_symbols] == ["run"]
+        assert [symbol.name for symbol in service.descendant_symbols] == ["Service", "run"]
+        assert helper.descendant_symbols == [helper]
         assert service.get_import_string() == "from pkg.service import Service"
         assert service.get_import_string(alias="Svc") == "from pkg.service import Service as Svc"
         assert service.get_import_string(import_type=ImportType.WILDCARD) == "from pkg.service import * as service"
@@ -348,7 +380,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert service.usages[0].kind == UsageKind.BODY
         assert service.usages[0].match.source == "Service"
         assert service.usages[0].match.file == codebase.files[0]
-        assert service.usages[0].match.start_point == (7, 11)
+        assert service.usages[0].match.start_point == (8, 11)
         assert import_handle.symbol_usages == [helper]
         assert import_handle.symbol_usages(UsageType.CHAINED) == []
         assert len(import_handle.usages) == 1

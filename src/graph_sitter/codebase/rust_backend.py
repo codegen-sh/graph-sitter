@@ -230,6 +230,7 @@ class RustIndexBackend:
     _references_by_import_id: dict[int, list[RustReferenceRecord]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
+    _symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] | None = None
 
     @classmethod
     def build(cls, repo_path: str | Path, file_paths: Sequence[str] | None = None) -> RustIndexBackend:
@@ -332,6 +333,15 @@ class RustIndexBackend:
                 symbols_by_file_id.setdefault(symbol.record.file_id, []).append(symbol)
             self._symbols_by_file_id = symbols_by_file_id
         return self._symbols_by_file_id.get(file_id, [])
+
+    def symbols_for_parent(self, parent_symbol_id: int) -> list[RustCompactSymbol]:
+        if self._symbols_by_parent_symbol_id is None:
+            symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] = {}
+            for symbol in self.symbol_handles:
+                if symbol.record.parent_symbol_id is not None:
+                    symbols_by_parent_symbol_id.setdefault(symbol.record.parent_symbol_id, []).append(symbol)
+            self._symbols_by_parent_symbol_id = symbols_by_parent_symbol_id
+        return self._symbols_by_parent_symbol_id.get(parent_symbol_id, [])
 
     def imports_for_file(self, file_id: int) -> list[RustCompactImport]:
         if self._imports_by_file_id is None:
@@ -971,7 +981,14 @@ class RustCompactSymbol(RustCompactHandle):
 
     @property
     def descendant_symbols(self) -> list[RustCompactSymbol]:
-        return [self]
+        descendants = [self]
+        for child in self.child_symbols:
+            descendants.extend(child.descendant_symbols)
+        return descendants
+
+    @property
+    def child_symbols(self) -> list[RustCompactSymbol]:
+        return self.backend.symbols_for_parent(self.record.id)
 
     @property
     def function_calls(self) -> list[object]:
@@ -983,7 +1000,10 @@ class RustCompactSymbol(RustCompactHandle):
 
     @property
     def parent_symbol(self) -> RustCompactSymbol:
-        return self
+        if self.record.parent_symbol_id is None:
+            return self
+        parent = self.backend.symbol_handle_by_id(self.record.parent_symbol_id)
+        return self if parent is None else parent
 
     def get_name(self) -> str:
         return self.name

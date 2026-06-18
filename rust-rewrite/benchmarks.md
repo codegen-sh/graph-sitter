@@ -196,7 +196,7 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 | Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
 | `graph-sitter` repo checkout | `--disable-graph` | 2.731s | 543.0 MB | 0.681s | 124.0 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4110 | 2953 | yes | 4.009x | 4.378x |
-| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 19.437s | 3470.4 MB | 4.059s | 266.7 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109817 | 71932 | yes | 4.789x | 13.013x |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 19.704s | 3471.0 MB | 4.253s | 267.6 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109817 | 71932 | yes | 4.633x | 12.973x |
 
 ## Pinned Compact Snapshot Evidence
 
