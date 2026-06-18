@@ -766,6 +766,19 @@ fn collect_local_bindings_from_node(
             }
             return;
         }
+        "import_statement" | "import_from_statement" | "future_import_statement" => {
+            if let Some(source_symbol_id) =
+                innermost_symbol_for_range(symbol_ranges, node.range().into())
+            {
+                for binding in local_import_binding_names(source, node) {
+                    bindings
+                        .entry(source_symbol_id)
+                        .or_default()
+                        .insert(binding);
+                }
+            }
+            return;
+        }
         _ => {}
     }
 
@@ -815,6 +828,50 @@ fn push_local_binding_names(
             .or_default()
             .insert(name.to_owned());
     }
+}
+
+fn local_import_binding_names(source: &str, node: Node<'_>) -> Vec<String> {
+    match node.kind() {
+        "import_statement" => plain_import_binding_names(node_text(source, node)),
+        "import_from_statement" | "future_import_statement" => {
+            from_import_binding_names(node_text(source, node))
+        }
+        _ => Vec::new(),
+    }
+}
+
+fn plain_import_binding_names(text: &str) -> Vec<String> {
+    text.trim()
+        .trim_start_matches("import")
+        .split(',')
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .filter_map(|part| {
+            let (name, alias) = split_alias(part);
+            alias
+                .map(str::to_owned)
+                .or_else(|| name.split('.').next().map(str::to_owned))
+        })
+        .collect()
+}
+
+fn from_import_binding_names(text: &str) -> Vec<String> {
+    let stripped = text.trim();
+    let Some(after_from) = stripped.strip_prefix("from ") else {
+        return Vec::new();
+    };
+    let Some((_, names)) = after_from.split_once(" import ") else {
+        return Vec::new();
+    };
+    names
+        .split(',')
+        .map(str::trim)
+        .filter(|part| !part.is_empty() && *part != "*")
+        .map(|part| {
+            let (name, alias) = split_alias(part);
+            alias.unwrap_or(name).to_owned()
+        })
+        .collect()
 }
 
 fn collect_identifier_candidates(
@@ -1485,7 +1542,9 @@ mod tests {
         fs::write(
             repo.join("pkg/service.py"),
             "from .base import Base, helper\n\n\
+other = object()\n\n\
 def shadowed(Base):\n    helper = Base\n    return helper, Base\n\n\
+def import_shadowed():\n    import other.module\n    import other.module as helper\n    from other import Base\n    return helper, Base, other\n\n\
 def caller():\n    return helper()\n",
         )
         .unwrap();
@@ -1503,10 +1562,20 @@ def caller():\n    return helper()\n",
             .iter()
             .find(|symbol| symbol.name == "caller")
             .unwrap();
+        let import_shadowed = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "import_shadowed")
+            .unwrap();
         let helper = index
             .symbols
             .iter()
             .find(|symbol| symbol.name == "helper")
+            .unwrap();
+        let other = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "other")
             .unwrap();
         let base = index
             .symbols
@@ -1518,6 +1587,12 @@ def caller():\n    return helper()\n",
             reference.source_symbol_id == Some(shadowed.id)
                 && (reference.target_symbol_id == base.id
                     || reference.target_symbol_id == helper.id)
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(import_shadowed.id)
+                && (reference.target_symbol_id == base.id
+                    || reference.target_symbol_id == helper.id
+                    || reference.target_symbol_id == other.id)
         }));
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(caller.id)
