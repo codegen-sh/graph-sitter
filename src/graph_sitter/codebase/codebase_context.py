@@ -21,7 +21,7 @@ from graph_sitter.codebase.transaction_manager import TransactionManager
 from graph_sitter.codebase.validation import get_edges, post_reset_validation
 from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.compiled.utils import uncache_all
-from graph_sitter.configs.models.codebase import CodebaseConfig, PinkMode
+from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, PinkMode, RustFallbackMode
 from graph_sitter.configs.models.secrets import SecretsConfig
 from graph_sitter.core.autocommit import AutoCommit, commiter
 from graph_sitter.core.directory import Directory
@@ -43,6 +43,7 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.io.io import IO
     from graph_sitter.codebase.node_classes.node_classes import NodeClasses
     from graph_sitter.codebase.progress.progress import Progress
+    from graph_sitter.codebase.rust_backend import RustIndexBackend
     from graph_sitter.core.dataclasses.usage import Usage
     from graph_sitter.core.expressions import Expression
     from graph_sitter.core.external_module import ExternalModule
@@ -125,6 +126,8 @@ class CodebaseContext:
     filepath_idx: dict[str, NodeId]
     _ext_module_idx: dict[str, NodeId]
     flags: Flags
+    rust_index: RustIndexBackend | None
+    rust_backend_error: str | None
     session_options: SessionOptions = SessionOptions()
     projects: list[ProjectConfig]
     unapplied_diffs: list[DiffLite]
@@ -186,6 +189,8 @@ class CodebaseContext:
         self.dependency_manager = get_dependency_manager(context.programming_language, self)
         self.language_engine = get_language_engine(context.programming_language, self)
         self.programming_language = context.programming_language
+        self.rust_index = None
+        self.rust_backend_error = None
 
         # Raise warning if language is not supported
         if self.programming_language is ProgrammingLanguage.UNSUPPORTED or self.programming_language is ProgrammingLanguage.OTHER:
@@ -198,6 +203,8 @@ class CodebaseContext:
             if not self.config.allow_external:
                 msg = "allow_external must be set to True when py_resolve_syspath is enabled"
                 raise ValueError(msg)
+
+        self._build_rust_index_if_configured()
 
         # Build the graph
         if not self.config.exp_lazy_graph and self.config.use_pink != PinkMode.ALL_FILES:
@@ -214,6 +221,49 @@ class CodebaseContext:
 
     def __repr__(self):
         return self.__class__.__name__
+
+    def _build_rust_index_if_configured(self) -> None:
+        if self.config.graph_backend == GraphBackend.PYTHON:
+            return
+
+        reason = self._rust_index_unsupported_reason()
+        if reason is not None:
+            self._handle_rust_backend_unavailable(reason)
+            return
+
+        from graph_sitter.codebase.rust_backend import RustBackendUnavailableError, RustIndexBackend, RustIndexBuildError
+
+        try:
+            file_paths = self._rust_index_file_paths()
+            self.rust_index = RustIndexBackend.build(self.repo_path, file_paths=file_paths)
+        except (RustBackendUnavailableError, RustIndexBuildError) as error:
+            self._handle_rust_backend_unavailable(str(error))
+
+    def _rust_index_file_paths(self) -> list[str]:
+        if self.config.disable_file_parse:
+            return []
+        repo_operator = self.projects[0].repo_operator
+        return [
+            str(filepath)
+            for filepath, _ in repo_operator.iter_files(
+                subdirs=self.projects[0].subdirectories,
+                extensions=self.extensions,
+                ignore_list=GLOBAL_FILE_IGNORE_LIST,
+            )
+        ]
+
+    def _rust_index_unsupported_reason(self) -> str | None:
+        if self.programming_language is not ProgrammingLanguage.PYTHON:
+            return "Rust compact index currently supports Python codebases only"
+        if self.config.use_pink == PinkMode.ALL_FILES:
+            return "Rust compact index cannot be combined with PinkMode.ALL_FILES"
+        return None
+
+    def _handle_rust_backend_unavailable(self, reason: str) -> None:
+        self.rust_backend_error = reason
+        if self.config.graph_backend == GraphBackend.RUST and self.config.rust_fallback == RustFallbackMode.ERROR:
+            raise RuntimeError(reason)
+        logger.warning("Rust graph backend unavailable; using Python graph backend. Reason: %s", reason)
 
     @cached_property
     def _graph(self) -> PyDiGraph[Importable, Edge]:

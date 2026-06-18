@@ -203,6 +203,14 @@ mod bindings {
         fn index_python_path(&self, repo_path: &str) -> PyResult<PyPythonIndex> {
             index_python_path_impl(repo_path)
         }
+
+        fn index_python_paths(
+            &self,
+            repo_path: &str,
+            file_paths: Vec<String>,
+        ) -> PyResult<PyPythonIndex> {
+            index_python_paths_impl(repo_path, file_paths)
+        }
     }
 
     #[pyfunction(name = "engine_version")]
@@ -220,6 +228,11 @@ mod bindings {
         index_python_path_impl(repo_path)
     }
 
+    #[pyfunction(name = "index_python_paths")]
+    fn py_index_python_paths(repo_path: &str, file_paths: Vec<String>) -> PyResult<PyPythonIndex> {
+        index_python_paths_impl(repo_path, file_paths)
+    }
+
     fn index_python_path_impl(repo_path: &str) -> PyResult<PyPythonIndex> {
         let path = Path::new(repo_path);
         if !path.exists() {
@@ -228,6 +241,21 @@ mod bindings {
             )));
         }
         graph_sitter_engine::index_python_path(path)
+            .map(PyPythonIndex::from)
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+    }
+
+    fn index_python_paths_impl(
+        repo_path: &str,
+        file_paths: Vec<String>,
+    ) -> PyResult<PyPythonIndex> {
+        let path = Path::new(repo_path);
+        if !path.exists() {
+            return Err(PyValueError::new_err(format!(
+                "repo path does not exist: {repo_path}"
+            )));
+        }
+        graph_sitter_engine::index_python_paths(path, file_paths)
             .map(PyPythonIndex::from)
             .map_err(|error| PyRuntimeError::new_err(error.to_string()))
     }
@@ -241,6 +269,7 @@ mod bindings {
         m.add_function(wrap_pyfunction!(py_engine_version, m)?)?;
         m.add_function(wrap_pyfunction!(py_debug_info, m)?)?;
         m.add_function(wrap_pyfunction!(py_index_python_path, m)?)?;
+        m.add_function(wrap_pyfunction!(py_index_python_paths, m)?)?;
         Ok(())
     }
 
@@ -283,6 +312,25 @@ mod bindings {
             assert_eq!(summary.functions, 1);
             assert_eq!(summary.imports, 1);
             assert!(index.to_json().unwrap().contains("\"Service\""));
+        }
+
+        #[test]
+        fn py_engine_indexes_selected_python_paths() {
+            let repo = temp_repo_path("py-binding-index-paths");
+            fs::create_dir_all(repo.join("pkg")).unwrap();
+            fs::write(repo.join("pkg/included.py"), "class Included:\n    pass\n").unwrap();
+            fs::write(repo.join("pkg/skipped.py"), "class Skipped:\n    pass\n").unwrap();
+
+            let index = PyEngine::new()
+                .index_python_paths(repo.to_str().unwrap(), vec!["pkg/included.py".to_owned()])
+                .unwrap();
+            fs::remove_dir_all(&repo).unwrap();
+
+            let summary = index.summary();
+            assert_eq!(summary.files, 1);
+            assert_eq!(summary.classes, 1);
+            assert!(index.to_json().unwrap().contains("\"Included\""));
+            assert!(!index.to_json().unwrap().contains("\"Skipped\""));
         }
 
         fn temp_repo_path(prefix: &str) -> PathBuf {

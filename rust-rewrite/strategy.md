@@ -127,6 +127,8 @@ Recommended task format:
 - [x] Inventory all public `SourceFile`, `Symbol`, `Import`, `Export`, and `Directory` APIs used by tests/docs. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [x] Define P0 compatibility surface for the first Rust backend slice. owner: Dewey. Result: documented in `rust-rewrite/api-inventory.md`.
 - [ ] Define large-repo success targets for memory and time.
+- [ ] Select pinned large Python repo commits for golden parity and latency benchmarks. Notes: Airflow is a good first candidate.
+- [ ] Build golden reference/import/dependency graph snapshots for the pinned large Python repo commits.
 - [x] Draft compact Rust data model with module boundaries and Python integration points. owner: Pasteur. Result: documented in `rust-rewrite/data-model.md`.
 - [ ] Draft full Rust engine RFC with module boundaries and Python integration points.
 - [ ] Decide build tooling: `maturin`, setuptools-rust, or hatch custom hook.
@@ -135,18 +137,20 @@ Recommended task format:
 
 - [x] Add Rust workspace/crate skeleton without changing default behavior. owner: Beauvoir. Result: added standalone Cargo workspace under `crates/`.
 - [x] Add PyO3 module import smoke test. owner: codex. Result: built the extension module and imported it from Python, then indexed this repo through `index_python_path`.
-- [ ] Add `graph_backend` config flag with default `python`.
-- [ ] Add Rust engine facade object that can be constructed from `CodebaseContext`.
+- [x] Add `graph_backend` config flag with default `python`. owner: codex. Result: added `GraphBackend` and `RustFallbackMode` to `CodebaseConfig`.
+- [x] Add compact Rust index facade that can be constructed from `CodebaseContext`. owner: codex. Result: `ctx.rust_index` builds through the optional PyO3 extension when `graph_backend` is `rust` or `auto`.
+- [ ] Add full Rust engine facade object that can back existing `CodebaseContext` graph query APIs.
 - [x] Add a minimal debug API returning engine version and enabled features. owner: Beauvoir. Result: added Rust `Engine::debug_info` and feature-gated PyO3 bindings.
 - [ ] Add CI job that builds the Rust extension on supported Python versions.
 - [x] Add benchmark command comparing Python backend with Rust compact indexer. owner: codex. Result: added `rust-rewrite/tools/compare_rust_python_index.py`.
+- [x] Add benchmark command for the Python-facing Rust facade. owner: codex. Result: added `rust-rewrite/tools/measure_rust_facade.py`.
 - [ ] Add benchmark command that can select full `Codebase` `--backend python|rust` once Rust backend is wired into Python.
 
 ## Phase 2: Parser And Compact Index Vertical Slice
 
 - [x] Specify parser/index vertical slice and extraction rules. owner: Meitner. Result: documented in `rust-rewrite/parser-index.md`.
 - [x] Implement standalone Rust Python file discovery for the first compact-index slice. owner: codex. Result: recursive repo walk with common generated/cache directory skips.
-- [ ] Implement Rust file discovery input format from Python repo operator.
+- [x] Implement Rust file discovery input format from Python repo operator. owner: codex. Result: added selected-file `index_python_paths` API and pass `RepoOperator.iter_files(...)` results from `CodebaseContext`.
 - [x] Implement tree-sitter parser setup for Python. owner: codex. Result: `graph-sitter-engine` uses `tree-sitter-python` and indexes Python files.
 - [ ] Implement tree-sitter parser setup for TypeScript/TSX.
 - [ ] Extract file records with path, language, content hash, and root ranges.
@@ -210,6 +214,7 @@ Recommended task format:
 - [ ] Run full unit suite with Python backend.
 - [ ] Run full unit suite with Rust backend where supported.
 - [ ] Add large-repo memory regression benchmark to CI or nightly.
+- [ ] Add pinned large-repo parity test for reference graph, import graph, dependency graph, and latency/RSS.
 - [ ] Add feature flag documentation.
 - [ ] Add migration notes for unsupported APIs.
 - [ ] Decide default backend criteria.
@@ -233,3 +238,4 @@ Recommended task format:
 - [x] 2026-06-18: PyO3 compatibility helper completed and its planning artifact was staged for integration. owner: codex.
 - [x] 2026-06-18: Implemented first Rust Python compact-index slice and benchmark comparison; initial measurements show 9x-22x wall-time improvement and 70x-104x RSS improvement on this repo for the implemented slice. owner: codex.
 - [x] 2026-06-18: Exposed the compact Python index through the PyO3 module and verified a Python import smoke against this repo. owner: codex. Notes: extension returned 1127 files, 3117 symbols, and 6414 imports for the current checkout.
+- [x] 2026-06-18: Added Python-shell Rust index integration behind `CodebaseConfig(graph_backend=...)`, selected-file PyO3 indexing from `RepoOperator`, and a facade benchmark. owner: codex. Notes: selected-file facade matched Python's 1129-file discovery and ran 4.7x faster with 4.7x lower process max RSS than Python parse/object materialization on this checkout.

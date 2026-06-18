@@ -266,6 +266,13 @@ class Codebase(
         """The programming language of the repository."""
         return self.ctx.programming_language
 
+    @property
+    @noapidoc
+    def rust_index_summary(self):
+        if self.ctx.rust_index is None:
+            return None
+        return self.ctx.rust_index.summary
+
     ####################################################################################################################
     # NODES
     ####################################################################################################################

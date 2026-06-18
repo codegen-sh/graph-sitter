@@ -89,6 +89,15 @@ uv run python rust-rewrite/tools/compare_rust_python_index.py . \
   --output /tmp/graph-sitter-rust-compare-repo-full.json
 ```
 
+`rust-rewrite/tools/measure_rust_facade.py` measures the Python-facing Rust compact-index facade. It expects the PyO3 extension module to be importable as `graph_sitter_py`. By default it discovers files through the same Python `RepoOperator.iter_files(...)` filters used by `CodebaseContext`, then passes that selected list into Rust:
+
+```bash
+PYTHONPATH=/path/to/dir/containing/graph_sitter_py_extension \
+  uv run python rust-rewrite/tools/measure_rust_facade.py . --json
+```
+
+Use `--raw-rust-walk` to measure Rust's standalone recursive walk instead of Python-selected file discovery.
+
 ## Metrics
 
 The JSON report includes:
@@ -134,9 +143,22 @@ Commands were run on this branch on 2026-06-18.
 
 The most conservative current-repo comparison is parse/object materialization only: Rust is about 9x faster and about 70x lower RSS for the implemented compact-index slice. Against today's full graph construction on this repo, Rust is about 22x faster and about 104x lower RSS for the same implemented slice.
 
+## Python-Facing Rust Facade Evidence
+
+These measurements use the new Python shell integration path: Python discovers files with `RepoOperator.iter_files(...)`, the selected file list is passed to the PyO3 extension, and Rust builds the compact index. This includes Python interpreter/import overhead and is therefore a higher RSS number than the standalone Rust process, but it is the relevant measurement for an opt-in Python shell path.
+
+Commands were run on this branch on 2026-06-18 after adding selected-file PyO3 indexing.
+
+| Input | Python mode | Python wall | Python max RSS | Rust facade wall | Rust facade max RSS | Python files | Rust selected files | Wall ratio | RSS ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.961s | 532.3 MB | 0.632s | 114.3 MB | 1129 | 1129 | 4.685x | 4.657x |
+
+This shell-facing number is intentionally more conservative than the standalone Rust process benchmark because it includes Python startup, imports, and repo file discovery. The important result is that the selected-file integration preserves Python file-discovery parity for the current repo while still cutting parse/index wall time and process max RSS substantially for the implemented compact-index slice.
+
 Important caveats:
 
 - The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions, and imports.
+- The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.
 - The generated fixture and this repo are useful proof points, but the huge-repo target still needs canonical pinned baselines.

@@ -51,6 +51,18 @@ impl Engine {
     ) -> Result<PythonIndex, IndexError> {
         PythonIndexer::new()?.index_path(repo_path)
     }
+
+    pub fn index_python_paths<I, P>(
+        &self,
+        repo_path: impl AsRef<Path>,
+        file_paths: I,
+    ) -> Result<PythonIndex, IndexError>
+    where
+        I: IntoIterator<Item = P>,
+        P: AsRef<Path>,
+    {
+        PythonIndexer::new()?.index_paths(repo_path, file_paths)
+    }
 }
 
 pub fn engine_version() -> &'static str {
@@ -66,6 +78,17 @@ pub fn debug_info() -> EngineInfo {
 
 pub fn index_python_path(repo_path: impl AsRef<Path>) -> Result<PythonIndex, IndexError> {
     Engine::new().index_python_path(repo_path)
+}
+
+pub fn index_python_paths<I, P>(
+    repo_path: impl AsRef<Path>,
+    file_paths: I,
+) -> Result<PythonIndex, IndexError>
+where
+    I: IntoIterator<Item = P>,
+    P: AsRef<Path>,
+{
+    Engine::new().index_python_paths(repo_path, file_paths)
 }
 
 #[derive(Debug)]
@@ -229,13 +252,45 @@ impl PythonIndexer {
 
     fn index_path(mut self, repo_path: impl AsRef<Path>) -> Result<PythonIndex, IndexError> {
         let repo_path = repo_path.as_ref();
+        let mut paths = Vec::new();
+        collect_python_files(repo_path, &mut paths)?;
+        self.index_absolute_paths(repo_path, paths)
+    }
+
+    fn index_paths<I, P>(
+        mut self,
+        repo_path: impl AsRef<Path>,
+        file_paths: I,
+    ) -> Result<PythonIndex, IndexError>
+    where
+        I: IntoIterator<Item = P>,
+        P: AsRef<Path>,
+    {
+        let repo_path = repo_path.as_ref();
+        let paths = file_paths
+            .into_iter()
+            .map(|path| {
+                let path = path.as_ref();
+                if path.is_absolute() {
+                    path.to_path_buf()
+                } else {
+                    repo_path.join(path)
+                }
+            })
+            .collect();
+        self.index_absolute_paths(repo_path, paths)
+    }
+
+    fn index_absolute_paths(
+        &mut self,
+        repo_path: &Path,
+        mut paths: Vec<PathBuf>,
+    ) -> Result<PythonIndex, IndexError> {
         let mut index = PythonIndex {
             files: Vec::new(),
             symbols: Vec::new(),
             imports: Vec::new(),
         };
-        let mut paths = Vec::new();
-        collect_python_files(repo_path, &mut paths)?;
         paths.sort();
 
         for path in paths {
@@ -502,6 +557,22 @@ mod tests {
             .imports
             .iter()
             .any(|import| import.alias.as_deref() == Some("system")));
+    }
+
+    #[test]
+    fn indexes_only_requested_python_paths() {
+        let repo = temp_repo_path("index-python-paths");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/included.py"), "class Included:\n    pass\n").unwrap();
+        fs::write(repo.join("pkg/skipped.py"), "class Skipped:\n    pass\n").unwrap();
+
+        let index = index_python_paths(&repo, ["pkg/included.py"]).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 1);
+        assert_eq!(index.files[0].path, "pkg/included.py");
+        assert_eq!(index.summary().classes, 1);
+        assert_eq!(index.symbols[0].name, "Included");
     }
 
     fn temp_repo_path(prefix: &str) -> PathBuf {

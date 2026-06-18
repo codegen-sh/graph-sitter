@@ -27,7 +27,7 @@ RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup" \
 cargo build --release -p graph-sitter-py --features extension-module
 ```
 
-The current module exports `Engine`, `EngineInfo`, `PythonIndex`, `IndexSummary`, `engine_version`, `debug_info`, and `index_python_path`. A successful smoke import on this repo returned 1127 files, 3117 symbols, and 6414 imports for the compact Python index.
+The current module exports `Engine`, `EngineInfo`, `PythonIndex`, `IndexSummary`, `engine_version`, `debug_info`, `index_python_path`, and `index_python_paths`. A successful smoke import on this repo returned 1127 files, 3117 symbols, and 6414 imports for the compact Python index at that commit. The Python shell integration now uses `index_python_paths` so Rust indexes the exact file list returned by `RepoOperator.iter_files(...)`.
 
 ## Integration Choice
 
