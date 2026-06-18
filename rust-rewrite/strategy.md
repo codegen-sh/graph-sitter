@@ -156,7 +156,7 @@ Recommended task format:
 - [ ] Extract file records with path, language, content hash, and root ranges.
 - [x] Extract file records with path, byte length, line count, error status, and root ranges for Python. owner: codex.
 - [x] Extract top-level Python classes and functions. owner: codex. Result: compact `SymbolRecord` extraction for class/function definitions and decorated definitions.
-- [ ] Extract top-level Python globals.
+- [x] Extract top-level Python globals. owner: codex. Result: added compact global-variable symbol records for simple top-level assignments and annotated assignments.
 - [ ] Extract top-level TypeScript classes, functions, interfaces, type aliases, enums, and globals.
 - [x] Extract imports for Python. owner: codex. Result: compact `ImportRecord` extraction for `import`, `from`, and future imports.
 - [ ] Extract imports and exports for TypeScript.
@@ -243,3 +243,4 @@ Recommended task format:
 - [x] 2026-06-18: Added Python-shell Rust index integration behind `CodebaseConfig(graph_backend=...)`, selected-file PyO3 indexing from `RepoOperator`, and a facade benchmark. owner: codex. Notes: selected-file facade matched Python's 1129-file discovery and ran 4.7x faster with 4.7x lower process max RSS than Python parse/object materialization on this checkout.
 - [x] 2026-06-18: Added compact Rust Python import resolution records. owner: codex. Notes: the Python-facing Rust facade now emits 432 internal import-resolution records on this checkout and remains 4.3x faster with 4.6x lower process max RSS than Python parse/object materialization.
 - [x] 2026-06-18: Added typed Python facade accessors and a deterministic compact graph snapshot for record-level parity testing. owner: codex. Notes: this prepares the large-repo golden import/reference graph workflow.
+- [x] 2026-06-18: Added compact Rust extraction for top-level Python globals and symbol-target import resolution for imported globals. owner: codex.

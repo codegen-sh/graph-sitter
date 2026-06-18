@@ -95,6 +95,11 @@ First-slice scopes are lookup boundaries and ownership containers, not full lexi
 
 ## Python Extraction Rules
 
+Current implemented Rust status:
+
+- Files, top-level classes/functions, top-level simple global assignments, Python imports, and compact internal import-resolution records are implemented for Python.
+- Global extraction currently covers simple identifier targets in top-level `assignment` and `annotated_assignment` nodes, including identifiers nested in tuple/list/pattern lists. Attribute and subscript assignment targets remain intentionally skipped.
+
 ### Files
 
 - Parse only `.py`.

@@ -38,6 +38,7 @@ class RustIndexSummary:
     symbols: int
     classes: int
     functions: int
+    global_variables: int
     imports: int
     import_resolutions: int
     bytes: int

@@ -96,6 +96,7 @@ def print_human(report: dict) -> None:
         "summary: "
         f"files={summary['files']} "
         f"symbols={summary['symbols']} "
+        f"global_variables={summary['global_variables']} "
         f"imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']}"
     )

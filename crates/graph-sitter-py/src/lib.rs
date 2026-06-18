@@ -67,6 +67,8 @@ mod bindings {
         #[pyo3(get)]
         functions: usize,
         #[pyo3(get)]
+        global_variables: usize,
+        #[pyo3(get)]
         imports: usize,
         #[pyo3(get)]
         import_resolutions: usize,
@@ -85,6 +87,7 @@ mod bindings {
                 symbols: summary.symbols,
                 classes: summary.classes,
                 functions: summary.functions,
+                global_variables: summary.global_variables,
                 imports: summary.imports,
                 import_resolutions: summary.import_resolutions,
                 bytes: summary.bytes,
@@ -102,6 +105,7 @@ mod bindings {
                 ("symbols", self.symbols),
                 ("classes", self.classes),
                 ("functions", self.functions),
+                ("global_variables", self.global_variables),
                 ("imports", self.imports),
                 ("import_resolutions", self.import_resolutions),
                 ("bytes", self.bytes),
@@ -112,11 +116,12 @@ mod bindings {
 
         fn __repr__(&self) -> String {
             format!(
-                "IndexSummary(files={}, symbols={}, classes={}, functions={}, imports={}, import_resolutions={}, bytes={}, lines={}, files_with_errors={})",
+                "IndexSummary(files={}, symbols={}, classes={}, functions={}, global_variables={}, imports={}, import_resolutions={}, bytes={}, lines={}, files_with_errors={})",
                 self.files,
                 self.symbols,
                 self.classes,
                 self.functions,
+                self.global_variables,
                 self.imports,
                 self.import_resolutions,
                 self.bytes,
@@ -368,10 +373,14 @@ mod bindings {
             let repo = temp_repo_path("py-binding-import-resolution");
             fs::create_dir_all(repo.join("pkg")).unwrap();
             fs::write(repo.join("pkg/__init__.py"), "").unwrap();
-            fs::write(repo.join("pkg/base.py"), "class Base:\n    pass\n").unwrap();
+            fs::write(
+                repo.join("pkg/base.py"),
+                "CONSTANT = 'base'\nclass Base:\n    pass\n",
+            )
+            .unwrap();
             fs::write(
                 repo.join("pkg/service.py"),
-                "from .base import Base\n\nclass Service(Base):\n    pass\n",
+                "from .base import Base, CONSTANT\n\nclass Service(Base):\n    pass\n",
             )
             .unwrap();
 
@@ -381,9 +390,11 @@ mod bindings {
             fs::remove_dir_all(&repo).unwrap();
 
             let summary = index.summary();
-            assert_eq!(summary.import_resolutions, 1);
-            assert_eq!(index.import_resolution_count(), 1);
+            assert_eq!(summary.global_variables, 1);
+            assert_eq!(summary.import_resolutions, 2);
+            assert_eq!(index.import_resolution_count(), 2);
             assert!(index.files_json().unwrap().contains("\"pkg/base.py\""));
+            assert!(index.symbols_json().unwrap().contains("\"CONSTANT\""));
             assert!(index.symbols_json().unwrap().contains("\"Base\""));
             assert!(index.imports_json().unwrap().contains("\".base\""));
             assert!(index

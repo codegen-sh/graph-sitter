@@ -152,6 +152,11 @@ impl PythonIndex {
                 .iter()
                 .filter(|symbol| symbol.kind == SymbolKind::Function)
                 .count(),
+            global_variables: self
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.kind == SymbolKind::GlobalVariable)
+                .count(),
             imports: self.imports.len(),
             import_resolutions: self.import_resolutions.len(),
             bytes: self.files.iter().map(|file| file.byte_len).sum(),
@@ -167,6 +172,7 @@ pub struct IndexSummary {
     pub symbols: usize,
     pub classes: usize,
     pub functions: usize,
+    pub global_variables: usize,
     pub imports: usize,
     pub import_resolutions: usize,
     pub bytes: usize,
@@ -190,6 +196,7 @@ pub struct FileRecord {
 pub enum SymbolKind {
     Class,
     Function,
+    GlobalVariable,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -407,6 +414,16 @@ fn extract_top_level_node(file_id: u32, source: &str, node: Node<'_>, index: &mu
         "import_from_statement" | "future_import_statement" => {
             push_from_import_statement(file_id, source, node, index)
         }
+        "assignment" | "annotated_assignment" => {
+            push_global_assignment(file_id, source, node, index)
+        }
+        "expression_statement" => {
+            if let Some(assignment) =
+                first_child_of_kind(node, &["assignment", "annotated_assignment"])
+            {
+                push_global_assignment(file_id, source, assignment, index);
+            }
+        }
         _ => {}
     }
 }
@@ -443,6 +460,40 @@ fn push_symbol_with_range(
         range: declaration_range.into(),
         name_range: name_node.range().into(),
     });
+}
+
+fn push_global_assignment(file_id: u32, source: &str, node: Node<'_>, index: &mut PythonIndex) {
+    let Some(left) = node.child_by_field_name("left") else {
+        return;
+    };
+    let mut targets = Vec::new();
+    collect_assignment_targets(left, &mut targets);
+    for target in targets {
+        let Ok(name) = target.utf8_text(source.as_bytes()) else {
+            continue;
+        };
+        index.symbols.push(SymbolRecord {
+            id: index.symbols.len() as u32,
+            file_id,
+            name: name.to_owned(),
+            kind: SymbolKind::GlobalVariable,
+            range: node.range().into(),
+            name_range: target.range().into(),
+        });
+    }
+}
+
+fn collect_assignment_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
+    match node.kind() {
+        "identifier" => out.push(node),
+        "pattern_list" | "tuple_pattern" | "list_pattern" => {
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                collect_assignment_targets(child, out);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn push_import_statement(file_id: u32, source: &str, node: Node<'_>, index: &mut PythonIndex) {
@@ -731,6 +782,7 @@ mod tests {
         assert_eq!(index.summary().files, 1);
         assert_eq!(index.summary().classes, 1);
         assert_eq!(index.summary().functions, 1);
+        assert_eq!(index.summary().global_variables, 0);
         assert_eq!(index.summary().imports, 4);
         assert_eq!(index.summary().import_resolutions, 0);
         assert_eq!(index.symbols[0].name, "Service");
@@ -766,10 +818,14 @@ mod tests {
         let repo = temp_repo_path("resolve-python-imports");
         fs::create_dir_all(repo.join("pkg")).unwrap();
         fs::write(repo.join("pkg/__init__.py"), "").unwrap();
-        fs::write(repo.join("pkg/base.py"), "class Base:\n    pass\n").unwrap();
+        fs::write(
+            repo.join("pkg/base.py"),
+            "CONSTANT = 'base'\nclass Base:\n    pass\n",
+        )
+        .unwrap();
         fs::write(
             repo.join("pkg/service.py"),
-            "from __future__ import annotations\nfrom .base import Base\nfrom . import base\nimport pkg.base\nimport os\n\nclass Service(Base):\n    pass\n",
+            "from __future__ import annotations\nfrom .base import Base, CONSTANT\nfrom . import base\nimport pkg.base\nimport os\n\nclass Service(Base):\n    pass\n",
         )
         .unwrap();
 
@@ -778,8 +834,9 @@ mod tests {
 
         assert_eq!(index.summary().files, 3);
         assert_eq!(index.summary().classes, 2);
-        assert_eq!(index.summary().imports, 5);
-        assert_eq!(index.summary().import_resolutions, 3);
+        assert_eq!(index.summary().global_variables, 1);
+        assert_eq!(index.summary().imports, 6);
+        assert_eq!(index.summary().import_resolutions, 4);
 
         let base_file_id = index
             .files
@@ -793,9 +850,19 @@ mod tests {
             .find(|symbol| symbol.file_id == base_file_id && symbol.name == "Base")
             .unwrap()
             .id;
+        let constant_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == base_file_id && symbol.name == "CONSTANT")
+            .unwrap()
+            .id;
         assert!(index.import_resolutions.iter().any(|resolution| {
             resolution.target_file_id == base_file_id
                 && resolution.target_symbol_id == Some(base_symbol_id)
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.target_file_id == base_file_id
+                && resolution.target_symbol_id == Some(constant_symbol_id)
         }));
         assert_eq!(
             index
@@ -803,7 +870,7 @@ mod tests {
                 .iter()
                 .filter(|resolution| resolution.target_file_id == base_file_id)
                 .count(),
-            3
+            4
         );
     }
 
@@ -812,10 +879,14 @@ mod tests {
         let repo = temp_repo_path("compact-python-graph-snapshot");
         fs::create_dir_all(repo.join("pkg")).unwrap();
         fs::write(repo.join("pkg/__init__.py"), "").unwrap();
-        fs::write(repo.join("pkg/base.py"), "class Base:\n    pass\n").unwrap();
+        fs::write(
+            repo.join("pkg/base.py"),
+            "CONSTANT = 'base'\nclass Base:\n    pass\n",
+        )
+        .unwrap();
         fs::write(
             repo.join("pkg/service.py"),
-            "from .base import Base\nfrom . import base\nimport pkg.base\nimport os\n\nclass Service(Base):\n    pass\n",
+            "from .base import Base, CONSTANT\nfrom . import base\nimport pkg.base\nimport os\n\nclass Service(Base):\n    pass\n",
         )
         .unwrap();
 
@@ -874,19 +945,22 @@ mod tests {
                     {"id": 2, "path": "pkg/service.py", "module_name": "pkg.service"}
                 ],
                 "symbols": [
-                    {"id": 0, "file_id": 1, "name": "Base", "kind": "class"},
-                    {"id": 1, "file_id": 2, "name": "Service", "kind": "class"}
+                    {"id": 0, "file_id": 1, "name": "CONSTANT", "kind": "global_variable"},
+                    {"id": 1, "file_id": 1, "name": "Base", "kind": "class"},
+                    {"id": 2, "file_id": 2, "name": "Service", "kind": "class"}
                 ],
                 "imports": [
                     {"id": 0, "file_id": 2, "kind": "from_import", "module": ".base", "name": "Base", "alias": null},
-                    {"id": 1, "file_id": 2, "kind": "from_import", "module": ".", "name": "base", "alias": null},
-                    {"id": 2, "file_id": 2, "kind": "import", "module": null, "name": "pkg.base", "alias": null},
-                    {"id": 3, "file_id": 2, "kind": "import", "module": null, "name": "os", "alias": null}
+                    {"id": 1, "file_id": 2, "kind": "from_import", "module": ".base", "name": "CONSTANT", "alias": null},
+                    {"id": 2, "file_id": 2, "kind": "from_import", "module": ".", "name": "base", "alias": null},
+                    {"id": 3, "file_id": 2, "kind": "import", "module": null, "name": "pkg.base", "alias": null},
+                    {"id": 4, "file_id": 2, "kind": "import", "module": null, "name": "os", "alias": null}
                 ],
                 "import_resolutions": [
-                    {"id": 0, "import_id": 0, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": 0},
-                    {"id": 1, "import_id": 1, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null},
-                    {"id": 2, "import_id": 2, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null}
+                    {"id": 0, "import_id": 0, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": 1},
+                    {"id": 1, "import_id": 1, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": 0},
+                    {"id": 2, "import_id": 2, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null},
+                    {"id": 3, "import_id": 3, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null}
                 ]
             })
         );
