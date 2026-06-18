@@ -342,7 +342,7 @@ class Codebase(
     def _symbols(self, symbol_type: SymbolType | None = None) -> list[TSymbol | TClass | TFunction | TGlobalVar]:
         if self.ctx.rust_compact_mode:
             symbols = self._require_rust_index().symbol_handles
-            return [x for x in symbols if symbol_type is None or x.symbol_type == symbol_type]
+            return [x for x in symbols if x.is_top_level and (symbol_type is None or x.symbol_type == symbol_type)]
         matches: list[Symbol] = self.ctx.get_nodes(NodeType.SYMBOL)
         return [x for x in matches if x.is_top_level and (symbol_type is None or x.symbol_type == symbol_type)]
 

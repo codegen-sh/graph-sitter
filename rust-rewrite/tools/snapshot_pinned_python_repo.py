@@ -92,9 +92,12 @@ def make_file_rows(codebase: Any) -> list[dict[str, Any]]:
 
 
 def make_symbol_rows(codebase: Any, file_by_id: dict[int, Any]) -> list[dict[str, Any]]:
+    symbol_by_id = {symbol.id: symbol for symbol in codebase.rust_symbols}
     rows = [
         {
             "key": symbol_key(symbol, file_by_id),
+            "parent_symbol": None if symbol.parent_symbol_id is None else symbol_key(symbol_by_id[symbol.parent_symbol_id], file_by_id),
+            "is_top_level": symbol.is_top_level,
             "file": file_by_id[symbol.file_id].path,
             "kind": symbol.kind,
             "name": symbol.name,

@@ -209,6 +209,8 @@ pub enum SymbolKind {
 pub struct SymbolRecord {
     pub id: u32,
     pub file_id: u32,
+    pub parent_symbol_id: Option<u32>,
+    pub is_top_level: bool,
     pub name: String,
     pub kind: SymbolKind,
     pub range: SourceRange,
@@ -441,10 +443,25 @@ fn extract_python_file(
     reference_candidates: &mut Vec<ReferenceCandidate>,
 ) {
     let root = tree.root_node();
+    let mut excluded_name_ranges = Vec::new();
     let mut cursor = root.walk();
     for child in root.named_children(&mut cursor) {
-        extract_top_level_node(file_id, source, child, index, reference_candidates);
+        extract_top_level_node(file_id, source, child, index, &mut excluded_name_ranges);
     }
+    let symbol_ranges = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id)
+        .map(|symbol| (symbol.id, symbol.range))
+        .collect::<Vec<_>>();
+    collect_identifier_candidates(
+        file_id,
+        source,
+        root,
+        &symbol_ranges,
+        &excluded_name_ranges,
+        reference_candidates,
+    );
 }
 
 fn extract_top_level_node(
@@ -452,30 +469,32 @@ fn extract_top_level_node(
     source: &str,
     node: Node<'_>,
     index: &mut PythonIndex,
-    reference_candidates: &mut Vec<ReferenceCandidate>,
+    excluded_name_ranges: &mut Vec<SourceRange>,
 ) {
     match node.kind() {
         "class_definition" => {
-            push_symbol(file_id, source, node, SymbolKind::Class, index).inspect(|symbol_id| {
-                collect_symbol_reference_candidates(
-                    file_id,
-                    *symbol_id,
-                    source,
-                    node,
-                    reference_candidates,
-                );
-            });
+            extract_symbol_tree(
+                file_id,
+                source,
+                node,
+                node.range(),
+                SymbolKind::Class,
+                None,
+                index,
+                excluded_name_ranges,
+            );
         }
         "function_definition" => {
-            push_symbol(file_id, source, node, SymbolKind::Function, index).inspect(|symbol_id| {
-                collect_symbol_reference_candidates(
-                    file_id,
-                    *symbol_id,
-                    source,
-                    node,
-                    reference_candidates,
-                );
-            });
+            extract_symbol_tree(
+                file_id,
+                source,
+                node,
+                node.range(),
+                SymbolKind::Function,
+                None,
+                index,
+                excluded_name_ranges,
+            );
         }
         "decorated_definition" => {
             if let Some(definition) =
@@ -486,16 +505,16 @@ fn extract_top_level_node(
                 } else {
                     SymbolKind::Function
                 };
-                push_symbol_with_range(file_id, source, definition, node.range(), kind, index)
-                    .inspect(|symbol_id| {
-                        collect_symbol_reference_candidates(
-                            file_id,
-                            *symbol_id,
-                            source,
-                            node,
-                            reference_candidates,
-                        );
-                    });
+                extract_symbol_tree(
+                    file_id,
+                    source,
+                    definition,
+                    node.range(),
+                    kind,
+                    None,
+                    index,
+                    excluded_name_ranges,
+                );
             }
         }
         "import_statement" => push_import_statement(file_id, source, node, index),
@@ -503,27 +522,118 @@ fn extract_top_level_node(
             push_from_import_statement(file_id, source, node, index)
         }
         "assignment" | "annotated_assignment" => {
-            push_global_assignment(file_id, source, node, index)
+            push_global_assignment(file_id, source, node, index, excluded_name_ranges)
         }
         "expression_statement" => {
             if let Some(assignment) =
                 first_child_of_kind(node, &["assignment", "annotated_assignment"])
             {
-                push_global_assignment(file_id, source, assignment, index);
+                push_global_assignment(file_id, source, assignment, index, excluded_name_ranges);
             }
         }
         _ => {}
     }
 }
 
-fn push_symbol(
+fn extract_symbol_tree(
+    file_id: u32,
+    source: &str,
+    definition: Node<'_>,
+    declaration_range: Range,
+    kind: SymbolKind,
+    parent_symbol_id: Option<u32>,
+    index: &mut PythonIndex,
+    excluded_name_ranges: &mut Vec<SourceRange>,
+) -> Option<u32> {
+    let symbol_id = push_symbol_with_range(
+        file_id,
+        source,
+        definition,
+        declaration_range,
+        kind,
+        parent_symbol_id,
+        index,
+    )?;
+    if let Some(name_node) = definition.child_by_field_name("name") {
+        excluded_name_ranges.push(name_node.range().into());
+    }
+    extract_nested_symbols(
+        file_id,
+        source,
+        definition,
+        Some(symbol_id),
+        index,
+        excluded_name_ranges,
+    );
+    Some(symbol_id)
+}
+
+fn extract_nested_symbols(
     file_id: u32,
     source: &str,
     node: Node<'_>,
-    kind: SymbolKind,
+    parent_symbol_id: Option<u32>,
     index: &mut PythonIndex,
-) -> Option<u32> {
-    push_symbol_with_range(file_id, source, node, node.range(), kind, index)
+    excluded_name_ranges: &mut Vec<SourceRange>,
+) {
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        match child.kind() {
+            "class_definition" => {
+                extract_symbol_tree(
+                    file_id,
+                    source,
+                    child,
+                    child.range(),
+                    SymbolKind::Class,
+                    parent_symbol_id,
+                    index,
+                    excluded_name_ranges,
+                );
+            }
+            "function_definition" => {
+                extract_symbol_tree(
+                    file_id,
+                    source,
+                    child,
+                    child.range(),
+                    SymbolKind::Function,
+                    parent_symbol_id,
+                    index,
+                    excluded_name_ranges,
+                );
+            }
+            "decorated_definition" => {
+                if let Some(definition) =
+                    first_child_of_kind(child, &["class_definition", "function_definition"])
+                {
+                    let kind = if definition.kind() == "class_definition" {
+                        SymbolKind::Class
+                    } else {
+                        SymbolKind::Function
+                    };
+                    extract_symbol_tree(
+                        file_id,
+                        source,
+                        definition,
+                        child.range(),
+                        kind,
+                        parent_symbol_id,
+                        index,
+                        excluded_name_ranges,
+                    );
+                }
+            }
+            _ => extract_nested_symbols(
+                file_id,
+                source,
+                child,
+                parent_symbol_id,
+                index,
+                excluded_name_ranges,
+            ),
+        }
+    }
 }
 
 fn push_symbol_with_range(
@@ -532,6 +642,7 @@ fn push_symbol_with_range(
     node: Node<'_>,
     declaration_range: Range,
     kind: SymbolKind,
+    parent_symbol_id: Option<u32>,
     index: &mut PythonIndex,
 ) -> Option<u32> {
     let Some(name_node) = node.child_by_field_name("name") else {
@@ -544,6 +655,8 @@ fn push_symbol_with_range(
     index.symbols.push(SymbolRecord {
         id: symbol_id,
         file_id,
+        parent_symbol_id,
+        is_top_level: parent_symbol_id.is_none(),
         name: name.to_owned(),
         kind,
         range: declaration_range.into(),
@@ -552,7 +665,13 @@ fn push_symbol_with_range(
     Some(symbol_id)
 }
 
-fn push_global_assignment(file_id: u32, source: &str, node: Node<'_>, index: &mut PythonIndex) {
+fn push_global_assignment(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut PythonIndex,
+    excluded_name_ranges: &mut Vec<SourceRange>,
+) {
     let Some(left) = node.child_by_field_name("left") else {
         return;
     };
@@ -565,11 +684,14 @@ fn push_global_assignment(file_id: u32, source: &str, node: Node<'_>, index: &mu
         index.symbols.push(SymbolRecord {
             id: index.symbols.len() as u32,
             file_id,
+            parent_symbol_id: None,
+            is_top_level: true,
             name: name.to_owned(),
             kind: SymbolKind::GlobalVariable,
             range: node.range().into(),
             name_range: target.range().into(),
         });
+        excluded_name_ranges.push(target.range().into());
     }
 }
 
@@ -586,62 +708,58 @@ fn collect_assignment_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree
     }
 }
 
-fn collect_symbol_reference_candidates(
-    file_id: u32,
-    source_symbol_id: u32,
-    source: &str,
-    symbol_node: Node<'_>,
-    out: &mut Vec<ReferenceCandidate>,
-) {
-    let excluded_name_range = symbol_node
-        .child_by_field_name("name")
-        .map(|name_node| name_node.range());
-    collect_identifier_candidates(
-        file_id,
-        Some(source_symbol_id),
-        source,
-        symbol_node,
-        excluded_name_range,
-        out,
-    );
-}
-
 fn collect_identifier_candidates(
     file_id: u32,
-    source_symbol_id: Option<u32>,
     source: &str,
     node: Node<'_>,
-    excluded_range: Option<Range>,
+    symbol_ranges: &[(u32, SourceRange)],
+    excluded_ranges: &[SourceRange],
     out: &mut Vec<ReferenceCandidate>,
 ) {
-    if node.kind() == "identifier" && !range_matches(node.range(), excluded_range) {
+    if matches!(
+        node.kind(),
+        "import_statement" | "import_from_statement" | "future_import_statement"
+    ) {
+        return;
+    }
+
+    let range = node.range().into();
+    if node.kind() == "identifier" && !range_matches_any(range, excluded_ranges) {
         if let Ok(name) = node.utf8_text(source.as_bytes()) {
             out.push(ReferenceCandidate {
                 source_file_id: file_id,
-                source_symbol_id,
+                source_symbol_id: innermost_symbol_for_range(symbol_ranges, range),
                 name: name.to_owned(),
-                range: node.range().into(),
+                range,
             });
         }
     }
 
     let mut cursor = node.walk();
     for child in node.named_children(&mut cursor) {
-        collect_identifier_candidates(
-            file_id,
-            source_symbol_id,
-            source,
-            child,
-            excluded_range,
-            out,
-        );
+        collect_identifier_candidates(file_id, source, child, symbol_ranges, excluded_ranges, out);
     }
 }
 
-fn range_matches(range: Range, other: Option<Range>) -> bool {
-    other
-        .map(|other| range.start_byte == other.start_byte && range.end_byte == other.end_byte)
-        .unwrap_or(false)
+fn innermost_symbol_for_range(
+    symbol_ranges: &[(u32, SourceRange)],
+    range: SourceRange,
+) -> Option<u32> {
+    symbol_ranges
+        .iter()
+        .filter(|(_, symbol_range)| contains_range(*symbol_range, range))
+        .min_by_key(|(_, symbol_range)| symbol_range.end_byte - symbol_range.start_byte)
+        .map(|(symbol_id, _)| *symbol_id)
+}
+
+fn contains_range(container: SourceRange, range: SourceRange) -> bool {
+    container.start_byte <= range.start_byte && range.end_byte <= container.end_byte
+}
+
+fn range_matches_any(range: SourceRange, others: &[SourceRange]) -> bool {
+    others
+        .iter()
+        .any(|other| range.start_byte == other.start_byte && range.end_byte == other.end_byte)
 }
 
 fn push_import_statement(file_id: u32, source: &str, node: Node<'_>, index: &mut PythonIndex) {
@@ -741,6 +859,7 @@ fn resolve_python_imports(index: &mut PythonIndex) {
     let symbol_to_id: HashMap<(u32, &str), u32> = index
         .symbols
         .iter()
+        .filter(|symbol| symbol.is_top_level)
         .map(|symbol| ((symbol.file_id, symbol.name.as_str()), symbol.id))
         .collect();
 
@@ -780,6 +899,7 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
     let symbol_to_id: HashMap<(u32, &str), u32> = index
         .symbols
         .iter()
+        .filter(|symbol| symbol.is_top_level)
         .map(|symbol| ((symbol.file_id, symbol.name.as_str()), symbol.id))
         .collect();
     let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
@@ -1051,7 +1171,11 @@ mod tests {
         assert_eq!(index.summary().references, 0);
         assert_eq!(index.summary().dependencies, 0);
         assert_eq!(index.symbols[0].name, "Service");
+        assert_eq!(index.symbols[0].parent_symbol_id, None);
+        assert!(index.symbols[0].is_top_level);
         assert_eq!(index.symbols[1].name, "helper");
+        assert_eq!(index.symbols[1].parent_symbol_id, None);
+        assert!(index.symbols[1].is_top_level);
         assert!(index
             .imports
             .iter()
@@ -1153,6 +1277,64 @@ mod tests {
     }
 
     #[test]
+    fn attributes_references_to_innermost_python_symbol() {
+        let repo = temp_repo_path("nested-python-reference-sources");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "").unwrap();
+        fs::write(
+            repo.join("pkg/base.py"),
+            "class Base:\n    pass\n\ndef helper():\n    return Base\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "from .base import Base, helper\n\nclass Service(Base):\n    def run(self):\n        return helper()\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let service = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Service")
+            .unwrap();
+        let run = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "run")
+            .unwrap();
+        let helper = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "helper")
+            .unwrap();
+        let base = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Base")
+            .unwrap();
+
+        assert!(service.is_top_level);
+        assert!(!run.is_top_level);
+        assert_eq!(run.parent_symbol_id, Some(service.id));
+        assert!(index.references.iter().any(|reference| {
+            reference.name == "Base"
+                && reference.source_symbol_id == Some(service.id)
+                && reference.target_symbol_id == base.id
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.name == "helper"
+                && reference.source_symbol_id == Some(run.id)
+                && reference.target_symbol_id == helper.id
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == run.id && dependency.target_symbol_id == helper.id
+        }));
+    }
+
+    #[test]
     fn compact_python_graph_snapshot_is_stable() {
         let repo = temp_repo_path("compact-python-graph-snapshot");
         fs::create_dir_all(repo.join("pkg")).unwrap();
@@ -1189,6 +1371,8 @@ mod tests {
                 serde_json::json!({
                     "id": symbol.id,
                     "file_id": symbol.file_id,
+                    "parent_symbol_id": symbol.parent_symbol_id,
+                    "is_top_level": symbol.is_top_level,
                     "name": symbol.name,
                     "kind": symbol.kind,
                 })
@@ -1254,9 +1438,9 @@ mod tests {
                     {"id": 2, "path": "pkg/service.py", "module_name": "pkg.service"}
                 ],
                 "symbols": [
-                    {"id": 0, "file_id": 1, "name": "CONSTANT", "kind": "global_variable"},
-                    {"id": 1, "file_id": 1, "name": "Base", "kind": "class"},
-                    {"id": 2, "file_id": 2, "name": "Service", "kind": "class"}
+                    {"id": 0, "file_id": 1, "parent_symbol_id": null, "is_top_level": true, "name": "CONSTANT", "kind": "global_variable"},
+                    {"id": 1, "file_id": 1, "parent_symbol_id": null, "is_top_level": true, "name": "Base", "kind": "class"},
+                    {"id": 2, "file_id": 2, "parent_symbol_id": null, "is_top_level": true, "name": "Service", "kind": "class"}
                 ],
                 "imports": [
                     {"id": 0, "file_id": 2, "kind": "from_import", "module": ".base", "name": "Base", "alias": null},

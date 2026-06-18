@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 35489,
+      "count": 71348,
       "samples": [
         {
           "reference_count": 1,
@@ -97,6 +97,27 @@
         {
           "reference_count": 1,
           "source_file": "airflow/api/auth/backend/kerberos_auth.py",
+          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:decorated@5454",
+          "target_file": "airflow/api/auth/backend/kerberos_auth.py",
+          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_forbidden@3931"
+        },
+        {
+          "reference_count": 1,
+          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
+          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:decorated@5454",
+          "target_file": "airflow/api/auth/backend/kerberos_auth.py",
+          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_gssapi_authenticate@3989"
+        },
+        {
+          "reference_count": 1,
+          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
+          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:decorated@5454",
+          "target_file": "airflow/api/auth/backend/kerberos_auth.py",
+          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_unauthorized@3781"
+        },
+        {
+          "reference_count": 1,
+          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
           "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:init_app@3084",
           "target_file": "airflow/api/auth/backend/kerberos_auth.py",
           "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:global_variable:_KERBEROS_SERVICE@3040"
@@ -121,30 +142,9 @@
           "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:init_app@3084",
           "target_file": "airflow/utils/net.py",
           "target_symbol": "airflow/utils/net.py:function:getfqdn@1031"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:requires_authentication@4936",
-          "target_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_forbidden@3931"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:requires_authentication@4936",
-          "target_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_gssapi_authenticate@3989"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:requires_authentication@4936",
-          "target_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_unauthorized@3781"
         }
       ],
-      "sha256": "0e18b4147f49a3bc58ae8bab3972535b0df3cbede968c7e14324e2b23fb31f70"
+      "sha256": "c04d010154c2b501ba4cd497d4dcaf296155962e3518c3cfba8b22e929f508e1"
     },
     "files": {
       "count": 4789,
@@ -665,7 +665,7 @@
       "sha256": "fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0"
     },
     "references": {
-      "count": 95292,
+      "count": 112238,
       "samples": [
         {
           "import": null,
@@ -723,6 +723,17 @@
           "target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
         },
         {
+          "import": null,
+          "name": "main",
+          "range": [
+            4266,
+            4270
+          ],
+          "source_file": "airflow/__main__.py",
+          "source_symbol": null,
+          "target_symbol": "airflow/__main__.py:function:main@1814"
+        },
+        {
           "import": "airflow/api/__init__.py:from_import:airflow.configuration:conf:@906",
           "name": "conf",
           "range": [
@@ -778,6 +789,17 @@
           "target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
         },
         {
+          "import": "airflow/api/auth/backend/basic_auth.py:from_import:airflow.exceptions:RemovedInAirflow3Warning:@1101",
+          "name": "RemovedInAirflow3Warning",
+          "range": [
+            1428,
+            1452
+          ],
+          "source_file": "airflow/api/auth/backend/basic_auth.py",
+          "source_symbol": null,
+          "target_symbol": "airflow/exceptions.py:class:RemovedInAirflow3Warning@16092"
+        },
+        {
           "import": null,
           "name": "T",
           "range": [
@@ -822,6 +844,17 @@
           "target_symbol": "airflow/api/auth/backend/deny_all.py:global_variable:T@1091"
         },
         {
+          "import": null,
+          "name": "KerberosService",
+          "range": [
+            3060,
+            3075
+          ],
+          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
+          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:global_variable:_KERBEROS_SERVICE@3040",
+          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:class:KerberosService@2728"
+        },
+        {
           "import": "airflow/api/auth/backend/kerberos_auth.py:from_import:airflow.utils.net:getfqdn:@2564",
           "name": "getfqdn",
           "range": [
@@ -853,48 +886,16 @@
           "source_file": "airflow/api/auth/backend/kerberos_auth.py",
           "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:init_app@3084",
           "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:global_variable:_KERBEROS_SERVICE@3040"
-        },
-        {
-          "import": "airflow/api/auth/backend/kerberos_auth.py:from_import:airflow.configuration:conf:@2525",
-          "name": "conf",
-          "range": [
-            3454,
-            3458
-          ],
-          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:init_app@3084",
-          "target_symbol": "airflow/configuration.py:global_variable:conf@102463"
-        },
-        {
-          "import": null,
-          "name": "log",
-          "range": [
-            3503,
-            3506
-          ],
-          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:init_app@3084",
-          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:global_variable:log@2686"
-        },
-        {
-          "import": null,
-          "name": "log",
-          "range": [
-            3674,
-            3677
-          ],
-          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:init_app@3084",
-          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:global_variable:log@2686"
         }
       ],
-      "sha256": "677270b43e9578c64f08d85f8635d5bf4bea027ad513649e8767d1147633af5c"
+      "sha256": "cd0796bb493a329acab25f666d956539e714aceb39c70e1d9c0376f950f6ed98"
     },
     "symbols": {
-      "count": 23663,
+      "count": 52339,
       "samples": [
         {
           "file": "airflow/__init__.py",
+          "is_top_level": true,
           "key": "airflow/__init__.py:function:__getattr__@4048",
           "kind": "function",
           "name": "__getattr__",
@@ -902,6 +903,7 @@
             4048,
             4059
           ],
+          "parent_symbol": null,
           "range": [
             4044,
             5292
@@ -909,6 +911,7 @@
         },
         {
           "file": "airflow/__init__.py",
+          "is_top_level": true,
           "key": "airflow/__init__.py:global_variable:__all__@2505",
           "kind": "global_variable",
           "name": "__all__",
@@ -916,6 +919,7 @@
             2505,
             2512
           ],
+          "parent_symbol": null,
           "range": [
             2505,
             2578
@@ -923,6 +927,7 @@
         },
         {
           "file": "airflow/__init__.py",
+          "is_top_level": true,
           "key": "airflow/__init__.py:global_variable:__lazy_imports@3362",
           "kind": "global_variable",
           "name": "__lazy_imports",
@@ -930,6 +935,7 @@
             3362,
             3376
           ],
+          "parent_symbol": null,
           "range": [
             3362,
             3698
@@ -937,6 +943,7 @@
         },
         {
           "file": "airflow/__init__.py",
+          "is_top_level": true,
           "key": "airflow/__init__.py:global_variable:__path__@2728",
           "kind": "global_variable",
           "name": "__path__",
@@ -944,6 +951,7 @@
             2728,
             2736
           ],
+          "parent_symbol": null,
           "range": [
             2728,
             2792
@@ -951,6 +959,7 @@
         },
         {
           "file": "airflow/__init__.py",
+          "is_top_level": true,
           "key": "airflow/__init__.py:global_variable:__version__@823",
           "kind": "global_variable",
           "name": "__version__",
@@ -958,6 +967,7 @@
             823,
             834
           ],
+          "parent_symbol": null,
           "range": [
             823,
             845
@@ -965,6 +975,7 @@
         },
         {
           "file": "airflow/__main__.py",
+          "is_top_level": true,
           "key": "airflow/__main__.py:function:configure_internal_api@2850",
           "kind": "function",
           "name": "configure_internal_api",
@@ -972,6 +983,7 @@
             2850,
             2872
           ],
+          "parent_symbol": null,
           "range": [
             2846,
             4232
@@ -979,6 +991,7 @@
         },
         {
           "file": "airflow/__main__.py",
+          "is_top_level": true,
           "key": "airflow/__main__.py:function:main@1814",
           "kind": "function",
           "name": "main",
@@ -986,6 +999,7 @@
             1814,
             1818
           ],
+          "parent_symbol": null,
           "range": [
             1810,
             2843
@@ -993,6 +1007,7 @@
         },
         {
           "file": "airflow/api/__init__.py",
+          "is_top_level": true,
           "key": "airflow/api/__init__.py:function:load_auth@1058",
           "kind": "function",
           "name": "load_auth",
@@ -1000,6 +1015,7 @@
             1058,
             1067
           ],
+          "parent_symbol": null,
           "range": [
             1054,
             1677
@@ -1007,6 +1023,7 @@
         },
         {
           "file": "airflow/api/__init__.py",
+          "is_top_level": true,
           "key": "airflow/api/__init__.py:global_variable:log@1018",
           "kind": "global_variable",
           "name": "log",
@@ -1014,6 +1031,7 @@
             1018,
             1021
           ],
+          "parent_symbol": null,
           "range": [
             1018,
             1051
@@ -1021,6 +1039,7 @@
         },
         {
           "file": "airflow/api/auth/backend/basic_auth.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/basic_auth.py:function:auth_current_user@1530",
           "kind": "function",
           "name": "auth_current_user",
@@ -1028,6 +1047,7 @@
             1530,
             1547
           ],
+          "parent_symbol": null,
           "range": [
             1526,
             1611
@@ -1035,6 +1055,7 @@
         },
         {
           "file": "airflow/api/auth/backend/basic_auth.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/basic_auth.py:function:init_app@1480",
           "kind": "function",
           "name": "init_app",
@@ -1042,6 +1063,7 @@
             1480,
             1488
           ],
+          "parent_symbol": null,
           "range": [
             1476,
             1523
@@ -1049,6 +1071,7 @@
         },
         {
           "file": "airflow/api/auth/backend/basic_auth.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/basic_auth.py:function:requires_authentication@1618",
           "kind": "function",
           "name": "requires_authentication",
@@ -1056,6 +1079,7 @@
             1618,
             1641
           ],
+          "parent_symbol": null,
           "range": [
             1614,
             1722
@@ -1063,6 +1087,7 @@
         },
         {
           "file": "airflow/api/auth/backend/basic_auth.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/basic_auth.py:global_variable:CLIENT_AUTH@1240",
           "kind": "global_variable",
           "name": "CLIENT_AUTH",
@@ -1070,6 +1095,7 @@
             1240,
             1251
           ],
+          "parent_symbol": null,
           "range": [
             1240,
             1288
@@ -1077,6 +1103,23 @@
         },
         {
           "file": "airflow/api/auth/backend/default.py",
+          "is_top_level": false,
+          "key": "airflow/api/auth/backend/default.py:function:decorated@1243",
+          "kind": "function",
+          "name": "decorated",
+          "name_range": [
+            1243,
+            1252
+          ],
+          "parent_symbol": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
+          "range": [
+            1218,
+            1311
+          ]
+        },
+        {
+          "file": "airflow/api/auth/backend/default.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/default.py:function:init_app@1018",
           "kind": "function",
           "name": "init_app",
@@ -1084,6 +1127,7 @@
             1018,
             1026
           ],
+          "parent_symbol": null,
           "range": [
             1014,
             1075
@@ -1091,6 +1135,7 @@
         },
         {
           "file": "airflow/api/auth/backend/default.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
           "kind": "function",
           "name": "requires_authentication",
@@ -1098,6 +1143,7 @@
             1117,
             1140
           ],
+          "parent_symbol": null,
           "range": [
             1113,
             1342
@@ -1105,6 +1151,7 @@
         },
         {
           "file": "airflow/api/auth/backend/default.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/default.py:global_variable:CLIENT_AUTH@963",
           "kind": "global_variable",
           "name": "CLIENT_AUTH",
@@ -1112,6 +1159,7 @@
             963,
             974
           ],
+          "parent_symbol": null,
           "range": [
             963,
             1011
@@ -1119,6 +1167,7 @@
         },
         {
           "file": "airflow/api/auth/backend/default.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/default.py:global_variable:T@1078",
           "kind": "global_variable",
           "name": "T",
@@ -1126,6 +1175,7 @@
             1078,
             1079
           ],
+          "parent_symbol": null,
           "range": [
             1078,
             1110
@@ -1133,6 +1183,23 @@
         },
         {
           "file": "airflow/api/auth/backend/deny_all.py",
+          "is_top_level": false,
+          "key": "airflow/api/auth/backend/deny_all.py:function:decorated@1256",
+          "kind": "function",
+          "name": "decorated",
+          "name_range": [
+            1256,
+            1265
+          ],
+          "parent_symbol": "airflow/api/auth/backend/deny_all.py:function:requires_authentication@1130",
+          "range": [
+            1231,
+            1325
+          ]
+        },
+        {
+          "file": "airflow/api/auth/backend/deny_all.py",
+          "is_top_level": true,
           "key": "airflow/api/auth/backend/deny_all.py:function:init_app@1039",
           "kind": "function",
           "name": "init_app",
@@ -1140,41 +1207,14 @@
             1039,
             1047
           ],
+          "parent_symbol": null,
           "range": [
             1035,
             1088
           ]
-        },
-        {
-          "file": "airflow/api/auth/backend/deny_all.py",
-          "key": "airflow/api/auth/backend/deny_all.py:function:requires_authentication@1130",
-          "kind": "function",
-          "name": "requires_authentication",
-          "name_range": [
-            1130,
-            1153
-          ],
-          "range": [
-            1126,
-            1356
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/deny_all.py",
-          "key": "airflow/api/auth/backend/deny_all.py:global_variable:CLIENT_AUTH@984",
-          "kind": "global_variable",
-          "name": "CLIENT_AUTH",
-          "name_range": [
-            984,
-            995
-          ],
-          "range": [
-            984,
-            1032
-          ]
         }
       ],
-      "sha256": "02fd17a7c0ba4f8fa0f29dcdfc642bffcc8116c20b86f5519f15fd0447d08781"
+      "sha256": "d4b75c9c6d82b1d30424845c86b88c9fb18ca7748fc088c16b4cfca00de30699"
     }
   },
   "integrity": {
@@ -1193,16 +1233,16 @@
   "schema_version": 1,
   "summary": {
     "bytes": 36617627,
-    "classes": 5379,
-    "dependencies": 35489,
+    "classes": 5665,
+    "dependencies": 71348,
     "files": 4789,
     "files_with_errors": 0,
-    "functions": 6145,
+    "functions": 34535,
     "global_variables": 12139,
     "import_resolutions": 19011,
     "imports": 40580,
     "lines": 924514,
-    "references": 95292,
-    "symbols": 23663
+    "references": 112238,
+    "symbols": 52339
   }
 }

@@ -61,6 +61,8 @@ class FakeIndex:
                 {
                     "id": 0,
                     "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
                     "name": "Service",
                     "kind": "class",
                     "range": {
@@ -83,6 +85,8 @@ class FakeIndex:
                 {
                     "id": 1,
                     "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
                     "name": "helper",
                     "kind": "function",
                     "range": {

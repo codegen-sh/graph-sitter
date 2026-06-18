@@ -90,6 +90,8 @@ class RustFileRecord:
 class RustSymbolRecord:
     id: int
     file_id: int
+    parent_symbol_id: int | None
+    is_top_level: bool
     name: str
     kind: str
     range: RustSourceRange
@@ -100,6 +102,8 @@ class RustSymbolRecord:
         return cls(
             id=int(data["id"]),
             file_id=int(data["file_id"]),
+            parent_symbol_id=None if data.get("parent_symbol_id") is None else int(data["parent_symbol_id"]),
+            is_top_level=bool(data.get("is_top_level", True)),
             name=str(data["name"]),
             kind=str(data["kind"]),
             range=RustSourceRange.from_dict(data["range"]),
@@ -506,7 +510,7 @@ class RustCompactSymbol(RustCompactHandle):
         super().__init__(backend, record.id, record.range)
         self.name = record.name
         self._name_node = RustCompactName(record.name)
-        self.is_top_level = True
+        self.is_top_level = record.is_top_level
 
     def __repr__(self) -> str:
         return f"RustCompactSymbol(name={self.name!r}, filepath={self.filepath!r})"
