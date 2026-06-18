@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 68917,
+      "count": 68340,
       "samples": [
         {
           "reference_count": 1,
@@ -144,7 +144,7 @@
           "target_symbol": "airflow/utils/net.py:function:getfqdn@1031"
         }
       ],
-      "sha256": "daf4311756da7daa360ffedc08641e9b4675ebff2ccda708153843f64f1fc183"
+      "sha256": "69840447840f50c6513e72d85086271996df8ea7104f6e510079e5d105ae0c51"
     },
     "files": {
       "count": 4789,
@@ -665,7 +665,7 @@
       "sha256": "fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0"
     },
     "references": {
-      "count": 105607,
+      "count": 104622,
       "samples": [
         {
           "import": null,
@@ -888,7 +888,7 @@
           "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:global_variable:_KERBEROS_SERVICE@3040"
         }
       ],
-      "sha256": "1d4a195687476b4f6605966075f6ef844b3ec93b0fb40b65451202d4901d8469"
+      "sha256": "3a6a5c38e0485307841d9ba55aecbc5578d341cea1a295e133fa2f34d93f8133"
     },
     "symbols": {
       "count": 52339,
@@ -1234,7 +1234,7 @@
   "summary": {
     "bytes": 36617627,
     "classes": 5665,
-    "dependencies": 68917,
+    "dependencies": 68340,
     "files": 4789,
     "files_with_errors": 0,
     "functions": 34535,
@@ -1242,7 +1242,7 @@
     "import_resolutions": 19011,
     "imports": 40580,
     "lines": 924514,
-    "references": 105607,
+    "references": 104622,
     "symbols": 52339
   }
 }

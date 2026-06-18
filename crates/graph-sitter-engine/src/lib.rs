@@ -1138,6 +1138,22 @@ fn collect_identifier_candidates(
         return;
     }
 
+    if node.kind() == "attribute" {
+        if let Some(object) = node.child_by_field_name("object") {
+            collect_identifier_candidates(
+                file_id,
+                source,
+                object,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                out,
+            );
+        }
+        return;
+    }
+
     if matches!(
         node.kind(),
         "import_statement"
@@ -1875,6 +1891,7 @@ def match_shadowed(subject):\n    match subject:\n        case Point(x=Base, y=h
 def lambda_shadowed():\n    return (lambda Base, helper, *other: (Base, helper, other))\n\n\
 def lambda_default_ref():\n    return (lambda local=Base: local)\n\n\
 def global_declared():\n    global other\n    other = Base\n    return other\n\n\
+def attribute_names_are_not_bare_references(obj):\n    return obj.helper, other.helper, helper.attr\n\n\
 def caller():\n    return helper()\n",
         )
         .unwrap();
@@ -1926,6 +1943,11 @@ def caller():\n    return helper()\n",
             .symbols
             .iter()
             .find(|symbol| symbol.name == "global_declared")
+            .unwrap();
+        let attribute_names = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "attribute_names_are_not_bare_references")
             .unwrap();
         let helper = index
             .symbols
@@ -2019,6 +2041,23 @@ def caller():\n    return helper()\n",
             reference.source_symbol_id == Some(global_declared.id)
                 && reference.name == "Base"
                 && reference.target_symbol_id == base.id
+        }));
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| {
+                    reference.source_symbol_id == Some(attribute_names.id)
+                        && reference.name == "helper"
+                        && reference.target_symbol_id == helper.id
+                })
+                .count(),
+            1
+        );
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(attribute_names.id)
+                && reference.name == "other"
+                && reference.target_symbol_id == other.id
         }));
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(caller.id)
