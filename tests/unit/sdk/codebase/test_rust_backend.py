@@ -18,12 +18,12 @@ class FakeSummary:
             "classes": 1,
             "functions": 1,
             "global_variables": 0,
-            "imports": 1,
-            "import_resolutions": 1,
+            "imports": 2,
+            "import_resolutions": 2,
             "references": 1,
             "dependencies": 1,
-            "bytes": 64,
-            "lines": 8,
+            "bytes": 92,
+            "lines": 9,
             "files_with_errors": 0,
         }
 
@@ -42,12 +42,12 @@ class FakeIndex:
                     "id": 0,
                     "path": "pkg/service.py",
                     "module_name": "pkg.service",
-                    "byte_len": 64,
-                    "line_count": 8,
+                    "byte_len": 92,
+                    "line_count": 9,
                     "has_error": False,
                     "root_range": {
                         "start_byte": 0,
-                        "end_byte": 64,
+                        "end_byte": 92,
                         "start_row": 0,
                         "start_column": 0,
                         "end_row": 8,
@@ -68,19 +68,19 @@ class FakeIndex:
                     "name": "Service",
                     "kind": "class",
                     "range": {
-                        "start_byte": 11,
-                        "end_byte": 31,
-                        "start_row": 2,
+                        "start_byte": 30,
+                        "end_byte": 54,
+                        "start_row": 3,
                         "start_column": 0,
-                        "end_row": 3,
+                        "end_row": 4,
                         "end_column": 8,
                     },
                     "name_range": {
-                        "start_byte": 17,
-                        "end_byte": 24,
-                        "start_row": 2,
+                        "start_byte": 36,
+                        "end_byte": 43,
+                        "start_row": 3,
                         "start_column": 6,
-                        "end_row": 2,
+                        "end_row": 3,
                         "end_column": 13,
                     },
                 },
@@ -92,19 +92,19 @@ class FakeIndex:
                     "name": "helper",
                     "kind": "function",
                     "range": {
-                        "start_byte": 33,
-                        "end_byte": 64,
-                        "start_row": 5,
+                        "start_byte": 55,
+                        "end_byte": 92,
+                        "start_row": 6,
                         "start_column": 0,
                         "end_row": 8,
                         "end_column": 0,
                     },
                     "name_range": {
-                        "start_byte": 37,
-                        "end_byte": 43,
-                        "start_row": 5,
+                        "start_byte": 59,
+                        "end_byte": 65,
+                        "start_row": 6,
                         "start_column": 4,
-                        "end_row": 5,
+                        "end_row": 6,
                         "end_column": 10,
                     },
                 },
@@ -129,6 +129,22 @@ class FakeIndex:
                         "end_row": 0,
                         "end_column": 9,
                     },
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "kind": "import",
+                    "module": None,
+                    "name": "pkg.service",
+                    "alias": None,
+                    "range": {
+                        "start_byte": 10,
+                        "end_byte": 28,
+                        "start_row": 1,
+                        "start_column": 0,
+                        "end_row": 1,
+                        "end_column": 18,
+                    },
                 }
             ]
         )
@@ -142,6 +158,13 @@ class FakeIndex:
                     "source_file_id": 0,
                     "target_file_id": 0,
                     "target_symbol_id": 0,
+                },
+                {
+                    "id": 1,
+                    "import_id": 1,
+                    "source_file_id": 0,
+                    "target_file_id": 0,
+                    "target_symbol_id": None,
                 }
             ]
         )
@@ -157,12 +180,12 @@ class FakeIndex:
                     "import_id": 0,
                     "name": "Service",
                     "range": {
-                        "start_byte": 51,
-                        "end_byte": 58,
-                        "start_row": 6,
+                        "start_byte": 80,
+                        "end_byte": 82,
+                        "start_row": 7,
                         "start_column": 11,
-                        "end_row": 6,
-                        "end_column": 18,
+                        "end_row": 7,
+                        "end_column": 13,
                     },
                 }
             ]
@@ -211,7 +234,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={"pkg/service.py": "import os\n\nclass Service:\n    pass\n\ndef helper():\n    return os.getcwd()\n"},
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n\ndef helper():\n    return os.getcwd()\n"},
         config=config,
         verify_input=False,
         verify_output=False,
@@ -223,8 +246,8 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.ctx.rust_index.summary.classes == 1
         assert codebase.ctx.rust_index.summary.functions == 1
         assert codebase.ctx.rust_index.summary.global_variables == 0
-        assert codebase.ctx.rust_index.summary.imports == 1
-        assert codebase.ctx.rust_index.summary.import_resolutions == 1
+        assert codebase.ctx.rust_index.summary.imports == 2
+        assert codebase.ctx.rust_index.summary.import_resolutions == 2
         assert codebase.ctx.rust_index.summary.references == 1
         assert codebase.ctx.rust_index.summary.dependencies == 1
         assert codebase.ctx.rust_index.files[0].path == "pkg/service.py"
@@ -238,7 +261,9 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.rust_classes[0].name == "Service"
         assert codebase.rust_functions[0].name == "helper"
         assert codebase.rust_imports[0].name == "os"
+        assert codebase.rust_imports[1].name == "pkg.service"
         assert codebase.rust_import_resolutions[0].target_symbol_id == 0
+        assert codebase.rust_import_resolutions[1].target_symbol_id is None
         assert codebase.rust_references[0].name == "Service"
         assert codebase.rust_dependencies[0].reference_ids == [0]
         assert indexed_paths == [str(tmp_path.resolve())]
@@ -252,26 +277,29 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert [symbol.name for symbol in codebase.symbols] == ["Service", "helper"]
         assert [symbol.name for symbol in codebase.classes] == ["Service"]
         assert [symbol.name for symbol in codebase.functions] == ["helper"]
+        assert [import_handle.name for import_handle in codebase.imports] == ["os", "pkg.service"]
         assert codebase.get_symbol("Service").source.startswith("class Service")
         assert codebase.get_class("Service").file == codebase.files[0]
         assert codebase.get_function("helper").filepath == "pkg/service.py"
         assert codebase.files[0].classes[0].name == "Service"
         assert codebase.files[0].functions[0].name == "helper"
         assert [symbol.name for symbol in codebase.files[0].symbols_sorted_topologically] == ["helper", "Service"]
-        assert codebase.files[0].import_statements == [codebase.imports[0]]
-        assert codebase.files[0].get_nodes() == [codebase.imports[0], codebase.classes[0], codebase.functions[0]]
+        assert codebase.files[0].import_statements == [codebase.imports[0], codebase.imports[1]]
+        assert codebase.files[0].get_nodes() == [codebase.imports[0], codebase.imports[1], codebase.classes[0], codebase.functions[0]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_imports[0].range) == [codebase.imports[0]]
+        assert codebase.files[0].find_by_byte_range(codebase.rust_imports[1].range) == [codebase.imports[1]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_symbols[0].range) == [codebase.classes[0]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_references[0].range) == [codebase.functions[0]]
-        assert codebase.files[0].find_by_byte_range({"start_byte": 31, "end_byte": 33}) == []
+        assert codebase.files[0].find_by_byte_range({"start_byte": 28, "end_byte": 30}) == []
         assert codebase.files[0].valid_symbol_names["Service"] == codebase.classes[0]
         assert codebase.files[0].valid_symbol_names["os"] == codebase.imports[0]
+        assert codebase.files[0].valid_symbol_names["pkg.service"] == codebase.imports[1]
         assert codebase.files[0].valid_import_names["Service"] == codebase.classes[0]
         assert codebase.files[0].resolve_attribute("Service") == codebase.classes[0]
         assert codebase.files[0].resolve_attribute("os") == codebase.imports[0]
         assert list(codebase.files[0].resolve_name("Service")) == [codebase.classes[0]]
-        assert list(codebase.files[0].resolve_name("Service", start_byte=20)) == [codebase.classes[0]]
-        assert list(codebase.files[0].resolve_name("helper", start_byte=20)) == []
+        assert list(codebase.files[0].resolve_name("Service", start_byte=40)) == [codebase.classes[0]]
+        assert list(codebase.files[0].resolve_name("helper", start_byte=40)) == []
         assert codebase.files[0].get_node_by_name("Service") == codebase.classes[0]
         assert codebase.files[0].get_node_by_name("os") == codebase.imports[0]
         assert codebase.files[0].import_module_name == "pkg.service"
@@ -285,19 +313,24 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.files[0].get_import("import os") == codebase.imports[0]
         assert codebase.files[0].get_import("missing") is None
         assert codebase.imports[0].source == "import os"
+        assert codebase.imports[1].source == "import pkg.service"
         assert codebase.imports[0].is_module_import()
         assert codebase.imports[0].from_file == codebase.files[0]
         assert codebase.imports[0].imported_symbol == codebase.classes[0]
-        assert codebase.files[0].inbound_imports == [codebase.imports[0]]
-        assert codebase.files[0].importers == []
+        assert codebase.files[0].inbound_imports == [codebase.imports[0], codebase.imports[1]]
+        assert codebase.files[0].importers == [codebase.imports[1]]
         helper = codebase.get_function("helper")
         service = codebase.get_class("Service")
         import_handle = codebase.imports[0]
+        module_import = codebase.imports[1]
         assert service.get_import_string() == "from pkg.service import Service"
         assert service.get_import_string(alias="Svc") == "from pkg.service import Service as Svc"
         assert service.get_import_string(import_type=ImportType.WILDCARD) == "from pkg.service import * as service"
         assert import_handle.get_import_string() == "from pkg.service import os"
         assert import_handle.get_import_string(alias="operating_system") == "from pkg.service import os as operating_system"
+        assert import_handle.imported_exports == [service]
+        assert module_import.imported_symbol == codebase.files[0]
+        assert module_import.imported_exports == [service, helper, import_handle, module_import]
         assert helper.dependencies == [service]
         assert helper.dependencies(usage_types=UsageType.CHAINED) == []
         assert helper.dependencies(max_depth=2) == [service]
@@ -311,7 +344,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert service.usages[0].kind == UsageKind.BODY
         assert service.usages[0].match.source == "Service"
         assert service.usages[0].match.file == codebase.files[0]
-        assert service.usages[0].match.start_point == (6, 11)
+        assert service.usages[0].match.start_point == (7, 11)
         assert import_handle.symbol_usages == [helper]
         assert import_handle.symbol_usages(UsageType.CHAINED) == []
         assert len(import_handle.usages) == 1

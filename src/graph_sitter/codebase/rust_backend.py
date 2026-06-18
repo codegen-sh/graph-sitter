@@ -1071,7 +1071,13 @@ class RustCompactImport(RustCompactHandle):
     @property
     def imported_exports(self) -> list[RustCompactSymbol | RustCompactFile]:
         imported = self.imported_symbol
-        return [] if imported is None else [imported]
+        if imported is None:
+            return []
+        if not self.is_module_import():
+            return [imported]
+        if isinstance(imported, RustCompactFile):
+            return [*imported.symbols, *imported.imports]
+        return [imported]
 
     def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
         import_module = module if module is not None else self.file.import_module_name
