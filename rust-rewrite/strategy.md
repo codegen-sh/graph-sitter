@@ -114,7 +114,7 @@ Recommended task format:
 - [x] Parser/index vertical slice. owner: Meitner. Agent: `019edc37-8867-7a83-a18e-b0ec0ca29d11`. Branch: `codex/rust-rewrite-parser-index`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-parser-index`. Result: parser/index extraction plan committed.
 - [x] Resolver/dependency algorithms. owner: Gauss. Agent: `019edc37-8c34-7f93-b0ae-746cbd579962`. Branch: `codex/rust-rewrite-resolver`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-resolver`. Result: resolver algorithm inventory and Rust port plan committed.
 - [x] Rust engine skeleton. owner: Beauvoir. Agent: `019edc37-8f2d-7dd3-b3ed-a1f9e1b191a7`. Branch: `codex/rust-rewrite-engine-skeleton`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-engine-skeleton`. Result: standalone Cargo workspace and smoke tests committed.
-- [ ] PyO3/Python compatibility. owner: Wegener. Agent: `019edc4e-72b1-7a00-8644-e43503f0cdc3`. Branch: `codex/rust-rewrite-pyo3-compat`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-pyo3-compat`. Notes: spawned after completed agents freed capacity.
+- [x] PyO3/Python compatibility. owner: Wegener. Agent: `019edc4e-72b1-7a00-8644-e43503f0cdc3`. Branch: `codex/rust-rewrite-pyo3-compat`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-pyo3-compat`. Result: compatibility plan committed.
 
 ## Phase 0: Baseline, RFC, And Contracts
 
@@ -174,6 +174,7 @@ Recommended task format:
 
 ## Phase 4: Lazy Python Compatibility Layer
 
+- [x] Plan Python/PyO3 compatibility layer and lazy handle migration. owner: Wegener. Result: documented in `rust-rewrite/python-compat.md`.
 - [ ] Define Python handle base class that stores engine reference and stable ID.
 - [ ] Implement Rust-backed file handles for P0 `SourceFile` APIs.
 - [ ] Implement Rust-backed symbol handles for P0 `Symbol`, `Class`, and `Function` APIs.
@@ -223,3 +224,4 @@ Recommended task format:
 - [x] 2026-06-18: Initial strategy file created on `rust-rewrite` branch. owner: codex. Notes: ready for helper agents to claim phase tasks.
 - [x] 2026-06-18: Integrator created seven worktrees and spawned six helper agents; PyO3 compatibility was queued due to agent concurrency limit. owner: codex.
 - [x] 2026-06-18: Six completed helper branches reviewed and their artifacts staged for integration. owner: codex. Notes: PyO3 compatibility agent is now running as Wegener.
+- [x] 2026-06-18: PyO3 compatibility helper completed and its planning artifact was staged for integration. owner: codex.
