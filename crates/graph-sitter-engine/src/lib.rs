@@ -727,6 +727,7 @@ fn collect_local_bindings(
     symbol_ranges: &[(u32, SourceRange)],
 ) -> (HashMap<u32, HashSet<String>>, Vec<LocalBindingScope>) {
     let mut bindings: HashMap<u32, HashSet<String>> = HashMap::new();
+    let mut global_declarations: HashMap<u32, HashSet<String>> = HashMap::new();
     let mut scoped_bindings: Vec<LocalBindingScope> = Vec::new();
 
     for symbol in index
@@ -747,8 +748,14 @@ fn collect_local_bindings(
         root,
         symbol_ranges,
         &mut bindings,
+        &mut global_declarations,
         &mut scoped_bindings,
     );
+    for (symbol_id, names) in global_declarations {
+        if let Some(bindings) = bindings.get_mut(&symbol_id) {
+            bindings.retain(|name| !names.contains(name));
+        }
+    }
     (bindings, scoped_bindings)
 }
 
@@ -757,6 +764,7 @@ fn collect_local_bindings_from_node(
     node: Node<'_>,
     symbol_ranges: &[(u32, SourceRange)],
     bindings: &mut HashMap<u32, HashSet<String>>,
+    global_declarations: &mut HashMap<u32, HashSet<String>>,
     scoped_bindings: &mut Vec<LocalBindingScope>,
 ) {
     match node.kind() {
@@ -772,6 +780,19 @@ fn collect_local_bindings_from_node(
         }
         "lambda" => {
             push_lambda_binding_scope(source, node, symbol_ranges, scoped_bindings);
+        }
+        "global_statement" => {
+            if let Some(source_symbol_id) =
+                innermost_symbol_for_range(symbol_ranges, node.range().into())
+            {
+                for name in declaration_names(source, node) {
+                    global_declarations
+                        .entry(source_symbol_id)
+                        .or_default()
+                        .insert(name);
+                }
+            }
+            return;
         }
         "assignment" | "annotated_assignment" | "augmented_assignment" => {
             if let Some(left) = node.child_by_field_name("left") {
@@ -823,8 +844,29 @@ fn collect_local_bindings_from_node(
 
     let mut cursor = node.walk();
     for child in node.named_children(&mut cursor) {
-        collect_local_bindings_from_node(source, child, symbol_ranges, bindings, scoped_bindings);
+        collect_local_bindings_from_node(
+            source,
+            child,
+            symbol_ranges,
+            bindings,
+            global_declarations,
+            scoped_bindings,
+        );
     }
+}
+
+fn declaration_names(source: &str, node: Node<'_>) -> Vec<String> {
+    let mut names = Vec::new();
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        if child.kind() != "identifier" {
+            continue;
+        }
+        if let Ok(name) = child.utf8_text(source.as_bytes()) {
+            names.push(name.to_owned());
+        }
+    }
+    names
 }
 
 fn push_lambda_binding_scope(
@@ -1098,7 +1140,11 @@ fn collect_identifier_candidates(
 
     if matches!(
         node.kind(),
-        "import_statement" | "import_from_statement" | "future_import_statement"
+        "import_statement"
+            | "import_from_statement"
+            | "future_import_statement"
+            | "global_statement"
+            | "nonlocal_statement"
     ) {
         return;
     }
@@ -1828,6 +1874,7 @@ def comprehension_shadowed(items):\n    return [Base + helper + other for Base, 
 def match_shadowed(subject):\n    match subject:\n        case Point(x=Base, y=helper) as other if Base:\n            return Base, helper, other\n        case {\"base\": Base, \"helper\": helper, **other}:\n            return Base, helper, other\n\n\
 def lambda_shadowed():\n    return (lambda Base, helper, *other: (Base, helper, other))\n\n\
 def lambda_default_ref():\n    return (lambda local=Base: local)\n\n\
+def global_declared():\n    global other\n    other = Base\n    return other\n\n\
 def caller():\n    return helper()\n",
         )
         .unwrap();
@@ -1874,6 +1921,11 @@ def caller():\n    return helper()\n",
             .symbols
             .iter()
             .find(|symbol| symbol.name == "lambda_default_ref")
+            .unwrap();
+        let global_declared = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "global_declared")
             .unwrap();
         let helper = index
             .symbols
@@ -1948,6 +2000,23 @@ def caller():\n    return helper()\n",
         }));
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(lambda_default_ref.id)
+                && reference.name == "Base"
+                && reference.target_symbol_id == base.id
+        }));
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| {
+                    reference.source_symbol_id == Some(global_declared.id)
+                        && reference.name == "other"
+                        && reference.target_symbol_id == other.id
+                })
+                .count(),
+            2
+        );
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(global_declared.id)
                 && reference.name == "Base"
                 && reference.target_symbol_id == base.id
         }));
