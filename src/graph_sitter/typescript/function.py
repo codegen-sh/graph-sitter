@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from graph_sitter.core.statements.export_statement import ExportStatement
     from graph_sitter.core.statements.symbol_statement import SymbolStatement
     from graph_sitter.core.symbol import Symbol
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
     from graph_sitter.typescript.detached_symbols.promise_chain import TSPromiseChain
 _VALID_TYPE_NAMES = {function_type.value for function_type in TSFunctionTypeNames}
 logger = get_logger(__name__)

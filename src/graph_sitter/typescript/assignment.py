@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
     from graph_sitter.codebase.codebase_context import CodebaseContext
     from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.core.statements.export_statement import ExportStatement
     from graph_sitter.typescript.statements.assignment_statement import TSAssignmentStatement
 
 

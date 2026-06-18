@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from graph_sitter.core.statements.switch_statement import SwitchStatement
 from graph_sitter.shared.decorators.docs import ts_apidoc

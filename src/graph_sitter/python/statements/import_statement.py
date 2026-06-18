@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
     from graph_sitter.codebase.codebase_context import CodebaseContext
     from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.python.file import PyFile
 
 
 @py_apidoc

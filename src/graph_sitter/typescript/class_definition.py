@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
     from graph_sitter.core.node_id_factory import NodeId
     from graph_sitter.core.statements.symbol_statement import SymbolStatement
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
 
 
 @ts_apidoc

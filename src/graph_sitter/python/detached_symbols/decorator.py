@@ -10,6 +10,10 @@ from graph_sitter.shared.decorators.docs import py_apidoc
 if TYPE_CHECKING:
     from tree_sitter import Node as TSNode
 
+    from graph_sitter.python.class_definition import PyClass
+    from graph_sitter.python.detached_symbols.parameter import PyParameter
+    from graph_sitter.python.function import PyFunction
+
 
 @py_apidoc
 class PyDecorator(Decorator["PyClass", "PyFunction", "PyParameter"]):

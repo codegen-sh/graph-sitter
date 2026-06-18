@@ -10,6 +10,7 @@ from graph_sitter.typescript.statements.block_statement import TSBlockStatement
 
 if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
+    from graph_sitter.typescript.statements.switch_statement import TSSwitchStatement
 
 
 @ts_apidoc

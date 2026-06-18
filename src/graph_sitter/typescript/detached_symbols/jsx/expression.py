@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import Self, override
+from typing import TYPE_CHECKING, Self, override
 
 from graph_sitter.compiled.autocommit import commiter
 from graph_sitter.core.autocommit import reader, writer
@@ -9,6 +9,11 @@ from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.has_name import HasName
 from graph_sitter.core.interfaces.unwrappable import Unwrappable
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
+
+if TYPE_CHECKING:
+    from graph_sitter.core.function import Function
+    from graph_sitter.typescript.detached_symbols.jsx.element import JSXElement
+    from graph_sitter.typescript.detached_symbols.jsx.prop import JSXProp
 
 
 @ts_apidoc

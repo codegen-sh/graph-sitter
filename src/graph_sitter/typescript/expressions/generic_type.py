@@ -1,4 +1,4 @@
-from typing import Self, TypeVar
+from typing import TYPE_CHECKING, Self, TypeVar
 
 from tree_sitter import Node as TSNode
 
@@ -6,6 +6,9 @@ from graph_sitter.core.expressions.generic_type import GenericType
 from graph_sitter.core.symbol_groups.collection import Collection
 from graph_sitter.core.symbol_groups.dict import Dict
 from graph_sitter.shared.decorators.docs import ts_apidoc
+
+if TYPE_CHECKING:
+    from graph_sitter.typescript.expressions.type import TSType
 
 Parent = TypeVar("Parent")
 

@@ -9,6 +9,7 @@ from graph_sitter.shared.decorators.docs import noapidoc, py_apidoc
 if TYPE_CHECKING:
     from graph_sitter.core.dataclasses.usage import UsageKind
     from graph_sitter.core.interfaces.has_name import HasName
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
 
 
 @py_apidoc

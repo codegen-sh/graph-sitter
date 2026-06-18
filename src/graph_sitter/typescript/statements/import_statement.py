@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
     from graph_sitter.core.node_id_factory import NodeId
     from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
+    from graph_sitter.typescript.file import TSFile
 
 
 @ts_apidoc

@@ -147,6 +147,7 @@ Recommended task format:
 - [ ] Add full Rust engine facade object that can back existing `CodebaseContext` graph query APIs.
 - [x] Add a minimal debug API returning engine version and enabled features. owner: Beauvoir. Result: added Rust `Engine::debug_info` and feature-gated PyO3 bindings.
 - [ ] Add CI job that builds the Rust extension on supported Python versions.
+- [x] Add fast Rust rewrite PR CI lane. owner: codex. Result: `.github/workflows/rust-rewrite-fast.yml` runs `rust-rewrite/tools/check_fast.sh` for full ruff, Rust fmt/tests, PyO3 binding checks, focused py_compile, and focused Rust-backend pytest without running large pinned repo benchmarks.
 - [x] Add benchmark command comparing Python backend with Rust compact indexer. owner: codex. Result: added `rust-rewrite/tools/compare_rust_python_index.py`.
 - [x] Add benchmark command for the Python-facing Rust facade. owner: codex. Result: added `rust-rewrite/tools/measure_rust_facade.py`.
 - [x] Add benchmark command for real `Codebase` construction with the Rust compact backend. owner: codex. Result: added `rust-rewrite/tools/measure_codebase_rust_backend.py`.
@@ -166,6 +167,7 @@ Recommended task format:
 - [ ] Extract top-level TypeScript classes, functions, interfaces, type aliases, enums, and globals.
 - [x] Extract imports for Python. owner: codex. Result: compact `ImportRecord` extraction for `import`, `from`, and future imports.
 - [ ] Extract imports and exports for TypeScript.
+- [ ] Add syntax-only compact TypeScript/JavaScript index parity before resolver work. Notes: first slice should parse `.js`, `.jsx`, `.ts`, and `.tsx` with the TSX grammar, emit files/symbols/imports/exports for existing TypeScript unit fixture shapes, and compare record names/kinds/ranges against the Python backend without dependency-edge assertions yet.
 - [ ] Build path and string interners.
 - [x] Expose compact Python index summary and JSON through PyO3. owner: codex. Result: added `PythonIndex`, `IndexSummary`, `Engine.index_python_path`, and module-level `index_python_path`.
 - [x] Expose compact Python file, symbol, import, and import-resolution records through PyO3/Python facade. owner: codex. Result: added record-family JSON methods and typed Python dataclass accessors on `RustIndexBackend`.
@@ -248,6 +250,7 @@ Recommended task format:
 - [ ] Integrate Rust backend with existing `apply_diffs`.
 - [ ] Integrate Rust backend with existing transaction commit flow.
 - [ ] Preserve Python transaction manager as first edit backend.
+- [ ] Add Rust-backed codemod mutation smoke tests. Notes: current Rust backend has no actual modification tests; first parity slice should assert `file.edit` plus `commit(sync_graph=False)`, `function.rename`, `file.add_import` plus decorator edit, `create_file` plus `move_to_file`, and remove flows against focused Python fixtures before trying the full codemod harness.
 - [ ] Add parity tests for rename/move/add-import flows on Rust backend.
 - [ ] Add stress tests for repeated incremental edits.
 
@@ -259,6 +262,7 @@ Recommended task format:
 - [x] Add pinned large-repo latency/RSS benchmark harness. owner: codex. Result: Airflow `2.10.5` benchmark command emits backend, wall time, max RSS, file count, node/edge counts, compact Rust record counts, mismatch summaries, and pass/fail gates.
 - [x] Add opt-in pinned large-repo compact snapshot test. owner: codex. Result: `tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py` runs the committed Airflow compact golden check when `GRAPH_SITTER_RUN_PINNED_AIRFLOW_SNAPSHOT=1`.
 - [ ] Add pinned large-repo parity test for reference graph, import graph, dependency graph, and latency/RSS. Notes: start with Apache Airflow `2.10.5` at commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`; assert reference graph, import graph, dependency graph, deterministic ordering, known byte-span `find_by_byte_range` lookups, and benchmark wall/RSS against the exact checkout before adding more canonical repos.
+- [ ] Add pinned large TypeScript/JavaScript repo proof. Notes: generalize the pinned Python/Airflow benchmark and snapshot tools to language-parametric repos, start with `vercel/next.js` at an exact commit, require selected source-file count parity for `.js/.jsx/.ts/.tsx`, and snapshot files/symbols/imports/exports before adding TypeScript resolver/dependency parity.
 - [ ] Add feature flag documentation.
 - [ ] Add migration notes for unsupported APIs.
 - [ ] Decide default backend criteria.
@@ -322,3 +326,4 @@ Recommended task format:
 - [x] 2026-06-18: Exposed compact Rust symbol name handles through the Python shell. owner: codex. Notes: compact symbols now return a read-only name handle from `get_name`, with `source`, `_source`, `name`, and `full_name` fields for existing HasName-style callers. Refreshed pinned Airflow benchmark: Rust `Codebase` is 4.518x faster with 12.953x lower max RSS than Python parse/object materialization.
 - [x] 2026-06-18: Exposed compact Rust import name handles through the Python shell. owner: codex. Notes: compact imports now return a read-only name handle from `get_name`, filling the same HasName-style shape for import callers. Refreshed pinned Airflow benchmark: Rust `Codebase` is 4.489x faster with 12.933x lower max RSS than Python parse/object materialization.
 - [x] 2026-06-18: Exposed compact Rust file/import descendant traversal through the Python shell. owner: codex. Notes: compact files and imports now answer `descendant_symbols` with existing read semantics, allowing dependency-style walkers to stay off the Python graph. Refreshed pinned Airflow benchmark: Rust `Codebase` is 4.813x faster with 13.006x lower max RSS than Python parse/object materialization.
+- [x] 2026-06-18: Added fast Rust rewrite CI lane and closed current repo ruff failures. owner: codex. Notes: `rust-rewrite/tools/check_fast.sh` passed locally and `.github/workflows/rust-rewrite-fast.yml` wires it into PR/push CI; full `uv run ruff check` is now clean after fixing type-only forward references. Audits confirmed Rust is Python-only for now and has no actual codemod mutation tests yet, so Next.js/TS and mutation parity are now explicit open tracks.

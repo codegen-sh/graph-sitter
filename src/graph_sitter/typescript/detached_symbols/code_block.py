@@ -9,6 +9,7 @@ from graph_sitter.core.symbol_groups.multi_line_collection import MultiLineColle
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.typescript.assignment import TSAssignment
     from graph_sitter.typescript.interfaces.has_block import TSHasBlock
 
 

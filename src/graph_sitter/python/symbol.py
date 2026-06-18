@@ -17,6 +17,8 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.flagging.enums import FlagKwargs
     from graph_sitter.core.interfaces.has_block import HasBlock
     from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
+    from graph_sitter.python.interfaces.has_block import PyHasBlock
 
 
 @py_apidoc

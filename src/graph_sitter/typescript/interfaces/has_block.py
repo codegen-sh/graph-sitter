@@ -15,6 +15,7 @@ from graph_sitter.typescript.symbol_groups.comment_group import TSCommentGroup
 from graph_sitter.utils import find_index
 
 if TYPE_CHECKING:
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
     from graph_sitter.typescript.detached_symbols.jsx.element import JSXElement
 
 

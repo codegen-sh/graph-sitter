@@ -11,6 +11,7 @@ from graph_sitter.core.symbol_groups.multi_line_collection import MultiLineColle
 from graph_sitter.shared.decorators.docs import noapidoc, py_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.python.assignment import PyAssignment
     from graph_sitter.python.interfaces.has_block import PyHasBlock
     from graph_sitter.python.statements.with_statement import WithStatement
 

@@ -28,6 +28,8 @@ if TYPE_CHECKING:
     from graph_sitter.core.import_resolution import Import
     from graph_sitter.core.interfaces.editable import Editable
     from graph_sitter.core.node_id_factory import NodeId
+    from graph_sitter.typescript.detached_symbols.code_block import TSCodeBlock
+    from graph_sitter.typescript.interfaces.has_block import TSHasBlock
 
 
 @ts_apidoc
