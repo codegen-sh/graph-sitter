@@ -106,6 +106,16 @@ Recommended task format:
 - [ ] Parity/test agent: run existing tests against both backends and build golden graph snapshots.
 - [ ] Packaging/CI agent: integrate Rust builds with the current hatch/Cython packaging and CI.
 
+## Active Worktrees
+
+- [ ] Benchmarks/profiling. owner: Poincare. Agent: `019edc37-802c-7223-8d37-75a51b65abbd`. Branch: `codex/rust-rewrite-benchmarks`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-benchmarks`.
+- [ ] API inventory. owner: Dewey. Agent: `019edc37-82ff-7b92-9fac-5364e2d8098b`. Branch: `codex/rust-rewrite-api-inventory`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-api-inventory`.
+- [ ] Rust data model. owner: Pasteur. Agent: `019edc37-859c-71b2-b884-ab7a2bfc707e`. Branch: `codex/rust-rewrite-data-model`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-data-model`.
+- [ ] Parser/index vertical slice. owner: Meitner. Agent: `019edc37-8867-7a83-a18e-b0ec0ca29d11`. Branch: `codex/rust-rewrite-parser-index`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-parser-index`.
+- [ ] Resolver/dependency algorithms. owner: Gauss. Agent: `019edc37-8c34-7f93-b0ae-746cbd579962`. Branch: `codex/rust-rewrite-resolver`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-resolver`.
+- [ ] Rust engine skeleton. owner: Beauvoir. Agent: `019edc37-8f2d-7dd3-b3ed-a1f9e1b191a7`. Branch: `codex/rust-rewrite-engine-skeleton`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-engine-skeleton`.
+- [ ] PyO3/Python compatibility. owner: queued. Branch: `codex/rust-rewrite-pyo3-compat`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-pyo3-compat`. Notes: agent spawn queued until an active helper completes.
+
 ## Phase 0: Baseline, RFC, And Contracts
 
 - [ ] Add memory benchmark harness for current Python backend.
@@ -208,3 +218,4 @@ Recommended task format:
 ## Agent Log
 
 - [ ] 2026-06-18: Initial strategy file created on `rust-rewrite` branch. owner: codex. Notes: ready for helper agents to claim phase tasks.
+- [ ] 2026-06-18: Integrator created seven worktrees and spawned six helper agents; PyO3 compatibility is queued due to agent concurrency limit. owner: codex.
