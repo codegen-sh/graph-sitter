@@ -224,6 +224,7 @@ class RustIndexBackend:
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
     _imports_by_file_id: dict[int, list[RustCompactImport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
+    _import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] | None = None
     _references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_import_id: dict[int, list[RustReferenceRecord]] | None = None
@@ -359,6 +360,14 @@ class RustIndexBackend:
         if self._import_resolutions_by_import_id is None:
             self._import_resolutions_by_import_id = {resolution.import_id: resolution for resolution in self.import_resolutions}
         return self._import_resolutions_by_import_id.get(import_id)
+
+    def import_resolutions_to_file(self, file_id: int) -> list[RustImportResolutionRecord]:
+        if self._import_resolutions_by_target_file_id is None:
+            import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] = {}
+            for resolution in self.import_resolutions:
+                import_resolutions_by_target_file_id.setdefault(resolution.target_file_id, []).append(resolution)
+            self._import_resolutions_by_target_file_id = import_resolutions_by_target_file_id
+        return self._import_resolutions_by_target_file_id.get(file_id, [])
 
     def references_to_symbol(self, symbol_id: int) -> list[RustReferenceRecord]:
         if self._references_by_target_symbol_id is None:
@@ -660,6 +669,32 @@ class RustCompactFile(RustCompactHandle):
 
     def get_import(self, symbol_alias: str) -> RustCompactImport | None:
         return next((import_handle for import_handle in self.imports if import_handle.name == symbol_alias), None)
+
+    @property
+    def inbound_imports(self) -> list[RustCompactImport]:
+        import_handles: list[RustCompactImport] = []
+        seen: set[RustCompactImport] = set()
+        for resolution in self.backend.import_resolutions_to_file(self.record.id):
+            import_handle = self.backend.import_handle_by_id(resolution.import_id)
+            if import_handle is None or import_handle in seen:
+                continue
+            seen.add(import_handle)
+            import_handles.append(import_handle)
+        return sorted(import_handles, key=lambda import_handle: (import_handle.filepath, import_handle.start_byte))
+
+    @property
+    def importers(self) -> list[RustCompactImport]:
+        import_handles: list[RustCompactImport] = []
+        seen: set[RustCompactImport] = set()
+        for resolution in self.backend.import_resolutions_to_file(self.record.id):
+            if resolution.target_symbol_id is not None:
+                continue
+            import_handle = self.backend.import_handle_by_id(resolution.import_id)
+            if import_handle is None or import_handle in seen:
+                continue
+            seen.add(import_handle)
+            import_handles.append(import_handle)
+        return sorted(import_handles, key=lambda import_handle: (import_handle.filepath, import_handle.start_byte))
 
 
 class RustCompactSymbol(RustCompactHandle):

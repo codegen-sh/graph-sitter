@@ -260,6 +260,8 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.imports[0].is_module_import()
         assert codebase.imports[0].from_file == codebase.files[0]
         assert codebase.imports[0].imported_symbol == codebase.classes[0]
+        assert codebase.files[0].inbound_imports == [codebase.imports[0]]
+        assert codebase.files[0].importers == []
         helper = codebase.get_function("helper")
         service = codebase.get_class("Service")
         import_handle = codebase.imports[0]
