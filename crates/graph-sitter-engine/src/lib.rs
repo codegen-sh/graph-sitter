@@ -801,6 +801,17 @@ fn collect_local_bindings_from_node(
             }
             return;
         }
+        "nonlocal_statement" => {
+            if let Some(source_symbol_id) =
+                innermost_symbol_for_range(symbol_ranges, node.range().into())
+            {
+                bindings
+                    .entry(source_symbol_id)
+                    .or_default()
+                    .extend(declaration_names(source, node));
+            }
+            return;
+        }
         "assignment" | "annotated_assignment" | "augmented_assignment" => {
             if let Some(left) = node.child_by_field_name("left") {
                 push_local_binding_targets(source, left, symbol_ranges, bindings);
@@ -2103,6 +2114,7 @@ def comprehension_scope_does_not_leak(items):\n    values = [Base + helper for B
 def match_shadowed(subject):\n    match subject:\n        case Point(x=Base, y=helper) as other if Base:\n            return Base, helper, other\n        case {\"base\": Base, \"helper\": helper, **other}:\n            return Base, helper, other\n\n\
 def lambda_shadowed():\n    return (lambda Base, helper, *other: (Base, helper, other))\n\n\
 def lambda_default_ref():\n    return (lambda local=Base: local)\n\n\
+def nonlocal_declared():\n    helper = Base\n    def inner():\n        nonlocal helper\n        helper = Base\n        return helper\n    return inner\n\n\
 def global_declared():\n    global other\n    other = Base\n    return other\n\n\
 def attribute_names_are_not_bare_references(obj):\n    return obj.helper, other.helper, helper.attr\n\n\
 def caller():\n    return helper()\n",
@@ -2156,6 +2168,11 @@ def caller():\n    return helper()\n",
             .symbols
             .iter()
             .find(|symbol| symbol.name == "lambda_default_ref")
+            .unwrap();
+        let nonlocal_declared_inner = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "inner")
             .unwrap();
         let global_declared = index
             .symbols
@@ -2258,6 +2275,16 @@ def caller():\n    return helper()\n",
         }));
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(lambda_default_ref.id)
+                && reference.name == "Base"
+                && reference.target_symbol_id == base.id
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(nonlocal_declared_inner.id)
+                && reference.name == "helper"
+                && reference.target_symbol_id == helper.id
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(nonlocal_declared_inner.id)
                 && reference.name == "Base"
                 && reference.target_symbol_id == base.id
         }));
