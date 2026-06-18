@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use serde::Serialize;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt;
 use std::fs;
 use std::io;
@@ -454,11 +454,14 @@ fn extract_python_file(
         .filter(|symbol| symbol.file_id == file_id)
         .map(|symbol| (symbol.id, symbol.range))
         .collect::<Vec<_>>();
+    let local_bindings_by_symbol_id =
+        collect_local_bindings(file_id, source, root, index, &symbol_ranges);
     collect_identifier_candidates(
         file_id,
         source,
         root,
         &symbol_ranges,
+        &local_bindings_by_symbol_id,
         &excluded_name_ranges,
         reference_candidates,
     );
@@ -708,11 +711,118 @@ fn collect_assignment_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree
     }
 }
 
+fn collect_local_bindings(
+    file_id: u32,
+    source: &str,
+    root: Node<'_>,
+    index: &PythonIndex,
+    symbol_ranges: &[(u32, SourceRange)],
+) -> HashMap<u32, HashSet<String>> {
+    let mut bindings: HashMap<u32, HashSet<String>> = HashMap::new();
+
+    for symbol in index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id)
+    {
+        if let Some(parent_symbol_id) = symbol.parent_symbol_id {
+            bindings
+                .entry(parent_symbol_id)
+                .or_default()
+                .insert(symbol.name.clone());
+        }
+    }
+
+    collect_local_bindings_from_node(source, root, symbol_ranges, &mut bindings);
+    bindings
+}
+
+fn collect_local_bindings_from_node(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    bindings: &mut HashMap<u32, HashSet<String>>,
+) {
+    match node.kind() {
+        "parameters" => {
+            if let Some(source_symbol_id) =
+                innermost_symbol_for_range(symbol_ranges, node.range().into())
+            {
+                let mut targets = Vec::new();
+                collect_parameter_targets(node, &mut targets);
+                push_local_binding_names(source, source_symbol_id, targets, bindings);
+            }
+            return;
+        }
+        "assignment" | "annotated_assignment" | "augmented_assignment" => {
+            if let Some(left) = node.child_by_field_name("left") {
+                if let Some(source_symbol_id) =
+                    innermost_symbol_for_range(symbol_ranges, left.range().into())
+                {
+                    let mut targets = Vec::new();
+                    collect_assignment_targets(left, &mut targets);
+                    push_local_binding_names(source, source_symbol_id, targets, bindings);
+                }
+            }
+            return;
+        }
+        _ => {}
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_local_bindings_from_node(source, child, symbol_ranges, bindings);
+    }
+}
+
+fn collect_parameter_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
+    match node.kind() {
+        "identifier" => out.push(node),
+        "typed_parameter" | "default_parameter" | "typed_default_parameter" => {
+            if let Some(name) = node.child_by_field_name("name") {
+                collect_parameter_targets(name, out);
+            } else if let Some(first_child) = first_named_child(node) {
+                collect_parameter_targets(first_child, out);
+            }
+        }
+        "list_splat_pattern" | "dictionary_splat_pattern" => {
+            if let Some(first_child) = first_named_child(node) {
+                collect_parameter_targets(first_child, out);
+            }
+        }
+        "parameters" => {
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                collect_parameter_targets(child, out);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn push_local_binding_names(
+    source: &str,
+    source_symbol_id: u32,
+    targets: Vec<Node<'_>>,
+    bindings: &mut HashMap<u32, HashSet<String>>,
+) {
+    for target in targets {
+        let Ok(name) = target.utf8_text(source.as_bytes()) else {
+            continue;
+        };
+        bindings
+            .entry(source_symbol_id)
+            .or_default()
+            .insert(name.to_owned());
+    }
+}
+
 fn collect_identifier_candidates(
     file_id: u32,
     source: &str,
     node: Node<'_>,
     symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     excluded_ranges: &[SourceRange],
     out: &mut Vec<ReferenceCandidate>,
 ) {
@@ -726,9 +836,13 @@ fn collect_identifier_candidates(
     let range = node.range().into();
     if node.kind() == "identifier" && !range_matches_any(range, excluded_ranges) {
         if let Ok(name) = node.utf8_text(source.as_bytes()) {
+            let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+            if is_shadowed_local_binding(source_symbol_id, name, local_bindings_by_symbol_id) {
+                return;
+            }
             out.push(ReferenceCandidate {
                 source_file_id: file_id,
-                source_symbol_id: innermost_symbol_for_range(symbol_ranges, range),
+                source_symbol_id,
                 name: name.to_owned(),
                 range,
             });
@@ -737,8 +851,26 @@ fn collect_identifier_candidates(
 
     let mut cursor = node.walk();
     for child in node.named_children(&mut cursor) {
-        collect_identifier_candidates(file_id, source, child, symbol_ranges, excluded_ranges, out);
+        collect_identifier_candidates(
+            file_id,
+            source,
+            child,
+            symbol_ranges,
+            local_bindings_by_symbol_id,
+            excluded_ranges,
+            out,
+        );
     }
+}
+
+fn is_shadowed_local_binding(
+    source_symbol_id: Option<u32>,
+    name: &str,
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+) -> bool {
+    source_symbol_id
+        .and_then(|symbol_id| local_bindings_by_symbol_id.get(&symbol_id))
+        .is_some_and(|bindings| bindings.contains(name))
 }
 
 fn innermost_symbol_for_range(
@@ -822,6 +954,12 @@ fn first_child_of_kind<'tree>(node: Node<'tree>, kinds: &[&str]) -> Option<Node<
     let child = node
         .named_children(&mut cursor)
         .find(|child| kinds.iter().any(|kind| child.kind() == *kind));
+    child
+}
+
+fn first_named_child(node: Node<'_>) -> Option<Node<'_>> {
+    let mut cursor = node.walk();
+    let child = node.named_children(&mut cursor).next();
     child
 }
 
@@ -1331,6 +1469,60 @@ mod tests {
         }));
         assert!(index.dependencies.iter().any(|dependency| {
             dependency.source_symbol_id == run.id && dependency.target_symbol_id == helper.id
+        }));
+    }
+
+    #[test]
+    fn skips_references_shadowed_by_python_parameters_and_locals() {
+        let repo = temp_repo_path("python-shadowed-reference-sources");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "").unwrap();
+        fs::write(
+            repo.join("pkg/base.py"),
+            "class Base:\n    pass\n\ndef helper():\n    return Base\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "from .base import Base, helper\n\n\
+def shadowed(Base):\n    helper = Base\n    return helper, Base\n\n\
+def caller():\n    return helper()\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let shadowed = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "shadowed")
+            .unwrap();
+        let caller = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "caller")
+            .unwrap();
+        let helper = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "helper")
+            .unwrap();
+        let base = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Base")
+            .unwrap();
+
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(shadowed.id)
+                && (reference.target_symbol_id == base.id
+                    || reference.target_symbol_id == helper.id)
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(caller.id)
+                && reference.name == "helper"
+                && reference.target_symbol_id == helper.id
         }));
     }
 

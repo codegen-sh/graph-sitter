@@ -186,7 +186,8 @@ Recommended task format:
 - [ ] Implement lexical scope tables for name resolution.
 - [x] Implement first compact Python symbol reference extraction by identifier ranges. owner: codex. Result: records same-file and imported top-level symbol references inside top-level Python classes/functions.
 - [x] Attribute compact Python references to nested class/function source symbols. owner: codex. Result: nested Python functions and methods are indexed as non-top-level compact symbols, while public `Codebase.functions` remains top-level-only.
-- [ ] Expand symbol usage extraction to full lexical shadowing behavior, attributes, module references, and local assignment/parameter scope exclusion.
+- [x] Exclude compact Python references shadowed by parameters, local assignments, and nested definitions. owner: codex. Result: avoids resolving local bindings to imported/top-level symbols and reduced Airflow compact references from 112,238 to 105,739.
+- [ ] Expand symbol usage extraction to full lexical shadowing behavior, attributes, module references, local imports, loop/with/except bindings, and `global`/`nonlocal`.
 - [x] Implement first compact dependency edge construction from usage records. owner: codex. Result: emits de-duplicated Python `DependencyRecord` edges from compact references with contributing reference IDs.
 - [ ] Expand dependency edge construction to full lexical/reference coverage, external modules, and TypeScript.
 - [ ] Implement superclass/interface dependency edges.
@@ -264,3 +265,4 @@ Recommended task format:
 - [x] 2026-06-18: Added first pinned large-repo benchmark runner and Airflow baseline. owner: codex. Notes: Apache Airflow `2.10.5` at `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf` matched 4,789 Python files and measured 6.218x faster wall time with 9.882x lower max RSS for the current compact Rust `Codebase` slice.
 - [x] 2026-06-18: Added first pinned Airflow compact graph golden. owner: codex. Notes: committed stable hashes/samples for 4,789 files, 23,663 symbols, 40,580 imports, 19,011 import resolutions, 95,292 references, and 35,489 dependencies; the opt-in pytest wrapper can verify it against the pinned checkout.
 - [x] 2026-06-18: Added nested Python function/method compact symbols and innermost reference source attribution. owner: codex. Notes: Airflow compact coverage now emits 52,339 symbols, 112,238 references, and 71,348 dependencies while staying 5.309x faster with 9.418x lower max RSS than Python parse/object materialization.
+- [x] 2026-06-18: Added first local-binding shadow filter for compact Python references. owner: codex. Notes: parameters, local assignments, and nested definitions no longer resolve to imported/top-level symbols; Airflow compact graph now emits 105,739 references and 68,927 dependencies while staying 5.048x faster with 13.315x lower max RSS than Python parse/object materialization.

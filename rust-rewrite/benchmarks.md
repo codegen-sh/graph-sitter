@@ -195,8 +195,8 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 
 | Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.768s | 543.5 MB | 0.666s | 133.1 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4586 | 3093 | yes | 4.154x | 4.083x |
-| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 18.441s | 3470.4 MB | 3.473s | 368.5 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 112238 | 71348 | yes | 5.309x | 9.418x |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.824s | 542.8 MB | 0.700s | 126.6 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4113 | 2953 | yes | 4.033x | 4.288x |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 20.092s | 3469.7 MB | 3.981s | 260.6 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 105739 | 68927 | yes | 5.048x | 13.315x |
 
 ## Pinned Compact Snapshot Evidence
 
@@ -208,8 +208,8 @@ The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-a
 | Symbols | 52339 | `d4b75c9c6d82b1d30424845c86b88c9fb18ca7748fc088c16b4cfca00de30699` |
 | Imports | 40580 | `fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0` |
 | Import resolutions | 19011 | `84477dc0f9cd1caea726c1305b8c642ae2104769e8dbd1a9e97faa2f7726d8c9` |
-| References | 112238 | `cd0796bb493a329acab25f666d956539e714aceb39c70e1d9c0376f950f6ed98` |
-| Dependencies | 71348 | `c04d010154c2b501ba4cd497d4dcaf296155962e3518c3cfba8b22e929f508e1` |
+| References | 105739 | `9329e3e2e1c03a13f9c0872b1b799c734457eec20c825168bcf8fc473578b72d` |
+| Dependencies | 68927 | `76cf4451297dab436618c3ec4db94b9a30d2d645debd1d329637b33fce02120e` |
 
 The snapshot tool also validates internal compact graph integrity: import-resolution links, reference links, dependency links, dependency reference counts, and dependency reference source/target consistency must all be zero-mismatch before the snapshot can pass.
 
@@ -217,6 +217,7 @@ Important caveats:
 
 - The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions/globals, nested Python class/function records for source attribution, imports, internal import-resolution records, first-slice Python symbol reference records, and de-duplicated dependency records for indexed Python modules.
 - Public Python handles still expose top-level `Codebase.symbols`, `classes`, and `functions`; nested compact symbols are currently internal records for dependency-source precision and `file.symbols(nested=True)`.
+- Function parameters, local assignment targets, and nested definitions now shadow imported/top-level names in the compact reference pass, reducing false-positive dependency edges before full lexical scope tables exist.
 - The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.
