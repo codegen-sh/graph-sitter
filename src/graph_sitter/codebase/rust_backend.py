@@ -569,6 +569,24 @@ def _ranges_overlap(record_range: RustSourceRange, query_start: int, query_end: 
     return record_range.start_byte < query_end and query_start < record_range.end_byte
 
 
+def _python_import_module_name_for_filepath(filepath: str, base_path: str | None = None) -> str:
+    module = filepath.replace("\\", "/")
+    if module.endswith(".py"):
+        module = module[:-3]
+    if module.endswith("__init__"):
+        module = "/".join(module.split("/")[:-1])
+    module = module.replace("/", ".")
+
+    if base_path:
+        normalized_base_path = base_path.replace("\\", "/").replace("/", ".").rstrip(".")
+        if normalized_base_path and module.startswith(normalized_base_path):
+            module = module.replace(f"{normalized_base_path}.", "", 1)
+
+    if module.startswith("src."):
+        module = module.replace("src.", "", 1)
+    return module
+
+
 class RustCompactHandle:
     node_type: NodeType
 
@@ -631,6 +649,30 @@ class RustCompactFile(RustCompactHandle):
     @property
     def module_name(self) -> str | None:
         return self.record.module_name
+
+    @property
+    def import_module_name(self) -> str:
+        return self.record.module_name or self.get_import_module_name_for_file(self.filepath, self.ctx)
+
+    def get_import_module_name_for_file(self, filepath: str, ctx: CodebaseContext | None = None) -> str:
+        base_path = None
+        if ctx is not None and getattr(ctx, "projects", None):
+            base_path = getattr(ctx.projects[0], "base_path", None)
+        return _python_import_module_name_for_filepath(filepath, base_path)
+
+    def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
+        symbol_name = self.name
+        import_module = module if module is not None else self.import_module_name
+        if f".{symbol_name}" in import_module:
+            import_module = import_module.replace(f".{symbol_name}", "")
+        if symbol_name == import_module:
+            import_module = "."
+
+        if import_type == ImportType.WILDCARD:
+            return f"from {import_module} import * as {symbol_name}"
+        if alias is not None and alias != self.name:
+            return f"from {import_module} import {symbol_name} as {alias}"
+        return f"from {import_module} import {symbol_name}"
 
     @property
     def extension(self) -> str:
@@ -946,6 +988,15 @@ class RustCompactSymbol(RustCompactHandle):
     def get_name(self) -> str:
         return self.name
 
+    def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
+        import_module = module if module is not None else self.file.import_module_name
+        if import_type == ImportType.WILDCARD:
+            file_as_module = self.file.name
+            return f"from {import_module} import * as {file_as_module}"
+        if alias is not None and alias != self.name:
+            return f"from {import_module} import {self.name} as {alias}"
+        return f"from {import_module} import {self.name}"
+
 
 class RustCompactImport(RustCompactHandle):
     node_type = NodeType.IMPORT
@@ -1021,6 +1072,15 @@ class RustCompactImport(RustCompactHandle):
     def imported_exports(self) -> list[RustCompactSymbol | RustCompactFile]:
         imported = self.imported_symbol
         return [] if imported is None else [imported]
+
+    def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
+        import_module = module if module is not None else self.file.import_module_name
+        if import_type == ImportType.WILDCARD:
+            file_as_module = self.file.name
+            return f"from {import_module} import * as {file_as_module}"
+        if alias is not None and alias != self.name:
+            return f"from {import_module} import {self.name} as {alias}"
+        return f"from {import_module} import {self.name}"
 
     @proxy_property
     def usages(self, usage_types: UsageType | None = None) -> list[RustCompactUsage]:

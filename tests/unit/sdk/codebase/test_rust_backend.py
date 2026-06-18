@@ -7,6 +7,7 @@ import pytest
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
+from graph_sitter.enums import ImportType
 
 
 class FakeSummary:
@@ -273,6 +274,11 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert list(codebase.files[0].resolve_name("helper", start_byte=20)) == []
         assert codebase.files[0].get_node_by_name("Service") == codebase.classes[0]
         assert codebase.files[0].get_node_by_name("os") == codebase.imports[0]
+        assert codebase.files[0].import_module_name == "pkg.service"
+        assert codebase.files[0].get_import_module_name_for_file("pkg/__init__.py", codebase.ctx) == "pkg"
+        assert codebase.files[0].get_import_string() == "from pkg import service"
+        assert codebase.files[0].get_import_string(alias="svc") == "from pkg import service as svc"
+        assert codebase.files[0].get_import_string(import_type=ImportType.WILDCARD) == "from pkg import * as service"
         assert codebase.files[0].has_import("os")
         assert codebase.files[0].has_import("import os")
         assert codebase.files[0].get_import("os") == codebase.imports[0]
@@ -287,6 +293,11 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         helper = codebase.get_function("helper")
         service = codebase.get_class("Service")
         import_handle = codebase.imports[0]
+        assert service.get_import_string() == "from pkg.service import Service"
+        assert service.get_import_string(alias="Svc") == "from pkg.service import Service as Svc"
+        assert service.get_import_string(import_type=ImportType.WILDCARD) == "from pkg.service import * as service"
+        assert import_handle.get_import_string() == "from pkg.service import os"
+        assert import_handle.get_import_string(alias="operating_system") == "from pkg.service import os as operating_system"
         assert helper.dependencies == [service]
         assert helper.dependencies(usage_types=UsageType.CHAINED) == []
         assert helper.dependencies(max_depth=2) == [service]
