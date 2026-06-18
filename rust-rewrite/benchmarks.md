@@ -195,8 +195,8 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 
 | Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.849s | 544.7 MB | 0.718s | 123.4 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4110 | 2953 | yes | 3.968x | 4.414x |
-| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 18.557s | 3470.3 MB | 3.979s | 262.0 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109282 | 71534 | yes | 4.663x | 13.244x |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.732s | 543.6 MB | 0.701s | 123.5 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4110 | 2953 | yes | 3.897x | 4.400x |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 18.456s | 3469.7 MB | 4.045s | 260.8 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109655 | 71788 | yes | 4.562x | 13.307x |
 
 ## Pinned Compact Snapshot Evidence
 
@@ -207,15 +207,16 @@ The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-a
 | Files | 4789 | `226e8cb32dc0a23ec956e97b036e7c505037df979cce7182514f39a43b07cb80` |
 | Symbols | 52339 | `d4b75c9c6d82b1d30424845c86b88c9fb18ca7748fc088c16b4cfca00de30699` |
 | Imports | 40580 | `fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0` |
-| Import resolutions | 19011 | `84477dc0f9cd1caea726c1305b8c642ae2104769e8dbd1a9e97faa2f7726d8c9` |
-| References | 109282 | `105a18ff136264aa95dc28220ff664fb8599cc3b54fc33bf4e80544332a24a9f` |
-| Dependencies | 71534 | `98241ae1ab983f1d345ffd43ee23ac61d4b6bba40404da1f74f858c237e5961c` |
+| Import resolutions | 19011 | `e5d6d4f515bce5c73bfbd3cc354e0941bad57fdba3965fca3fb148a3421cc5a9` |
+| References | 109655 | `21bdfa05e523c642534e28020fbc87e69d7dbfb80dcd2c1d064295d5173910e0` |
+| Dependencies | 71788 | `ef46cd4dfa1aaf4a5232bd2e574e5b442944387c9d0e7456f2577be857fb6ac7` |
 
 The snapshot tool also validates internal compact graph integrity: import-resolution links, reference links, dependency links, dependency reference counts, and dependency reference source/target consistency must all be zero-mismatch before the snapshot can pass.
 
 Important caveats:
 
 - The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions/globals, nested Python class/function records for source attribution, imports, internal import-resolution records, first-slice Python symbol reference records, and de-duplicated dependency records for indexed Python modules.
+- Direct package re-exports are resolved for indexed internal modules when the package file has a matching imported binding. Wildcard re-export expansion and ambiguous external re-export chains remain future work.
 - Public Python handles still expose top-level `Codebase.symbols`, `classes`, and `functions`; nested compact symbols are currently internal records for dependency-source precision and `file.symbols(nested=True)`.
 - Function parameters, lambda parameters, local assignment targets, local imports, `for` targets, `with ... as ...` targets, `except ... as ...` targets, comprehension targets, match-pattern captures, nested definitions, and `nonlocal` declarations now shadow imported/top-level names in the compact reference pass, reducing false-positive dependency edges before full lexical scope tables exist. Comprehension targets are scoped to the comprehension expression instead of leaking to the whole enclosing function. `global` declarations now remove matching names from the local-shadow set so module-level writes and uses remain visible in the compact reference/dependency graph.
 - Imported module member references such as `module.some_func`, `alias.SomeClass`, and `pkg.module.some_func` now resolve when the qualifier maps to an indexed internal Python module. Other attribute field names are skipped as bare-name references until full attribute/type resolution exists. The object side of an attribute expression is still scanned, so `helper.attr` preserves the `helper` reference while `obj.helper` no longer pretends `helper` is a standalone symbol use.

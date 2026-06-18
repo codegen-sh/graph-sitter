@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 71534,
+      "count": 71788,
       "samples": [
         {
           "reference_count": 1,
@@ -144,7 +144,7 @@
           "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_gssapi_authenticate@3989"
         }
       ],
-      "sha256": "98241ae1ab983f1d345ffd43ee23ac61d4b6bba40404da1f74f858c237e5961c"
+      "sha256": "ef46cd4dfa1aaf4a5232bd2e574e5b442944387c9d0e7456f2577be857fb6ac7"
     },
     "files": {
       "count": 4789,
@@ -416,7 +416,7 @@
           "target_symbol": null
         }
       ],
-      "sha256": "84477dc0f9cd1caea726c1305b8c642ae2104769e8dbd1a9e97faa2f7726d8c9"
+      "sha256": "e5d6d4f515bce5c73bfbd3cc354e0941bad57fdba3965fca3fb148a3421cc5a9"
     },
     "imports": {
       "count": 40580,
@@ -665,7 +665,7 @@
       "sha256": "fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0"
     },
     "references": {
-      "count": 109282,
+      "count": 109655,
       "samples": [
         {
           "import": "airflow/__init__.py:from_import:airflow:settings:@2460",
@@ -888,7 +888,7 @@
           "target_symbol": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py:function:requires_authentication@2134"
         }
       ],
-      "sha256": "105a18ff136264aa95dc28220ff664fb8599cc3b54fc33bf4e80544332a24a9f"
+      "sha256": "21bdfa05e523c642534e28020fbc87e69d7dbfb80dcd2c1d064295d5173910e0"
     },
     "symbols": {
       "count": 52339,
@@ -1234,7 +1234,7 @@
   "summary": {
     "bytes": 36617627,
     "classes": 5665,
-    "dependencies": 71534,
+    "dependencies": 71788,
     "files": 4789,
     "files_with_errors": 0,
     "functions": 34535,
@@ -1242,7 +1242,7 @@
     "import_resolutions": 19011,
     "imports": 40580,
     "lines": 924514,
-    "references": 109282,
+    "references": 109655,
     "symbols": 52339
   }
 }

@@ -1539,6 +1539,66 @@ fn resolve_python_imports(index: &mut PythonIndex) {
         }
     }
     index.import_resolutions = resolutions;
+    resolve_python_reexport_imports(index);
+}
+
+fn resolve_python_reexport_imports(index: &mut PythonIndex) {
+    let import_by_id: HashMap<u32, &ImportRecord> = index
+        .imports
+        .iter()
+        .map(|import| (import.id, import))
+        .collect();
+
+    for _ in 0..index.import_resolutions.len() {
+        let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
+            .import_resolutions
+            .iter()
+            .map(|resolution| (resolution.import_id, resolution))
+            .collect();
+        let mut reexported_symbol_by_file_binding: HashMap<(u32, String), u32> = HashMap::new();
+
+        for import in &index.imports {
+            let Some(binding) = import_binding_name(import) else {
+                continue;
+            };
+            let Some(resolution) = resolution_by_import_id.get(&import.id) else {
+                continue;
+            };
+            let Some(target_symbol_id) = resolution.target_symbol_id else {
+                continue;
+            };
+            reexported_symbol_by_file_binding.insert((import.file_id, binding), target_symbol_id);
+        }
+
+        let mut changed = false;
+        for resolution in &mut index.import_resolutions {
+            if resolution.target_symbol_id.is_some() {
+                continue;
+            }
+            let Some(import) = import_by_id.get(&resolution.import_id) else {
+                continue;
+            };
+            if import.kind != ImportKind::FromImport {
+                continue;
+            }
+            let Some(name) = import.name.as_deref() else {
+                continue;
+            };
+            if name == "*" {
+                continue;
+            }
+            if let Some(target_symbol_id) =
+                reexported_symbol_by_file_binding.get(&(resolution.target_file_id, name.to_owned()))
+            {
+                resolution.target_symbol_id = Some(*target_symbol_id);
+                changed = true;
+            }
+        }
+
+        if !changed {
+            break;
+        }
+    }
 }
 
 fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceCandidate>) {
@@ -1963,6 +2023,59 @@ mod tests {
             dependency.target_symbol_id == base_symbol_id
                 && dependency.reference_count == 1
                 && dependency.reference_ids == vec![0]
+        }));
+    }
+
+    #[test]
+    fn resolves_python_package_reexports_to_symbols() {
+        let repo = temp_repo_path("resolve-python-reexports");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "from .base import Base\n").unwrap();
+        fs::write(repo.join("pkg/base.py"), "class Base:\n    pass\n").unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "from pkg import Base\n\nclass Service(Base):\n    pass\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let base_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "pkg/base.py")
+            .unwrap()
+            .id;
+        let base_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == base_file_id && symbol.name == "Base")
+            .unwrap()
+            .id;
+        let service = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Service")
+            .unwrap();
+
+        assert_eq!(
+            index
+                .import_resolutions
+                .iter()
+                .filter(|resolution| resolution.target_symbol_id == Some(base_symbol_id))
+                .count(),
+            2
+        );
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(service.id)
+                && reference.name == "Base"
+                && reference.target_symbol_id == base_symbol_id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == service.id
+                && dependency.target_symbol_id == base_symbol_id
         }));
     }
 
