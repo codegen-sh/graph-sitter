@@ -807,6 +807,91 @@ mod tests {
         );
     }
 
+    #[test]
+    fn compact_python_graph_snapshot_is_stable() {
+        let repo = temp_repo_path("compact-python-graph-snapshot");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "").unwrap();
+        fs::write(repo.join("pkg/base.py"), "class Base:\n    pass\n").unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "from .base import Base\nfrom . import base\nimport pkg.base\nimport os\n\nclass Service(Base):\n    pass\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let files = index
+            .files
+            .iter()
+            .map(|file| {
+                serde_json::json!({
+                    "id": file.id,
+                    "path": file.path,
+                    "module_name": file.module_name,
+                })
+            })
+            .collect::<Vec<_>>();
+        let symbols = index
+            .symbols
+            .iter()
+            .map(|symbol| {
+                serde_json::json!({
+                    "id": symbol.id,
+                    "file_id": symbol.file_id,
+                    "name": symbol.name,
+                    "kind": symbol.kind,
+                })
+            })
+            .collect::<Vec<_>>();
+        let imports = index
+            .imports
+            .iter()
+            .map(|import| {
+                serde_json::json!({
+                    "id": import.id,
+                    "file_id": import.file_id,
+                    "kind": import.kind,
+                    "module": import.module,
+                    "name": import.name,
+                    "alias": import.alias,
+                })
+            })
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            serde_json::json!({
+                "files": files,
+                "symbols": symbols,
+                "imports": imports,
+                "import_resolutions": index.import_resolutions,
+            }),
+            serde_json::json!({
+                "files": [
+                    {"id": 0, "path": "pkg/__init__.py", "module_name": "pkg"},
+                    {"id": 1, "path": "pkg/base.py", "module_name": "pkg.base"},
+                    {"id": 2, "path": "pkg/service.py", "module_name": "pkg.service"}
+                ],
+                "symbols": [
+                    {"id": 0, "file_id": 1, "name": "Base", "kind": "class"},
+                    {"id": 1, "file_id": 2, "name": "Service", "kind": "class"}
+                ],
+                "imports": [
+                    {"id": 0, "file_id": 2, "kind": "from_import", "module": ".base", "name": "Base", "alias": null},
+                    {"id": 1, "file_id": 2, "kind": "from_import", "module": ".", "name": "base", "alias": null},
+                    {"id": 2, "file_id": 2, "kind": "import", "module": null, "name": "pkg.base", "alias": null},
+                    {"id": 3, "file_id": 2, "kind": "import", "module": null, "name": "os", "alias": null}
+                ],
+                "import_resolutions": [
+                    {"id": 0, "import_id": 0, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": 0},
+                    {"id": 1, "import_id": 1, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null},
+                    {"id": 2, "import_id": 2, "source_file_id": 2, "target_file_id": 1, "target_symbol_id": null}
+                ]
+            })
+        );
+    }
+
     fn temp_repo_path(prefix: &str) -> PathBuf {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)

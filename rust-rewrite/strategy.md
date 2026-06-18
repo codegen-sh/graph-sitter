@@ -162,8 +162,9 @@ Recommended task format:
 - [ ] Extract imports and exports for TypeScript.
 - [ ] Build path and string interners.
 - [x] Expose compact Python index summary and JSON through PyO3. owner: codex. Result: added `PythonIndex`, `IndexSummary`, `Engine.index_python_path`, and module-level `index_python_path`.
+- [x] Expose compact Python file, symbol, import, and import-resolution records through PyO3/Python facade. owner: codex. Result: added record-family JSON methods and typed Python dataclass accessors on `RustIndexBackend`.
 - [ ] Expose `files`, `symbols`, `classes`, `functions`, `imports`, and `exports` ID queries through PyO3.
-- [ ] Add golden snapshots for compact IR on small Python fixtures.
+- [x] Add golden snapshots for compact IR on small Python fixtures. owner: codex. Result: added deterministic compact graph snapshot covering files, symbols, imports, and import resolutions.
 - [ ] Add golden snapshots for compact IR on small TypeScript fixtures.
 
 ## Phase 3: Resolution And Dependency Graph
@@ -241,3 +242,4 @@ Recommended task format:
 - [x] 2026-06-18: Exposed the compact Python index through the PyO3 module and verified a Python import smoke against this repo. owner: codex. Notes: extension returned 1127 files, 3117 symbols, and 6414 imports for the current checkout.
 - [x] 2026-06-18: Added Python-shell Rust index integration behind `CodebaseConfig(graph_backend=...)`, selected-file PyO3 indexing from `RepoOperator`, and a facade benchmark. owner: codex. Notes: selected-file facade matched Python's 1129-file discovery and ran 4.7x faster with 4.7x lower process max RSS than Python parse/object materialization on this checkout.
 - [x] 2026-06-18: Added compact Rust Python import resolution records. owner: codex. Notes: the Python-facing Rust facade now emits 432 internal import-resolution records on this checkout and remains 4.3x faster with 4.6x lower process max RSS than Python parse/object materialization.
+- [x] 2026-06-18: Added typed Python facade accessors and a deterministic compact graph snapshot for record-level parity testing. owner: codex. Notes: this prepares the large-repo golden import/reference graph workflow.

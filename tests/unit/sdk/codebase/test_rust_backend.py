@@ -1,3 +1,4 @@
+import json
 import sys
 from types import ModuleType
 
@@ -28,6 +29,113 @@ class FakeIndex:
 
     def to_json(self):
         return '{"files":[],"symbols":[],"imports":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "pkg/service.py",
+                    "module_name": "pkg.service",
+                    "byte_len": 64,
+                    "line_count": 8,
+                    "has_error": False,
+                    "root_range": {
+                        "start_byte": 0,
+                        "end_byte": 64,
+                        "start_row": 0,
+                        "start_column": 0,
+                        "end_row": 8,
+                        "end_column": 0,
+                    },
+                }
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "name": "Service",
+                    "kind": "class",
+                    "range": {
+                        "start_byte": 11,
+                        "end_byte": 31,
+                        "start_row": 2,
+                        "start_column": 0,
+                        "end_row": 3,
+                        "end_column": 8,
+                    },
+                    "name_range": {
+                        "start_byte": 17,
+                        "end_byte": 24,
+                        "start_row": 2,
+                        "start_column": 6,
+                        "end_row": 2,
+                        "end_column": 13,
+                    },
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "name": "helper",
+                    "kind": "function",
+                    "range": {
+                        "start_byte": 33,
+                        "end_byte": 64,
+                        "start_row": 5,
+                        "start_column": 0,
+                        "end_row": 8,
+                        "end_column": 0,
+                    },
+                    "name_range": {
+                        "start_byte": 37,
+                        "end_byte": 43,
+                        "start_row": 5,
+                        "start_column": 4,
+                        "end_row": 5,
+                        "end_column": 10,
+                    },
+                },
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "kind": "import",
+                    "module": None,
+                    "name": "os",
+                    "alias": None,
+                    "range": {
+                        "start_byte": 0,
+                        "end_byte": 9,
+                        "start_row": 0,
+                        "start_column": 0,
+                        "end_row": 0,
+                        "end_column": 9,
+                    },
+                }
+            ]
+        )
+
+    def import_resolutions_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "import_id": 0,
+                    "source_file_id": 0,
+                    "target_file_id": 0,
+                    "target_symbol_id": 0,
+                }
+            ]
+        )
 
 
 def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch) -> tuple[list[str], list[list[str]]]:
@@ -68,6 +176,10 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.ctx.rust_index.summary.functions == 1
         assert codebase.ctx.rust_index.summary.imports == 1
         assert codebase.ctx.rust_index.summary.import_resolutions == 1
+        assert codebase.ctx.rust_index.files[0].path == "pkg/service.py"
+        assert codebase.ctx.rust_index.symbols[0].name == "Service"
+        assert codebase.ctx.rust_index.imports[0].name == "os"
+        assert codebase.ctx.rust_index.import_resolutions[0].target_symbol_id == 0
         assert codebase.rust_index_summary == codebase.ctx.rust_index.summary
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]

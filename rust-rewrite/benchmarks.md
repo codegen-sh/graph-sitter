@@ -151,7 +151,7 @@ Commands were run on this branch on 2026-06-18 after adding selected-file PyO3 i
 
 | Input | Python mode | Python wall | Python max RSS | Rust facade wall | Rust facade max RSS | Python files | Rust selected files | Rust import resolutions | Wall ratio | RSS ratio |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.938s | 533.3 MB | 0.687s | 116.5 MB | 1129 | 1129 | 432 | 4.277x | 4.579x |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.802s | 533.5 MB | 0.424s | 114.3 MB | 1129 | 1129 | 432 | 6.614x | 4.668x |
 
 This shell-facing number is intentionally more conservative than the standalone Rust process benchmark because it includes Python startup, imports, and repo file discovery. The important result is that the selected-file integration preserves Python file-discovery parity for the current repo while still cutting parse/index/import-resolution wall time and process max RSS substantially for the implemented compact graph slice.
 

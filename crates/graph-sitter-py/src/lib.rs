@@ -149,6 +149,26 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn files_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.files)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn symbols_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.symbols)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn imports_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.imports)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_resolutions_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.import_resolutions)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         #[getter]
         fn file_count(&self) -> usize {
             self.inner.files.len()
@@ -363,6 +383,13 @@ mod bindings {
             let summary = index.summary();
             assert_eq!(summary.import_resolutions, 1);
             assert_eq!(index.import_resolution_count(), 1);
+            assert!(index.files_json().unwrap().contains("\"pkg/base.py\""));
+            assert!(index.symbols_json().unwrap().contains("\"Base\""));
+            assert!(index.imports_json().unwrap().contains("\".base\""));
+            assert!(index
+                .import_resolutions_json()
+                .unwrap()
+                .contains("target_symbol_id"));
             assert!(index.to_json().unwrap().contains("import_resolutions"));
         }
 
