@@ -149,15 +149,15 @@ These measurements use the new Python shell integration path: Python discovers f
 
 Commands were run on this branch on 2026-06-18 after adding selected-file PyO3 indexing.
 
-| Input | Python mode | Python wall | Python max RSS | Rust facade wall | Rust facade max RSS | Python files | Rust selected files | Wall ratio | RSS ratio |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.961s | 532.3 MB | 0.632s | 114.3 MB | 1129 | 1129 | 4.685x | 4.657x |
+| Input | Python mode | Python wall | Python max RSS | Rust facade wall | Rust facade max RSS | Python files | Rust selected files | Rust import resolutions | Wall ratio | RSS ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `graph-sitter` repo checkout | `--disable-graph` | 2.938s | 533.3 MB | 0.687s | 116.5 MB | 1129 | 1129 | 432 | 4.277x | 4.579x |
 
-This shell-facing number is intentionally more conservative than the standalone Rust process benchmark because it includes Python startup, imports, and repo file discovery. The important result is that the selected-file integration preserves Python file-discovery parity for the current repo while still cutting parse/index wall time and process max RSS substantially for the implemented compact-index slice.
+This shell-facing number is intentionally more conservative than the standalone Rust process benchmark because it includes Python startup, imports, and repo file discovery. The important result is that the selected-file integration preserves Python file-discovery parity for the current repo while still cutting parse/index/import-resolution wall time and process max RSS substantially for the implemented compact graph slice.
 
 Important caveats:
 
-- The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions, and imports.
+- The Rust indexer currently extracts a compact subset: files, top-level Python classes/functions, imports, and internal import-resolution records for indexed Python modules.
 - The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.

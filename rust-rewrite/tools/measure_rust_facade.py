@@ -92,7 +92,13 @@ def print_human(report: dict) -> None:
     print(f"raw rust walk: {report['metadata']['raw_rust_walk']}")
     print(f"selected files: {report['metadata']['selected_file_count']}")
     print(f"rust facade: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB")
-    print(f"summary: files={summary['files']} symbols={summary['symbols']} imports={summary['imports']}")
+    print(
+        "summary: "
+        f"files={summary['files']} "
+        f"symbols={summary['symbols']} "
+        f"imports={summary['imports']} "
+        f"import_resolutions={summary['import_resolutions']}"
+    )
 
 
 def main() -> int:

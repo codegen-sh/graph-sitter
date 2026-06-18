@@ -118,8 +118,9 @@ Current implemented bridge status:
 - `crates/graph-sitter-py` builds a PyO3 module named `graph_sitter_py` behind the `extension-module` feature.
 - `Engine.index_python_path(repo_path)` and module-level `index_python_path(repo_path)` return a compact `PythonIndex` for Python files.
 - `Engine.index_python_paths(repo_path, file_paths)` and module-level `index_python_paths(repo_path, file_paths)` index an explicit Python file list. The Python shell integration uses this path so Rust sees the same `RepoOperator.iter_files(...)` selection as the current Python backend.
-- `PythonIndex.summary()` returns `IndexSummary` with file, symbol, class, function, import, byte, line, and error counts.
+- `PythonIndex.summary()` returns `IndexSummary` with file, symbol, class, function, import, import-resolution, byte, line, and error counts.
 - `PythonIndex.to_json()` serializes the compact Rust records for debug and benchmark use.
+- Rust currently emits compact `ImportResolutionRecord` rows for indexed internal Python modules: direct `import pkg.mod`, absolute `from pkg.mod import Symbol`, and relative `from .mod import Symbol` forms.
 - `CodebaseConfig(graph_backend="rust" | "auto")` builds a `CodebaseContext.rust_index` compact index when the extension is available and the codebase is Python.
 - `Codebase.rust_index_summary` exposes the attached compact summary for shell smoke checks.
 - This surface is a bridge for the compact-index vertical slice. It is not yet the final lazy `CodebaseContext` backend facade and it does not yet return stable Python compatibility handles.

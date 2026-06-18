@@ -55,6 +55,13 @@ Graph edges:
 
 ## Import Resolution Algorithms
 
+Current Rust implementation status:
+
+- The compact Rust Python index now builds `ImportResolutionRecord` rows for internal imports whose targets are in the selected Python file set.
+- Covered forms: `import pkg.mod`, `from pkg.mod import Symbol`, `from .mod import Symbol`, and `from . import mod` when the target file or top-level symbol exists in the compact index.
+- External imports intentionally remain unresolved rather than materializing external module records.
+- Full parity remains open for configured `import_resolution_paths`, `py_resolve_syspath`, wildcard import expansion, package `valid_import_names`, fallback `src`/`test` roots, and every TypeScript import/export rule.
+
 ### Shared Import Flow
 
 `Import.add_symbol_resolution_edge` calls the language-specific `resolve_import`:

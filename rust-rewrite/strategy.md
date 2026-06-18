@@ -170,10 +170,11 @@ Recommended task format:
 
 - [x] Inventory current resolver/dependency algorithms and Rust relation-table plan. owner: Gauss. Result: documented in `rust-rewrite/resolution-algorithms.md`.
 - [ ] Port Python import resolution rules.
+- [x] Implement compact Python import-to-file and import-to-symbol resolution for indexed internal modules. owner: codex. Result: Rust now emits `ImportResolutionRecord` rows for direct, absolute `from`, and relative `from` imports when targets are inside the selected file set.
 - [ ] Port TypeScript relative import resolution rules.
 - [ ] Port TypeScript config/path alias handling.
 - [ ] Represent external modules compactly.
-- [ ] Implement import-to-file and import-to-symbol edges.
+- [ ] Implement full import-to-file and import-to-symbol edges for all Python and TypeScript rules.
 - [ ] Implement export-to-symbol/import/file edges.
 - [ ] Implement lexical scope tables for name resolution.
 - [ ] Implement symbol usage extraction by identifier ranges.
@@ -239,3 +240,4 @@ Recommended task format:
 - [x] 2026-06-18: Implemented first Rust Python compact-index slice and benchmark comparison; initial measurements show 9x-22x wall-time improvement and 70x-104x RSS improvement on this repo for the implemented slice. owner: codex.
 - [x] 2026-06-18: Exposed the compact Python index through the PyO3 module and verified a Python import smoke against this repo. owner: codex. Notes: extension returned 1127 files, 3117 symbols, and 6414 imports for the current checkout.
 - [x] 2026-06-18: Added Python-shell Rust index integration behind `CodebaseConfig(graph_backend=...)`, selected-file PyO3 indexing from `RepoOperator`, and a facade benchmark. owner: codex. Notes: selected-file facade matched Python's 1129-file discovery and ran 4.7x faster with 4.7x lower process max RSS than Python parse/object materialization on this checkout.
+- [x] 2026-06-18: Added compact Rust Python import resolution records. owner: codex. Notes: the Python-facing Rust facade now emits 432 internal import-resolution records on this checkout and remains 4.3x faster with 4.6x lower process max RSS than Python parse/object materialization.

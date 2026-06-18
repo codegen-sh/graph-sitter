@@ -15,6 +15,7 @@ class FakeSummary:
             "classes": 1,
             "functions": 1,
             "imports": 1,
+            "import_resolutions": 1,
             "bytes": 64,
             "lines": 8,
             "files_with_errors": 0,
@@ -66,6 +67,7 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.ctx.rust_index.summary.classes == 1
         assert codebase.ctx.rust_index.summary.functions == 1
         assert codebase.ctx.rust_index.summary.imports == 1
+        assert codebase.ctx.rust_index.summary.import_resolutions == 1
         assert codebase.rust_index_summary == codebase.ctx.rust_index.summary
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]

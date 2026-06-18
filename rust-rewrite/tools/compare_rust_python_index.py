@@ -187,7 +187,8 @@ def print_human(report: dict[str, Any]) -> None:
         f"wall={comparison['rust_index_wall_seconds']:.3f}s "
         f"process_wall={comparison['rust_process_wall_seconds']:.3f}s "
         f"rss_peak={comparison['rust_sampled_rss_peak_mb']:.1f} MB "
-        f"files={rust_summary['files']} symbols={rust_summary['symbols']} imports={rust_summary['imports']}"
+        f"files={rust_summary['files']} symbols={rust_summary['symbols']} "
+        f"imports={rust_summary['imports']} import_resolutions={rust_summary['import_resolutions']}"
     )
     print(
         "ratios: "

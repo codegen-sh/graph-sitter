@@ -24,6 +24,7 @@ class RustIndexSummary:
     classes: int
     functions: int
     imports: int
+    import_resolutions: int
     bytes: int
     lines: int
     files_with_errors: int

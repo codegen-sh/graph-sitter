@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 use serde::Serialize;
+use std::collections::HashMap;
 use std::fmt;
 use std::fs;
 use std::io;
@@ -133,6 +134,7 @@ pub struct PythonIndex {
     pub files: Vec<FileRecord>,
     pub symbols: Vec<SymbolRecord>,
     pub imports: Vec<ImportRecord>,
+    pub import_resolutions: Vec<ImportResolutionRecord>,
 }
 
 impl PythonIndex {
@@ -151,6 +153,7 @@ impl PythonIndex {
                 .filter(|symbol| symbol.kind == SymbolKind::Function)
                 .count(),
             imports: self.imports.len(),
+            import_resolutions: self.import_resolutions.len(),
             bytes: self.files.iter().map(|file| file.byte_len).sum(),
             lines: self.files.iter().map(|file| file.line_count).sum(),
             files_with_errors: self.files.iter().filter(|file| file.has_error).count(),
@@ -165,6 +168,7 @@ pub struct IndexSummary {
     pub classes: usize,
     pub functions: usize,
     pub imports: usize,
+    pub import_resolutions: usize,
     pub bytes: usize,
     pub lines: usize,
     pub files_with_errors: usize,
@@ -174,6 +178,7 @@ pub struct IndexSummary {
 pub struct FileRecord {
     pub id: u32,
     pub path: String,
+    pub module_name: Option<String>,
     pub byte_len: usize,
     pub line_count: usize,
     pub has_error: bool,
@@ -214,6 +219,15 @@ pub struct ImportRecord {
     pub name: Option<String>,
     pub alias: Option<String>,
     pub range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ImportResolutionRecord {
+    pub id: u32,
+    pub import_id: u32,
+    pub source_file_id: u32,
+    pub target_file_id: u32,
+    pub target_symbol_id: Option<u32>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -290,6 +304,7 @@ impl PythonIndexer {
             files: Vec::new(),
             symbols: Vec::new(),
             imports: Vec::new(),
+            import_resolutions: Vec::new(),
         };
         paths.sort();
 
@@ -312,6 +327,7 @@ impl PythonIndexer {
 
             index.files.push(FileRecord {
                 id: file_id,
+                module_name: python_module_name(&relative_path),
                 path: relative_path,
                 byte_len: content.len(),
                 line_count: line_count(&content),
@@ -321,6 +337,7 @@ impl PythonIndexer {
             extract_python_file(file_id, &content, &tree, &mut index);
         }
 
+        resolve_python_imports(&mut index);
         Ok(index)
     }
 }
@@ -516,6 +533,174 @@ fn line_count(source: &str) -> usize {
     }
 }
 
+fn resolve_python_imports(index: &mut PythonIndex) {
+    let module_to_file: HashMap<&str, u32> = index
+        .files
+        .iter()
+        .filter_map(|file| file.module_name.as_deref().map(|module| (module, file.id)))
+        .collect();
+    let symbol_to_id: HashMap<(u32, &str), u32> = index
+        .symbols
+        .iter()
+        .map(|symbol| ((symbol.file_id, symbol.name.as_str()), symbol.id))
+        .collect();
+
+    let mut resolutions = Vec::new();
+    for import in &index.imports {
+        let Some(source_file) = index.files.get(import.file_id as usize) else {
+            continue;
+        };
+        let resolution = match import.kind {
+            ImportKind::Import => {
+                resolve_plain_import(import, &module_to_file).map(|target_file_id| {
+                    ImportResolutionRecord {
+                        id: resolutions.len() as u32,
+                        import_id: import.id,
+                        source_file_id: import.file_id,
+                        target_file_id,
+                        target_symbol_id: None,
+                    }
+                })
+            }
+            ImportKind::FromImport | ImportKind::FutureImport => resolve_from_import(
+                import,
+                source_file,
+                &module_to_file,
+                &symbol_to_id,
+                resolutions.len() as u32,
+            ),
+        };
+        if let Some(resolution) = resolution {
+            resolutions.push(resolution);
+        }
+    }
+    index.import_resolutions = resolutions;
+}
+
+fn resolve_plain_import(import: &ImportRecord, module_to_file: &HashMap<&str, u32>) -> Option<u32> {
+    let name = import.name.as_deref()?;
+    module_to_file.get(name).copied()
+}
+
+fn resolve_from_import(
+    import: &ImportRecord,
+    source_file: &FileRecord,
+    module_to_file: &HashMap<&str, u32>,
+    symbol_to_id: &HashMap<(u32, &str), u32>,
+    resolution_id: u32,
+) -> Option<ImportResolutionRecord> {
+    let module = import.module.as_deref()?;
+    let resolved_module = resolve_module_name(source_file, module)?;
+    let import_name = import.name.as_deref();
+
+    if let Some(target_file_id) = module_to_file.get(resolved_module.as_str()).copied() {
+        let target_symbol_id =
+            import_name.and_then(|name| symbol_to_id.get(&(target_file_id, name)).copied());
+        if target_symbol_id.is_some() || import_name == Some("*") {
+            return Some(ImportResolutionRecord {
+                id: resolution_id,
+                import_id: import.id,
+                source_file_id: import.file_id,
+                target_file_id,
+                target_symbol_id,
+            });
+        }
+    }
+
+    let import_name = import_name?;
+    let child_module = join_module(&resolved_module, import_name);
+    if let Some(target_file_id) = module_to_file.get(child_module.as_str()).copied() {
+        return Some(ImportResolutionRecord {
+            id: resolution_id,
+            import_id: import.id,
+            source_file_id: import.file_id,
+            target_file_id,
+            target_symbol_id: None,
+        });
+    }
+
+    module_to_file
+        .get(resolved_module.as_str())
+        .copied()
+        .map(|target_file_id| ImportResolutionRecord {
+            id: resolution_id,
+            import_id: import.id,
+            source_file_id: import.file_id,
+            target_file_id,
+            target_symbol_id: None,
+        })
+}
+
+fn resolve_module_name(source_file: &FileRecord, raw_module: &str) -> Option<String> {
+    if !raw_module.starts_with('.') {
+        return Some(raw_module.to_owned());
+    }
+
+    let dot_count = raw_module
+        .as_bytes()
+        .iter()
+        .take_while(|byte| **byte == b'.')
+        .count();
+    let suffix = &raw_module[dot_count..];
+    let mut package_parts = source_package_name(source_file)
+        .map(|package| {
+            package
+                .split('.')
+                .filter(|part| !part.is_empty())
+                .map(str::to_owned)
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    let ascend = dot_count.saturating_sub(1);
+    if ascend > package_parts.len() {
+        return None;
+    }
+    let keep = package_parts.len() - ascend;
+    package_parts.truncate(keep);
+    if !suffix.is_empty() {
+        package_parts.extend(
+            suffix
+                .split('.')
+                .filter(|part| !part.is_empty())
+                .map(str::to_owned),
+        );
+    }
+    Some(package_parts.join("."))
+}
+
+fn source_package_name(file: &FileRecord) -> Option<&str> {
+    let module = file.module_name.as_deref()?;
+    if file.path.ends_with("/__init__.py") || file.path == "__init__.py" {
+        Some(module)
+    } else {
+        module.rsplit_once('.').map(|(package, _)| package)
+    }
+}
+
+fn join_module(parent: &str, child: &str) -> String {
+    if parent.is_empty() {
+        child.to_owned()
+    } else {
+        format!("{parent}.{child}")
+    }
+}
+
+fn python_module_name(path: &str) -> Option<String> {
+    let without_suffix = path.strip_suffix(".py")?;
+    let module = without_suffix
+        .strip_suffix("/__init__")
+        .unwrap_or(without_suffix)
+        .split('/')
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join(".");
+    if module.is_empty() {
+        None
+    } else {
+        Some(module)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -547,6 +732,7 @@ mod tests {
         assert_eq!(index.summary().classes, 1);
         assert_eq!(index.summary().functions, 1);
         assert_eq!(index.summary().imports, 4);
+        assert_eq!(index.summary().import_resolutions, 0);
         assert_eq!(index.symbols[0].name, "Service");
         assert_eq!(index.symbols[1].name, "helper");
         assert!(index
@@ -573,6 +759,52 @@ mod tests {
         assert_eq!(index.files[0].path, "pkg/included.py");
         assert_eq!(index.summary().classes, 1);
         assert_eq!(index.symbols[0].name, "Included");
+    }
+
+    #[test]
+    fn resolves_internal_python_imports_to_files_and_symbols() {
+        let repo = temp_repo_path("resolve-python-imports");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "").unwrap();
+        fs::write(repo.join("pkg/base.py"), "class Base:\n    pass\n").unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "from __future__ import annotations\nfrom .base import Base\nfrom . import base\nimport pkg.base\nimport os\n\nclass Service(Base):\n    pass\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 3);
+        assert_eq!(index.summary().classes, 2);
+        assert_eq!(index.summary().imports, 5);
+        assert_eq!(index.summary().import_resolutions, 3);
+
+        let base_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "pkg/base.py")
+            .unwrap()
+            .id;
+        let base_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == base_file_id && symbol.name == "Base")
+            .unwrap()
+            .id;
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.target_file_id == base_file_id
+                && resolution.target_symbol_id == Some(base_symbol_id)
+        }));
+        assert_eq!(
+            index
+                .import_resolutions
+                .iter()
+                .filter(|resolution| resolution.target_file_id == base_file_id)
+                .count(),
+            3
+        );
     }
 
     fn temp_repo_path(prefix: &str) -> PathBuf {

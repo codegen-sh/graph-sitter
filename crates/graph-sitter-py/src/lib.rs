@@ -69,6 +69,8 @@ mod bindings {
         #[pyo3(get)]
         imports: usize,
         #[pyo3(get)]
+        import_resolutions: usize,
+        #[pyo3(get)]
         bytes: usize,
         #[pyo3(get)]
         lines: usize,
@@ -84,6 +86,7 @@ mod bindings {
                 classes: summary.classes,
                 functions: summary.functions,
                 imports: summary.imports,
+                import_resolutions: summary.import_resolutions,
                 bytes: summary.bytes,
                 lines: summary.lines,
                 files_with_errors: summary.files_with_errors,
@@ -100,6 +103,7 @@ mod bindings {
                 ("classes", self.classes),
                 ("functions", self.functions),
                 ("imports", self.imports),
+                ("import_resolutions", self.import_resolutions),
                 ("bytes", self.bytes),
                 ("lines", self.lines),
                 ("files_with_errors", self.files_with_errors),
@@ -108,12 +112,13 @@ mod bindings {
 
         fn __repr__(&self) -> String {
             format!(
-                "IndexSummary(files={}, symbols={}, classes={}, functions={}, imports={}, bytes={}, lines={}, files_with_errors={})",
+                "IndexSummary(files={}, symbols={}, classes={}, functions={}, imports={}, import_resolutions={}, bytes={}, lines={}, files_with_errors={})",
                 self.files,
                 self.symbols,
                 self.classes,
                 self.functions,
                 self.imports,
+                self.import_resolutions,
                 self.bytes,
                 self.lines,
                 self.files_with_errors
@@ -159,11 +164,16 @@ mod bindings {
             self.inner.imports.len()
         }
 
+        #[getter]
+        fn import_resolution_count(&self) -> usize {
+            self.inner.import_resolutions.len()
+        }
+
         fn __repr__(&self) -> String {
             let summary = self.inner.summary();
             format!(
-                "PythonIndex(files={}, symbols={}, imports={})",
-                summary.files, summary.symbols, summary.imports
+                "PythonIndex(files={}, symbols={}, imports={}, import_resolutions={})",
+                summary.files, summary.symbols, summary.imports, summary.import_resolutions
             )
         }
     }
@@ -331,6 +341,29 @@ mod bindings {
             assert_eq!(summary.classes, 1);
             assert!(index.to_json().unwrap().contains("\"Included\""));
             assert!(!index.to_json().unwrap().contains("\"Skipped\""));
+        }
+
+        #[test]
+        fn py_engine_exposes_import_resolution_count() {
+            let repo = temp_repo_path("py-binding-import-resolution");
+            fs::create_dir_all(repo.join("pkg")).unwrap();
+            fs::write(repo.join("pkg/__init__.py"), "").unwrap();
+            fs::write(repo.join("pkg/base.py"), "class Base:\n    pass\n").unwrap();
+            fs::write(
+                repo.join("pkg/service.py"),
+                "from .base import Base\n\nclass Service(Base):\n    pass\n",
+            )
+            .unwrap();
+
+            let index = PyEngine::new()
+                .index_python_path(repo.to_str().unwrap())
+                .unwrap();
+            fs::remove_dir_all(&repo).unwrap();
+
+            let summary = index.summary();
+            assert_eq!(summary.import_resolutions, 1);
+            assert_eq!(index.import_resolution_count(), 1);
+            assert!(index.to_json().unwrap().contains("import_resolutions"));
         }
 
         fn temp_repo_path(prefix: &str) -> PathBuf {
