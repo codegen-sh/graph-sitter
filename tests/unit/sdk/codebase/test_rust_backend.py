@@ -263,6 +263,16 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.files[0].find_by_byte_range(codebase.rust_symbols[0].range) == [codebase.classes[0]]
         assert codebase.files[0].find_by_byte_range(codebase.rust_references[0].range) == [codebase.functions[0]]
         assert codebase.files[0].find_by_byte_range({"start_byte": 31, "end_byte": 33}) == []
+        assert codebase.files[0].valid_symbol_names["Service"] == codebase.classes[0]
+        assert codebase.files[0].valid_symbol_names["os"] == codebase.imports[0]
+        assert codebase.files[0].valid_import_names["Service"] == codebase.classes[0]
+        assert codebase.files[0].resolve_attribute("Service") == codebase.classes[0]
+        assert codebase.files[0].resolve_attribute("os") == codebase.imports[0]
+        assert list(codebase.files[0].resolve_name("Service")) == [codebase.classes[0]]
+        assert list(codebase.files[0].resolve_name("Service", start_byte=20)) == [codebase.classes[0]]
+        assert list(codebase.files[0].resolve_name("helper", start_byte=20)) == []
+        assert codebase.files[0].get_node_by_name("Service") == codebase.classes[0]
+        assert codebase.files[0].get_node_by_name("os") == codebase.imports[0]
         assert codebase.files[0].has_import("os")
         assert codebase.files[0].has_import("import os")
         assert codebase.files[0].get_import("os") == codebase.imports[0]

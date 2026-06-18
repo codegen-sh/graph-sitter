@@ -681,6 +681,47 @@ class RustCompactFile(RustCompactHandle):
         start_byte, end_byte = _byte_range_bounds(range)
         return [node for node in self.get_nodes() if _ranges_overlap(node.range, start_byte, end_byte)]
 
+    @property
+    def valid_symbol_names(self) -> dict[str, RustCompactImport | RustCompactSymbol]:
+        valid_symbol_names: dict[str, RustCompactImport | RustCompactSymbol] = {}
+        for symbol in self.symbols:
+            valid_symbol_names[symbol.full_name] = symbol
+        for import_handle in self.imports:
+            for name, destination in import_handle.names:
+                if name is not None:
+                    valid_symbol_names[name] = destination
+        return valid_symbol_names
+
+    @property
+    def valid_import_names(self) -> dict[str, RustCompactImport | RustCompactSymbol]:
+        return self.valid_symbol_names
+
+    def resolve_name(self, name: str, start_byte: int | None = None, strict: bool = True) -> Any:
+        resolved = self.valid_symbol_names.get(name)
+        if resolved is None:
+            return
+
+        if start_byte is not None and resolved.end_byte > start_byte:
+            for symbol in reversed(self.symbols):
+                symbol_boundary = symbol.start_byte if symbol.symbol_type in {SymbolType.Class, SymbolType.Function} else symbol.end_byte
+                if symbol.name == name and symbol_boundary <= start_byte:
+                    yield symbol
+                    return
+            if not strict:
+                return
+            return
+
+        yield resolved
+
+    def resolve_attribute(self, name: str) -> RustCompactImport | RustCompactSymbol | None:
+        return self.valid_import_names.get(name)
+
+    def get_node_by_name(self, name: str) -> RustCompactImport | RustCompactSymbol | None:
+        symbol = self.get_symbol(name)
+        if symbol is not None:
+            return symbol
+        return self.get_import(name)
+
     @proxy_property
     def symbols(self, nested: bool = False) -> list[RustCompactSymbol]:
         if nested:
@@ -941,6 +982,10 @@ class RustCompactImport(RustCompactHandle):
     @property
     def name(self) -> str | None:
         return self.alias.source if self.alias is not None else None
+
+    @property
+    def names(self) -> list[tuple[str | None, RustCompactImport]]:
+        return [(self.name, self)]
 
     @property
     def import_specifier(self) -> str | None:
