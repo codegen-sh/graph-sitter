@@ -299,6 +299,7 @@ struct ReferenceCandidate {
     source_file_id: u32,
     source_symbol_id: Option<u32>,
     name: String,
+    qualifier: Option<String>,
     range: SourceRange,
 }
 
@@ -1192,6 +1193,35 @@ fn collect_identifier_candidates(
     }
 
     if node.kind() == "attribute" {
+        if let (Some(object), Some(attribute)) = (
+            node.child_by_field_name("object"),
+            node.child_by_field_name("attribute"),
+        ) {
+            let range = attribute.range().into();
+            if attribute.kind() == "identifier" && !range_matches_any(range, excluded_ranges) {
+                if let (Ok(qualifier), Ok(name)) = (
+                    object.utf8_text(source.as_bytes()),
+                    attribute.utf8_text(source.as_bytes()),
+                ) {
+                    let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+                    if !qualified_reference_is_shadowed(
+                        source_symbol_id,
+                        qualifier,
+                        object.range().into(),
+                        local_bindings_by_symbol_id,
+                        local_binding_scopes,
+                    ) {
+                        out.push(ReferenceCandidate {
+                            source_file_id: file_id,
+                            source_symbol_id,
+                            name: name.to_owned(),
+                            qualifier: Some(qualifier.to_owned()),
+                            range,
+                        });
+                    }
+                }
+            }
+        }
         if let Some(object) = node.child_by_field_name("object") {
             collect_identifier_candidates(
                 file_id,
@@ -1235,6 +1265,7 @@ fn collect_identifier_candidates(
                 source_file_id: file_id,
                 source_symbol_id,
                 name: name.to_owned(),
+                qualifier: None,
                 range,
             });
         }
@@ -1253,6 +1284,23 @@ fn collect_identifier_candidates(
             out,
         );
     }
+}
+
+fn qualified_reference_is_shadowed(
+    source_symbol_id: Option<u32>,
+    qualifier: &str,
+    range: SourceRange,
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+) -> bool {
+    let binding = qualifier.split('.').next().unwrap_or(qualifier);
+    is_shadowed_local_binding(
+        source_symbol_id,
+        binding,
+        range,
+        local_bindings_by_symbol_id,
+        local_binding_scopes,
+    )
 }
 
 fn collect_lambda_parameter_value_identifier_candidates(
@@ -1495,11 +1543,20 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         .map(|resolution| (resolution.import_id, resolution))
         .collect();
     let mut imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
+    let mut imported_module_by_qualifier: HashMap<(u32, String), (u32, u32)> = HashMap::new();
 
     for import in &index.imports {
         let Some(resolution) = resolution_by_import_id.get(&import.id) else {
             continue;
         };
+        if resolution.target_symbol_id.is_none() {
+            for qualifier in import_module_qualifiers(import) {
+                imported_module_by_qualifier.insert(
+                    (import.file_id, qualifier),
+                    (resolution.target_file_id, import.id),
+                );
+            }
+        }
         let Some(target_symbol_id) = resolution.target_symbol_id else {
             continue;
         };
@@ -1511,17 +1568,28 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
 
     let mut references = Vec::new();
     for candidate in candidates {
-        let imported_target = imported_symbol_by_binding
-            .get(&(candidate.source_file_id, candidate.name.clone()))
-            .copied();
-        let same_file_target = symbol_to_id
-            .get(&(candidate.source_file_id, candidate.name.as_str()))
-            .copied()
-            .map(|symbol_id| (symbol_id, None));
-        let Some((target_symbol_id, import_id)) = imported_target
-            .map(|(symbol_id, import_id)| (symbol_id, Some(import_id)))
-            .or(same_file_target)
-        else {
+        let resolved_target = if let Some(qualifier) = candidate.qualifier.as_ref() {
+            imported_module_by_qualifier
+                .get(&(candidate.source_file_id, qualifier.clone()))
+                .and_then(|(target_file_id, import_id)| {
+                    symbol_to_id
+                        .get(&(*target_file_id, candidate.name.as_str()))
+                        .copied()
+                        .map(|symbol_id| (symbol_id, Some(*import_id)))
+                })
+        } else {
+            let imported_target = imported_symbol_by_binding
+                .get(&(candidate.source_file_id, candidate.name.clone()))
+                .copied();
+            let same_file_target = symbol_to_id
+                .get(&(candidate.source_file_id, candidate.name.as_str()))
+                .copied()
+                .map(|symbol_id| (symbol_id, None));
+            imported_target
+                .map(|(symbol_id, import_id)| (symbol_id, Some(import_id)))
+                .or(same_file_target)
+        };
+        let Some((target_symbol_id, import_id)) = resolved_target else {
             continue;
         };
         if candidate.source_symbol_id == Some(target_symbol_id) {
@@ -1539,6 +1607,30 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         });
     }
     index.references = references;
+}
+
+fn import_module_qualifiers(import: &ImportRecord) -> Vec<String> {
+    let mut qualifiers = Vec::new();
+    if let Some(alias) = import.alias.as_deref() {
+        qualifiers.push(alias.to_owned());
+    }
+    match import.kind {
+        ImportKind::Import => {
+            if let Some(name) = import.name.as_deref() {
+                qualifiers.push(name.to_owned());
+            }
+        }
+        ImportKind::FromImport | ImportKind::FutureImport => {
+            if import.alias.is_none() {
+                if let Some(name) = import.name.as_deref() {
+                    qualifiers.push(name.to_owned());
+                }
+            }
+        }
+    }
+    qualifiers.sort();
+    qualifiers.dedup();
+    qualifiers
 }
 
 fn build_python_dependencies(index: &mut PythonIndex) {
@@ -1918,6 +2010,73 @@ mod tests {
         }));
         assert!(index.dependencies.iter().any(|dependency| {
             dependency.source_symbol_id == run.id && dependency.target_symbol_id == helper.id
+        }));
+    }
+
+    #[test]
+    fn resolves_python_module_attribute_references() {
+        let repo = temp_repo_path("python-module-attribute-references");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "").unwrap();
+        fs::write(
+            repo.join("pkg/base.py"),
+            "class Base:\n    pass\n\ndef helper():\n    return Base\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "from . import base\nimport pkg.base as base_alias\nimport pkg.base\n\n\
+def caller():\n    return base.helper(), base_alias.Base, pkg.base.helper()\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let caller = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "caller")
+            .unwrap();
+        let helper = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "helper")
+            .unwrap();
+        let base = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Base")
+            .unwrap();
+
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| {
+                    reference.source_symbol_id == Some(caller.id)
+                        && reference.name == "helper"
+                        && reference.target_symbol_id == helper.id
+                        && reference.import_id.is_some()
+                })
+                .count(),
+            2
+        );
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(caller.id)
+                && reference.name == "Base"
+                && reference.target_symbol_id == base.id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == caller.id
+                && dependency.target_symbol_id == helper.id
+                && dependency.reference_count == 2
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == caller.id
+                && dependency.target_symbol_id == base.id
+                && dependency.reference_count == 1
         }));
     }
 
