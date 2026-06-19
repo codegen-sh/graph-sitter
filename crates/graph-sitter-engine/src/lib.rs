@@ -206,6 +206,28 @@ impl PythonIndex {
             files_with_errors: self.files.iter().filter(|file| file.has_error).count(),
         }
     }
+
+    pub fn debug_graph_dump(&self) -> GraphDebugDump {
+        let mut nodes = Vec::new();
+        let mut edges = Vec::new();
+        append_common_debug_graph(
+            &mut nodes,
+            &mut edges,
+            &self.files,
+            &self.symbols,
+            &self.imports,
+            &self.import_resolutions,
+            &self.external_modules,
+            &self.references,
+            &self.external_references,
+            &self.dependencies,
+        );
+        GraphDebugDump { nodes, edges }
+    }
+
+    pub fn debug_graph_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(&self.debug_graph_dump())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -250,6 +272,86 @@ impl TypeScriptIndex {
             lines: self.files.iter().map(|file| file.line_count).sum(),
             files_with_errors: self.files.iter().filter(|file| file.has_error).count(),
         }
+    }
+
+    pub fn debug_graph_dump(&self) -> GraphDebugDump {
+        let mut nodes = Vec::new();
+        let mut edges = Vec::new();
+        append_common_debug_graph(
+            &mut nodes,
+            &mut edges,
+            &self.files,
+            &self.symbols,
+            &self.imports,
+            &self.import_resolutions,
+            &self.external_modules,
+            &self.references,
+            &self.external_references,
+            &self.dependencies,
+        );
+
+        for export in &self.exports {
+            nodes.push(GraphDebugNode {
+                id: export_debug_id(export.id),
+                node_type: "export",
+                record_id: export.id,
+                file_id: Some(export.file_id),
+                name: export_debug_name(export),
+                path: None,
+                range: Some(export.range),
+            });
+
+            let mut file_edge = debug_edge(
+                "contains_export",
+                file_debug_id(export.file_id),
+                export_debug_id(export.id),
+            );
+            file_edge.export_id = Some(export.id);
+            file_edge.name = export_debug_name(export);
+            file_edge.range = Some(export.range);
+            edges.push(file_edge);
+
+            if let Some(symbol_id) = export.symbol_id {
+                let mut symbol_edge = debug_edge(
+                    "export_symbol",
+                    export_debug_id(export.id),
+                    symbol_debug_id(symbol_id),
+                );
+                symbol_edge.export_id = Some(export.id);
+                symbol_edge.name = export_debug_name(export);
+                symbol_edge.range = Some(export.range);
+                edges.push(symbol_edge);
+            }
+            if let Some(import_id) = export.import_id {
+                let mut import_edge = debug_edge(
+                    "export_import",
+                    export_debug_id(export.id),
+                    import_debug_id(import_id),
+                );
+                import_edge.export_id = Some(export.id);
+                import_edge.import_id = Some(import_id);
+                import_edge.name = export_debug_name(export);
+                import_edge.range = Some(export.range);
+                edges.push(import_edge);
+            }
+        }
+
+        for subclass in &self.subclass_edges {
+            let mut edge = debug_edge(
+                "subclass",
+                symbol_debug_id(subclass.source_symbol_id),
+                symbol_debug_id(subclass.target_symbol_id),
+            );
+            edge.subclass_id = Some(subclass.id);
+            edge.reference_id = Some(subclass.reference_id);
+            edges.push(edge);
+        }
+
+        GraphDebugDump { nodes, edges }
+    }
+
+    pub fn debug_graph_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(&self.debug_graph_dump())
     }
 }
 
@@ -450,6 +552,271 @@ impl From<Range> for SourceRange {
             end_column: value.end_point.column,
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct GraphDebugDump {
+    pub nodes: Vec<GraphDebugNode>,
+    pub edges: Vec<GraphDebugEdge>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct GraphDebugNode {
+    pub id: String,
+    pub node_type: &'static str,
+    pub record_id: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub range: Option<SourceRange>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct GraphDebugEdge {
+    pub edge_type: &'static str,
+    pub source: String,
+    pub target: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub import_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub export_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dependency_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subclass_id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub range: Option<SourceRange>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub reference_ids: Vec<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_count: Option<usize>,
+}
+
+fn append_common_debug_graph(
+    nodes: &mut Vec<GraphDebugNode>,
+    edges: &mut Vec<GraphDebugEdge>,
+    files: &[FileRecord],
+    symbols: &[SymbolRecord],
+    imports: &[ImportRecord],
+    import_resolutions: &[ImportResolutionRecord],
+    external_modules: &[ExternalModuleRecord],
+    references: &[ReferenceRecord],
+    external_references: &[ExternalReferenceRecord],
+    dependencies: &[DependencyRecord],
+) {
+    for file in files {
+        nodes.push(GraphDebugNode {
+            id: file_debug_id(file.id),
+            node_type: "file",
+            record_id: file.id,
+            file_id: Some(file.id),
+            name: file.module_name.clone(),
+            path: Some(file.path.clone()),
+            range: Some(file.root_range),
+        });
+    }
+
+    for symbol in symbols {
+        nodes.push(GraphDebugNode {
+            id: symbol_debug_id(symbol.id),
+            node_type: "symbol",
+            record_id: symbol.id,
+            file_id: Some(symbol.file_id),
+            name: Some(symbol.name.clone()),
+            path: None,
+            range: Some(symbol.range),
+        });
+
+        let mut file_edge = debug_edge(
+            "contains_symbol",
+            file_debug_id(symbol.file_id),
+            symbol_debug_id(symbol.id),
+        );
+        file_edge.name = Some(symbol.name.clone());
+        file_edge.range = Some(symbol.range);
+        edges.push(file_edge);
+
+        if let Some(parent_symbol_id) = symbol.parent_symbol_id {
+            let mut parent_edge = debug_edge(
+                "parent_symbol",
+                symbol_debug_id(parent_symbol_id),
+                symbol_debug_id(symbol.id),
+            );
+            parent_edge.name = Some(symbol.name.clone());
+            parent_edge.range = Some(symbol.range);
+            edges.push(parent_edge);
+        }
+    }
+
+    for import in imports {
+        nodes.push(GraphDebugNode {
+            id: import_debug_id(import.id),
+            node_type: "import",
+            record_id: import.id,
+            file_id: Some(import.file_id),
+            name: import_debug_name(import),
+            path: None,
+            range: Some(import.range),
+        });
+
+        let mut file_edge = debug_edge(
+            "contains_import",
+            file_debug_id(import.file_id),
+            import_debug_id(import.id),
+        );
+        file_edge.import_id = Some(import.id);
+        file_edge.name = import_debug_name(import);
+        file_edge.range = Some(import.range);
+        edges.push(file_edge);
+    }
+
+    let mut external_module_id_by_import_id = BTreeMap::new();
+    for external_module in external_modules {
+        external_module_id_by_import_id.insert(external_module.import_id, external_module.id);
+        nodes.push(GraphDebugNode {
+            id: external_module_debug_id(external_module.id),
+            node_type: "external_module",
+            record_id: external_module.id,
+            file_id: Some(external_module.file_id),
+            name: Some(external_module.name.clone()),
+            path: None,
+            range: Some(external_module.range),
+        });
+
+        let mut file_edge = debug_edge(
+            "contains_external_module",
+            file_debug_id(external_module.file_id),
+            external_module_debug_id(external_module.id),
+        );
+        file_edge.import_id = Some(external_module.import_id);
+        file_edge.name = Some(external_module.name.clone());
+        file_edge.range = Some(external_module.range);
+        edges.push(file_edge);
+    }
+
+    for resolution in import_resolutions {
+        let target = resolution
+            .target_symbol_id
+            .map(symbol_debug_id)
+            .unwrap_or_else(|| file_debug_id(resolution.target_file_id));
+        let mut edge = debug_edge(
+            "import_resolution",
+            import_debug_id(resolution.import_id),
+            target,
+        );
+        edge.import_id = Some(resolution.import_id);
+        edges.push(edge);
+    }
+
+    for reference in references {
+        let mut edge = debug_edge(
+            "reference",
+            source_debug_id(reference.source_symbol_id, reference.source_file_id),
+            symbol_debug_id(reference.target_symbol_id),
+        );
+        edge.import_id = reference.import_id;
+        edge.reference_id = Some(reference.id);
+        edge.name = Some(reference.name.clone());
+        edge.range = Some(reference.range);
+        edges.push(edge);
+    }
+
+    for reference in external_references {
+        let target = external_module_id_by_import_id
+            .get(&reference.import_id)
+            .copied()
+            .map(external_module_debug_id)
+            .unwrap_or_else(|| import_debug_id(reference.import_id));
+        let mut edge = debug_edge(
+            "external_reference",
+            source_debug_id(reference.source_symbol_id, reference.source_file_id),
+            target,
+        );
+        edge.import_id = Some(reference.import_id);
+        edge.reference_id = Some(reference.id);
+        edge.name = Some(reference.name.clone());
+        edge.range = Some(reference.range);
+        edges.push(edge);
+    }
+
+    for dependency in dependencies {
+        let mut edge = debug_edge(
+            "dependency",
+            symbol_debug_id(dependency.source_symbol_id),
+            symbol_debug_id(dependency.target_symbol_id),
+        );
+        edge.dependency_id = Some(dependency.id);
+        edge.reference_ids = dependency.reference_ids.clone();
+        edge.reference_count = Some(dependency.reference_count);
+        edges.push(edge);
+    }
+}
+
+fn debug_edge(edge_type: &'static str, source: String, target: String) -> GraphDebugEdge {
+    GraphDebugEdge {
+        edge_type,
+        source,
+        target,
+        import_id: None,
+        export_id: None,
+        reference_id: None,
+        dependency_id: None,
+        subclass_id: None,
+        name: None,
+        range: None,
+        reference_ids: Vec::new(),
+        reference_count: None,
+    }
+}
+
+fn source_debug_id(symbol_id: Option<u32>, file_id: u32) -> String {
+    symbol_id
+        .map(symbol_debug_id)
+        .unwrap_or_else(|| file_debug_id(file_id))
+}
+
+fn file_debug_id(id: u32) -> String {
+    format!("file:{id}")
+}
+
+fn symbol_debug_id(id: u32) -> String {
+    format!("symbol:{id}")
+}
+
+fn import_debug_id(id: u32) -> String {
+    format!("import:{id}")
+}
+
+fn external_module_debug_id(id: u32) -> String {
+    format!("external_module:{id}")
+}
+
+fn export_debug_id(id: u32) -> String {
+    format!("export:{id}")
+}
+
+fn import_debug_name(import: &ImportRecord) -> Option<String> {
+    import
+        .alias
+        .clone()
+        .or_else(|| import.name.clone())
+        .or_else(|| import.module.clone())
+}
+
+fn export_debug_name(export: &ExportRecord) -> Option<String> {
+    export
+        .name
+        .clone()
+        .or_else(|| export.local_name.clone())
+        .or_else(|| export.source_module.clone())
 }
 
 struct PythonIndexer {

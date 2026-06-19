@@ -767,6 +767,12 @@ class RustIndexBackend:
     def to_json(self) -> str:
         return str(self.index.to_json())
 
+    def debug_graph_json(self) -> str:
+        debug_graph_json = getattr(self.index, "debug_graph_json", None)
+        if debug_graph_json is None:
+            return self.to_json()
+        return str(debug_graph_json())
+
 
 @dataclass(frozen=True)
 class _RustCompatTreeNode:

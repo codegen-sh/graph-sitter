@@ -166,6 +166,12 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn debug_graph_json(&self) -> PyResult<String> {
+            self.inner
+                .debug_graph_json()
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn files_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.files)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -319,6 +325,12 @@ mod bindings {
 
         fn to_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn debug_graph_json(&self) -> PyResult<String> {
+            self.inner
+                .debug_graph_json()
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
@@ -779,6 +791,25 @@ mod bindings {
             assert!(index.to_json().unwrap().contains("import_resolutions"));
             assert!(index.to_json().unwrap().contains("references"));
             assert!(index.to_json().unwrap().contains("dependencies"));
+            let debug_graph: serde_json::Value =
+                serde_json::from_str(&index.debug_graph_json().unwrap()).unwrap();
+            let nodes = debug_graph["nodes"].as_array().unwrap();
+            let edges = debug_graph["edges"].as_array().unwrap();
+            assert!(nodes.iter().any(|node| {
+                node.get("id").and_then(serde_json::Value::as_str) == Some("symbol:2")
+                    && node.get("node_type").and_then(serde_json::Value::as_str) == Some("symbol")
+            }));
+            assert!(edges.iter().any(|edge| {
+                edge.get("edge_type").and_then(serde_json::Value::as_str)
+                    == Some("import_resolution")
+                    && edge.get("source").and_then(serde_json::Value::as_str) == Some("import:0")
+                    && edge.get("target").and_then(serde_json::Value::as_str) == Some("symbol:1")
+            }));
+            assert!(edges.iter().any(|edge| {
+                edge.get("edge_type").and_then(serde_json::Value::as_str) == Some("dependency")
+                    && edge.get("reference_ids") == Some(&serde_json::json!([0]))
+                    && edge.get("reference_count") == Some(&serde_json::json!(1))
+            }));
         }
 
         #[test]
@@ -850,6 +881,23 @@ mod bindings {
             assert!(index.to_json().unwrap().contains("\"references\""));
             assert!(index.to_json().unwrap().contains("\"dependencies\""));
             assert!(index.to_json().unwrap().contains("\"subclass_edges\""));
+            let debug_graph: serde_json::Value =
+                serde_json::from_str(&index.debug_graph_json().unwrap()).unwrap();
+            let nodes = debug_graph["nodes"].as_array().unwrap();
+            let edges = debug_graph["edges"].as_array().unwrap();
+            assert!(nodes.iter().any(|node| {
+                node.get("id").and_then(serde_json::Value::as_str) == Some("export:0")
+                    && node.get("node_type").and_then(serde_json::Value::as_str) == Some("export")
+            }));
+            assert!(edges.iter().any(|edge| {
+                edge.get("edge_type").and_then(serde_json::Value::as_str) == Some("export_symbol")
+                    && edge.get("source").and_then(serde_json::Value::as_str) == Some("export:0")
+                    && edge.get("target").and_then(serde_json::Value::as_str) == Some("symbol:0")
+            }));
+            assert!(edges.iter().any(|edge| {
+                edge.get("edge_type").and_then(serde_json::Value::as_str) == Some("reference")
+                    && edge.get("name").and_then(serde_json::Value::as_str) == Some("helper")
+            }));
         }
 
         #[test]
