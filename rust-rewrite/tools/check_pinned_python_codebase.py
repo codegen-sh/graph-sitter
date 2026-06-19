@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import resource
 import sys
 import time
@@ -144,6 +145,20 @@ def max_rss_bytes() -> int:
     return int(rss * 1024)
 
 
+def current_rss_bytes() -> int:
+    import psutil
+
+    return int(psutil.Process(os.getpid()).memory_info().rss)
+
+
+def memory_sample(label: str) -> dict[str, float | str]:
+    return {
+        "label": label,
+        "rss_mb": round(bytes_to_mb(current_rss_bytes()), 3),
+        "max_rss_mb": round(bytes_to_mb(max_rss_bytes()), 3),
+    }
+
+
 def handle_signature(handle: Any) -> dict[str, Any]:
     signature = {
         "handle": type(handle).__name__,
@@ -198,6 +213,7 @@ def known_dependency_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
 
 
 def make_report(args: argparse.Namespace) -> dict[str, Any]:
+    memory_samples = [memory_sample("start")]
     repo, actual_commit = prepare_pinned_repo(args)
     extension_path = None
     if not args.skip_build_extension:
@@ -212,12 +228,14 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     config = CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR)
     codebase = Codebase(str(repo), language="python", config=config)
     wall = time.perf_counter() - start
+    memory_samples.append(memory_sample("after_codebase_construct"))
 
     python_graph_blocked = False
     try:
         len(codebase.ctx.nodes)
     except RuntimeError:
         python_graph_blocked = True
+    memory_samples.append(memory_sample("after_python_graph_block_check"))
 
     summary = codebase.rust_index_summary
     summary_counts = {
@@ -236,6 +254,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "lines": summary.lines,
         "files_with_errors": summary.files_with_errors,
     }
+    memory_samples.append(memory_sample("after_summary_counts"))
     record_counts = {
         "rust_files": len(codebase.rust_files),
         "rust_symbols": len(codebase.rust_symbols),
@@ -251,6 +270,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "rust_dependencies": len(codebase.rust_dependencies),
         "rust_subclass_edges": len(codebase.rust_subclass_edges),
     }
+    memory_samples.append(memory_sample("after_record_counts"))
     compat_counts = {
         "files": len(codebase.files),
         "symbols": len(codebase.symbols),
@@ -262,12 +282,15 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "imports": len(codebase.imports),
         "external_modules": len(codebase.external_modules),
     }
+    memory_samples.append(memory_sample("after_compat_handles"))
     known_lookups = known_lookup_report(codebase)
     known_dependencies = known_dependency_report(codebase)
+    memory_samples.append(memory_sample("after_known_queries"))
 
     totals = {
         "wall_seconds": round(wall, 6),
         "max_rss_mb": round(bytes_to_mb(max_rss_bytes()), 3),
+        "current_rss_mb": memory_samples[-1]["rss_mb"],
     }
     comparison = {
         "recorded_python_wall_seconds": RECORDED_PYTHON_BASELINE["wall_seconds"],
@@ -290,6 +313,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
             "python_graph_blocked": python_graph_blocked,
         },
         "totals": totals,
+        "rss_samples": memory_samples,
         "summary": summary_counts,
         "records": record_counts,
         "compat_handles": compat_counts,
@@ -352,7 +376,14 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"repo: {metadata['name']} {metadata['commit']}")
     print(f"checkout: {metadata['checkout']}")
     print(f"python graph blocked: {metadata['python_graph_blocked']}")
-    print(f"rust Codebase: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB")
+    print(
+        f"rust Codebase: wall={totals['wall_seconds']:.3f}s "
+        f"max_rss={totals['max_rss_mb']:.1f} MB current_rss={totals['current_rss_mb']:.1f} MB"
+    )
+    print(
+        "rss samples: "
+        + " -> ".join(f"{sample['label']}={sample['rss_mb']:.1f} MB" for sample in report["rss_samples"])
+    )
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
