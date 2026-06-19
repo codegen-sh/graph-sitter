@@ -747,6 +747,64 @@ def test_rust_compact_decorator_read_and_remove_commit_without_python_graph(monk
             len(codebase.ctx.nodes)
 
 
+def test_rust_compact_move_function_to_created_file_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        helper = codebase.get_function("helper")
+        helpers_file = codebase.create_file("pkg/helpers.py", "", sync=False)
+
+        helper.move_to_file(helpers_file, include_dependencies=False, strategy="add_back_edge")
+        codebase.commit(sync_graph=False)
+
+        expected_source = "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\n"
+        expected_target = "from pkg.service import Service\ndef helper():\n    return Service()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == expected_source
+        assert (tmp_path / "pkg/helpers.py").read_text() == expected_target
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_move_class_adds_back_edge_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service = codebase.get_class("Service")
+        models_file = codebase.create_file("pkg/models.py", "", sync=False)
+
+        service.move_to_file(models_file, include_dependencies=False, strategy="add_back_edge")
+        codebase.commit(sync_graph=False)
+
+        expected_source = "from pkg.models import Service\nimport os\nimport pkg.service\n\n\ndef helper():\n    return Service()\n"
+        expected_target = "class Service:\n    def run(self):\n        return os.getcwd()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == expected_source
+        assert (tmp_path / "pkg/models.py").read_text() == expected_target
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
 def test_missing_rust_extension_can_fail_strictly(monkeypatch, tmp_path):
     monkeypatch.setitem(sys.modules, "graph_sitter_py", None)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR)

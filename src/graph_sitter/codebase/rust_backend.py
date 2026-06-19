@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -962,6 +962,25 @@ class RustCompactFile(RustCompactHandle):
 
         return self.imports[0].start_byte, f"{import_line}\n"
 
+    def add_symbol_from_source(self, source: str) -> None:
+        symbol_source = source.rstrip("\n")
+        if not symbol_source:
+            return
+
+        if not self.content:
+            self.insert_at(0, f"{symbol_source}\n")
+            return
+
+        prefix = "\n\n" if self.content.endswith("\n") else "\n"
+        self.insert_at(len(self.content_bytes), f"{prefix}{symbol_source}\n")
+
+    def add_symbol(self, symbol: RustCompactSymbol, should_export: bool = True) -> RustCompactSymbol | None:
+        existing_symbol = self.get_symbol(symbol.name)
+        if existing_symbol is not None:
+            return existing_symbol
+        self.add_symbol_from_source(symbol.source)
+        return None
+
     @property
     def imports(self) -> list[RustCompactImport]:
         return self.backend.imports_for_file(self.record.id)
@@ -1332,6 +1351,72 @@ class RustCompactSymbol(RustCompactHandle):
             priority=priority,
         )
         self.transaction_manager.add_transaction(transaction)
+
+    def move_to_file(
+        self,
+        file: RustCompactFile,
+        include_dependencies: bool = True,
+        strategy: Literal["add_back_edge", "update_all_imports", "duplicate_dependencies"] = "update_all_imports",
+    ) -> None:
+        self._move_to_file(file, {self}, include_dependencies, strategy)
+
+    def _move_to_file(
+        self,
+        file: RustCompactFile,
+        encountered_symbols: set[RustCompactSymbol | RustCompactImport],
+        include_dependencies: bool = True,
+        strategy: Literal["add_back_edge", "update_all_imports", "duplicate_dependencies"] = "update_all_imports",
+    ) -> None:
+        if strategy not in {"add_back_edge", "update_all_imports", "duplicate_dependencies"}:
+            msg = f"Unsupported move_to_file strategy: {strategy}"
+            raise AssertionError(msg)
+        if file == self.file:
+            return
+
+        if existing_import := file.get_import(self.name):
+            encountered_symbols.add(existing_import)
+            existing_import.remove()
+
+        for dependency in self.dependencies:
+            if dependency in encountered_symbols:
+                continue
+            if isinstance(dependency, RustCompactSymbol) and dependency.is_top_level and include_dependencies:
+                encountered_symbols.add(dependency)
+                dependency._move_to_file(file, encountered_symbols, include_dependencies, strategy)
+            elif isinstance(dependency, RustCompactSymbol):
+                file.add_import(dependency, alias=dependency.name)
+            elif isinstance(dependency, RustCompactImport):
+                imported_symbol = dependency.imported_symbol
+                if isinstance(imported_symbol, RustCompactSymbol):
+                    file.add_import(imported_symbol, alias=dependency.name)
+                else:
+                    file.add_import(dependency.source)
+
+        file.add_symbol(self)
+        import_line = self.get_import_string(module=file.import_module_name)
+        is_used_in_source_file = any(usage_symbol != self and getattr(usage_symbol, "file", None) == self.file for usage_symbol in self.symbol_usages)
+        imported_usages = [usage for usage in self.usages if usage.imported_by is not None and usage.imported_by not in encountered_symbols]
+
+        if strategy == "duplicate_dependencies":
+            if not is_used_in_source_file and not imported_usages:
+                self.remove()
+            return
+
+        if strategy == "add_back_edge":
+            if is_used_in_source_file or imported_usages:
+                self.file.add_import(import_line)
+            self.remove()
+            return
+
+        for usage in imported_usages:
+            imported_by = usage.imported_by
+            if imported_by is not None and imported_by.file != file:
+                imported_by.file.add_import(import_line)
+                imported_by.remove()
+
+        if is_used_in_source_file:
+            self.file.add_import(import_line)
+        self.remove()
 
     def set_name(self, name: str, priority: int = 0) -> None:
         transaction = EditTransaction(
