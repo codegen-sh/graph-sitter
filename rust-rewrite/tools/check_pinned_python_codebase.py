@@ -120,6 +120,29 @@ EXPECTED_KNOWN_CHILD_LOOKUPS = {
     ]
 }
 
+EXPECTED_KNOWN_FILE_LOCAL_LOOKUPS = {
+    "airflow_init_getattr": {
+        "filepath": "airflow/__init__.py",
+        "handle": "RustCompactSymbol",
+        "kind": "function",
+        "name": "__getattr__",
+    }
+}
+
+EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
+    "files": False,
+    "symbols": False,
+    "imports": False,
+    "references": False,
+    "external_references": False,
+    "dependencies": False,
+    "file_handles": False,
+    "symbol_handles": False,
+    "import_handles": False,
+    "external_module_handles": False,
+    "symbols_by_file": False,
+}
+
 EXPECTED_KNOWN_DEPENDENCIES = {
     "airflow_init_getattr_dependencies": [
         {
@@ -245,6 +268,15 @@ def known_child_lookup_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
     }
 
 
+def known_file_local_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    function = codebase.get_file("airflow/__init__.py").get_function("__getattr__")
+    signature = handle_signature(function)
+    signature["filepath"] = function.filepath
+    return {
+        "airflow_init_getattr": signature,
+    }
+
+
 def dependency_signature(handle: Any) -> dict[str, Any]:
     node_type = getattr(handle, "node_type", None)
     signature = {
@@ -280,6 +312,12 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "import_handles": backend._import_handles is not None,
         "external_module_handles": backend._external_module_handles is not None,
     }
+
+
+def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
+    report = large_cache_materialization_report(backend)
+    report["symbols_by_file"] = backend._symbols_by_file_id is not None
+    return report
 
 
 def make_report(args: argparse.Namespace) -> dict[str, Any]:
@@ -335,6 +373,9 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_known_global_lookups"))
     known_child_lookups = known_child_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_child_lookups"))
+    known_file_local_lookups = known_file_local_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_file_local_lookups"))
+    targeted_cache_materialization = targeted_cache_materialization_report(backend)
     known_lookups = known_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_lookups"))
     known_dependencies = known_dependency_report(codebase)
@@ -373,6 +414,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "compat_handles": compat_counts,
         "known_global_lookups": known_global_lookups,
         "known_child_lookups": known_child_lookups,
+        "known_file_local_lookups": known_file_local_lookups,
+        "targeted_cache_materialization": targeted_cache_materialization,
         "known_lookups": known_lookups,
         "known_dependencies": known_dependencies,
         "large_cache_materialization": large_cache_materialization,
@@ -401,6 +444,10 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("known global lookup results drifted")
         if report["known_child_lookups"] != EXPECTED_KNOWN_CHILD_LOOKUPS:
             failures.append("known child lookup results drifted")
+        if report["known_file_local_lookups"] != EXPECTED_KNOWN_FILE_LOCAL_LOOKUPS:
+            failures.append("known file-local lookup results drifted")
+        if report["targeted_cache_materialization"] != EXPECTED_TARGETED_CACHE_MATERIALIZATION:
+            failures.append("targeted lookup caches were materialized before byte-range queries")
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:
             failures.append("known byte-range lookup results drifted")
         if report["known_dependencies"] != EXPECTED_KNOWN_DEPENDENCIES:

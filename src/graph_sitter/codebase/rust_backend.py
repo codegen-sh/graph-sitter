@@ -354,6 +354,7 @@ class RustIndexBackend:
     _exports_by_file_id: dict[int, list[RustCompactExport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
     _import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] | None = None
+    _symbols_by_file_id_and_name: dict[tuple[int, str], list[RustCompactSymbol]] | None = None
     _references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_import_id: dict[int, list[RustReferenceRecord]] | None = None
@@ -723,6 +724,7 @@ class RustIndexBackend:
         self._exports_by_file_id = None
         self._import_resolutions_by_import_id = None
         self._import_resolutions_by_target_file_id = None
+        self._symbols_by_file_id_and_name = None
         self._references_by_target_symbol_id = None
         self._references_by_source_symbol_id = None
         self._references_by_import_id = None
@@ -783,6 +785,21 @@ class RustIndexBackend:
                 symbols_by_file_id.setdefault(symbol.record.file_id, []).append(symbol)
             self._symbols_by_file_id = symbols_by_file_id
         return self._symbols_by_file_id.get(file_id, [])
+
+    def symbols_for_file_by_name(self, file_id: int, name: str) -> list[RustCompactSymbol]:
+        if self._symbol_handles is None and hasattr(self.index, "symbols_for_file_by_name_json"):
+            if self._symbols_by_file_id_and_name is None:
+                self._symbols_by_file_id_and_name = {}
+            key = (file_id, name)
+            if key not in self._symbols_by_file_id_and_name:
+                records = self._records_from_json_method("symbols_for_file_by_name_json", RustSymbolRecord.from_dict, file_id, name)
+                if records is not None:
+                    self._symbols_by_file_id_and_name[key] = [self._symbol_handle_from_record(record) for record in records]
+                else:
+                    self._symbol_handles = [self._symbol_handle_from_record(record) for record in self.symbols]
+            if key in self._symbols_by_file_id_and_name:
+                return self._symbols_by_file_id_and_name[key]
+        return [symbol for symbol in self.symbols_for_file(file_id) if symbol.name == name]
 
     def symbols_for_parent(self, parent_symbol_id: int) -> list[RustCompactSymbol]:
         if self._symbol_handles is None and hasattr(self.index, "symbols_for_parent_json"):
@@ -1939,16 +1956,16 @@ class RustCompactFile(RustCompactHandle):
         return [symbols_by_id[symbol_id] for symbol_id in ordered_ids]
 
     def get_symbol(self, name: str) -> RustCompactSymbol | None:
-        return next((symbol for symbol in self.symbols if symbol.name == name), None)
+        return next((symbol for symbol in self.backend.symbols_for_file_by_name(self.record.id, name) if symbol.is_top_level), None)
 
     def get_global_var(self, name: str) -> RustCompactSymbol | None:
-        return next((symbol for symbol in self.global_vars if symbol.name == name), None)
+        return next((symbol for symbol in self.backend.symbols_for_file_by_name(self.record.id, name) if symbol.is_top_level and symbol.symbol_type == SymbolType.GlobalVar), None)
 
     def get_class(self, name: str) -> RustCompactSymbol | None:
-        return next((symbol for symbol in self.classes if symbol.name == name), None)
+        return next((symbol for symbol in self.backend.symbols_for_file_by_name(self.record.id, name) if symbol.is_top_level and symbol.symbol_type == SymbolType.Class), None)
 
     def get_function(self, name: str) -> RustCompactSymbol | None:
-        return next((symbol for symbol in self.functions if symbol.name == name), None)
+        return next((symbol for symbol in self.backend.symbols_for_file_by_name(self.record.id, name) if symbol.is_top_level and symbol.symbol_type == SymbolType.Function), None)
 
     def has_import(self, symbol_alias: str) -> bool:
         return self.get_import(symbol_alias) is not None

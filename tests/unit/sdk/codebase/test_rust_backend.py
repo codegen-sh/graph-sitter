@@ -191,6 +191,15 @@ class FakeIndex:
             ]
         )
 
+    def symbols_for_file_by_name_json(self, file_id: int, name: str):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["file_id"] == file_id and symbol["name"] == name
+            ]
+        )
+
     def imports_json(self):
         return json.dumps(
             [
@@ -1612,9 +1621,13 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert codebase.get_function("missing", optional=True) is None
         assert [symbol.name for symbol in codebase.get_class("Service").child_symbols] == ["run"]
         assert [symbol.name for symbol in codebase.get_class("Service").descendant_symbols] == ["Service", "run"]
+        assert codebase.get_file("pkg/service.py").get_class("Service").name == "Service"
+        assert codebase.get_file("pkg/service.py").get_function("helper").name == "helper"
+        assert codebase.get_file("pkg/service.py").get_symbol("missing") is None
 
         assert backend._symbols is None
         assert backend._symbol_handles is None
+        assert backend._symbols_by_file_id is None
         assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
 
 
