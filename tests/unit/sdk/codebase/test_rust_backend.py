@@ -231,7 +231,141 @@ class FakeIndex:
         )
 
 
-def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch) -> tuple[list[str], list[list[str]]]:
+class FakeDecoratedIndex(FakeIndex):
+    def summary(self):
+        return FakeDecoratedSummary()
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "pkg/service.py",
+                    "module_name": "pkg.service",
+                    "byte_len": 132,
+                    "line_count": 10,
+                    "has_error": False,
+                    "root_range": {
+                        "start_byte": 0,
+                        "end_byte": 132,
+                        "start_row": 0,
+                        "start_column": 0,
+                        "end_row": 10,
+                        "end_column": 0,
+                    },
+                }
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Service",
+                    "kind": "class",
+                    "range": {
+                        "start_byte": 30,
+                        "end_byte": 96,
+                        "start_row": 3,
+                        "start_column": 0,
+                        "end_row": 7,
+                        "end_column": 0,
+                    },
+                    "name_range": {
+                        "start_byte": 41,
+                        "end_byte": 48,
+                        "start_row": 4,
+                        "start_column": 6,
+                        "end_row": 4,
+                        "end_column": 13,
+                    },
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "parent_symbol_id": 0,
+                    "is_top_level": False,
+                    "name": "run",
+                    "kind": "function",
+                    "range": {
+                        "start_byte": 50,
+                        "end_byte": 96,
+                        "start_row": 5,
+                        "start_column": 4,
+                        "end_row": 7,
+                        "end_column": 0,
+                    },
+                    "name_range": {
+                        "start_byte": 58,
+                        "end_byte": 61,
+                        "start_row": 5,
+                        "start_column": 8,
+                        "end_row": 5,
+                        "end_column": 11,
+                    },
+                },
+                {
+                    "id": 2,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "helper",
+                    "kind": "function",
+                    "range": {
+                        "start_byte": 97,
+                        "end_byte": 132,
+                        "start_row": 8,
+                        "start_column": 0,
+                        "end_row": 10,
+                        "end_column": 0,
+                    },
+                    "name_range": {
+                        "start_byte": 101,
+                        "end_byte": 107,
+                        "start_row": 8,
+                        "start_column": 4,
+                        "end_row": 8,
+                        "end_column": 10,
+                    },
+                },
+            ]
+        )
+
+    def references_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 2,
+                    "target_symbol_id": 0,
+                    "import_id": 0,
+                    "name": "Service",
+                    "range": {
+                        "start_byte": 122,
+                        "end_byte": 129,
+                        "start_row": 9,
+                        "start_column": 11,
+                        "end_row": 9,
+                        "end_column": 18,
+                    },
+                }
+            ]
+        )
+
+
+class FakeDecoratedSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update({"bytes": 132, "lines": 10})
+        return data
+
+
+def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeIndex) -> tuple[list[str], list[list[str]]]:
     indexed_paths: list[str] = []
     selected_paths: list[list[str]] = []
     module = ModuleType("graph_sitter_py")
@@ -239,12 +373,12 @@ def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch) -> tuple[list[s
 
     def index_python_path(path: str):
         indexed_paths.append(path)
-        return FakeIndex()
+        return index_cls()
 
     def index_python_paths(path: str, file_paths: list[str]):
         indexed_paths.append(path)
         selected_paths.append(file_paths)
-        return FakeIndex()
+        return index_cls()
 
     module.index_python_path = index_python_path
     module.index_python_paths = index_python_paths
@@ -545,6 +679,69 @@ def test_rust_compact_symbol_and_import_remove_commit_without_python_graph(monke
         expected = "\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\n"
         assert (tmp_path / "pkg/service.py").read_text() == expected
         assert service_file.content == expected
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_add_decorator_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service = codebase.get_class("Service")
+        run = service.get_method("run")
+
+        assert not service.is_decorated
+        assert service.decorators == []
+        assert service.add_decorator("@dataclass")
+        assert not service.add_decorator("@dataclass", skip_if_exists=True)
+        assert run.add_decorator("@classmethod")
+        codebase.commit(sync_graph=False)
+
+        expected = "import os\nimport pkg.service\n\n@dataclass\nclass Service:\n    @classmethod\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == expected
+        assert service.file.content == expected
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_decorator_read_and_remove_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, index_cls=FakeDecoratedIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\n@old\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service = codebase.get_class("Service")
+
+        assert service.is_decorated
+        assert [decorator.source for decorator in service.decorators] == ["@old"]
+        assert service.decorators[0].name == "old"
+        assert service.decorators[0].full_name == "old"
+        service.decorators[0].remove()
+        codebase.commit(sync_graph=False)
+
+        expected = "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == expected
+        assert service.file.content == expected
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)

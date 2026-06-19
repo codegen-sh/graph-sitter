@@ -21,6 +21,7 @@ uv run python -m py_compile \
   src/graph_sitter/codebase/rust_backend.py \
   tests/unit/sdk/codebase/test_rust_backend.py \
   tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py \
+  tests/integration/rust_rewrite/test_pinned_nextjs_snapshot.py \
   rust-rewrite/tools/benchmark_pinned_typescript_repo.py \
   rust-rewrite/tools/benchmark_pinned_python_repo.py \
   rust-rewrite/tools/compare_rust_python_index.py \
@@ -28,9 +29,11 @@ uv run python -m py_compile \
   rust-rewrite/tools/measure_python_backend.py \
   rust-rewrite/tools/measure_rust_facade.py \
   rust-rewrite/tools/measure_typescript_rust_index.py \
+  rust-rewrite/tools/snapshot_pinned_typescript_repo.py \
   rust-rewrite/tools/snapshot_pinned_python_repo.py
 
 uv run pytest \
   tests/unit/sdk/codebase/test_rust_backend.py \
   tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py \
+  tests/integration/rust_rewrite/test_pinned_nextjs_snapshot.py \
   -q

@@ -650,6 +650,47 @@ class RustCompactUsage:
         return self.match.filepath
 
 
+@dataclass(frozen=True)
+class RustCompactDecorator:
+    parent: RustCompactSymbol
+    start_byte: int
+    end_byte: int
+    remove_end_byte: int
+
+    @property
+    def file(self) -> RustCompactFile:
+        return self.parent.file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def source(self) -> str:
+        return self.file.content_bytes[self.start_byte : self.end_byte].decode("utf-8")
+
+    @property
+    def full_name(self) -> str:
+        source = self.source.strip()
+        if source.startswith("@"):
+            source = source[1:]
+        return source.split("(", 1)[0].strip()
+
+    @property
+    def name(self) -> str:
+        return self.full_name.rsplit(".", 1)[-1]
+
+    def remove(self, delete_formatting: bool = True, priority: int = 0, dedupe: bool = True) -> None:
+        end_byte = self.remove_end_byte if delete_formatting else self.end_byte
+        transaction = RemoveTransaction(
+            self.start_byte,
+            end_byte,
+            self.file,
+            priority=priority,
+        )
+        self.parent.transaction_manager.add_transaction(transaction, dedupe=dedupe)
+
+
 def _usage_types_include_direct(usage_types: UsageType | None) -> bool:
     return usage_types is None or bool(usage_types & UsageType.DIRECT)
 
@@ -719,6 +760,17 @@ def _source_range_for_content(source: str) -> RustSourceRange:
         end_row=end_row,
         end_column=end_column,
     )
+
+
+def _line_byte_offsets(source: str) -> list[int]:
+    offsets: list[int] = []
+    offset = 0
+    for line in source.splitlines(keepends=True):
+        offsets.append(offset)
+        offset += len(line.encode("utf-8"))
+    if source == "" or source.endswith(("\n", "\r")):
+        offsets.append(offset)
+    return offsets
 
 
 class RustCompactHandle:
@@ -1088,6 +1140,7 @@ class RustCompactSymbol(RustCompactHandle):
         self.name = record.name
         self._name_node = RustCompactName(record.name)
         self.is_top_level = record.is_top_level
+        self._pending_decorators: set[str] = set()
 
     def __repr__(self) -> str:
         return f"RustCompactSymbol(name={self.name!r}, filepath={self.filepath!r})"
@@ -1131,6 +1184,55 @@ class RustCompactSymbol(RustCompactHandle):
     @property
     def extended_nodes(self) -> list[RustCompactSymbol]:
         return [self]
+
+    @property
+    def is_decorated(self) -> bool:
+        return bool(self.decorators)
+
+    @property
+    def decorators(self) -> list[RustCompactDecorator]:
+        content = self.file.content
+        lines = content.splitlines(keepends=True)
+        line_offsets = _line_byte_offsets(content)
+        decorators: list[RustCompactDecorator] = []
+        for row in range(self.record.range.start_row, self.record.name_range.start_row):
+            if row >= len(lines) or row >= len(line_offsets):
+                break
+
+            line = lines[row]
+            if not line.lstrip().startswith("@"):
+                continue
+
+            leading_spaces = len(line) - len(line.lstrip())
+            line_without_newline = line.rstrip("\r\n")
+            decorators.append(
+                RustCompactDecorator(
+                    parent=self,
+                    start_byte=line_offsets[row] + len(line[:leading_spaces].encode("utf-8")),
+                    end_byte=line_offsets[row] + len(line_without_newline.encode("utf-8")),
+                    remove_end_byte=line_offsets[row] + len(line.encode("utf-8")),
+                )
+            )
+        return decorators
+
+    def add_decorator(self, new_decorator: str, skip_if_exists: bool = False) -> bool:
+        if skip_if_exists and (any(decorator.source == new_decorator for decorator in self.decorators) or new_decorator in self._pending_decorators):
+            return False
+
+        self._pending_decorators.add(new_decorator)
+        self.transaction_manager.pending_undos.add(lambda: self._pending_decorators.clear())
+
+        indentation = " " * self.start_point[1]
+        self.file.insert_at(self.start_byte, f"{new_decorator}\n{indentation}")
+        return True
+
+    @proxy_property
+    def methods(self, *, max_depth: int | None = 0, private: bool = True, magic: bool = True) -> list[RustCompactSymbol]:
+        methods = [symbol for symbol in self.child_symbols if symbol.record.kind == "function"]
+        return [method for method in methods if (private or not method.name.startswith("_")) and (magic or not (method.name.startswith("__") and method.name.endswith("__")))]
+
+    def get_method(self, name: str) -> RustCompactSymbol | None:
+        return next((method for method in self.methods if method.name == name), None)
 
     @proxy_property
     def dependencies(self, usage_types: UsageType | None = UsageType.DIRECT, max_depth: int | None = None) -> list[object]:

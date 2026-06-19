@@ -1,0 +1,1500 @@
+{
+  "graphs": {
+    "exports": {
+      "count": 16026,
+      "samples": [
+        {
+          "file": "bench/app-router-server/app/layout.js",
+          "import": null,
+          "key": "bench/app-router-server/app/layout.js:default:default:Root:@32",
+          "kind": "default",
+          "local_name": "Root",
+          "name": "default",
+          "range": [
+            32,
+            166,
+            2,
+            0,
+            9,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/app-router-server/app/layout.js:function:Root@56"
+        },
+        {
+          "file": "bench/app-router-server/app/rsc/page.js",
+          "import": null,
+          "key": "bench/app-router-server/app/rsc/page.js:default:default:page:@32",
+          "kind": "default",
+          "local_name": "page",
+          "name": "default",
+          "range": [
+            32,
+            92,
+            2,
+            0,
+            4,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/app-router-server/app/rsc/page.js:function:page@56"
+        },
+        {
+          "file": "bench/app-router-server/pages/index.js",
+          "import": null,
+          "key": "bench/app-router-server/pages/index.js:default:default:page:@32",
+          "kind": "default",
+          "local_name": "page",
+          "name": "default",
+          "range": [
+            32,
+            100,
+            2,
+            0,
+            4,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/app-router-server/pages/index.js:function:page@56"
+        },
+        {
+          "file": "bench/app-router-server/pages/index.js",
+          "import": null,
+          "key": "bench/app-router-server/pages/index.js:named:getServerSideProps:getServerSideProps:@102",
+          "kind": "named",
+          "local_name": "getServerSideProps",
+          "name": "getServerSideProps",
+          "range": [
+            102,
+            160,
+            6,
+            0,
+            8,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/app-router-server/pages/index.js:function:getServerSideProps@124"
+        },
+        {
+          "file": "bench/basic-app/app/api/app/route.js",
+          "import": null,
+          "key": "bench/basic-app/app/api/app/route.js:named:GET:GET:@0",
+          "kind": "named",
+          "local_name": "GET",
+          "name": "GET",
+          "range": [
+            0,
+            70,
+            0,
+            0,
+            2,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/basic-app/app/api/app/route.js:function:GET@16"
+        },
+        {
+          "file": "bench/basic-app/app/api/app/route.js",
+          "import": null,
+          "key": "bench/basic-app/app/api/app/route.js:named:dynamic:dynamic:@72",
+          "kind": "named",
+          "local_name": "dynamic",
+          "name": "dynamic",
+          "range": [
+            72,
+            110,
+            4,
+            0,
+            4,
+            38
+          ],
+          "source_module": null,
+          "symbol": "bench/basic-app/app/api/app/route.js:global_variable:dynamic@85"
+        },
+        {
+          "file": "bench/basic-app/app/layout.js",
+          "import": null,
+          "key": "bench/basic-app/app/layout.js:default:default:Layout:@27",
+          "kind": "default",
+          "local_name": "Layout",
+          "name": "default",
+          "range": [
+            27,
+            200,
+            2,
+            0,
+            11,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/basic-app/app/layout.js:function:Layout@51"
+        },
+        {
+          "file": "bench/basic-app/app/page.js",
+          "import": null,
+          "key": "bench/basic-app/app/page.js:default:default:Page:@27",
+          "kind": "default",
+          "local_name": "Page",
+          "name": "default",
+          "range": [
+            27,
+            87,
+            2,
+            0,
+            4,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/basic-app/app/page.js:function:Page@51"
+        },
+        {
+          "file": "bench/basic-app/app/page.js",
+          "import": null,
+          "key": "bench/basic-app/app/page.js:named:dynamic:dynamic:@89",
+          "kind": "named",
+          "local_name": "dynamic",
+          "name": "dynamic",
+          "range": [
+            89,
+            127,
+            6,
+            0,
+            6,
+            38
+          ],
+          "source_module": null,
+          "symbol": "bench/basic-app/app/page.js:global_variable:dynamic@102"
+        },
+        {
+          "file": "bench/basic-app/pages/api/page-api.js",
+          "import": null,
+          "key": "bench/basic-app/pages/api/page-api.js:default:default:handler:@0",
+          "kind": "default",
+          "local_name": "handler",
+          "name": "default",
+          "range": [
+            0,
+            90,
+            0,
+            0,
+            2,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/basic-app/pages/api/page-api.js:function:handler@24"
+        },
+        {
+          "file": "bench/basic-app/pages/pages/index.js",
+          "import": null,
+          "key": "bench/basic-app/pages/pages/index.js:default:default:() => 'Hello World':@0",
+          "kind": "default",
+          "local_name": "() => 'Hello World'",
+          "name": "default",
+          "range": [
+            0,
+            34,
+            0,
+            0,
+            0,
+            34
+          ],
+          "source_module": null,
+          "symbol": null
+        },
+        {
+          "file": "bench/basic-app/pages/pages/index.js",
+          "import": null,
+          "key": "bench/basic-app/pages/pages/index.js:named:getServerSideProps:getServerSideProps:@36",
+          "kind": "named",
+          "local_name": "getServerSideProps",
+          "name": "getServerSideProps",
+          "range": [
+            36,
+            106,
+            2,
+            0,
+            6,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/basic-app/pages/pages/index.js:function:getServerSideProps@52"
+        },
+        {
+          "file": "bench/heavy-npm-deps/app/layout.js",
+          "import": null,
+          "key": "bench/heavy-npm-deps/app/layout.js:named:metadata:metadata:@305",
+          "kind": "named",
+          "local_name": "metadata",
+          "name": "metadata",
+          "range": [
+            305,
+            407,
+            14,
+            0,
+            17,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/heavy-npm-deps/app/layout.js:global_variable:metadata@318"
+        },
+        {
+          "file": "bench/heavy-npm-deps/app/layout.js",
+          "import": null,
+          "key": "bench/heavy-npm-deps/app/layout.js:default:default:RootLayout:@409",
+          "kind": "default",
+          "local_name": "RootLayout",
+          "name": "default",
+          "range": [
+            409,
+            613,
+            19,
+            0,
+            27,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/heavy-npm-deps/app/layout.js:function:RootLayout@433"
+        },
+        {
+          "file": "bench/heavy-npm-deps/app/page.js",
+          "import": null,
+          "key": "bench/heavy-npm-deps/app/page.js:default:default:Page:@178",
+          "kind": "default",
+          "local_name": "Page",
+          "name": "default",
+          "range": [
+            178,
+            338,
+            4,
+            0,
+            12,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/heavy-npm-deps/app/page.js:function:Page@202"
+        },
+        {
+          "file": "bench/heavy-npm-deps/components/lodash.js",
+          "import": null,
+          "key": "bench/heavy-npm-deps/components/lodash.js:named:LodashComponent:LodashComponent:@71",
+          "kind": "named",
+          "local_name": "LodashComponent",
+          "name": "LodashComponent",
+          "range": [
+            71,
+            170,
+            5,
+            0,
+            11,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/heavy-npm-deps/components/lodash.js:function:LodashComponent@87"
+        },
+        {
+          "file": "bench/heavy-npm-deps/components/mantine.js",
+          "import": null,
+          "key": "bench/heavy-npm-deps/components/mantine.js:named:MantineComponent:MantineComponent:@98",
+          "kind": "named",
+          "local_name": "MantineComponent",
+          "name": "MantineComponent",
+          "range": [
+            98,
+            198,
+            5,
+            0,
+            11,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/heavy-npm-deps/components/mantine.js:function:MantineComponent@114"
+        },
+        {
+          "file": "bench/heavy-npm-deps/components/mermaid.js",
+          "import": null,
+          "key": "bench/heavy-npm-deps/components/mermaid.js:named:MermaidComponent:MermaidComponent:@117",
+          "kind": "named",
+          "local_name": "MermaidComponent",
+          "name": "MermaidComponent",
+          "range": [
+            117,
+            217,
+            6,
+            0,
+            12,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/heavy-npm-deps/components/mermaid.js:function:MermaidComponent@133"
+        },
+        {
+          "file": "bench/nested-deps-app-router/app/client-components-only/page.js",
+          "import": null,
+          "key": "bench/nested-deps-app-router/app/client-components-only/page.js:default:default:Home:@87",
+          "kind": "default",
+          "local_name": "Home",
+          "name": "default",
+          "range": [
+            87,
+            188,
+            5,
+            0,
+            12,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/nested-deps-app-router/app/client-components-only/page.js:function:Home@111"
+        },
+        {
+          "file": "bench/nested-deps-app-router/app/layout.js",
+          "import": null,
+          "key": "bench/nested-deps-app-router/app/layout.js:named:metadata:metadata:@27",
+          "kind": "named",
+          "local_name": "metadata",
+          "name": "metadata",
+          "range": [
+            27,
+            113,
+            2,
+            0,
+            5,
+            1
+          ],
+          "source_module": null,
+          "symbol": "bench/nested-deps-app-router/app/layout.js:global_variable:metadata@40"
+        }
+      ],
+      "sha256": "5a88b8e63c7e9fd52e305199fbdf61c3cd2abc40c85031db233f4247a126a9ef"
+    },
+    "files": {
+      "count": 13688,
+      "samples": [
+        {
+          "byte_len": 458956,
+          "has_error": false,
+          "line_count": 7,
+          "path": ".github/actions/needs-triage/dist/index.js",
+          "root_range": [
+            0,
+            458956,
+            0,
+            0,
+            6,
+            332106
+          ]
+        },
+        {
+          "byte_len": 1337,
+          "has_error": false,
+          "line_count": 50,
+          "path": ".github/actions/needs-triage/src/index.ts",
+          "root_range": [
+            0,
+            1337,
+            0,
+            0,
+            50,
+            0
+          ]
+        },
+        {
+          "byte_len": 10280,
+          "has_error": false,
+          "line_count": 452,
+          "path": ".github/actions/next-integration-stat/dist/37.index.js",
+          "root_range": [
+            0,
+            10280,
+            0,
+            0,
+            451,
+            1
+          ]
+        },
+        {
+          "byte_len": 711832,
+          "has_error": false,
+          "line_count": 13770,
+          "path": ".github/actions/next-integration-stat/dist/index.js",
+          "root_range": [
+            0,
+            711832,
+            0,
+            0,
+            13769,
+            1
+          ]
+        },
+        {
+          "byte_len": 28330,
+          "has_error": false,
+          "line_count": 934,
+          "path": ".github/actions/next-integration-stat/src/index.ts",
+          "root_range": [
+            0,
+            28330,
+            0,
+            0,
+            934,
+            0
+          ]
+        },
+        {
+          "byte_len": 1145,
+          "has_error": false,
+          "line_count": 49,
+          "path": ".github/actions/next-integration-stat/src/manifest.d.ts",
+          "root_range": [
+            0,
+            1145,
+            0,
+            0,
+            49,
+            0
+          ]
+        },
+        {
+          "byte_len": 953900,
+          "has_error": false,
+          "line_count": 16,
+          "path": ".github/actions/next-repo-actions/dist/bankrupt/index.js",
+          "root_range": [
+            0,
+            953900,
+            0,
+            0,
+            15,
+            258858
+          ]
+        },
+        {
+          "byte_len": 961976,
+          "has_error": false,
+          "line_count": 16,
+          "path": ".github/actions/next-repo-actions/dist/issues-by-version/index.js",
+          "root_range": [
+            0,
+            961976,
+            0,
+            0,
+            15,
+            257482
+          ]
+        },
+        {
+          "byte_len": 985836,
+          "has_error": false,
+          "line_count": 16,
+          "path": ".github/actions/next-repo-actions/dist/prs/index.js",
+          "root_range": [
+            0,
+            985836,
+            0,
+            0,
+            15,
+            258088
+          ]
+        },
+        {
+          "byte_len": 1699173,
+          "has_error": false,
+          "line_count": 18,
+          "path": ".github/actions/next-repo-actions/dist/triage-issues-with-ai/index.js",
+          "root_range": [
+            0,
+            1699173,
+            0,
+            0,
+            17,
+            523563
+          ]
+        },
+        {
+          "byte_len": 3661,
+          "has_error": false,
+          "line_count": 100,
+          "path": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "root_range": [
+            0,
+            3661,
+            0,
+            0,
+            100,
+            0
+          ]
+        },
+        {
+          "byte_len": 1960,
+          "has_error": false,
+          "line_count": 60,
+          "path": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+          "root_range": [
+            0,
+            1960,
+            0,
+            0,
+            60,
+            0
+          ]
+        },
+        {
+          "byte_len": 2129,
+          "has_error": false,
+          "line_count": 66,
+          "path": ".github/actions/next-repo-actions/src/popular-prs.ts",
+          "root_range": [
+            0,
+            2129,
+            0,
+            0,
+            66,
+            0
+          ]
+        },
+        {
+          "byte_len": 3244,
+          "has_error": false,
+          "line_count": 93,
+          "path": ".github/actions/next-repo-actions/src/triage-issues-with-ai.ts",
+          "root_range": [
+            0,
+            3244,
+            0,
+            0,
+            93,
+            0
+          ]
+        },
+        {
+          "byte_len": 8928,
+          "has_error": false,
+          "line_count": 285,
+          "path": ".github/actions/next-stats-action/src/add-comment.js",
+          "root_range": [
+            0,
+            8928,
+            0,
+            0,
+            285,
+            0
+          ]
+        },
+        {
+          "byte_len": 624,
+          "has_error": false,
+          "line_count": 26,
+          "path": ".github/actions/next-stats-action/src/constants.js",
+          "root_range": [
+            0,
+            624,
+            0,
+            0,
+            26,
+            0
+          ]
+        },
+        {
+          "byte_len": 5227,
+          "has_error": false,
+          "line_count": 158,
+          "path": ".github/actions/next-stats-action/src/index.js",
+          "root_range": [
+            0,
+            5227,
+            0,
+            0,
+            158,
+            0
+          ]
+        },
+        {
+          "byte_len": 2678,
+          "has_error": false,
+          "line_count": 103,
+          "path": ".github/actions/next-stats-action/src/prepare/action-info.js",
+          "root_range": [
+            0,
+            2678,
+            0,
+            0,
+            103,
+            0
+          ]
+        },
+        {
+          "byte_len": 994,
+          "has_error": false,
+          "line_count": 42,
+          "path": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+          "root_range": [
+            0,
+            994,
+            0,
+            0,
+            42,
+            0
+          ]
+        },
+        {
+          "byte_len": 10396,
+          "has_error": false,
+          "line_count": 289,
+          "path": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+          "root_range": [
+            0,
+            10396,
+            0,
+            0,
+            289,
+            0
+          ]
+        }
+      ],
+      "sha256": "caf02ccc4d64cb10b5db5432e3a3e0edc363d0901bb53191e2ef8d8cee2768f8"
+    },
+    "imports": {
+      "count": 28210,
+      "samples": [
+        {
+          "alias": "github",
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
+          "kind": "namespace_import",
+          "module": "@actions/github",
+          "name": "*",
+          "range": [
+            7,
+            18,
+            0,
+            7,
+            0,
+            18
+          ]
+        },
+        {
+          "alias": "core",
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49",
+          "kind": "namespace_import",
+          "module": "@actions/core",
+          "name": "*",
+          "range": [
+            49,
+            58,
+            1,
+            7,
+            1,
+            16
+          ]
+        },
+        {
+          "alias": "context",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+          "kind": "named_import",
+          "module": "@actions/github",
+          "name": "context",
+          "range": [
+            9,
+            16,
+            0,
+            9,
+            0,
+            16
+          ]
+        },
+        {
+          "alias": "getOctokit",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18",
+          "kind": "named_import",
+          "module": "@actions/github",
+          "name": "getOctokit",
+          "range": [
+            18,
+            28,
+            0,
+            18,
+            0,
+            28
+          ]
+        },
+        {
+          "alias": "info",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63",
+          "kind": "named_import",
+          "module": "@actions/core",
+          "name": "info",
+          "range": [
+            63,
+            67,
+            1,
+            9,
+            1,
+            13
+          ]
+        },
+        {
+          "alias": "getInput",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+          "kind": "named_import",
+          "module": "@actions/core",
+          "name": "getInput",
+          "range": [
+            69,
+            77,
+            1,
+            15,
+            1,
+            23
+          ]
+        },
+        {
+          "alias": "stripAnsi",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:strip-ansi:stripAnsi:stripAnsi@107",
+          "kind": "dynamic_import",
+          "module": "strip-ansi",
+          "name": "stripAnsi",
+          "range": [
+            107,
+            153,
+            2,
+            6,
+            2,
+            52
+          ]
+        },
+        {
+          "alias": "fs",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:fs:fs:fs@160",
+          "kind": "dynamic_import",
+          "module": "fs",
+          "name": "fs",
+          "range": [
+            160,
+            178,
+            3,
+            6,
+            3,
+            24
+          ]
+        },
+        {
+          "alias": "path",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:path:path:path@185",
+          "kind": "dynamic_import",
+          "module": "path",
+          "name": "path",
+          "range": [
+            185,
+            207,
+            4,
+            6,
+            4,
+            28
+          ]
+        },
+        {
+          "alias": "semver",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:semver:semver:semver@214",
+          "kind": "dynamic_import",
+          "module": "semver",
+          "name": "semver",
+          "range": [
+            214,
+            240,
+            5,
+            6,
+            5,
+            32
+          ]
+        },
+        {
+          "alias": "info",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:info:info@9",
+          "kind": "named_import",
+          "module": "@actions/core",
+          "name": "info",
+          "range": [
+            9,
+            13,
+            0,
+            9,
+            0,
+            13
+          ]
+        },
+        {
+          "alias": "setFailed",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:setFailed:setFailed@15",
+          "kind": "named_import",
+          "module": "@actions/core",
+          "name": "setFailed",
+          "range": [
+            15,
+            24,
+            0,
+            15,
+            0,
+            24
+          ]
+        },
+        {
+          "alias": "context",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:context:context@57",
+          "kind": "named_import",
+          "module": "@actions/github",
+          "name": "context",
+          "range": [
+            57,
+            64,
+            1,
+            9,
+            1,
+            16
+          ]
+        },
+        {
+          "alias": "getOctokit",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:getOctokit:getOctokit@66",
+          "kind": "named_import",
+          "module": "@actions/github",
+          "name": "getOctokit",
+          "range": [
+            66,
+            76,
+            1,
+            18,
+            1,
+            28
+          ]
+        },
+        {
+          "alias": "WebClient",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@slack/web-api:WebClient:WebClient@111",
+          "kind": "named_import",
+          "module": "@slack/web-api",
+          "name": "WebClient",
+          "range": [
+            111,
+            120,
+            2,
+            9,
+            2,
+            18
+          ]
+        },
+        {
+          "alias": "BlockCollection",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:BlockCollection:BlockCollection@154",
+          "kind": "named_import",
+          "module": "slack-block-builder",
+          "name": "BlockCollection",
+          "range": [
+            154,
+            169,
+            3,
+            9,
+            3,
+            24
+          ]
+        },
+        {
+          "alias": "Section",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:Section:Section@171",
+          "kind": "named_import",
+          "module": "slack-block-builder",
+          "name": "Section",
+          "range": [
+            171,
+            178,
+            3,
+            26,
+            3,
+            33
+          ]
+        },
+        {
+          "alias": "info",
+          "file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+          "key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:info:info@9",
+          "kind": "named_import",
+          "module": "@actions/core",
+          "name": "info",
+          "range": [
+            9,
+            13,
+            0,
+            9,
+            0,
+            13
+          ]
+        },
+        {
+          "alias": "setFailed",
+          "file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+          "key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:setFailed:setFailed@15",
+          "kind": "named_import",
+          "module": "@actions/core",
+          "name": "setFailed",
+          "range": [
+            15,
+            24,
+            0,
+            15,
+            0,
+            24
+          ]
+        },
+        {
+          "alias": "context",
+          "file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+          "key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/github:context:context@57",
+          "kind": "named_import",
+          "module": "@actions/github",
+          "name": "context",
+          "range": [
+            57,
+            64,
+            1,
+            9,
+            1,
+            16
+          ]
+        }
+      ],
+      "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
+    },
+    "symbols": {
+      "count": 23957,
+      "samples": [
+        {
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/needs-triage/src/index.ts:function:assertNotNullable@423",
+          "kind": "function",
+          "name": "assertNotNullable",
+          "name_range": [
+            423,
+            440,
+            16,
+            9,
+            16,
+            26
+          ],
+          "parent_symbol": null,
+          "range": [
+            414,
+            584,
+            16,
+            0,
+            19,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/needs-triage/src/index.ts:function:run@601",
+          "kind": "function",
+          "name": "run",
+          "name_range": [
+            601,
+            604,
+            21,
+            15,
+            21,
+            18
+          ],
+          "parent_symbol": null,
+          "range": [
+            586,
+            1329,
+            21,
+            0,
+            47,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87",
+          "kind": "global_variable",
+          "name": "LABELS",
+          "name_range": [
+            87,
+            93,
+            3,
+            6,
+            3,
+            12
+          ],
+          "parent_symbol": null,
+          "range": [
+            81,
+            293,
+            3,
+            0,
+            8,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301",
+          "kind": "global_variable",
+          "name": "labelsRequireUserInput",
+          "name_range": [
+            301,
+            323,
+            10,
+            6,
+            10,
+            28
+          ],
+          "parent_symbol": null,
+          "range": [
+            295,
+            412,
+            10,
+            0,
+            14,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107",
+          "kind": "function",
+          "name": "createCommentPostAsync",
+          "name_range": [
+            22107,
+            22129,
+            719,
+            6,
+            719,
+            28
+          ],
+          "parent_symbol": null,
+          "range": [
+            22101,
+            22599,
+            719,
+            0,
+            735,
+            3
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764",
+          "kind": "function",
+          "name": "createFormattedComment",
+          "name_range": [
+            21764,
+            21786,
+            704,
+            6,
+            704,
+            28
+          ],
+          "parent_symbol": null,
+          "range": [
+            21758,
+            22028,
+            704,
+            0,
+            716,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+          "kind": "function",
+          "name": "fetchJobLogsFromWorkflow",
+          "name_range": [
+            2452,
+            2476,
+            78,
+            15,
+            78,
+            39
+          ],
+          "parent_symbol": null,
+          "range": [
+            2437,
+            3901,
+            78,
+            0,
+            127,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+          "kind": "function",
+          "name": "findNextJsVersionFromBuildLogs",
+          "name_range": [
+            709,
+            739,
+            20,
+            15,
+            20,
+            45
+          ],
+          "parent_symbol": null,
+          "range": [
+            694,
+            2338,
+            20,
+            0,
+            75,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+          "kind": "function",
+          "name": "getInputs",
+          "name_range": [
+            3962,
+            3971,
+            130,
+            15,
+            130,
+            24
+          ],
+          "parent_symbol": null,
+          "range": [
+            3947,
+            6526,
+            130,
+            0,
+            217,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+          "kind": "function",
+          "name": "getJobResults",
+          "name_range": [
+            6657,
+            6670,
+            220,
+            15,
+            220,
+            28
+          ],
+          "parent_symbol": null,
+          "range": [
+            6642,
+            10519,
+            220,
+            0,
+            346,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
+          "kind": "function",
+          "name": "getTestResultDiffBase",
+          "name_range": [
+            10615,
+            10636,
+            349,
+            15,
+            349,
+            36
+          ],
+          "parent_symbol": null,
+          "range": [
+            10600,
+            15116,
+            349,
+            0,
+            502,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558",
+          "kind": "function",
+          "name": "getTestSummary",
+          "name_range": [
+            15558,
+            15572,
+            519,
+            9,
+            519,
+            23
+          ],
+          "parent_symbol": null,
+          "range": [
+            15549,
+            21625,
+            519,
+            0,
+            700,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
+          "kind": "function",
+          "name": "run",
+          "name_range": [
+            22681,
+            22684,
+            738,
+            15,
+            738,
+            18
+          ],
+          "parent_symbol": null,
+          "range": [
+            22666,
+            28322,
+            738,
+            0,
+            931,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127",
+          "kind": "function",
+          "name": "withoutRetries",
+          "name_range": [
+            15127,
+            15141,
+            504,
+            9,
+            504,
+            23
+          ],
+          "parent_symbol": null,
+          "range": [
+            15118,
+            15547,
+            504,
+            0,
+            517,
+            1
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513",
+          "kind": "global_variable",
+          "name": "BOT_COMMENT_MARKER",
+          "name_range": [
+            513,
+            531,
+            16,
+            6,
+            16,
+            24
+          ],
+          "parent_symbol": null,
+          "range": [
+            507,
+            592,
+            16,
+            0,
+            16,
+            85
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630",
+          "kind": "global_variable",
+          "name": "commentTitlePre",
+          "name_range": [
+            630,
+            645,
+            18,
+            6,
+            18,
+            21
+          ],
+          "parent_symbol": null,
+          "range": [
+            624,
+            692,
+            18,
+            0,
+            18,
+            68
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:fs@160",
+          "kind": "global_variable",
+          "name": "fs",
+          "name_range": [
+            160,
+            162,
+            3,
+            6,
+            3,
+            8
+          ],
+          "parent_symbol": null,
+          "range": [
+            154,
+            178,
+            3,
+            0,
+            3,
+            24
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:path@185",
+          "kind": "global_variable",
+          "name": "path",
+          "name_range": [
+            185,
+            189,
+            4,
+            6,
+            4,
+            10
+          ],
+          "parent_symbol": null,
+          "range": [
+            179,
+            207,
+            4,
+            0,
+            4,
+            28
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:semver@214",
+          "kind": "global_variable",
+          "name": "semver",
+          "name_range": [
+            214,
+            220,
+            5,
+            6,
+            5,
+            12
+          ],
+          "parent_symbol": null,
+          "range": [
+            208,
+            240,
+            5,
+            0,
+            5,
+            32
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": true,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:stripAnsi@118",
+          "kind": "global_variable",
+          "name": "stripAnsi",
+          "name_range": [
+            118,
+            127,
+            2,
+            17,
+            2,
+            26
+          ],
+          "parent_symbol": null,
+          "range": [
+            101,
+            153,
+            2,
+            0,
+            2,
+            52
+          ]
+        }
+      ],
+      "sha256": "64accc68176cc22dafa63d01deb6cb8079a3a92f49d822c9b45d8c652798b70f"
+    }
+  },
+  "integrity": {
+    "missing_export_file_links": 0,
+    "missing_export_import_links": 0,
+    "missing_export_symbol_links": 0,
+    "missing_import_file_links": 0,
+    "missing_symbol_file_links": 0,
+    "selected_file_count_delta": 0
+  },
+  "metadata": {
+    "commit": "51bfe3c1863b191f4b039bc230e8ed5c57b0baf3",
+    "name": "next.js-v15.0.0",
+    "raw_rust_walk": false,
+    "ref": "refs/tags/v15.0.0",
+    "repo_url": "https://github.com/vercel/next.js.git",
+    "selected_file_count": 13688
+  },
+  "schema_version": 1,
+  "summary": {
+    "bytes": 25421217,
+    "classes": 502,
+    "dependencies": 0,
+    "exports": 16026,
+    "files": 13688,
+    "files_with_errors": 114,
+    "functions": 13497,
+    "global_variables": 7843,
+    "import_resolutions": 0,
+    "imports": 28210,
+    "lines": 634891,
+    "references": 0,
+    "symbols": 23957
+  }
+}
