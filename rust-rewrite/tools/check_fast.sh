@@ -52,9 +52,11 @@ uv run python -m py_compile \
   tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py \
   tests/integration/rust_rewrite/test_pinned_codemods.py \
   tests/integration/rust_rewrite/test_pinned_nextjs_snapshot.py \
+  tests/integration/rust_rewrite/test_pinned_semantic_parity.py \
   tests/integration/rust_rewrite/test_python_rust_parity_fixture.py \
   rust-rewrite/tools/check_pinned_codemods.py \
   rust-rewrite/tools/check_pinned_python_codebase.py \
+  rust-rewrite/tools/check_pinned_semantic_parity.py \
   rust-rewrite/tools/check_python_rust_parity_fixture.py \
   rust-rewrite/tools/check_pinned_typescript_codebase.py \
   rust-rewrite/tools/benchmark_pinned_typescript_repo.py \
@@ -76,5 +78,6 @@ uv run pytest \
   tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py \
   tests/integration/rust_rewrite/test_pinned_codemods.py \
   tests/integration/rust_rewrite/test_pinned_nextjs_snapshot.py \
+  tests/integration/rust_rewrite/test_pinned_semantic_parity.py \
   tests/integration/rust_rewrite/test_python_rust_parity_fixture.py \
   -q

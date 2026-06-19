@@ -54,4 +54,10 @@ uv run python rust-rewrite/tools/check_pinned_codemods.py \
   --skip-build-extension \
   --output "$OUTPUT_DIR/pinned-rust-codemods.json"
 
+echo "Checking pinned large-repo semantic parity"
+uv run python rust-rewrite/tools/check_pinned_semantic_parity.py \
+  "${COMMON_ARGS[@]}" \
+  --skip-build-extension \
+  --output "$OUTPUT_DIR/pinned-semantic-parity.json"
+
 echo "Pinned large-repo checks wrote reports to $OUTPUT_DIR"
