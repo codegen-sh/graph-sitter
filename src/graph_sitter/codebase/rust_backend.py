@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
 
 from graph_sitter._proxy import proxy_property
-from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction
+from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
 
@@ -1222,6 +1222,15 @@ class RustCompactSymbol(RustCompactHandle):
         )
         self.transaction_manager.add_transaction(transaction, dedupe=dedupe)
 
+    def remove(self, priority: int = 0) -> None:
+        transaction = RemoveTransaction(
+            self.start_byte,
+            self.end_byte,
+            self.file,
+            priority=priority,
+        )
+        self.transaction_manager.add_transaction(transaction)
+
     def set_name(self, name: str, priority: int = 0) -> None:
         transaction = EditTransaction(
             self.record.name_range.start_byte,
@@ -1400,6 +1409,15 @@ class RustCompactImport(RustCompactHandle):
     @property
     def descendant_symbols(self) -> list[RustCompactImport]:
         return [self]
+
+    def remove(self, priority: int = 0) -> None:
+        transaction = RemoveTransaction(
+            self.start_byte,
+            self.end_byte,
+            self.file,
+            priority=priority,
+        )
+        self.transaction_manager.add_transaction(transaction)
 
     def is_aliased_import(self) -> bool:
         return self.record.alias is not None and self.record.alias != self.record.name
