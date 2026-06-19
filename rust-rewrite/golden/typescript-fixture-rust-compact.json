@@ -1,4 +1,17 @@
 {
+  "dependencies": [
+    {
+      "id": 0,
+      "reference_count": 1,
+      "reference_ids": [
+        0
+      ],
+      "source_file_id": 1,
+      "source_symbol_id": 10,
+      "target_file_id": 1,
+      "target_symbol_id": 9
+    }
+  ],
   "exports": [
     {
       "file_id": 0,
@@ -429,9 +442,28 @@
       ]
     }
   ],
+  "references": [
+    {
+      "id": 0,
+      "import_id": null,
+      "name": "sharedValue",
+      "range": [
+        66,
+        77,
+        1,
+        36,
+        1,
+        47
+      ],
+      "source_file_id": 1,
+      "source_symbol_id": 10,
+      "target_symbol_id": 9
+    }
+  ],
   "summary": {
     "bytes": 720,
     "classes": 1,
+    "dependencies": 1,
     "exports": 13,
     "files": 2,
     "files_with_errors": 0,
@@ -440,6 +472,7 @@
     "import_resolutions": 2,
     "imports": 9,
     "lines": 19,
+    "references": 1,
     "symbols": 11
   },
   "symbols": [

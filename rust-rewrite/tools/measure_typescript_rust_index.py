@@ -91,6 +91,8 @@ def make_report(repo: Path, *, raw_rust_walk: bool) -> dict[str, Any]:
             "imports": index.import_count,
             "import_resolutions": index.import_resolution_count,
             "exports": index.export_count,
+            "references": index.reference_count,
+            "dependencies": index.dependency_count,
         },
     }
 
@@ -135,7 +137,8 @@ def print_human(report: dict[str, Any]) -> None:
         f"classes={summary['classes']} functions={summary['functions']} "
         f"global_variables={summary['global_variables']} imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']} "
-        f"exports={summary['exports']} files_with_errors={summary['files_with_errors']}"
+        f"exports={summary['exports']} references={summary['references']} "
+        f"dependencies={summary['dependencies']} files_with_errors={summary['files_with_errors']}"
     )
 
 

@@ -213,6 +213,8 @@ pub struct TypeScriptIndex {
     pub imports: Vec<ImportRecord>,
     pub import_resolutions: Vec<ImportResolutionRecord>,
     pub exports: Vec<ExportRecord>,
+    pub references: Vec<ReferenceRecord>,
+    pub dependencies: Vec<DependencyRecord>,
 }
 
 impl TypeScriptIndex {
@@ -237,8 +239,8 @@ impl TypeScriptIndex {
                 .count(),
             imports: self.imports.len(),
             import_resolutions: self.import_resolutions.len(),
-            references: 0,
-            dependencies: 0,
+            references: self.references.len(),
+            dependencies: self.dependencies.len(),
             bytes: self.files.iter().map(|file| file.byte_len).sum(),
             lines: self.files.iter().map(|file| file.line_count).sum(),
             files_with_errors: self.files.iter().filter(|file| file.has_error).count(),
@@ -568,7 +570,10 @@ impl TypeScriptIndexer {
             imports: Vec::new(),
             import_resolutions: Vec::new(),
             exports: Vec::new(),
+            references: Vec::new(),
+            dependencies: Vec::new(),
         };
+        let mut reference_candidates = Vec::new();
         paths.sort();
 
         for path in paths {
@@ -594,10 +599,18 @@ impl TypeScriptIndexer {
                 has_error: root.has_error(),
                 root_range: root.range().into(),
             });
-            extract_typescript_file(file_id, &content, &tree, &mut index);
+            extract_typescript_file(
+                file_id,
+                &content,
+                &tree,
+                &mut index,
+                &mut reference_candidates,
+            );
         }
 
         resolve_typescript_imports(&mut index);
+        resolve_typescript_references(&mut index, reference_candidates);
+        build_typescript_dependencies(&mut index);
         Ok(index)
     }
 }
@@ -645,12 +658,19 @@ fn is_typescript_like_file(path: &Path) -> bool {
     )
 }
 
-fn extract_typescript_file(file_id: u32, source: &str, tree: &Tree, index: &mut TypeScriptIndex) {
+fn extract_typescript_file(
+    file_id: u32,
+    source: &str,
+    tree: &Tree,
+    index: &mut TypeScriptIndex,
+    reference_candidates: &mut Vec<ReferenceCandidate>,
+) {
     let root = tree.root_node();
     let mut cursor = root.walk();
     for child in root.named_children(&mut cursor) {
         extract_typescript_top_level_node(file_id, source, child, index);
     }
+    collect_typescript_reference_candidates(file_id, source, root, index, reference_candidates);
 }
 
 fn extract_typescript_top_level_node(
@@ -1227,6 +1247,226 @@ fn push_typescript_export(
     });
 }
 
+fn collect_typescript_reference_candidates(
+    file_id: u32,
+    source: &str,
+    root: Node<'_>,
+    index: &TypeScriptIndex,
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    let symbol_ranges = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id)
+        .map(|symbol| (symbol.id, symbol.range))
+        .collect::<Vec<_>>();
+    let excluded_ranges = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id)
+        .map(|symbol| symbol.name_range)
+        .collect::<Vec<_>>();
+    let local_bindings_by_symbol_id =
+        collect_typescript_local_bindings(file_id, source, root, index, &symbol_ranges);
+
+    collect_typescript_identifier_candidates(
+        file_id,
+        source,
+        root,
+        &symbol_ranges,
+        &local_bindings_by_symbol_id,
+        &excluded_ranges,
+        out,
+    );
+}
+
+fn collect_typescript_local_bindings(
+    file_id: u32,
+    source: &str,
+    root: Node<'_>,
+    index: &TypeScriptIndex,
+    symbol_ranges: &[(u32, SourceRange)],
+) -> HashMap<u32, HashSet<String>> {
+    let mut bindings = HashMap::new();
+    let file_symbols = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id)
+        .collect::<Vec<_>>();
+    for symbol in file_symbols {
+        let mut names = HashSet::new();
+        collect_typescript_local_bindings_for_symbol(source, root, symbol.range, &mut names);
+        names.remove(&symbol.name);
+        if !names.is_empty() {
+            bindings.insert(symbol.id, names);
+        }
+    }
+
+    for (symbol_id, _) in symbol_ranges {
+        bindings.entry(*symbol_id).or_default();
+    }
+    bindings
+}
+
+fn collect_typescript_local_bindings_for_symbol(
+    source: &str,
+    node: Node<'_>,
+    symbol_range: SourceRange,
+    out: &mut HashSet<String>,
+) {
+    let node_range = node.range().into();
+    if !ranges_overlap(symbol_range, node_range) {
+        return;
+    }
+
+    match node.kind() {
+        "import_statement" => return,
+        "variable_declarator" => {
+            if contains_range(symbol_range, node_range) {
+                if let Some(name_node) = node.child_by_field_name("name") {
+                    let mut targets = Vec::new();
+                    collect_typescript_binding_targets(name_node, &mut targets);
+                    for target in targets {
+                        if let Ok(name) = target.utf8_text(source.as_bytes()) {
+                            out.insert(name.to_owned());
+                        }
+                    }
+                }
+            }
+        }
+        "required_parameter" | "optional_parameter" | "rest_pattern" => {
+            if contains_range(symbol_range, node_range) {
+                let binding_node = node.child_by_field_name("pattern").or_else(|| {
+                    node.child_by_field_name("name")
+                        .or_else(|| first_named_child(node))
+                });
+                if let Some(binding_node) = binding_node {
+                    let mut targets = Vec::new();
+                    collect_typescript_binding_targets(binding_node, &mut targets);
+                    for target in targets {
+                        if let Ok(name) = target.utf8_text(source.as_bytes()) {
+                            out.insert(name.to_owned());
+                        }
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_typescript_local_bindings_for_symbol(source, child, symbol_range, out);
+    }
+}
+
+fn collect_typescript_identifier_candidates(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    match node.kind() {
+        "import_statement" | "export_clause" | "namespace_export" => return,
+        "member_expression" => {
+            if let (Some(object), Some(property)) = (
+                node.child_by_field_name("object"),
+                node.child_by_field_name("property"),
+            ) {
+                let range = property.range().into();
+                if matches!(property.kind(), "identifier" | "property_identifier")
+                    && !range_matches_any(range, excluded_ranges)
+                {
+                    if let (Ok(qualifier), Ok(name)) = (
+                        object.utf8_text(source.as_bytes()),
+                        property.utf8_text(source.as_bytes()),
+                    ) {
+                        let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+                        if !typescript_reference_is_shadowed(
+                            source_symbol_id,
+                            qualifier.split('.').next().unwrap_or(qualifier),
+                            local_bindings_by_symbol_id,
+                        ) {
+                            out.push(ReferenceCandidate {
+                                source_file_id: file_id,
+                                source_symbol_id,
+                                name: name.to_owned(),
+                                qualifier: Some(qualifier.to_owned()),
+                                range,
+                            });
+                        }
+                    }
+                }
+            }
+            if let Some(object) = node.child_by_field_name("object") {
+                collect_typescript_identifier_candidates(
+                    file_id,
+                    source,
+                    object,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    excluded_ranges,
+                    out,
+                );
+            }
+            return;
+        }
+        _ => {}
+    }
+
+    let range = node.range().into();
+    if node.kind() == "identifier" && !range_matches_any(range, excluded_ranges) {
+        if let Ok(name) = node.utf8_text(source.as_bytes()) {
+            let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+            if !typescript_reference_is_shadowed(
+                source_symbol_id,
+                name,
+                local_bindings_by_symbol_id,
+            ) {
+                out.push(ReferenceCandidate {
+                    source_file_id: file_id,
+                    source_symbol_id,
+                    name: name.to_owned(),
+                    qualifier: None,
+                    range,
+                });
+            }
+        }
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_typescript_identifier_candidates(
+            file_id,
+            source,
+            child,
+            symbol_ranges,
+            local_bindings_by_symbol_id,
+            excluded_ranges,
+            out,
+        );
+    }
+}
+
+fn ranges_overlap(left: SourceRange, right: SourceRange) -> bool {
+    left.start_byte < right.end_byte && right.start_byte < left.end_byte
+}
+
+fn typescript_reference_is_shadowed(
+    source_symbol_id: Option<u32>,
+    name: &str,
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+) -> bool {
+    source_symbol_id.is_some_and(|symbol_id| {
+        local_bindings_by_symbol_id
+            .get(&symbol_id)
+            .is_some_and(|bindings| bindings.contains(name))
+    })
+}
+
 fn resolve_typescript_imports(index: &mut TypeScriptIndex) {
     let file_by_path: HashMap<String, u32> = index
         .files
@@ -1387,6 +1627,149 @@ fn has_typescript_module_suffix(path: &str, suffixes: &[&str]) -> bool {
         path.strip_suffix(suffix)
             .is_some_and(|prefix| prefix.ends_with('.'))
     })
+}
+
+fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<ReferenceCandidate>) {
+    let symbol_by_file_and_name: HashMap<(u32, String), u32> = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.is_top_level)
+        .map(|symbol| ((symbol.file_id, symbol.name.clone()), symbol.id))
+        .collect();
+    let exported_symbol_by_file_and_name =
+        typescript_exported_symbol_map(index, &symbol_by_file_and_name);
+    let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
+        .import_resolutions
+        .iter()
+        .map(|resolution| (resolution.import_id, resolution))
+        .collect();
+    let mut imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
+    let mut imported_module_by_qualifier: HashMap<(u32, String), (u32, u32)> = HashMap::new();
+
+    for import in &index.imports {
+        let Some(resolution) = resolution_by_import_id.get(&import.id) else {
+            continue;
+        };
+        if import.kind == ImportKind::NamespaceImport {
+            if let Some(alias) = import.alias.as_deref() {
+                imported_module_by_qualifier.insert(
+                    (import.file_id, alias.to_owned()),
+                    (resolution.target_file_id, import.id),
+                );
+            }
+        }
+        let Some(target_symbol_id) = resolution.target_symbol_id else {
+            continue;
+        };
+        let Some(binding) = typescript_import_binding_name(import) else {
+            continue;
+        };
+        imported_symbol_by_binding.insert((import.file_id, binding), (target_symbol_id, import.id));
+    }
+
+    let mut references = Vec::new();
+    for candidate in candidates {
+        let resolved_target = if let Some(qualifier) = candidate.qualifier.as_ref() {
+            imported_module_by_qualifier
+                .get(&(candidate.source_file_id, qualifier.clone()))
+                .and_then(|(target_file_id, import_id)| {
+                    exported_symbol_by_file_and_name
+                        .get(&(*target_file_id, candidate.name.clone()))
+                        .or_else(|| {
+                            symbol_by_file_and_name.get(&(*target_file_id, candidate.name.clone()))
+                        })
+                        .copied()
+                        .map(|symbol_id| (symbol_id, Some(*import_id)))
+                })
+        } else {
+            let imported_target = imported_symbol_by_binding
+                .get(&(candidate.source_file_id, candidate.name.clone()))
+                .copied();
+            let same_file_target = symbol_by_file_and_name
+                .get(&(candidate.source_file_id, candidate.name.clone()))
+                .copied()
+                .map(|symbol_id| (symbol_id, None));
+            imported_target
+                .map(|(symbol_id, import_id)| (symbol_id, Some(import_id)))
+                .or(same_file_target)
+        };
+        let Some((target_symbol_id, import_id)) = resolved_target else {
+            continue;
+        };
+        if candidate.source_symbol_id == Some(target_symbol_id) {
+            continue;
+        }
+
+        references.push(ReferenceRecord {
+            id: references.len() as u32,
+            source_file_id: candidate.source_file_id,
+            source_symbol_id: candidate.source_symbol_id,
+            target_symbol_id,
+            import_id,
+            name: candidate.name,
+            range: candidate.range,
+        });
+    }
+    index.references = references;
+}
+
+fn typescript_import_binding_name(import: &ImportRecord) -> Option<String> {
+    if let Some(alias) = import.alias.as_deref() {
+        return Some(alias.to_owned());
+    }
+    match import.kind {
+        ImportKind::DefaultImport | ImportKind::NamedImport | ImportKind::DynamicImport => {
+            import.name.clone()
+        }
+        ImportKind::NamespaceImport => import.alias.clone(),
+        ImportKind::Import
+        | ImportKind::FromImport
+        | ImportKind::FutureImport
+        | ImportKind::SideEffect => None,
+    }
+}
+
+fn build_typescript_dependencies(index: &mut TypeScriptIndex) {
+    let symbol_file_ids: HashMap<u32, u32> = index
+        .symbols
+        .iter()
+        .map(|symbol| (symbol.id, symbol.file_id))
+        .collect();
+    let mut dependency_reference_ids: BTreeMap<(u32, u32), Vec<u32>> = BTreeMap::new();
+
+    for reference in &index.references {
+        let Some(source_symbol_id) = reference.source_symbol_id else {
+            continue;
+        };
+        dependency_reference_ids
+            .entry((source_symbol_id, reference.target_symbol_id))
+            .or_default()
+            .push(reference.id);
+    }
+
+    let dependencies = dependency_reference_ids
+        .into_iter()
+        .filter_map(|((source_symbol_id, target_symbol_id), reference_ids)| {
+            let source_file_id = symbol_file_ids.get(&source_symbol_id).copied()?;
+            let target_file_id = symbol_file_ids.get(&target_symbol_id).copied()?;
+            Some(DependencyRecord {
+                id: 0,
+                source_symbol_id,
+                target_symbol_id,
+                source_file_id,
+                target_file_id,
+                reference_count: reference_ids.len(),
+                reference_ids,
+            })
+        })
+        .enumerate()
+        .map(|(id, mut dependency)| {
+            dependency.id = id as u32;
+            dependency
+        })
+        .collect();
+
+    index.dependencies = dependencies;
 }
 
 fn typescript_string_literal_value(text: &str) -> Option<String> {
@@ -3498,6 +3881,120 @@ export * from './feature';\n\
     }
 
     #[test]
+    fn resolves_typescript_references_and_dependencies() {
+        let repo = temp_repo_path("resolve-typescript-references");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import Service, { helper as localHelper, format } from './utils';\n\
+import * as utils from './utils';\n\
+\n\
+const sameFile = () => localHelper;\n\
+export function run(value: number) {\n\
+  const local = sameFile();\n\
+  return format(new Service(), local, utils.helper, value);\n\
+}\n\
+export function shadow(localHelper: number) {\n\
+  return localHelper;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/utils.ts"),
+            "export const helper = 1;\nexport function format(...values: unknown[]) { return values; }\nexport default class Service {}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.ts")
+            .unwrap()
+            .id;
+        let utils_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/utils.ts")
+            .unwrap()
+            .id;
+        let run_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "run")
+            .unwrap()
+            .id;
+        let shadow_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "shadow")
+            .unwrap()
+            .id;
+        let same_file_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "sameFile")
+            .unwrap()
+            .id;
+        let helper_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == utils_file_id && symbol.name == "helper")
+            .unwrap()
+            .id;
+        let format_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == utils_file_id && symbol.name == "format")
+            .unwrap()
+            .id;
+        let service_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == utils_file_id && symbol.name == "Service")
+            .unwrap()
+            .id;
+
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == format_symbol_id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == service_symbol_id
+                && reference.import_id.is_some()
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == helper_symbol_id
+                && reference.import_id.is_some()
+                && reference.name == "helper"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == same_file_symbol_id
+                && reference.import_id.is_none()
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(shadow_symbol_id)
+                && reference.target_symbol_id == helper_symbol_id
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == run_symbol_id
+                && dependency.target_symbol_id == format_symbol_id
+                && dependency.reference_count == 1
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == run_symbol_id
+                && dependency.target_symbol_id == helper_symbol_id
+                && dependency.reference_count == 1
+        }));
+    }
+
+    #[test]
     fn resolves_internal_python_imports_to_files_and_symbols() {
         let repo = temp_repo_path("resolve-python-imports");
         fs::create_dir_all(repo.join("pkg")).unwrap();
@@ -4452,6 +4949,36 @@ export * as shared from './shared';\n",
                 })
             })
             .collect::<Vec<_>>();
+        let references = index
+            .references
+            .iter()
+            .map(|reference| {
+                serde_json::json!({
+                    "id": reference.id,
+                    "source_file_id": reference.source_file_id,
+                    "source_symbol_id": reference.source_symbol_id,
+                    "target_symbol_id": reference.target_symbol_id,
+                    "import_id": reference.import_id,
+                    "name": reference.name,
+                    "range": compact_range_json(reference.range),
+                })
+            })
+            .collect::<Vec<_>>();
+        let dependencies = index
+            .dependencies
+            .iter()
+            .map(|dependency| {
+                serde_json::json!({
+                    "id": dependency.id,
+                    "source_symbol_id": dependency.source_symbol_id,
+                    "target_symbol_id": dependency.target_symbol_id,
+                    "source_file_id": dependency.source_file_id,
+                    "target_file_id": dependency.target_file_id,
+                    "reference_ids": dependency.reference_ids,
+                    "reference_count": dependency.reference_count,
+                })
+            })
+            .collect::<Vec<_>>();
 
         serde_json::json!({
             "summary": {
@@ -4463,6 +4990,8 @@ export * as shared from './shared';\n",
                 "imports": index.summary().imports,
                 "import_resolutions": index.summary().import_resolutions,
                 "exports": index.exports.len(),
+                "references": index.summary().references,
+                "dependencies": index.summary().dependencies,
                 "bytes": index.summary().bytes,
                 "lines": index.summary().lines,
                 "files_with_errors": index.summary().files_with_errors,
@@ -4472,6 +5001,8 @@ export * as shared from './shared';\n",
             "imports": imports,
             "import_resolutions": import_resolutions,
             "exports": exports,
+            "references": references,
+            "dependencies": dependencies,
         })
     }
 

@@ -288,6 +288,16 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn references_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.references)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn dependencies_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.dependencies)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         #[getter]
         fn file_count(&self) -> usize {
             self.inner.files.len()
@@ -313,15 +323,27 @@ mod bindings {
             self.inner.exports.len()
         }
 
+        #[getter]
+        fn reference_count(&self) -> usize {
+            self.inner.references.len()
+        }
+
+        #[getter]
+        fn dependency_count(&self) -> usize {
+            self.inner.dependencies.len()
+        }
+
         fn __repr__(&self) -> String {
             let summary = self.inner.summary();
             format!(
-                "TypeScriptIndex(files={}, symbols={}, imports={}, import_resolutions={}, exports={})",
+                "TypeScriptIndex(files={}, symbols={}, imports={}, import_resolutions={}, exports={}, references={}, dependencies={})",
                 summary.files,
                 summary.symbols,
                 summary.imports,
                 summary.import_resolutions,
-                self.inner.exports.len()
+                self.inner.exports.len(),
+                summary.references,
+                summary.dependencies
             )
         }
     }
@@ -623,8 +645,12 @@ mod bindings {
             assert_eq!(summary.functions, 2);
             assert_eq!(summary.imports, 2);
             assert_eq!(summary.import_resolutions, 1);
+            assert_eq!(summary.references, 1);
+            assert_eq!(summary.dependencies, 1);
             assert_eq!(index.import_resolution_count(), 1);
             assert_eq!(index.export_count(), 2);
+            assert_eq!(index.reference_count(), 1);
+            assert_eq!(index.dependency_count(), 1);
             assert!(index.files_json().unwrap().contains("\"src/app.tsx\""));
             assert!(index.symbols_json().unwrap().contains("\"Page\""));
             assert!(index.imports_json().unwrap().contains("\"default_import\""));
@@ -633,8 +659,15 @@ mod bindings {
                 .unwrap()
                 .contains("target_symbol_id"));
             assert!(index.exports_json().unwrap().contains("\"Page\""));
+            assert!(index.references_json().unwrap().contains("\"helper\""));
+            assert!(index
+                .dependencies_json()
+                .unwrap()
+                .contains("reference_count"));
             assert!(index.to_json().unwrap().contains("\"import_resolutions\""));
             assert!(index.to_json().unwrap().contains("\"exports\""));
+            assert!(index.to_json().unwrap().contains("\"references\""));
+            assert!(index.to_json().unwrap().contains("\"dependencies\""));
         }
 
         #[test]

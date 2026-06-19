@@ -34,7 +34,7 @@ from snapshot_pinned_python_repo import (  # noqa: E402
 DEFAULT_EXPECTED_SNAPSHOT = (
     REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
 )
-SNAPSHOT_SCHEMA_VERSION = 2
+SNAPSHOT_SCHEMA_VERSION = 3
 
 
 def range_list(record: dict[str, Any], name: str = "range") -> list[int]:
@@ -86,6 +86,27 @@ def export_key(export: dict[str, Any], file_by_id: dict[int, dict[str, Any]]) ->
     local_name = export["local_name"] or ""
     source_module = export["source_module"] or ""
     return f"{file['path']}:{export['kind']}:{name}:{local_name}:{source_module}@{range_list(export)[0]}"
+
+
+def reference_key(
+    reference: dict[str, Any],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> str:
+    source_symbol = (
+        ""
+        if reference["source_symbol_id"] is None
+        else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
+    )
+    import_record = (
+        ""
+        if reference["import_id"] is None
+        else import_key(import_by_id[reference["import_id"]], file_by_id)
+    )
+    target_symbol = symbol_key(symbol_by_id[reference["target_symbol_id"]], file_by_id)
+    source_file = file_by_id[reference["source_file_id"]]["path"]
+    return f"{source_file}:{source_symbol}->{target_symbol}:{import_record}:{reference['name']}@{range_list(reference)[0]}"
 
 
 def make_file_rows(files: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -236,6 +257,87 @@ def make_export_rows(
     )
 
 
+def make_reference_rows(
+    references: list[dict[str, Any]],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = []
+    for reference in references:
+        source_symbol = (
+            None
+            if reference["source_symbol_id"] is None
+            else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
+        )
+        import_record = (
+            None
+            if reference["import_id"] is None
+            else import_key(import_by_id[reference["import_id"]], file_by_id)
+        )
+        rows.append(
+            {
+                "key": reference_key(reference, file_by_id, symbol_by_id, import_by_id),
+                "source_file": file_by_id[reference["source_file_id"]]["path"],
+                "source_symbol": source_symbol,
+                "target_symbol": symbol_key(
+                    symbol_by_id[reference["target_symbol_id"]], file_by_id
+                ),
+                "import": import_record,
+                "name": reference["name"],
+                "range": range_list(reference),
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            row["source_file"],
+            row["range"],
+            row["name"],
+            row["target_symbol"],
+            row["source_symbol"] or "",
+            row["import"] or "",
+        ),
+    )
+
+
+def make_dependency_rows(
+    dependencies: list[dict[str, Any]],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+    reference_by_id: dict[int, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = []
+    for dependency in dependencies:
+        rows.append(
+            {
+                "source_symbol": symbol_key(
+                    symbol_by_id[dependency["source_symbol_id"]], file_by_id
+                ),
+                "target_symbol": symbol_key(
+                    symbol_by_id[dependency["target_symbol_id"]], file_by_id
+                ),
+                "source_file": file_by_id[dependency["source_file_id"]]["path"],
+                "target_file": file_by_id[dependency["target_file_id"]]["path"],
+                "reference_count": dependency["reference_count"],
+                "references": [
+                    reference_key(reference_by_id[reference_id], file_by_id, symbol_by_id, import_by_id)
+                    for reference_id in dependency["reference_ids"]
+                ],
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            row["source_symbol"],
+            row["target_symbol"],
+            row["reference_count"],
+            row["references"],
+        ),
+    )
+
+
 def validate_integrity(
     *,
     files: list[dict[str, Any]],
@@ -243,11 +345,14 @@ def validate_integrity(
     imports: list[dict[str, Any]],
     import_resolutions: list[dict[str, Any]],
     exports: list[dict[str, Any]],
+    references: list[dict[str, Any]],
+    dependencies: list[dict[str, Any]],
     selected_file_count: int | None,
 ) -> dict[str, int]:
     file_ids = {file["id"] for file in files}
     symbol_ids = {symbol["id"] for symbol in symbols}
     import_ids = {import_record["id"] for import_record in imports}
+    reference_ids = {reference["id"] for reference in references}
 
     missing_symbol_file_links = sum(
         int(symbol["file_id"] not in file_ids) for symbol in symbols
@@ -285,6 +390,42 @@ def validate_integrity(
         )
         for resolution in import_resolutions
     )
+    missing_reference_source_file_links = sum(
+        int(reference["source_file_id"] not in file_ids) for reference in references
+    )
+    missing_reference_source_symbol_links = sum(
+        int(
+            reference["source_symbol_id"] is not None
+            and reference["source_symbol_id"] not in symbol_ids
+        )
+        for reference in references
+    )
+    missing_reference_target_symbol_links = sum(
+        int(reference["target_symbol_id"] not in symbol_ids) for reference in references
+    )
+    missing_reference_import_links = sum(
+        int(reference["import_id"] is not None and reference["import_id"] not in import_ids)
+        for reference in references
+    )
+    missing_dependency_source_symbol_links = sum(
+        int(dependency["source_symbol_id"] not in symbol_ids)
+        for dependency in dependencies
+    )
+    missing_dependency_target_symbol_links = sum(
+        int(dependency["target_symbol_id"] not in symbol_ids)
+        for dependency in dependencies
+    )
+    missing_dependency_source_file_links = sum(
+        int(dependency["source_file_id"] not in file_ids) for dependency in dependencies
+    )
+    missing_dependency_target_file_links = sum(
+        int(dependency["target_file_id"] not in file_ids) for dependency in dependencies
+    )
+    missing_dependency_reference_links = sum(
+        int(reference_id not in reference_ids)
+        for dependency in dependencies
+        for reference_id in dependency["reference_ids"]
+    )
 
     selected_file_count_delta = (
         0 if selected_file_count is None else len(files) - selected_file_count
@@ -299,6 +440,15 @@ def validate_integrity(
         "missing_resolution_source_file_links": missing_resolution_source_file_links,
         "missing_resolution_target_file_links": missing_resolution_target_file_links,
         "missing_resolution_target_symbol_links": missing_resolution_target_symbol_links,
+        "missing_reference_source_file_links": missing_reference_source_file_links,
+        "missing_reference_source_symbol_links": missing_reference_source_symbol_links,
+        "missing_reference_target_symbol_links": missing_reference_target_symbol_links,
+        "missing_reference_import_links": missing_reference_import_links,
+        "missing_dependency_source_symbol_links": missing_dependency_source_symbol_links,
+        "missing_dependency_target_symbol_links": missing_dependency_target_symbol_links,
+        "missing_dependency_source_file_links": missing_dependency_source_file_links,
+        "missing_dependency_target_file_links": missing_dependency_target_file_links,
+        "missing_dependency_reference_links": missing_dependency_reference_links,
         "selected_file_count_delta": selected_file_count_delta,
     }
 
@@ -340,10 +490,13 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     imports = json.loads(index.imports_json())
     import_resolutions = json.loads(index.import_resolutions_json())
     exports = json.loads(index.exports_json())
+    references = json.loads(index.references_json())
+    dependencies = json.loads(index.dependencies_json())
 
     file_by_id = {file["id"]: file for file in files}
     symbol_by_id = {symbol["id"]: symbol for symbol in symbols}
     import_by_id = {import_record["id"]: import_record for import_record in imports}
+    reference_by_id = {reference["id"]: reference for reference in references}
 
     file_rows = make_file_rows(files)
     symbol_rows = make_symbol_rows(symbols, file_by_id, symbol_by_id)
@@ -352,12 +505,18 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
         import_resolutions, file_by_id, symbol_by_id, import_by_id
     )
     export_rows = make_export_rows(exports, file_by_id, symbol_by_id, import_by_id)
+    reference_rows = make_reference_rows(references, file_by_id, symbol_by_id, import_by_id)
+    dependency_rows = make_dependency_rows(
+        dependencies, file_by_id, symbol_by_id, import_by_id, reference_by_id
+    )
     integrity = validate_integrity(
         files=files,
         symbols=symbols,
         imports=imports,
         import_resolutions=import_resolutions,
         exports=exports,
+        references=references,
+        dependencies=dependencies,
         selected_file_count=selected_file_count,
     )
     assert_integrity(integrity)
@@ -385,6 +544,10 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
                 import_resolution_rows, sample_size=args.sample_size
             ),
             "exports": compact_record_set(export_rows, sample_size=args.sample_size),
+            "references": compact_record_set(reference_rows, sample_size=args.sample_size),
+            "dependencies": compact_record_set(
+                dependency_rows, sample_size=args.sample_size
+            ),
         },
         "integrity": integrity,
     }
@@ -490,7 +653,8 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']} "
-        f"exports={summary['exports']} files_with_errors={summary['files_with_errors']}"
+        f"exports={summary['exports']} references={summary['references']} "
+        f"dependencies={summary['dependencies']} files_with_errors={summary['files_with_errors']}"
     )
     print(
         "hashes: "
@@ -498,7 +662,9 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         f"symbols={snapshot['graphs']['symbols']['sha256']} "
         f"imports={snapshot['graphs']['imports']['sha256']} "
         f"import_resolutions={snapshot['graphs']['import_resolutions']['sha256']} "
-        f"exports={snapshot['graphs']['exports']['sha256']}"
+        f"exports={snapshot['graphs']['exports']['sha256']} "
+        f"references={snapshot['graphs']['references']['sha256']} "
+        f"dependencies={snapshot['graphs']['dependencies']['sha256']}"
     )
 
 
