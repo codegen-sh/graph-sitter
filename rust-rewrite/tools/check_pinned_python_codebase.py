@@ -174,6 +174,14 @@ EXPECTED_KNOWN_MODULE_IMPORT_ATTRIBUTE_RESOLUTION = {
     }
 }
 
+EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS = {
+    "airflow_init": {
+        "filepath": "airflow/__init__.py",
+        "handle": "RustCompactFile",
+        "name": "__init__",
+    }
+}
+
 EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
@@ -281,6 +289,14 @@ def handle_signature(handle: Any) -> dict[str, Any]:
     return signature
 
 
+def file_signature(file: Any) -> dict[str, Any]:
+    return {
+        "filepath": file.filepath,
+        "handle": type(file).__name__,
+        "name": file.name,
+    }
+
+
 def known_lookup_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
     init_file = codebase.get_file("airflow/__init__.py")
     return {
@@ -367,6 +383,12 @@ def known_module_import_attribute_resolution_report(codebase: Any) -> dict[str, 
     signature["filepath"] = resolved.filepath
     return {
         "dag_processing_manager_airflow_models_dagmodel": signature,
+    }
+
+
+def known_ignore_case_file_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    return {
+        "airflow_init": file_signature(codebase.get_file("AIRFLOW/__INIT__.PY", ignore_case=True)),
     }
 
 
@@ -483,6 +505,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_known_file_local_name_resolution"))
     known_module_import_attribute_resolution = known_module_import_attribute_resolution_report(codebase)
     memory_samples.append(memory_sample("after_known_module_import_attribute_resolution"))
+    known_ignore_case_file_lookups = known_ignore_case_file_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_ignore_case_file_lookups"))
     targeted_cache_materialization = targeted_cache_materialization_report(backend)
     known_lookups = known_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_lookups"))
@@ -527,6 +551,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "known_file_local_import_lookups": known_file_local_import_lookups,
         "known_file_local_name_resolution": known_file_local_name_resolution,
         "known_module_import_attribute_resolution": known_module_import_attribute_resolution,
+        "known_ignore_case_file_lookups": known_ignore_case_file_lookups,
         "targeted_cache_materialization": targeted_cache_materialization,
         "known_lookups": known_lookups,
         "byte_range_cache_materialization": byte_range_cache_materialization,
@@ -565,6 +590,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("known file-local name resolution results drifted")
         if report["known_module_import_attribute_resolution"] != EXPECTED_KNOWN_MODULE_IMPORT_ATTRIBUTE_RESOLUTION:
             failures.append("known module import attribute resolution results drifted")
+        if report["known_ignore_case_file_lookups"] != EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS:
+            failures.append("known ignore-case file lookup results drifted")
         if report["targeted_cache_materialization"] != EXPECTED_TARGETED_CACHE_MATERIALIZATION:
             failures.append("targeted lookup caches were materialized before byte-range queries")
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:

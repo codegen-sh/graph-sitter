@@ -93,6 +93,14 @@ EXPECTED_KNOWN_FILE_LOCAL_EXPORT_LOOKUPS = {
     }
 }
 
+EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS = {
+    "app_router_announcer": {
+        "filepath": "packages/next/src/client/components/app-router-announcer.tsx",
+        "handle": "RustCompactFile",
+        "name": "app-router-announcer",
+    }
+}
+
 EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
@@ -160,6 +168,14 @@ def handle_signature(handle: Any) -> dict[str, Any]:
     return signature
 
 
+def file_signature(file: Any) -> dict[str, Any]:
+    return {
+        "filepath": file.filepath,
+        "handle": type(file).__name__,
+        "name": file.name,
+    }
+
+
 def known_global_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
     function = codebase.get_function("AppRouterAnnouncer")
     signature = handle_signature(function)
@@ -177,6 +193,17 @@ def known_file_local_export_lookup_report(codebase: Any) -> dict[str, dict[str, 
     signature["filepath"] = export.filepath
     return {
         "app_router_announcer_export": signature,
+    }
+
+
+def known_ignore_case_file_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    return {
+        "app_router_announcer": file_signature(
+            codebase.get_file(
+                "PACKAGES/NEXT/SRC/CLIENT/COMPONENTS/APP-ROUTER-ANNOUNCER.TSX",
+                ignore_case=True,
+            )
+        ),
     }
 
 
@@ -254,6 +281,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_known_global_lookups"))
     known_file_local_export_lookups = known_file_local_export_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_file_local_export_lookups"))
+    known_ignore_case_file_lookups = known_ignore_case_file_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_ignore_case_file_lookups"))
     targeted_cache_materialization = targeted_cache_materialization_report(backend)
     large_cache_materialization = large_cache_materialization_report(backend)
 
@@ -289,6 +318,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "compat_handles": compat_counts,
         "known_global_lookups": known_global_lookups,
         "known_file_local_export_lookups": known_file_local_export_lookups,
+        "known_ignore_case_file_lookups": known_ignore_case_file_lookups,
         "targeted_cache_materialization": targeted_cache_materialization,
         "large_cache_materialization": large_cache_materialization,
         "comparison": comparison,
@@ -316,6 +346,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("known global lookup results drifted")
         if report["known_file_local_export_lookups"] != EXPECTED_KNOWN_FILE_LOCAL_EXPORT_LOOKUPS:
             failures.append("known file-local export lookup results drifted")
+        if report["known_ignore_case_file_lookups"] != EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS:
+            failures.append("known ignore-case file lookup results drifted")
         if report["targeted_cache_materialization"] != EXPECTED_TARGETED_CACHE_MATERIALIZATION:
             failures.append("targeted lookup caches were materialized during known queries")
         if report["large_cache_materialization"] != EXPECTED_LARGE_CACHE_MATERIALIZATION:
