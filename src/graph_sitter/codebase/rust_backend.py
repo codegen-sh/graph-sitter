@@ -513,10 +513,15 @@ class RustIndexBackend:
             return existing
 
         content_bytes = content.encode("utf-8")
+        module_name = None
+        if relative_path.endswith(".py"):
+            module_name = _python_import_module_name_for_filepath(relative_path)
+        elif _is_typescript_like_extension(Path(relative_path).suffix):
+            module_name = _typescript_import_module_name_for_filepath(relative_path)
         record = RustFileRecord(
             id=max((file.id for file in self.files), default=-1) + 1,
             path=relative_path,
-            module_name=_python_import_module_name_for_filepath(relative_path) if relative_path.endswith(".py") else None,
+            module_name=module_name,
             byte_len=len(content_bytes),
             line_count=_line_count(content),
             has_error=False,

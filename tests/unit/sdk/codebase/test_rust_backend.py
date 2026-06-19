@@ -711,6 +711,180 @@ class FakeTypeScriptIndex:
         )
 
 
+class FakeTypeScriptMoveUpdateSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 2,
+                "symbols": 2,
+                "classes": 0,
+                "functions": 2,
+                "global_variables": 0,
+                "imports": 1,
+                "import_resolutions": 1,
+                "references": 1,
+                "dependencies": 1,
+                "bytes": 110,
+                "lines": 8,
+            }
+        )
+        return data
+
+
+class FakeTypeScriptMoveUpdateIndex:
+    def summary(self):
+        return FakeTypeScriptMoveUpdateSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "src/app.ts",
+                    "module_name": "src/app",
+                    "byte_len": 38,
+                    "line_count": 3,
+                    "has_error": False,
+                    "root_range": fake_range(0, 38, 0, 0, 3, 0),
+                },
+                {
+                    "id": 1,
+                    "path": "src/consumer.ts",
+                    "module_name": "src/consumer",
+                    "byte_len": 72,
+                    "line_count": 5,
+                    "has_error": False,
+                    "root_range": fake_range(0, 72, 0, 0, 5, 0),
+                },
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "run",
+                    "kind": "function",
+                    "range": fake_range(0, 38, 0, 0, 2, 1),
+                    "name_range": fake_range(16, 19, 0, 16, 0, 19),
+                },
+                {
+                    "id": 1,
+                    "file_id": 1,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "use",
+                    "kind": "function",
+                    "range": fake_range(30, 72, 2, 0, 4, 1),
+                    "name_range": fake_range(46, 49, 2, 16, 2, 19),
+                },
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 1,
+                    "kind": "named_import",
+                    "module": "./app",
+                    "name": "run",
+                    "alias": "run",
+                    "range": fake_range(9, 12, 0, 9, 0, 12),
+                }
+            ]
+        )
+
+    def import_resolutions_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "import_id": 0,
+                    "source_file_id": 1,
+                    "target_file_id": 0,
+                    "target_symbol_id": 0,
+                }
+            ]
+        )
+
+    def external_modules_json(self):
+        return json.dumps([])
+
+    def exports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "kind": "named",
+                    "name": "run",
+                    "local_name": "run",
+                    "source_module": None,
+                    "symbol_id": 0,
+                    "import_id": None,
+                    "range": fake_range(0, 38, 0, 0, 2, 1),
+                },
+                {
+                    "id": 1,
+                    "file_id": 1,
+                    "kind": "named",
+                    "name": "use",
+                    "local_name": "use",
+                    "source_module": None,
+                    "symbol_id": 1,
+                    "import_id": None,
+                    "range": fake_range(30, 72, 2, 0, 4, 1),
+                },
+            ]
+        )
+
+    def references_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 1,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "import_id": 0,
+                    "name": "run",
+                    "range": fake_range(63, 66, 3, 9, 3, 12),
+                }
+            ]
+        )
+
+    def dependencies_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "source_file_id": 1,
+                    "target_file_id": 0,
+                    "reference_ids": [0],
+                    "reference_count": 1,
+                }
+            ]
+        )
+
+    def external_references_json(self):
+        return json.dumps([])
+
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
 class FakeTypeScriptExternalSummary(FakeSummary):
     def as_dict(self):
         data = super().as_dict()
@@ -1968,6 +2142,41 @@ def test_rust_compact_typescript_codemod_edits_imports_without_python_graph(monk
         assert (tmp_path / "src/app.ts").read_text() == expected_app
         assert (tmp_path / "src/consumer.ts").read_text() == expected_consumer
         assert codebase.get_file("src/app.ts").content == expected_app
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_codemod_move_updates_imports_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptMoveUpdateIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    def execute(codebase):
+        run = codebase.get_function("run")
+        runner_file = codebase.create_file("src/runner.ts", "", sync=False)
+        run.move_to_file(runner_file, include_dependencies=False, strategy="update_all_imports")
+
+    codemod = Codemod(name="rust-typescript-move-imports-smoke", execute=execute)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files={
+            "src/app.ts": "export function run() {\n  return 1;\n}\n",
+            "src/consumer.ts": "import { run } from './app';\n\nexport function use() {\n  return run();\n}\n",
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+
+        expected_consumer = "import { run } from 'src/runner';\n\nexport function use() {\n  return run();\n}\n"
+        assert (tmp_path / "src/app.ts").read_text() == ""
+        assert (tmp_path / "src/runner.ts").read_text() == "export function run() {\n  return 1;\n}\n"
+        assert (tmp_path / "src/consumer.ts").read_text() == expected_consumer
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
