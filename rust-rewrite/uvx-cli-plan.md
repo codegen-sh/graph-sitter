@@ -25,6 +25,7 @@ This plan does not change docs/site content.
 - `graph-sitter parse [PATH] --backend python --format json` works without `.codegen` initialization and emits stable summary JSON.
 - `graph-sitter run LABEL PATH --arguments '{"key":"value"}' --backend python` resolves decorated functions under the target repo's `.codegen/codemods`, validates typed Pydantic arguments, and runs without an active `gs init` session.
 - `graph-sitter run LABEL PATH --check` runs in a temporary copied-repo sandbox, reports the semantic diff, and leaves the target repo unchanged.
+- `graph-sitter transform MODULE:OBJECT PATH --check|--write` loads ad hoc file or module transforms, supports plain functions plus `Codemod.execute` classes/instances, and uses the same backend/language/check/write path as `run`.
 - `graph_sitter.cli.cli:main` is the public CLI. `graph_sitter.gscli` appears to be an internal generation CLI and should not be used for the `uvx graph-sitter` surface.
 - The current `run` path executes decorated functions found under `.codegen/codemods`:
   - `gs init` creates/persists a session for a git repo.
@@ -90,7 +91,7 @@ Behavior:
 - `MODULE:OBJECT` allows ad hoc transformations without `gs init` or `.codegen/codemods`.
 - If `OBJECT` is a function, call it as `object(codebase)` or `object(codebase, arguments)` when typed arguments are configured.
 - If `OBJECT` is a `Codemod` subclass or instance, call `execute(codebase)`.
-- This should be implemented after `parse` and `run` because import-path execution needs more validation and clearer sandbox expectations.
+- This now shares the same target-repo parser, typed `--arguments`, and temporary copied-repo `--check` sandbox as `run`.
 
 ### Compatibility Commands
 
@@ -162,7 +163,7 @@ Required packaging decision:
 5. [x] Add an explicit `PATH` argument to `run` while preserving current active-session behavior as fallback.
 6. [x] Fix `--arguments` propagation into decorated functions before advertising it as supported.
 7. [x] Add `--check` and `--write` modes for transformations. Preserve `gs run` compatibility separately if needed. Result: `--check` uses a temporary copied-repo sandbox so codemods that call `codebase.commit()` internally cannot touch the target repo; `--write` is explicit while default write behavior remains for compatibility.
-8. Add import-path `transform MODULE:OBJECT` after the command and safety model are tested.
+8. [x] Add import-path `transform MODULE:OBJECT` after the command and safety model are tested. Result: file/module import paths can run plain functions, `Codemod` subclasses, and `Codemod` instances with `--check`, `--write`, backend/language flags, and typed arguments.
 9. Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install.
 
 ## Test Strategy
@@ -187,7 +188,7 @@ Transformation tests:
 - Initialize a temp git repo, create a `.codegen/codemods/<label>/<label>.py` decorated function, run `graph-sitter run <label> <repo> --check`, assert the semantic diff, and assert original file bytes are unchanged.
 - Run the same codemod with `--write` and assert modified file bytes.
 - Add a codemod with typed arguments and assert `--arguments` reaches the function.
-- Add an import-path function and a `Codemod.execute` class fixture once `transform MODULE:OBJECT` exists.
+- Add an import-path function and a `Codemod.execute` class fixture (`tests/unit/cli/commands/transform/test_transform.py`).
 
 Distribution tests:
 
@@ -209,6 +210,6 @@ Regression gates:
 - The Rust extension is not currently bundled into the Python wheel/source install path, so `--backend rust` cannot be promised to `uvx` users yet.
 - `run LABEL PATH` works for local decorated functions, but daemon mode still requires an initialized active session.
 - Current local `run` still applies changes by default for compatibility. The safer explicit mode is `--check`, which runs in a temporary copied-repo sandbox and reports changes without touching the target repo.
-- Class-based `Codemod.execute(codebase)` entry points are tested internally but not exposed by the public CLI.
+- Import-path `transform` supports class-based `Codemod.execute(codebase)` entry points, but package-discoverable transform registries are not implemented.
 - User-facing CLI copy still says "codegen" in several places. This is not a packaging blocker, but it will make the `graph-sitter` UX feel inconsistent.
 - Python version support is narrow (`>=3.12, <3.14`), so `uvx` examples should specify a compatible Python when needed, for example `uvx --python 3.13 graph-sitter ...`.

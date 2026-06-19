@@ -1,7 +1,9 @@
 import shutil
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any
 
 import rich
 import rich.progress
@@ -162,6 +164,7 @@ def _run_check(
     backend: GraphBackend,
     fallback: RustFallbackMode,
     language: ProgrammingLanguage | None,
+    check_function_resolver: Callable[[Path], Any] | None = None,
 ) -> None:
     from graph_sitter.cli.utils.codemod_manager import CodemodManager
 
@@ -169,7 +172,11 @@ def _run_check(
         sandbox_repo_path = Path(temporary_directory) / source_repo_path.name
         shutil.copytree(source_repo_path, sandbox_repo_path, ignore=_ignore_check_sandbox_entries)
         _initialize_check_sandbox_repo(sandbox_repo_path)
-        sandbox_function = CodemodManager.get_codemod(function.name, start_path=sandbox_repo_path)
+        sandbox_function = (
+            check_function_resolver(sandbox_repo_path)
+            if check_function_resolver
+            else CodemodManager.get_codemod(function.name, start_path=sandbox_repo_path)
+        )
         result = _execute_codemod(
             repo_path=sandbox_repo_path,
             function=sandbox_function,
@@ -199,6 +206,7 @@ def run_local(
     fallback: RustFallbackMode = RustFallbackMode.PYTHON,
     language: ProgrammingLanguage | None = None,
     check: bool = False,
+    check_function_resolver: Callable[[Path], Any] | None = None,
 ) -> None:
     """Run a function locally against the codebase.
 
@@ -218,6 +226,7 @@ def run_local(
             backend=backend,
             fallback=fallback,
             language=language,
+            check_function_resolver=check_function_resolver,
         )
         return
 
