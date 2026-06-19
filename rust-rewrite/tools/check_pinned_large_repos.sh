@@ -48,4 +48,10 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
   --skip-build-extension \
   --output "$OUTPUT_DIR/nextjs-rust-codebase.json"
 
+echo "Checking pinned large-repo Rust codemod proof"
+uv run python rust-rewrite/tools/check_pinned_codemods.py \
+  "${COMMON_ARGS[@]}" \
+  --skip-build-extension \
+  --output "$OUTPUT_DIR/pinned-rust-codemods.json"
+
 echo "Pinned large-repo checks wrote reports to $OUTPUT_DIR"

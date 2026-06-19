@@ -16,6 +16,7 @@ on:
       - "rust-rewrite/tools/benchmark_pinned_python_repo.py"
       - "rust-rewrite/tools/benchmark_pinned_typescript_repo.py"
       - "rust-rewrite/tools/check_pinned_large_repos.sh"
+      - "rust-rewrite/tools/check_pinned_codemods.py"
       - "rust-rewrite/tools/check_pinned_python_codebase.py"
       - "rust-rewrite/tools/check_pinned_typescript_codebase.py"
       - "rust-rewrite/tools/snapshot_pinned_python_repo.py"
