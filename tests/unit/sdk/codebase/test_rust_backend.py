@@ -206,6 +206,9 @@ class FakeIndex:
             ]
         )
 
+    def external_modules_json(self):
+        return json.dumps([])
+
     def references_json(self):
         return json.dumps(
             [
@@ -242,6 +245,93 @@ class FakeIndex:
                 }
             ]
         )
+
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
+class FakeExternalSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "symbols": 0,
+                "classes": 0,
+                "functions": 0,
+                "imports": 1,
+                "import_resolutions": 0,
+                "references": 0,
+                "dependencies": 0,
+                "bytes": 41,
+                "lines": 2,
+            }
+        )
+        return data
+
+
+class FakeExternalIndex:
+    def summary(self):
+        return FakeExternalSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[],"external_modules":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "pkg/service.py",
+                    "module_name": "pkg.service",
+                    "byte_len": 41,
+                    "line_count": 2,
+                    "has_error": False,
+                    "root_range": fake_range(0, 41, 0, 0, 2, 0),
+                }
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps([])
+
+    def imports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "kind": "import",
+                    "module": None,
+                    "name": "numpy",
+                    "alias": "np",
+                    "range": fake_range(0, 18, 0, 0, 0, 18),
+                }
+            ]
+        )
+
+    def import_resolutions_json(self):
+        return json.dumps([])
+
+    def external_modules_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "import_id": 0,
+                    "file_id": 0,
+                    "module": None,
+                    "name": "numpy",
+                    "alias": "np",
+                    "range": fake_range(0, 18, 0, 0, 0, 18),
+                }
+            ]
+        )
+
+    def references_json(self):
+        return json.dumps([])
+
+    def dependencies_json(self):
+        return json.dumps([])
 
     def subclass_edges_json(self):
         return json.dumps([])
@@ -327,6 +417,9 @@ class FakeTypeScriptInheritanceIndex:
         return json.dumps([])
 
     def import_resolutions_json(self):
+        return json.dumps([])
+
+    def external_modules_json(self):
         return json.dumps([])
 
     def exports_json(self):
@@ -528,6 +621,9 @@ class FakeTypeScriptIndex:
                 }
             ]
         )
+
+    def external_modules_json(self):
+        return json.dumps([])
 
     def exports_json(self):
         return json.dumps(
@@ -1090,6 +1186,43 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert import_handle.usages[0].usage_symbol == helper
         assert import_handle.usages[0].imported_by == import_handle
         assert import_handle.usages[0].match.source == "Service"
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_external_modules(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch, index_cls=FakeExternalIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import numpy as np\nVALUE = np.array([1])\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        assert codebase.ctx.rust_compact_mode is True
+        assert [module.name for module in codebase.rust_external_modules] == ["numpy"]
+        assert [module.name for module in codebase.external_modules] == ["numpy"]
+
+        import_handle = codebase.get_file("pkg/service.py").get_import("np")
+        external_module = codebase.external_modules[0]
+        assert import_handle.name == "np"
+        assert import_handle.from_file is None
+        assert import_handle.imported_symbol == external_module
+        assert import_handle.resolved_symbol == external_module
+        assert import_handle.imported_exports == [external_module]
+        assert import_handle.resolve_attribute("array") == external_module
+        assert external_module.import_handle == import_handle
+        assert external_module.file is None
+        assert external_module.filepath == ""
+        assert external_module.source == "import numpy as np"
+        assert external_module.full_name == "numpy"
+        assert external_module.get_name().source == "numpy"
+        assert external_module.get_import_string() == "import numpy as np"
+
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["pkg/service.py"]]
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 

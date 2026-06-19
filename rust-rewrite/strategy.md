@@ -185,7 +185,7 @@ Recommended task format:
 - [x] Port TypeScript relative import resolution rules. owner: codex. Result: `TypeScriptIndex` now emits compact `ImportResolutionRecord` rows for relative TS/JS module specifiers that resolve to selected files via exact, extensionless `.ts/.tsx/.js/.jsx`, and directory `index` candidates, including default/named symbol targets when local exports identify a symbol.
 - [x] Port TypeScript config/path alias handling. owner: codex. Result: Rust now parses nearest `tsconfig.json` files with JSONC comments/trailing commas, resolves `compilerOptions.paths` wildcard/exact aliases and `baseUrl` module specifiers, and feeds those resolutions into TypeScript references/dependencies.
 - [x] Port first TypeScript barrel re-export symbol propagation. owner: codex. Result: Rust now resolves named re-exports, nested re-exports, and wildcard `export *` propagation into import symbol targets and namespace-member references without materializing wildcard export records.
-- [ ] Represent external modules compactly.
+- [x] Represent external modules compactly. owner: codex. Result: Rust now emits `ExternalModuleRecord` rows for unresolved non-relative Python and TypeScript imports, excluding Python future imports and unresolved relative local imports.
 - [ ] Implement full import-to-file and import-to-symbol edges for all Python and TypeScript rules.
 - [ ] Implement export-to-symbol/import/file edges.
 - [ ] Implement lexical scope tables for name resolution.
@@ -226,6 +226,7 @@ Recommended task format:
 - [ ] Implement Rust-backed file handles for P0 `SourceFile` APIs.
 - [ ] Implement Rust-backed symbol handles for P0 `Symbol`, `Class`, and `Function` APIs.
 - [ ] Implement Rust-backed import handles for P0 `Import` APIs.
+- [x] Implement Rust-backed external-module handles for unresolved imports. owner: codex. Result: `Codebase.external_modules` and compact import `resolved_symbol`/`imported_symbol` now return lightweight external-module handles without materializing the Python graph.
 - [ ] Implement Rust-backed export handles for P0 TypeScript `Export` APIs.
 - [x] Make `Codebase.files` return compact read handles under the Python Rust backend. owner: codex.
 - [x] Make `Codebase.symbols`, `classes`, `functions`, `global_vars`, and `imports` return compact read handles under the Python Rust backend. owner: codex.
@@ -370,3 +371,4 @@ Recommended task format:
 - [x] 2026-06-19: Audited TypeScript inheritance API parity. owner: Halley. Notes: existing Python tests expect both dependency edges and separate `SUBCLASS` traversal edges for inheritance/implements APIs; compact subclass edge storage remains an explicit follow-up.
 - [x] 2026-06-19: Added compact TypeScript subclass traversal edges. owner: codex. Notes: Rust now stores deduplicated subclass/implementation edges alongside references/dependencies and the Python Rust shell walks them for inheritance APIs. `check_fast.sh` passed; rebuilt pinned Next.js `v15.0.0` proof validates 13,688 files, 48,157 references, 16,260 dependencies, and 151 subclass edges, with Rust `Codebase` construction at 6.506s and 492.8 MB max RSS in the cached run.
 - [x] 2026-06-19: Added subclass edges to the pinned Next.js graph snapshot. owner: codex. Notes: `snapshot_pinned_typescript_repo.py` schema v4 now normalizes subclass-edge rows, verifies source/target/reference integrity, and stores a deterministic hash for 151 internal inheritance/implementation edges. Exact pinned snapshot verification passed in 6.449s with 615.7 MB max RSS; pinned Rust `Codebase` verification passed in 6.448s with 496.0 MB max RSS.
+- [x] 2026-06-19: Added compact external-module records and handles. owner: codex. Notes: unresolved non-relative Python/TypeScript imports now produce `ExternalModuleRecord` rows exposed through PyO3, `Codebase.rust_external_modules`, `Codebase.external_modules`, and compact import `resolved_symbol`/`imported_symbol`; focused Rust, PyO3, Python compact backend, and ruff checks passed.

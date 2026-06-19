@@ -310,6 +310,11 @@ class Codebase(
 
     @property
     @noapidoc
+    def rust_external_modules(self):
+        return self._require_rust_index().external_modules
+
+    @property
+    @noapidoc
     def rust_exports(self):
         return self._require_rust_index().exports
 
@@ -483,6 +488,9 @@ class Codebase(
         Returns:
             list[ExternalModule]: List of external module nodes from the codebase graph.
         """
+        if self.ctx.rust_compact_mode:
+            return self._require_rust_index().external_module_handles
+
         return self.ctx.get_nodes(NodeType.EXTERNAL)
 
     @property

@@ -186,6 +186,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn external_modules_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.external_modules)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn references_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.references)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -214,6 +219,11 @@ mod bindings {
         #[getter]
         fn import_resolution_count(&self) -> usize {
             self.inner.import_resolutions.len()
+        }
+
+        #[getter]
+        fn external_module_count(&self) -> usize {
+            self.inner.external_modules.len()
         }
 
         #[getter]
@@ -283,6 +293,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn external_modules_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.external_modules)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn exports_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.exports)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -321,6 +336,11 @@ mod bindings {
         #[getter]
         fn import_resolution_count(&self) -> usize {
             self.inner.import_resolutions.len()
+        }
+
+        #[getter]
+        fn external_module_count(&self) -> usize {
+            self.inner.external_modules.len()
         }
 
         #[getter]
@@ -609,6 +629,7 @@ mod bindings {
             assert_eq!(summary.references, 1);
             assert_eq!(summary.dependencies, 1);
             assert_eq!(index.import_resolution_count(), 2);
+            assert_eq!(index.external_module_count(), 0);
             assert_eq!(index.reference_count(), 1);
             assert_eq!(index.dependency_count(), 1);
             assert!(index.files_json().unwrap().contains("\"pkg/base.py\""));
@@ -619,6 +640,7 @@ mod bindings {
                 .import_resolutions_json()
                 .unwrap()
                 .contains("target_symbol_id"));
+            assert_eq!(index.external_modules_json().unwrap(), "[]");
             assert!(index.references_json().unwrap().contains("\"Base\""));
             assert!(index
                 .dependencies_json()
@@ -658,6 +680,7 @@ mod bindings {
             assert_eq!(summary.references, 1);
             assert_eq!(summary.dependencies, 1);
             assert_eq!(index.import_resolution_count(), 1);
+            assert_eq!(index.external_module_count(), 1);
             assert_eq!(index.export_count(), 2);
             assert_eq!(index.reference_count(), 1);
             assert_eq!(index.dependency_count(), 1);
@@ -669,6 +692,7 @@ mod bindings {
                 .import_resolutions_json()
                 .unwrap()
                 .contains("target_symbol_id"));
+            assert!(index.external_modules_json().unwrap().contains("\"React\""));
             assert!(index.exports_json().unwrap().contains("\"Page\""));
             assert!(index.references_json().unwrap().contains("\"helper\""));
             assert!(index
@@ -677,6 +701,7 @@ mod bindings {
                 .contains("reference_count"));
             assert_eq!(index.subclass_edges_json().unwrap(), "[]");
             assert!(index.to_json().unwrap().contains("\"import_resolutions\""));
+            assert!(index.to_json().unwrap().contains("\"external_modules\""));
             assert!(index.to_json().unwrap().contains("\"exports\""));
             assert!(index.to_json().unwrap().contains("\"references\""));
             assert!(index.to_json().unwrap().contains("\"dependencies\""));

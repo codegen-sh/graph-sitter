@@ -169,6 +169,7 @@ pub struct PythonIndex {
     pub symbols: Vec<SymbolRecord>,
     pub imports: Vec<ImportRecord>,
     pub import_resolutions: Vec<ImportResolutionRecord>,
+    pub external_modules: Vec<ExternalModuleRecord>,
     pub references: Vec<ReferenceRecord>,
     pub dependencies: Vec<DependencyRecord>,
     #[serde(skip)]
@@ -212,6 +213,7 @@ pub struct TypeScriptIndex {
     pub symbols: Vec<SymbolRecord>,
     pub imports: Vec<ImportRecord>,
     pub import_resolutions: Vec<ImportResolutionRecord>,
+    pub external_modules: Vec<ExternalModuleRecord>,
     pub exports: Vec<ExportRecord>,
     pub references: Vec<ReferenceRecord>,
     pub dependencies: Vec<DependencyRecord>,
@@ -320,6 +322,17 @@ pub struct ImportRecord {
     pub kind: ImportKind,
     pub module: Option<String>,
     pub name: Option<String>,
+    pub alias: Option<String>,
+    pub range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ExternalModuleRecord {
+    pub id: u32,
+    pub import_id: u32,
+    pub file_id: u32,
+    pub module: Option<String>,
+    pub name: String,
     pub alias: Option<String>,
     pub range: SourceRange,
 }
@@ -482,6 +495,7 @@ impl PythonIndexer {
             symbols: Vec::new(),
             imports: Vec::new(),
             import_resolutions: Vec::new(),
+            external_modules: Vec::new(),
             references: Vec::new(),
             dependencies: Vec::new(),
             all_exports_by_file: HashMap::new(),
@@ -581,6 +595,7 @@ impl TypeScriptIndexer {
             symbols: Vec::new(),
             imports: Vec::new(),
             import_resolutions: Vec::new(),
+            external_modules: Vec::new(),
             exports: Vec::new(),
             references: Vec::new(),
             dependencies: Vec::new(),
@@ -2371,6 +2386,55 @@ fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScr
     }
     resolve_typescript_import_symbols(index, &symbol_by_file_and_name, &mut resolutions);
     index.import_resolutions = resolutions;
+    index.external_modules = build_external_modules(&index.imports, &index.import_resolutions);
+}
+
+fn build_external_modules(
+    imports: &[ImportRecord],
+    import_resolutions: &[ImportResolutionRecord],
+) -> Vec<ExternalModuleRecord> {
+    let resolved_import_ids: HashSet<u32> = import_resolutions
+        .iter()
+        .map(|resolution| resolution.import_id)
+        .collect();
+    imports
+        .iter()
+        .filter(|import| !resolved_import_ids.contains(&import.id))
+        .filter(|import| import_is_external_candidate(import))
+        .filter_map(|import| {
+            Some(ExternalModuleRecord {
+                id: 0,
+                import_id: import.id,
+                file_id: import.file_id,
+                module: import.module.clone(),
+                name: external_module_name(import)?,
+                alias: import.alias.clone(),
+                range: import.range,
+            })
+        })
+        .enumerate()
+        .map(|(id, mut record)| {
+            record.id = id as u32;
+            record
+        })
+        .collect()
+}
+
+fn import_is_external_candidate(import: &ImportRecord) -> bool {
+    if import.kind == ImportKind::FutureImport {
+        return false;
+    }
+    if let Some(module) = import.module.as_deref() {
+        return !module.starts_with('.');
+    }
+    import
+        .name
+        .as_deref()
+        .is_some_and(|name| !name.starts_with('.'))
+}
+
+fn external_module_name(import: &ImportRecord) -> Option<String> {
+    import.name.clone().or_else(|| import.module.clone())
 }
 
 fn typescript_local_exported_symbol_map(
@@ -4071,6 +4135,7 @@ fn resolve_python_imports(index: &mut PythonIndex) {
     }
     index.import_resolutions = resolutions;
     resolve_python_reexport_imports(index);
+    index.external_modules = build_external_modules(&index.imports, &index.import_resolutions);
 }
 
 fn resolve_python_reexport_imports(index: &mut PythonIndex) {
@@ -4660,6 +4725,7 @@ mod tests {
         assert_eq!(index.summary().global_variables, 0);
         assert_eq!(index.summary().imports, 4);
         assert_eq!(index.summary().import_resolutions, 0);
+        assert_eq!(index.external_modules.len(), 2);
         assert_eq!(index.summary().references, 0);
         assert_eq!(index.summary().dependencies, 0);
         assert_eq!(index.symbols[0].name, "Service");
@@ -4676,6 +4742,12 @@ mod tests {
             .imports
             .iter()
             .any(|import| import.alias.as_deref() == Some("system")));
+        assert!(index.external_modules.iter().any(|external_module| {
+            external_module.name == "os" && external_module.alias.is_none()
+        }));
+        assert!(index.external_modules.iter().any(|external_module| {
+            external_module.name == "sys" && external_module.alias.as_deref() == Some("system")
+        }));
     }
 
     #[test]
@@ -4731,6 +4803,7 @@ const Component = () => <div />;
         assert_eq!(index.imports.len(), 10);
         assert_eq!(index.exports.len(), 5);
         assert_eq!(index.summary().import_resolutions, 0);
+        assert_eq!(index.external_modules.len(), 3);
         assert_eq!(index.summary().references, 0);
         assert_eq!(index.summary().dependencies, 0);
 
@@ -4781,6 +4854,19 @@ const Component = () => <div />;
                 && import.module.as_deref() == Some("./format")
                 && import.alias.as_deref() == Some("fmt")
         }));
+        assert!(index.external_modules.iter().any(|external_module| {
+            external_module.name == "React"
+                && external_module.module.as_deref() == Some("react")
+                && external_module.alias.as_deref() == Some("React")
+        }));
+        assert!(index
+            .external_modules
+            .iter()
+            .any(|external_module| external_module.name == "useState"));
+        assert!(index
+            .external_modules
+            .iter()
+            .any(|external_module| external_module.name == "FC"));
 
         assert!(index.exports.iter().any(|export| {
             export.kind == ExportKind::Named
