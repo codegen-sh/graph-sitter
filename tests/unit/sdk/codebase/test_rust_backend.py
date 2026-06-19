@@ -255,15 +255,15 @@ class FakeExternalSummary(FakeSummary):
         data = super().as_dict()
         data.update(
             {
-                "symbols": 0,
+                "symbols": 1,
                 "classes": 0,
-                "functions": 0,
+                "functions": 1,
                 "imports": 1,
                 "import_resolutions": 0,
                 "references": 0,
                 "dependencies": 0,
-                "bytes": 41,
-                "lines": 2,
+                "bytes": 56,
+                "lines": 4,
             }
         )
         return data
@@ -283,16 +283,29 @@ class FakeExternalIndex:
                     "id": 0,
                     "path": "pkg/service.py",
                     "module_name": "pkg.service",
-                    "byte_len": 41,
-                    "line_count": 2,
+                    "byte_len": 56,
+                    "line_count": 4,
                     "has_error": False,
-                    "root_range": fake_range(0, 41, 0, 0, 2, 0),
+                    "root_range": fake_range(0, 56, 0, 0, 4, 0),
                 }
             ]
         )
 
     def symbols_json(self):
-        return json.dumps([])
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "run",
+                    "kind": "function",
+                    "range": fake_range(20, 56, 2, 0, 4, 0),
+                    "name_range": fake_range(24, 27, 2, 4, 2, 7),
+                }
+            ]
+        )
 
     def imports_json(self):
         return json.dumps(
@@ -329,6 +342,20 @@ class FakeExternalIndex:
 
     def references_json(self):
         return json.dumps([])
+
+    def external_references_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "import_id": 0,
+                    "name": "np",
+                    "range": fake_range(42, 44, 3, 11, 3, 13),
+                }
+            ]
+        )
 
     def dependencies_json(self):
         return json.dumps([])
@@ -1196,7 +1223,7 @@ def test_rust_compact_external_modules(monkeypatch, tmp_path):
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={"pkg/service.py": "import numpy as np\nVALUE = np.array([1])\n"},
+        files={"pkg/service.py": "import numpy as np\n\ndef run():\n    return np.array([1])\n"},
         config=config,
         verify_input=False,
         verify_output=False,
@@ -1204,6 +1231,7 @@ def test_rust_compact_external_modules(monkeypatch, tmp_path):
         assert codebase.ctx.rust_compact_mode is True
         assert [module.name for module in codebase.rust_external_modules] == ["numpy"]
         assert [module.name for module in codebase.external_modules] == ["numpy"]
+        assert [reference.name for reference in codebase.rust_external_references] == ["np"]
 
         import_handle = codebase.get_file("pkg/service.py").get_import("np")
         external_module = codebase.external_modules[0]
@@ -1220,6 +1248,12 @@ def test_rust_compact_external_modules(monkeypatch, tmp_path):
         assert external_module.full_name == "numpy"
         assert external_module.get_name().source == "numpy"
         assert external_module.get_import_string() == "import numpy as np"
+        run = codebase.get_function("run")
+        assert run.dependencies == [import_handle]
+        assert import_handle.symbol_usages == [run]
+        assert import_handle.usages[0].usage_symbol == run
+        assert import_handle.usages[0].match.source == "np"
+        assert import_handle.usages[0].match.start_point == (3, 11)
 
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]

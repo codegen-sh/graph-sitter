@@ -325,6 +325,11 @@ class Codebase(
 
     @property
     @noapidoc
+    def rust_external_references(self):
+        return self._require_rust_index().external_references
+
+    @property
+    @noapidoc
     def rust_dependencies(self):
         return self._require_rust_index().dependencies
 

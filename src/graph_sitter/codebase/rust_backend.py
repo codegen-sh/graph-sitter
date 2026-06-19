@@ -206,6 +206,28 @@ class RustReferenceRecord:
 
 
 @dataclass(frozen=True)
+class RustExternalReferenceRecord:
+    id: int
+    source_file_id: int
+    source_symbol_id: int | None
+    import_id: int
+    name: str
+    range: RustSourceRange
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustExternalReferenceRecord:
+        source_symbol_id = data["source_symbol_id"]
+        return cls(
+            id=int(data["id"]),
+            source_file_id=int(data["source_file_id"]),
+            source_symbol_id=None if source_symbol_id is None else int(source_symbol_id),
+            import_id=int(data["import_id"]),
+            name=str(data["name"]),
+            range=RustSourceRange.from_dict(data["range"]),
+        )
+
+
+@dataclass(frozen=True)
 class RustDependencyRecord:
     id: int
     source_symbol_id: int
@@ -291,6 +313,7 @@ class RustIndexBackend:
     _external_modules: list[RustExternalModuleRecord] | None = None
     _exports: list[RustExportRecord] | None = None
     _references: list[RustReferenceRecord] | None = None
+    _external_references: list[RustExternalReferenceRecord] | None = None
     _dependencies: list[RustDependencyRecord] | None = None
     _subclass_edges: list[RustSubclassRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
@@ -312,6 +335,8 @@ class RustIndexBackend:
     _references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_import_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_id: dict[int, RustReferenceRecord] | None = None
+    _external_references_by_source_symbol_id: dict[int, list[RustExternalReferenceRecord]] | None = None
+    _external_references_by_import_id: dict[int, list[RustExternalReferenceRecord]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
@@ -402,6 +427,16 @@ class RustIndexBackend:
         if self._references is None:
             self._references = [RustReferenceRecord.from_dict(record) for record in json.loads(self.index.references_json())]
         return self._references
+
+    @property
+    def external_references(self) -> list[RustExternalReferenceRecord]:
+        if self._external_references is None:
+            external_references_json = getattr(self.index, "external_references_json", None)
+            if external_references_json is None:
+                self._external_references = []
+            else:
+                self._external_references = [RustExternalReferenceRecord.from_dict(record) for record in json.loads(external_references_json())]
+        return self._external_references
 
     @property
     def dependencies(self) -> list[RustDependencyRecord]:
@@ -503,6 +538,7 @@ class RustIndexBackend:
         self._imports = [import_record for import_record in self.imports if import_record.file_id != file_id]
         self._external_modules = [external_module for external_module in self.external_modules if external_module.file_id != file_id]
         self._exports = [export for export in self.exports if export.file_id != file_id]
+        self._external_references = [reference for reference in self.external_references if reference.source_file_id != file_id]
         self._subclass_edges = [edge for edge in self.subclass_edges if edge.source_file_id != file_id and edge.target_file_id != file_id]
         self._file_handles_by_id = None
         self._symbol_handles = None
@@ -520,6 +556,8 @@ class RustIndexBackend:
         self._references_by_source_symbol_id = None
         self._references_by_import_id = None
         self._references_by_id = None
+        self._external_references_by_source_symbol_id = None
+        self._external_references_by_import_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
         self._subclass_edges_by_source_symbol_id = None
@@ -652,6 +690,23 @@ class RustIndexBackend:
             self._references_by_id = {reference.id: reference for reference in self.references}
         return self._references_by_id.get(reference_id)
 
+    def external_references_from_symbol(self, symbol_id: int) -> list[RustExternalReferenceRecord]:
+        if self._external_references_by_source_symbol_id is None:
+            references_by_source_symbol_id: dict[int, list[RustExternalReferenceRecord]] = {}
+            for reference in self.external_references:
+                if reference.source_symbol_id is not None:
+                    references_by_source_symbol_id.setdefault(reference.source_symbol_id, []).append(reference)
+            self._external_references_by_source_symbol_id = references_by_source_symbol_id
+        return self._external_references_by_source_symbol_id.get(symbol_id, [])
+
+    def external_references_for_import(self, import_id: int) -> list[RustExternalReferenceRecord]:
+        if self._external_references_by_import_id is None:
+            references_by_import_id: dict[int, list[RustExternalReferenceRecord]] = {}
+            for reference in self.external_references:
+                references_by_import_id.setdefault(reference.import_id, []).append(reference)
+            self._external_references_by_import_id = references_by_import_id
+        return self._external_references_by_import_id.get(import_id, [])
+
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies_by_source_symbol_id is None:
             dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] = {}
@@ -733,7 +788,7 @@ class RustCompactName:
 @dataclass(frozen=True)
 class RustCompactReferenceMatch:
     backend: RustIndexBackend
-    record: RustReferenceRecord
+    record: RustReferenceRecord | RustExternalReferenceRecord
 
     @property
     def source(self) -> str:
@@ -793,13 +848,13 @@ class RustCompactReferenceMatch:
 @dataclass(frozen=True)
 class RustCompactUsage:
     backend: RustIndexBackend
-    record: RustReferenceRecord
+    record: RustReferenceRecord | RustExternalReferenceRecord
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, RustCompactUsage) and self.backend is other.backend and self.record.id == other.record.id
+        return isinstance(other, RustCompactUsage) and self.backend is other.backend and type(self.record) is type(other.record) and self.record.id == other.record.id
 
     def __hash__(self) -> int:
-        return hash(("rust-compact-usage", id(self.backend), self.record.id))
+        return hash(("rust-compact-usage", id(self.backend), type(self.record), self.record.id))
 
     @property
     def match(self) -> RustCompactReferenceMatch:
@@ -1539,6 +1594,13 @@ class RustCompactSymbol(RustCompactHandle):
             if should_include_target and target not in seen:
                 seen.add(target)
                 dependencies.append(target)
+        if self._preserve_import_dependencies():
+            for reference in self.backend.external_references_from_symbol(self.record.id):
+                import_handle = self.backend.import_handle_by_id(reference.import_id)
+                if import_handle is None or import_handle in seen:
+                    continue
+                seen.add(import_handle)
+                dependencies.append(import_handle)
         return dependencies
 
     def _preserve_import_dependencies(self) -> bool:
@@ -1968,7 +2030,10 @@ class RustCompactImport(RustCompactHandle):
         if not _usage_types_include_direct(usage_types):
             return []
 
-        usages = [RustCompactUsage(self.backend, reference) for reference in self.backend.references_for_import(self.record.id)]
+        usages = [
+            RustCompactUsage(self.backend, reference)
+            for reference in [*self.backend.references_for_import(self.record.id), *self.backend.external_references_for_import(self.record.id)]
+        ]
         return sorted(dict.fromkeys(usages), key=lambda usage: (usage.file.filepath, usage.match.start_byte), reverse=True)
 
     @proxy_property

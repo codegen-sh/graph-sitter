@@ -189,17 +189,12 @@ def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) 
         "build_symbol_usages",
         "helper_symbol_usages_symbols_only",
         "run_internal_dependencies",
+        "run_dependencies",
     ]
     mismatches = [
         key for key in exact_keys if python_report.get(key) != rust_report.get(key)
     ]
-    known_deltas = {
-        "run_dependencies": {
-            "python": python_report["run_dependencies"],
-            "rust": rust_report["run_dependencies"],
-            "reason": "Python dependencies include external import nodes while compact Rust does not yet emit external dependency references.",
-        }
-    }
+    known_deltas: dict[str, Any] = {}
     return {
         "exact_keys": exact_keys,
         "mismatches": mismatches,
@@ -261,12 +256,7 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"exact keys: {', '.join(comparison['exact_keys'])}")
     print(f"external modules: {len(report['rust']['external_modules'])}")
     print(f"service imports: {len(report['rust']['service_imports'])}")
-    print(
-        "known delta: run.dependencies Python="
-        f"{len(comparison['known_deltas']['run_dependencies']['python'])} "
-        "Rust="
-        f"{len(comparison['known_deltas']['run_dependencies']['rust'])}"
-    )
+    print(f"known deltas: {len(comparison['known_deltas'])}")
 
 
 def main() -> int:

@@ -171,6 +171,7 @@ pub struct PythonIndex {
     pub import_resolutions: Vec<ImportResolutionRecord>,
     pub external_modules: Vec<ExternalModuleRecord>,
     pub references: Vec<ReferenceRecord>,
+    pub external_references: Vec<ExternalReferenceRecord>,
     pub dependencies: Vec<DependencyRecord>,
     #[serde(skip)]
     pub all_exports_by_file: HashMap<u32, BTreeSet<String>>,
@@ -381,6 +382,16 @@ pub struct ReferenceRecord {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ExternalReferenceRecord {
+    pub id: u32,
+    pub source_file_id: u32,
+    pub source_symbol_id: Option<u32>,
+    pub import_id: u32,
+    pub name: String,
+    pub range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct DependencyRecord {
     pub id: u32,
     pub source_symbol_id: u32,
@@ -497,6 +508,7 @@ impl PythonIndexer {
             import_resolutions: Vec::new(),
             external_modules: Vec::new(),
             references: Vec::new(),
+            external_references: Vec::new(),
             dependencies: Vec::new(),
             all_exports_by_file: HashMap::new(),
         };
@@ -4275,8 +4287,19 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
     let mut imported_module_by_qualifier: HashMap<(u32, String), (u32, u32)> = HashMap::new();
     let mut imported_module_prefix_by_binding: HashMap<(u32, String), (String, u32)> =
         HashMap::new();
+    let external_import_ids: HashSet<u32> = index
+        .external_modules
+        .iter()
+        .map(|external_module| external_module.import_id)
+        .collect();
+    let mut external_import_by_binding: HashMap<(u32, String), u32> = HashMap::new();
 
     for import in &index.imports {
+        if external_import_ids.contains(&import.id) {
+            if let Some(binding) = import_binding_name(import) {
+                external_import_by_binding.insert((import.file_id, binding), import.id);
+            }
+        }
         if let Some(source_file) = index.files.get(import.file_id as usize) {
             for (binding, module_prefix) in
                 import_module_prefix_bindings(import, source_file, &internal_module_prefixes)
@@ -4324,6 +4347,7 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
     }
 
     let mut references = Vec::new();
+    let mut external_references = Vec::new();
     for candidate in candidates {
         let resolved_target = if let Some(qualifier) = candidate.qualifier.as_ref() {
             imported_module_by_qualifier
@@ -4357,6 +4381,20 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
                 .or(same_file_target)
         };
         let Some((target_symbol_id, import_id)) = resolved_target else {
+            if candidate.qualifier.is_none() {
+                if let Some(import_id) = external_import_by_binding
+                    .get(&(candidate.source_file_id, candidate.name.clone()))
+                {
+                    external_references.push(ExternalReferenceRecord {
+                        id: external_references.len() as u32,
+                        source_file_id: candidate.source_file_id,
+                        source_symbol_id: candidate.source_symbol_id,
+                        import_id: *import_id,
+                        name: candidate.name,
+                        range: candidate.range,
+                    });
+                }
+            }
             continue;
         };
         if candidate.source_symbol_id == Some(target_symbol_id) {
@@ -4374,6 +4412,7 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         });
     }
     index.references = references;
+    index.external_references = external_references;
 }
 
 fn internal_python_module_prefixes(files: &[FileRecord]) -> HashSet<String> {
@@ -4748,6 +4787,45 @@ mod tests {
         assert!(index.external_modules.iter().any(|external_module| {
             external_module.name == "sys" && external_module.alias.as_deref() == Some("system")
         }));
+    }
+
+    #[test]
+    fn resolves_python_external_import_references() {
+        let repo = temp_repo_path("python-external-import-references");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "import requests\n\ndef run():\n    return requests.get('/health')\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 1);
+        assert_eq!(index.summary().imports, 1);
+        assert_eq!(index.external_modules.len(), 1);
+        assert_eq!(index.summary().references, 0);
+        assert_eq!(index.summary().dependencies, 0);
+        assert_eq!(index.external_references.len(), 1);
+
+        let import = index
+            .imports
+            .iter()
+            .find(|import| import.name.as_deref() == Some("requests"))
+            .unwrap();
+        let run = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "run")
+            .unwrap();
+        let reference = &index.external_references[0];
+
+        assert_eq!(reference.source_symbol_id, Some(run.id));
+        assert_eq!(reference.import_id, import.id);
+        assert_eq!(reference.name, "requests");
+        assert_eq!(reference.range.start_row, 3);
+        assert_eq!(reference.range.start_column, 11);
     }
 
     #[test]
