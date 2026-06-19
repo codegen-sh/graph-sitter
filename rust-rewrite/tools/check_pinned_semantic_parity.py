@@ -369,6 +369,17 @@ def compare_suite(python_report: dict[str, Any], rust_report: dict[str, Any], *,
             "getattr_dependencies",
         ]
         known_delta_keys = ["module_import_attribute_resolution"]
+        expected_known_deltas = {
+            "module_import_attribute_resolution": {
+                "python": None,
+                "rust": {
+                    "filepath": "airflow/models/__init__.py",
+                    "name": "DagModel",
+                    "node_type": "IMPORT",
+                    "source": "from airflow.models.dag import DAG, DagModel, DagTag",
+                },
+            }
+        }
     else:
         exact_keys = [
             "announcer_file",
@@ -380,6 +391,7 @@ def compare_suite(python_report: dict[str, Any], rust_report: dict[str, Any], *,
             "announcer_symbol_usages",
         ]
         known_delta_keys = []
+        expected_known_deltas = {}
     mismatches = [key for key in exact_keys if python_report.get(key) != rust_report.get(key)]
     known_deltas = {
         key: {
@@ -389,8 +401,11 @@ def compare_suite(python_report: dict[str, Any], rust_report: dict[str, Any], *,
         for key in known_delta_keys
         if python_report.get(key) != rust_report.get(key)
     }
+    if known_deltas != expected_known_deltas:
+        mismatches.append("known_deltas")
     return {
         "exact_keys": exact_keys,
+        "expected_known_deltas": expected_known_deltas,
         "known_deltas": known_deltas,
         "mismatches": mismatches,
     }
