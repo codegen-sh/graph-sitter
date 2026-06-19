@@ -17,6 +17,31 @@ if [[ "$(uname)" == "Darwin" ]]; then
 fi
 PYO3_PYTHON="$PYTHON_BIN" cargo build -p graph-sitter-py --features extension-module
 
+FAST_EXTENSION_DIR="${TMPDIR:-/tmp}/graph_sitter_py_fast_checks"
+FAST_EXTENSION_DIR="$FAST_EXTENSION_DIR" "$PYTHON_BIN" - <<'PY'
+import os
+import shutil
+import sys
+import sysconfig
+from pathlib import Path
+
+root = Path.cwd()
+if sys.platform == "darwin":
+    source = root / "target/debug/libgraph_sitter_py.dylib"
+elif os.name == "nt":
+    source = root / "target/debug/graph_sitter_py.dll"
+else:
+    source = root / "target/debug/libgraph_sitter_py.so"
+if not source.exists():
+    msg = f"built extension artifact not found: {source}"
+    raise FileNotFoundError(msg)
+
+extension_dir = Path(os.environ["FAST_EXTENSION_DIR"])
+extension_dir.mkdir(parents=True, exist_ok=True)
+target = extension_dir / f"graph_sitter_py{sysconfig.get_config_var('EXT_SUFFIX')}"
+shutil.copy2(source, target)
+PY
+
 uv run python -m py_compile \
   src/graph_sitter/codebase/rust_backend.py \
   tests/unit/sdk/codebase/test_rust_backend.py \
@@ -35,6 +60,10 @@ uv run python -m py_compile \
   rust-rewrite/tools/measure_typescript_rust_index.py \
   rust-rewrite/tools/snapshot_pinned_typescript_repo.py \
   rust-rewrite/tools/snapshot_pinned_python_repo.py
+
+uv run python rust-rewrite/tools/check_python_rust_parity_fixture.py \
+  --skip-build-extension \
+  --extension-dir "$FAST_EXTENSION_DIR"
 
 uv run pytest \
   tests/unit/sdk/codebase/test_rust_backend.py \

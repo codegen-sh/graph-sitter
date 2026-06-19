@@ -38,6 +38,10 @@ FIXTURE_FILES = {
         "    other = models.build()\n"
         "    public = public_helper()\n"
         "    return public, api, item, other, requests.get\n"
+        "\n\n"
+        "def load_plugin(name):\n"
+        "    import importlib\n"
+        "    return importlib.import_module(name)\n"
     ),
 }
 
@@ -171,11 +175,17 @@ def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, An
     helper = get_symbol(codebase, "Helper")
     build = get_symbol(codebase, "build")
     run = get_symbol(codebase, "run")
+    load_plugin = get_symbol(codebase, "load_plugin")
 
-    if helper is None or build is None or run is None:
+    if helper is None or build is None or run is None or load_plugin is None:
         missing = [
             name
-            for name, symbol in (("Helper", helper), ("build", build), ("run", run))
+            for name, symbol in (
+                ("Helper", helper),
+                ("build", build),
+                ("run", run),
+                ("load_plugin", load_plugin),
+            )
             if symbol is None
         ]
         msg = "missing expected symbols: " + ", ".join(missing)
@@ -220,6 +230,7 @@ def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, An
         "helper_symbol_usages_symbols_only": sorted_signatures(helper_symbol_usages),
         "run_internal_dependencies": sorted_signatures(run_internal_dependencies),
         "run_dependencies": sorted_signatures(run_dependencies),
+        "load_plugin_dependencies": sorted_signatures(load_plugin.dependencies),
     }
     if expect_blocked_graph and not python_graph_blocked:
         msg = "expected compact Rust backend to block Python graph materialization"
@@ -438,6 +449,7 @@ def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) 
         "helper_symbol_usages_symbols_only",
         "run_internal_dependencies",
         "run_dependencies",
+        "load_plugin_dependencies",
     ]
     mismatches = [
         key for key in exact_keys if python_report.get(key) != rust_report.get(key)
