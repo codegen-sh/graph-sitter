@@ -100,6 +100,10 @@ impl StringInterner {
     pub fn len(&self) -> usize {
         self.values.len()
     }
+
+    pub fn clear(&mut self) {
+        self.values = HashSet::new();
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -276,6 +280,12 @@ impl PythonIndex {
         self.strings.intern(value)
     }
 
+    fn finish(mut self) -> Self {
+        self.all_exports_by_file.clear();
+        self.strings.clear();
+        self
+    }
+
     pub fn summary(&self) -> IndexSummary {
         IndexSummary {
             files: self.files.len(),
@@ -347,6 +357,11 @@ pub struct TypeScriptIndex {
 impl TypeScriptIndex {
     fn intern(&mut self, value: impl AsRef<str>) -> InternedString {
         self.strings.intern(value)
+    }
+
+    fn finish(mut self) -> Self {
+        self.strings.clear();
+        self
     }
 
     pub fn summary(&self) -> IndexSummary {
@@ -1045,7 +1060,7 @@ impl PythonIndexer {
         resolve_python_imports(&mut index);
         resolve_python_references(&mut index, reference_candidates);
         build_python_dependencies(&mut index);
-        Ok(index)
+        Ok(index.finish())
     }
 }
 
@@ -1152,7 +1167,7 @@ impl TypeScriptIndexer {
         resolve_typescript_imports(&mut index, &ts_configs);
         resolve_typescript_references(&mut index, reference_candidates);
         build_typescript_dependencies(&mut index);
-        Ok(index)
+        Ok(index.finish())
     }
 }
 
@@ -5406,6 +5421,7 @@ mod tests {
         let index = index_python_path(&repo).unwrap();
         fs::remove_dir_all(&repo).unwrap();
 
+        assert_eq!(index.strings.len(), 0);
         let import_names = index
             .imports
             .iter()
