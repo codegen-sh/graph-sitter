@@ -66,7 +66,7 @@ The skill body should include:
    - docs/setup troubleshooting
 2. Prefer the CLI for simple command-line workflows once available:
    - `uvx graph-sitter parse <path> --language auto --backend python --format json`
-   - `uvx graph-sitter parse <path> --language auto --backend rust --format json` only after the distributed wheel includes the Rust extension
+   - `uvx graph-sitter parse <path> --language auto --backend rust --format json` for wheels built from rust-rewrite; published-package availability still depends on release
    - `uvx graph-sitter transform MODULE:OBJECT <path> --check`
    - `uvx graph-sitter transform MODULE:OBJECT <path> --write`
 3. Prefer the Python API for custom analyses:
@@ -141,6 +141,6 @@ Before distributing the skill:
 The skill should ship only after:
 
 - docs/site plan confirms where public setup docs live
-- `uvx graph-sitter ...` command surface is implemented for Python-backend parse and import-path transforms, with Rust-backend wheel support explicitly labeled blocked until packaged
-- at least one parse workflow and one transform workflow are documented with commands that pass locally through `uvx --from <checkout>` on Python 3.12 and 3.13 for the Python backend
+- `uvx graph-sitter ...` command surface is implemented for Python-backend parse, Rust-backend parse from built wheels, and import-path transforms
+- at least one parse workflow and one transform workflow are documented with commands that pass locally through `uvx --from <checkout>` and `uvx --from dist/<wheel>.whl`
 - `rust-rewrite/tools/check_fast.sh` passes on the release branch

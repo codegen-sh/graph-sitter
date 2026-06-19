@@ -24,6 +24,7 @@ This plan does not change docs/site content.
 - `uv run gs --help` and `uv run graph-sitter --help` work.
 - `uvx --from <local checkout> graph-sitter --help` resolves to the packaged console script once the checkout is installable in uv's temporary environment.
 - Local `uvx --from <checkout> graph-sitter parse <repo> --backend python --format json` now works on Python 3.12 and 3.13 after constraining parser/runtime dependencies to the lock-compatible ranges.
+- `uvx --from dist/<wheel>.whl graph-sitter parse <repo> --backend rust --fallback error --format json` is now the release-wheel smoke path: the Hatch custom wheel hook builds and bundles `graph_sitter_py`, and `rust-rewrite/tools/check_wheel_rust_backend.sh` proves the installed wheel can parse through the Rust backend.
 - `graph-sitter parse [PATH] --backend python --format json` works without `.codegen` initialization and emits stable summary JSON.
 - `graph-sitter run LABEL PATH --arguments '{"key":"value"}' --backend python` resolves decorated functions under the target repo's `.codegen/codemods`, validates typed Pydantic arguments, and runs without an active `gs init` session.
 - `graph-sitter run LABEL PATH --check` runs in a temporary copied-repo sandbox, reports the semantic diff, and leaves the target repo unchanged.
@@ -36,7 +37,7 @@ This plan does not change docs/site content.
   - `gs run <label>` resolves the function by label, parses the repo, runs the function, and applies changes to the local filesystem.
 - `src/graph_sitter/cli/commands/run/run_local.py` already has a reusable `parse_codebase(repo_path, subdirectories=None, language=None)` helper.
 - `src/codemods/codemod.py` defines a minimal `Codemod` class with an `execute` callback, and integration tests instantiate `Codemod.execute(codebase)`, but the public CLI does not expose this class-based codemod path.
-- The Rust rewrite currently has a separate PyO3 module named `graph_sitter_py`. Local source installs do not currently make `import graph_sitter_py` work unless the extension has been built and manually placed on `PYTHONPATH`.
+- The Rust rewrite currently has a separate PyO3 module named `graph_sitter_py`. Built wheels now include that top-level module; source/editable development can still use the manual extension build helpers when bypassing wheel builds.
 
 ## Proposed Command Surface
 
@@ -132,28 +133,26 @@ Implemented adjacent cleanup:
 
 ## Rust Extension Distribution Path
 
-`uvx graph-sitter --backend rust` needs the Rust extension in the installed environment. Today that is not true for a source install unless the developer runs the Rust build and injects the extension directory manually.
+`uvx graph-sitter --backend rust` needs the Rust extension in the installed environment. The rust-rewrite branch now builds the PyO3 extension during wheel construction and force-includes it as the top-level `graph_sitter_py` module.
 
 Current packaging audit:
 
-- `pyproject.toml` uses `hatchling.build` and does not currently configure `maturin`, `setuptools-rust`, or a custom Rust build hook.
-- Existing Hatch wheel hooks cover Cython and package initialization, not the PyO3 crate.
+- `pyproject.toml` uses `hatchling.build`; the selected path is the existing Hatch custom hook rather than `maturin` or `setuptools-rust`.
+- Existing Hatch wheel hooks cover Cython, package initialization, and now the PyO3 crate.
 - The PyO3 crate currently builds a top-level `graph_sitter_py` module, and `src/graph_sitter/codebase/rust_backend.py` imports that module directly.
 - `rust-rewrite/tools/check_extension_build.sh` proves the extension can compile and import when manually copied onto `PYTHONPATH`, but it does not prove that a built wheel contains the extension.
-- Release CI builds wheels through cibuildwheel, but it does not yet install the produced wheel and run `uvx --from dist/<wheel>.whl graph-sitter ...`.
-- Until the Rust extension is part of the wheel, local `uvx --from <checkout> graph-sitter parse <repo> --backend python --format json` is the meaningful distribution smoke. `--backend rust` from `uvx` should be treated as blocked unless `graph_sitter_py` is present in the temporary uv environment.
+- `rust-rewrite/tools/check_wheel_rust_backend.sh` builds a wheel, asserts it contains `graph_sitter_py`, installs it through `uvx --from dist/<wheel>.whl`, and parses a tiny repo with `--backend rust --fallback error`.
+- `.github/workflows/rust-rewrite-extension.yml` runs the wheel smoke on Linux and macOS for Python 3.12 and 3.13.
 
 Required packaging decision:
 
-1. Choose a wheel build path for the PyO3 extension:
-   - preferred: Hatch-compatible custom build hook that invokes Cargo/PyO3 and includes the built extension in the wheel
-   - alternative: switch extension build to `maturin` and integrate with existing Hatch/Cython build requirements
+1. Chosen wheel build path for the PyO3 extension: Hatch-compatible custom build hook that invokes Cargo/PyO3 and includes the built extension in the wheel.
 2. Decide the import namespace:
    - short term: continue importing `graph_sitter_py`
    - long term: publish as `graph_sitter._rust` to keep the public namespace cohesive
 3. Ensure source distributions include `Cargo.toml`, `Cargo.lock` if locked builds are required, `crates/**`, and tree-sitter grammar dependencies.
 4. Keep Rust optional at import time. `graph-sitter parse --backend python` and default library imports must work without the extension.
-5. Add wheel smoke tests that install the built artifact into a clean environment and run:
+5. Wheel smoke tests install the built artifact into a clean environment and run:
 
    ```bash
    uvx --from dist/<wheel>.whl graph-sitter --help
@@ -175,7 +174,7 @@ Required packaging decision:
 8. [x] Add import-path `transform MODULE:OBJECT` after the command and safety model are tested. Result: file/module import paths can run plain functions, `Codemod` subclasses, and `Codemod` instances with `--check`, `--write`, backend/language flags, and typed arguments.
 9. [x] Enforce explicit import-path transform mode. Result: `graph-sitter transform MODULE:OBJECT PATH` now fails until the user chooses `--check` or `--write`.
 10. [x] Make the Python-backend `uvx --from <checkout>` path executable. Result: include `codemods` in the wheel package list and constrain clean-install dependency resolution for tree-sitter and `mini-racer`.
-11. [ ] Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install.
+11. [x] Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install. Result: `src/gsbuild/build.py` builds `graph-sitter-py` through Cargo, force-includes `graph_sitter_py{EXT_SUFFIX}` into wheels, marks wheels platform-specific, and `check_wheel_rust_backend.sh` proves `uvx --from dist/<wheel>.whl graph-sitter parse --backend rust --fallback error`.
 
 ## Test Strategy
 
@@ -185,6 +184,7 @@ Fast tests:
 - Metadata unit test:
   - assert `gs` and `graph-sitter` both resolve to `graph_sitter.cli.cli:main` in `pyproject.toml`.
   - assert clean-uvx dependency constraints and Hatch package inclusion for `codemods` stay declared.
+  - assert the Hatch custom wheel hook builds the Rust extension by default and CI exercises the installed-wheel Rust smoke.
 - Click runner tests for:
   - `graph-sitter parse <tmp-git-repo> --backend python --format json` (`tests/unit/cli/commands/parse/test_parse.py`)
   - `graph-sitter parse <tmp-git-repo> --language typescript --backend python --format json`
@@ -206,10 +206,9 @@ Transformation tests:
 Distribution tests:
 
 - Build a wheel and install it in a clean uv environment.
-- Before wheel packaging is complete, run `uvx --from <local checkout> graph-sitter --help`, a Python-backend parse smoke, and import-path transform `--check`/`--write` smokes to prove the console-script surface resolves through uv's tool runner.
 - Run `uvx --from dist/<wheel>.whl graph-sitter --help`.
-- Run parse smoke tests against the installed wheel.
-- Run `rust-rewrite/tools/check_extension_build.sh` until wheel packaging owns an equivalent check.
+- Run Python and Rust parse smoke tests against the installed wheel.
+- Keep `rust-rewrite/tools/check_extension_build.sh` for direct PyO3 diagnostics; use `rust-rewrite/tools/check_wheel_rust_backend.sh` for the distribution proof.
 - Add a CI lane that exercises Python 3.12 and 3.13 on Linux/macOS because `requires-python` is currently `>=3.12, <3.14`.
 
 Regression gates:
@@ -220,8 +219,8 @@ Regression gates:
 
 ## Blockers And Risks
 
-- `graph-sitter` is now declared as a console script, but it is not available to users until the package is released or installed from this branch. Local proof now passes with `uvx --from <checkout> graph-sitter ...`; release proof should use `uvx --from dist/<wheel>.whl graph-sitter ...`.
-- The Rust extension is not currently bundled into the Python wheel/source install path, so `--backend rust` cannot be promised to `uvx` users yet.
+- `graph-sitter` is now declared as a console script, but it is not available to users until the package is released or installed from this branch. Local proof now passes with `uvx --from <checkout> graph-sitter ...`; release proof uses `uvx --from dist/<wheel>.whl graph-sitter ...`.
+- Rust backend support is bundled into wheels built from this branch, but it still needs release-wheel CI and published package validation before public docs should imply availability from PyPI.
 - `run LABEL PATH` works for local decorated functions, but daemon mode still requires an initialized active session.
 - Current local `run` still applies changes by default for compatibility. The newer import-path `transform` surface requires explicit `--check` or `--write`.
 - Import-path `transform` supports class-based `Codemod.execute(codebase)` entry points, but package-discoverable transform registries are not implemented.

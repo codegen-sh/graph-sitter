@@ -1,101 +1,84 @@
-# Docs Site, Landing Page, and Vercel Plan
+# Docs Site and Vercel Plan
 
-## Current repo state
+## Decision
 
-- The existing docs live in `docs/` and are configured by `docs/mint.json`.
-- `docs/mint.json` uses the legacy Mintlify schema and points public metadata at `https://graph-sitter.com`.
-- The docs navigation includes the `introduction/*`, `tutorials/*`, `building-with-graph-sitter/*`, `cli/*`, `blog/*`, `changelog/*`, and generated `api-reference/*` source trees.
-- A small Next.js landing app now exists in `site/`.
-- The root `package.json` is only semantic-release metadata; it does not define a website build.
-- The Python package metadata in `pyproject.toml` identifies `graph-sitter` as a Python library for codebase analysis and transformation.
-- The Rust rewrite branch now has a Cargo workspace for `crates/graph-sitter-engine` and `crates/graph-sitter-py`, but no website-specific Rust build surface.
-- `.github/workflows/generate-docs.yml` regenerates API reference MDX under `docs/` on pushes to `develop` by running `uv run python src/graph_sitter/gscli/cli.py generate docs`.
-- The current local Homebrew `node` binary is broken on this machine because it cannot load `libllhttp.9.3.dylib`; the working runtime used for checks is `~/.nvm/versions/node/v22.19.0/bin`.
+Keep the documentation renderer and marketing surface separate.
 
-## Recommended architecture
+- `docs/` remains the Mintlify documentation source.
+- `site/` is the small Next.js landing page intended for Vercel.
+- `graph-sitter.com` should eventually point at the Vercel landing page.
+- `docs.graph-sitter.com` should point at Mintlify docs after domain cutover.
 
-Keep docs and landing separate.
+This avoids forcing the Mintlify MDX tree into Vercel and keeps package,
+workflow, and generated API-reference concerns out of the landing app.
 
-1. **Docs:** keep Mintlify as the docs renderer for `docs/`.
-   - This preserves the current `mint.json` navigation, MDX components, generated API reference pages, blog/changelog content, and docs generation workflow.
-   - Connect Mintlify to the repo for production deploys and PR previews.
-   - Move docs to `docs.graph-sitter.com` when the landing page is ready, or keep `graph-sitter.com` on Mintlify until the landing page cutover.
+## Current Findings
 
-2. **Landing page:** add a small Vercel-owned web app in a disjoint path, preferably `site/`.
-   - Use a conventional Vercel framework such as Next.js.
-   - Configure the Vercel project Root Directory to `site`.
-   - Let Vercel manage PR preview deployments.
-   - Point `graph-sitter.com` and `www.graph-sitter.com` to this Vercel project only after the integrator approves cutover.
+- [x] `site/` already contains a conventional Next.js app with `npm run build`.
+- [x] `site/README.md` documents local development and preview deploy commands.
+- [x] No `.openai/hosting.json` exists, so OpenAI Sites hosting is not configured for this repo.
+- [x] `docs/` is a Mintlify project configured by `docs/mint.json`.
+- [x] The current landing copy now explains parsing codebases, graphing imports/references/calls/usages, codemods, Python as the shell, Rust as the scale backend, and the future `uvx graph-sitter` command surface.
+- [ ] Vercel project ownership/link state still needs to be verified with the authenticated CLI.
+- [ ] Mintlify project ownership/custom-domain state still needs to be verified outside the repo.
 
-3. **Cross-linking:**
-   - Landing page primary CTA: docs at `https://docs.graph-sitter.com/introduction/getting-started`.
-   - Landing page secondary CTA: GitHub at `https://github.com/codegen-sh/graph-sitter`.
-   - Docs topbar CTA can remain GitHub, but docs should add a top-level link back to the landing page after domain cutover.
+## Docs Architecture
 
-This avoids trying to make Mintlify run inside Vercel. The current `docs/` tree is a Mintlify project source, not a checked-in static output directory or a package with a Vercel build command.
-
-## Vercel path
-
-The first landing scaffold now lives under:
+Recommended URLs after launch:
 
 ```text
-site/
-  package.json
-  package-lock.json
-  next.config.mjs
-  tsconfig.json
-  app/
-    page.tsx
-    layout.tsx
-    globals.css
-  README.md
+https://graph-sitter.com                       -> Vercel project rooted at site/
+https://www.graph-sitter.com                   -> Vercel alias/redirect
+https://docs.graph-sitter.com                  -> Mintlify project rooted at docs/
+https://docs.graph-sitter.com/api-reference    -> Generated API reference pages
 ```
 
-It is a small Next.js app with local instructions in `site/README.md`. It keeps
-Vercel configuration in project settings rather than adding root-level routing
-or build metadata.
+The landing page should keep only product-level content:
 
-Recommended Vercel project settings:
+- What Graph-sitter does: parse repositories into symbols and relationships.
+- Why it exists: codebase-aware analysis and transformations.
+- How it is used today: Python API and codemod scripts.
+- Where it is going: Rust-backed graph indexes and `uvx graph-sitter ...`.
+- Where to go next: docs and GitHub.
+
+The Mintlify docs should own setup, API reference, tutorials, CLI reference,
+and codemod walkthroughs.
+
+## Vercel Setup
+
+Use a dedicated Vercel project with these settings:
 
 ```text
-Project name: graph-sitter-site
-Root Directory: site
 Framework Preset: Next.js
+Root Directory: site
 Build Command: default
 Output Directory: default
 Install Command: default
-Production Branch: develop, or the eventual trunk branch chosen by the integrator
+Node.js: 22.x
+Production Branch: integrator-approved trunk branch
 ```
 
-Do not add a root-level `vercel.json` unless the repo later has multiple Vercel projects that need explicit routing or build overrides. Keeping project settings in Vercel avoids surprising the Python/Rust package workflows.
+Preview deploy from an authenticated CLI:
 
-## Landing page message
+```bash
+vercel whoami
+vercel link --cwd site
+vercel deploy --cwd site --yes
+```
 
-The landing page should explain Graph-sitter plainly:
+If already linked:
 
-> Graph-sitter lets you write Python programs that understand and safely edit whole codebases. It parses Python, TypeScript, JavaScript, and React code, builds a graph of files, symbols, imports, calls, and usages, then gives you high-level APIs for refactors, analysis, codemods, and codebase automation without hand-editing syntax trees.
+```bash
+vercel deploy --cwd site --yes
+```
 
-Implemented first-screen structure:
+Do not run `vercel deploy --prod`, attach `graph-sitter.com`, or attach
+`www.graph-sitter.com` until the integrator explicitly approves production
+cutover.
 
-- Eyebrow: `Codebase graphs for codemods`
-- H1: `A codebase graph and codemod library.`
-- One-sentence body: says Graph-sitter lets Python programs parse repositories into files, symbols, imports, calls, and usages, then query those relationships and make targeted edits.
-- Primary CTA: `Read the docs`
-- Secondary CTA: `View on GitHub`
-- Code sample: a short `Codebase("./")` example that removes unused functions or moves symbols while updating imports.
+## Local Verification
 
-Avoid over-positioning it as a generic AI tool. The clearest differentiator is programmatic codebase manipulation: parse once, query relationships, perform safe edits, commit changes.
-
-## Docs cleanup before cutover
-
-- Keep `docs/mint.json` branding on Graph-sitter rather than legacy Codegen product metadata.
-- Decide whether generated API reference pages should continue to link to `develop` source URLs while `rust-rewrite` is active. Today generated pages commonly link to `github.com/codegen-sh/graph-sitter/blob/develop/...`.
-- Keep the docs generator workflow scoped to `develop` unless the Rust rewrite branch needs a separate preview workflow.
-- Validate the docs tree with `npx --yes mintlify@latest validate` and `npx --yes mintlify@latest broken-links` after any navigation or slug change. The latest CLI may generate a local `docs.json` migration artifact from `mint.json`; do not commit that migration unless the docs owner approves switching config formats.
-
-## Local and preview commands
-
-Use the nvm Node runtime on this machine until Homebrew Node is repaired:
+Use the working Node runtime on this machine if Homebrew Node is broken:
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH"
@@ -107,36 +90,36 @@ Landing page:
 cd site
 npm ci
 npm run build
-vercel whoami
-vercel deploy --yes
 ```
 
 Docs:
 
 ```bash
 cd docs
-npx --yes mintlify@latest dev --port 3333
 npx --yes mintlify@latest validate
 npx --yes mintlify@latest broken-links
 ```
 
-`vercel deploy --yes` from `site/` creates a preview deployment when the CLI is authenticated and linked. Do not pass `--prod`, promote aliases, or attach the apex/www domains without explicit integrator approval.
+The docs commands may propose a Mintlify config migration from `mint.json`.
+Do not commit generated migration files unless the docs owner approves the
+format change.
 
-## Deployment sequencing
+## Production Launch Checklist
 
-1. Keep current docs production untouched.
-2. Add `site/` app on a feature branch.
-3. Create a Vercel project with Root Directory `site`.
-4. Use Vercel PR preview URLs for review. Do not attach production domains yet.
-5. Configure Mintlify docs preview/deploy for `docs/` if it is not already connected.
-6. After review, move docs to `docs.graph-sitter.com`.
-7. Attach `graph-sitter.com` and `www.graph-sitter.com` to the Vercel landing project.
-8. Update README/docs links if the docs canonical URL changes.
+- [ ] Confirm final canonical domains: apex for landing, `docs.` for Mintlify.
+- [ ] Verify Vercel project ownership and link state with `vercel whoami`.
+- [ ] Create or confirm the Vercel project root is `site/`.
+- [ ] Generate a Vercel preview deployment and review desktop/mobile pages.
+- [ ] Validate Mintlify docs navigation and broken links.
+- [ ] Update stale docs references that still say Codegen where they should say Graph-sitter.
+- [ ] Update setup docs once the release command is final: stable Python install now, `uvx graph-sitter ...` when published.
+- [ ] Confirm PyPI/wheel status for Rust-backed parsing before advertising Rust as the default install path.
+- [ ] Move docs to `docs.graph-sitter.com`.
+- [ ] Attach `graph-sitter.com` and `www.graph-sitter.com` to Vercel only after explicit approval.
 
-## Blockers and open questions
+## Known Content Gaps
 
-- Need confirmation of the desired canonical docs URL: keep `graph-sitter.com` as docs, or move docs to `docs.graph-sitter.com` and use the apex for landing.
-- Need to verify current Mintlify project ownership/custom-domain settings outside the repo.
-- Need Vercel project link/ownership for preview deploys from `site/`.
-- Need Homebrew Node repaired or the documented nvm runtime used for local checks.
-- No production Vercel deployment should happen until the integrator decides timing.
+- `docs/graph-sitter/getting-started.mdx` still mixes legacy wording and the current CLI path.
+- `docs/cli/*` is still centered on `gs ...`; it should eventually describe the stable CLI and the new `uvx graph-sitter` path separately.
+- Generated API pages may still link to `develop` source URLs while `rust-rewrite` is active.
+- The landing page should stay conservative until Rust-backed wheels and parity tests are release-ready.

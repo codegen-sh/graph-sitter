@@ -25,6 +25,7 @@ Installed/distributed package path:
 
 ```bash
 uvx graph-sitter parse [PATH] --backend python --language auto --format json
+uvx --from dist/<wheel>.whl graph-sitter parse [PATH] --backend rust --fallback error --format json
 ```
 
 Supported options in this branch:
@@ -34,7 +35,7 @@ Supported options in this branch:
 - `--language auto|python|typescript`
 - `--format summary|json`
 
-The command does not require `.codegen` initialization. Use `--backend python` for reliable distributed examples until wheels include the Rust extension.
+The command does not require `.codegen` initialization. Use `--backend python` for published-package examples until a release ships the new wheels; use `uvx --from dist/<wheel>.whl ... --backend rust --fallback error` for branch-built wheel validation.
 
 ## Transform By Import Path
 
@@ -51,7 +52,7 @@ For installed package flows, replace `uv run` with `uvx graph-sitter`.
 Useful options:
 
 - `--check`: run in a temporary copied-repo sandbox, print the diff, leave the target unchanged, and exit non-zero when changes would be produced.
-- `--write`: apply changes to the target repo. This remains the default for compatibility, but use it explicitly in instructions.
+- `--write`: apply changes to the target repo. Import-path `transform` requires either `--check` or `--write`; use explicit modes in instructions.
 - `--arguments '{"key":"value"}'`: pass JSON to a transform with an `arguments` parameter; Pydantic models are validated when present.
 - `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript`.
 
@@ -68,4 +69,4 @@ uv run graph-sitter run LABEL [PATH] --write
 
 ## Distribution Status
 
-The `uvx graph-sitter ...` command direction is correct for public one-shot usage, and `parse` plus `transform MODULE:OBJECT` are implemented locally. Rust backend support from `uvx` is not ready until built wheels bundle and import the PyO3 extension.
+The `uvx graph-sitter ...` command direction is correct for public one-shot usage, and `parse` plus `transform MODULE:OBJECT` are implemented locally. Branch-built wheels bundle and import the PyO3 extension; published package examples should wait for release validation before promising Rust-backed `uvx`.

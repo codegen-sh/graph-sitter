@@ -40,6 +40,23 @@ def test_uvx_wheel_includes_import_path_codemod_base_package():
     assert hatch["build"]["packages"] == ["src/graph_sitter", "src/codemods"]
 
 
+def test_uvx_wheel_builds_rust_extension_by_default():
+    hatch = tomllib.loads(Path("hatch.toml").read_text())
+    custom_hook = hatch["build"]["targets"]["wheel"]["hooks"]["custom"]
+
+    assert custom_hook["enable-by-default"] is True
+    assert custom_hook["path"] == "src/gsbuild/build.py"
+    assert custom_hook["rust-extension"] is True
+    assert custom_hook["rust-profile"] == "release"
+
+
+def test_rust_extension_ci_exercises_wheel_uvx_smoke():
+    workflow = Path(".github/workflows/rust-rewrite-extension.yml").read_text()
+
+    assert "rust-rewrite/tools/check_wheel_rust_backend.sh" in workflow
+    assert "PYTHON_VERSION: ${{ matrix.python-version }}" in workflow
+
+
 def test_graph_sitter_version_uses_canonical_program_name():
     result = CliRunner().invoke(main, ["--version"])
 

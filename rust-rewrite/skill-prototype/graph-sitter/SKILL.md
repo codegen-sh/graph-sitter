@@ -64,10 +64,11 @@ For distributed or installed package flows:
 
 ```bash
 uvx graph-sitter parse /path/to/repo --backend python --format json
+uvx --from dist/<wheel>.whl graph-sitter parse /path/to/repo --backend rust --fallback error --format json
 uvx graph-sitter transform ./codemod.py:run /path/to/repo --check
 ```
 
-The `parse` command and `transform MODULE:OBJECT` surface are implemented locally in the rust-rewrite branch. Rust backend execution from `uvx graph-sitter ...` remains blocked until distributed wheels bundle the PyO3 extension.
+The `parse` command and `transform MODULE:OBJECT` surface are implemented locally in the rust-rewrite branch. Rust backend execution from wheels built on this branch is supported by the wheel smoke; published-package availability still depends on release.
 
 ## Correctness And Claims
 

@@ -331,10 +331,27 @@ h3 {
 }
 
 .capability-card p,
+.architecture-item p,
 .cli-section p {
   color: var(--muted);
   line-height: 1.7;
   margin: 0;
+}
+
+.architecture-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 42px;
+}
+
+.architecture-item {
+  border-top: 3px solid var(--accent);
+  padding: 22px 18px 0 0;
+}
+
+.architecture-item h3 {
+  margin-top: 0;
 }
 
 .split,
@@ -446,6 +463,10 @@ h3 {
   }
 
   .capability-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-grid {
     grid-template-columns: 1fr;
   }
 }

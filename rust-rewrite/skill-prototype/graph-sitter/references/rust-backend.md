@@ -20,9 +20,15 @@ CodebaseConfig(graph_backend=GraphBackend.AUTO)
 - `rust_fallback=PYTHON` is a compatibility escape hatch; unsupported methods may promote to the Python graph.
 - `AUTO` is reserved for gradual rollout when language coverage and packaging are stable enough.
 
-## Current Distribution Limitation
+## Current Distribution Status
 
-Local Rust mode requires the PyO3 extension to be built and importable. `uvx graph-sitter ... --backend rust` cannot be promised to users until release wheels bundle the extension. Until then, use `--backend python` in distributed CLI examples, or explain the local extension build prerequisite.
+Local Rust mode requires the PyO3 extension to be built and importable. Wheels built from the rust-rewrite branch now bundle the top-level `graph_sitter_py` module, and the distribution proof is:
+
+```bash
+rust-rewrite/tools/check_wheel_rust_backend.sh
+```
+
+Use `--backend python` in published-package examples until a release ships these wheels. Use `uvx --from dist/<wheel>.whl graph-sitter parse ... --backend rust --fallback error` for branch-built wheel validation.
 
 ## Supported Claims
 
@@ -31,14 +37,14 @@ Use careful wording:
 - "supported Rust-backend subset"
 - "selected pinned large-repo semantic parity"
 - "selected Airflow and Next.js readiness proofs"
-- "Python backend remains default until rollout gates and packaging pass"
+- "Python backend remains default until rollout gates and published-package validation pass"
 
 Avoid these claims:
 
 - absolute semantic correctness
 - complete graph-wide parity
 - Rust backend is ready as the default
-- `uvx --backend rust` works from published wheels
+- `uvx --backend rust` works from PyPI before a release ships the Rust-backed wheels
 
 ## Local Validation Gates
 

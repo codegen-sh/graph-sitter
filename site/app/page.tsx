@@ -26,18 +26,33 @@ const graphNodes = [
 const capabilities = [
   {
     icon: FileCode2,
-    title: "Map the repository",
-    text: "Parse Python, TypeScript, JavaScript, and React projects into files, directories, and language-aware symbols."
+    title: "Parse real codebases",
+    text: "Load Python, TypeScript, JavaScript, and React repositories into files, directories, and language-aware symbols."
   },
   {
     icon: GitBranch,
-    title: "Follow relationships",
-    text: "Connect imports, exports, function calls, usages, and dependencies before touching source text."
+    title: "Build the graph",
+    text: "Index imports, exports, function calls, references, usages, and dependencies before touching source text."
   },
   {
     icon: ShieldCheck,
-    title: "Edit with context",
-    text: "Write codemods and refactors that update related code instead of relying on broad text replacement."
+    title: "Run codemods",
+    text: "Write transformations that move, rename, delete, and rewrite code while updating the related graph edges."
+  }
+];
+
+const architecture = [
+  {
+    title: "Python stays the shell",
+    text: "The authoring experience remains Python: notebooks, scripts, reusable codemods, and the high-level editable API."
+  },
+  {
+    title: "Rust handles scale",
+    text: "The rewrite path moves the massive parse/index data structure into a compact Rust backend for large repositories."
+  },
+  {
+    title: "uvx becomes the entrypoint",
+    text: "The target command is uvx graph-sitter for repository parsing, graph inspection, and guarded transformations."
   }
 ];
 
@@ -45,8 +60,9 @@ const useCases = [
   "delete dead code with usage checks",
   "move symbols while repairing imports",
   "trace API impact across a repo",
+  "inspect import and reference graphs",
   "build custom codebase analytics",
-  "prepare targeted transformations"
+  "run checked codemods before writes"
 ];
 
 export default function Home() {
@@ -70,9 +86,10 @@ export default function Home() {
           <p className="eyebrow">Codebase graphs for codemods</p>
           <h1>A codebase graph and codemod library.</h1>
           <p className="hero-text">
-            Graph-sitter lets Python programs parse whole repositories into
-            files, symbols, imports, calls, and usages, then query those
-            relationships and make targeted source edits.
+            Graph-sitter lets Python programs parse whole repositories,
+            build reference and import graphs, query code relationships, and
+            make targeted source edits. The resurrection keeps the Python
+            shell while moving the largest graph indexes into Rust for scale.
           </p>
           <div className="hero-actions" aria-label="Primary actions">
             <a className="button button-primary" href={docsUrl}>
@@ -100,6 +117,7 @@ for fn in codebase.functions:
     if not fn.usages:
         fn.remove()
 
+# Python remains the control plane.
 codebase.commit()`}</pre>
             <div className="graph-pane" aria-hidden="true">
               <svg viewBox="0 0 100 90" role="img">
@@ -161,15 +179,33 @@ codebase.commit()`}</pre>
       </section>
 
       <section className="section section-light">
+        <div className="section-inner">
+          <div className="section-heading">
+            <p className="eyebrow">Rewrite direction</p>
+            <h2>Same Python workflow, smaller graph engine.</h2>
+          </div>
+          <div className="architecture-grid">
+            {architecture.map((item) => (
+              <article className="architecture-item" key={item.title}>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-light">
         <div className="section-inner cli-section">
           <div>
             <p className="eyebrow">CLI direction</p>
-            <h2>Quick parsing first, guarded transformations next.</h2>
+            <h2>One command surface for parse, inspect, and transform.</h2>
             <p>
-              The rewrite branch is shaping a future <code>uvx</code>{" "}
-              entrypoint for fast repository summaries and transformation
-              workflows. Rust-backed wheels and full parity are still release
-              gates, so the stable path remains the documented Python API.
+              The release target is <code>uvx graph-sitter</code>: start with
+              fast parse summaries and graph inspection, then run codemods in
+              explicit check/write modes. Branch-built wheels now exercise
+              Rust-backed parsing; full parity and published-package release
+              validation remain gates.
             </p>
           </div>
           <div className="terminal-card" aria-label="Future CLI example">
@@ -179,9 +215,14 @@ codebase.commit()`}</pre>
             </div>
             <pre>{`uvx graph-sitter parse . \\
   --language auto \\
+  --backend rust \\
   --format summary
 
-# next: inspect, check, then write transformations`}</pre>
+uvx graph-sitter transform ./codemods/rename.py \\
+  --check
+
+# branch wheel proof:
+# uvx --from dist/*.whl graph-sitter parse . --backend rust`}</pre>
           </div>
         </div>
       </section>

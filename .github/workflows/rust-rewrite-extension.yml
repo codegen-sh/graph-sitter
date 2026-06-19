@@ -63,3 +63,8 @@ jobs:
 
       - name: Build and smoke test PyO3 extension
         run: rust-rewrite/tools/check_extension_build.sh
+
+      - name: Build wheel and smoke test Rust backend through uvx
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: rust-rewrite/tools/check_wheel_rust_backend.sh

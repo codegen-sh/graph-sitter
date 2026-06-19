@@ -98,8 +98,10 @@ Documentation = "https://graph-sitter.com"
 Playground = "https://www.codegen.sh/"
 
 [build.targets.wheel.hooks.custom]
-enable-by-default = false
+enable-by-default = true
 path = "src/gsbuild/build.py"
 require-runtime-dependencies = true
+rust-extension = true
+rust-profile = "release"
 [envs.default]
 installer = "uv"
