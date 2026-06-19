@@ -217,6 +217,7 @@ pub struct TypeScriptIndex {
     pub external_modules: Vec<ExternalModuleRecord>,
     pub exports: Vec<ExportRecord>,
     pub references: Vec<ReferenceRecord>,
+    pub external_references: Vec<ExternalReferenceRecord>,
     pub dependencies: Vec<DependencyRecord>,
     pub subclass_edges: Vec<SubclassRecord>,
 }
@@ -610,6 +611,7 @@ impl TypeScriptIndexer {
             external_modules: Vec::new(),
             exports: Vec::new(),
             references: Vec::new(),
+            external_references: Vec::new(),
             dependencies: Vec::new(),
             subclass_edges: Vec::new(),
         };
@@ -2743,8 +2745,19 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         .collect();
     let mut imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
     let mut imported_module_by_qualifier: HashMap<(u32, String), (u32, u32)> = HashMap::new();
+    let external_import_ids: HashSet<u32> = index
+        .external_modules
+        .iter()
+        .map(|external_module| external_module.import_id)
+        .collect();
+    let mut external_import_by_binding: HashMap<(u32, String), u32> = HashMap::new();
 
     for import in &index.imports {
+        if external_import_ids.contains(&import.id) {
+            if let Some(binding) = typescript_import_binding_name(import) {
+                external_import_by_binding.insert((import.file_id, binding), import.id);
+            }
+        }
         let Some(resolution) = resolution_by_import_id.get(&import.id) else {
             continue;
         };
@@ -2771,6 +2784,7 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         .map(|symbol| (symbol.id, symbol.file_id))
         .collect();
     let mut references = Vec::new();
+    let mut external_references = Vec::new();
     let mut subclass_edges = Vec::new();
     let mut subclass_edge_pairs = HashSet::new();
     for candidate in candidates {
@@ -2799,6 +2813,20 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
                 .or(same_file_target)
         };
         let Some((target_symbol_id, import_id)) = resolved_target else {
+            if candidate.qualifier.is_none() {
+                if let Some(import_id) = external_import_by_binding
+                    .get(&(candidate.source_file_id, candidate.name.clone()))
+                {
+                    external_references.push(ExternalReferenceRecord {
+                        id: external_references.len() as u32,
+                        source_file_id: candidate.source_file_id,
+                        source_symbol_id: candidate.source_symbol_id,
+                        import_id: *import_id,
+                        name: candidate.name,
+                        range: candidate.range,
+                    });
+                }
+            }
             continue;
         };
         if candidate.source_symbol_id == Some(target_symbol_id) {
@@ -2839,6 +2867,7 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         }
     }
     index.references = references;
+    index.external_references = external_references;
     index.subclass_edges = subclass_edges;
 }
 
@@ -5786,6 +5815,45 @@ export function shadow(localHelper: number) {\n\
                 && dependency.target_symbol_id == helper_symbol_id
                 && dependency.reference_count == 1
         }));
+    }
+
+    #[test]
+    fn resolves_typescript_external_import_references() {
+        let repo = temp_repo_path("typescript-external-import-references");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.tsx"),
+            "import React from 'react';\nexport function run() {\n  return React.createElement('div');\n}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 1);
+        assert_eq!(index.summary().imports, 1);
+        assert_eq!(index.external_modules.len(), 1);
+        assert_eq!(index.summary().references, 0);
+        assert_eq!(index.summary().dependencies, 0);
+        assert_eq!(index.external_references.len(), 1);
+
+        let import = index
+            .imports
+            .iter()
+            .find(|import| import.alias.as_deref() == Some("React"))
+            .unwrap();
+        let run = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "run")
+            .unwrap();
+        let reference = &index.external_references[0];
+
+        assert_eq!(reference.source_symbol_id, Some(run.id));
+        assert_eq!(reference.import_id, import.id);
+        assert_eq!(reference.name, "React");
+        assert_eq!(reference.range.start_row, 2);
+        assert_eq!(reference.range.start_column, 9);
     }
 
     #[test]

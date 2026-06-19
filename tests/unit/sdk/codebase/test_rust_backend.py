@@ -711,6 +711,139 @@ class FakeTypeScriptIndex:
         )
 
 
+class FakeTypeScriptExternalSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 1,
+                "symbols": 1,
+                "classes": 0,
+                "functions": 1,
+                "global_variables": 0,
+                "imports": 1,
+                "import_resolutions": 0,
+                "references": 0,
+                "dependencies": 0,
+                "bytes": 90,
+                "lines": 4,
+            }
+        )
+        return data
+
+
+class FakeTypeScriptExternalIndex:
+    def summary(self):
+        return FakeTypeScriptExternalSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[],"external_modules":[],"external_references":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "src/app.tsx",
+                    "module_name": None,
+                    "byte_len": 90,
+                    "line_count": 4,
+                    "has_error": False,
+                    "root_range": fake_range(0, 90, 0, 0, 4, 0),
+                }
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "run",
+                    "kind": "function",
+                    "range": fake_range(27, 90, 1, 0, 4, 0),
+                    "name_range": fake_range(43, 46, 1, 16, 1, 19),
+                }
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "kind": "default_import",
+                    "module": "react",
+                    "name": "React",
+                    "alias": "React",
+                    "range": fake_range(7, 12, 0, 7, 0, 12),
+                }
+            ]
+        )
+
+    def import_resolutions_json(self):
+        return json.dumps([])
+
+    def external_modules_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "import_id": 0,
+                    "file_id": 0,
+                    "module": "react",
+                    "name": "React",
+                    "alias": "React",
+                    "range": fake_range(7, 12, 0, 7, 0, 12),
+                }
+            ]
+        )
+
+    def exports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "kind": "named",
+                    "name": "run",
+                    "local_name": "run",
+                    "source_module": None,
+                    "symbol_id": 0,
+                    "import_id": None,
+                    "range": fake_range(27, 90, 1, 0, 4, 0),
+                }
+            ]
+        )
+
+    def references_json(self):
+        return json.dumps([])
+
+    def external_references_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "import_id": 0,
+                    "name": "React",
+                    "range": fake_range(60, 65, 2, 9, 2, 14),
+                }
+            ]
+        )
+
+    def dependencies_json(self):
+        return json.dumps([])
+
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
 class FakeDecoratedIndex(FakeIndex):
     def summary(self):
         return FakeDecoratedSummary()
@@ -1340,6 +1473,42 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
 
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["src/app.ts", "src/util.ts"]]
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_external_import_dependencies(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptExternalIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files={"src/app.tsx": "import React from 'react';\nexport function run() {\n  return React.createElement('div');\n}\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        assert codebase.ctx.rust_compact_mode is True
+        assert [module.name for module in codebase.rust_external_modules] == ["React"]
+        assert [reference.name for reference in codebase.rust_external_references] == ["React"]
+
+        app_file = codebase.get_file("src/app.tsx")
+        import_handle = app_file.get_import("React")
+        run = codebase.get_function("run")
+        external_module = codebase.external_modules[0]
+        assert import_handle is not None
+        assert run is not None
+        assert import_handle.imported_symbol == external_module
+        assert import_handle.resolved_symbol == external_module
+        assert run.dependencies == [import_handle]
+        assert import_handle.symbol_usages == [run]
+        assert import_handle.usages[0].usage_symbol == run
+        assert import_handle.usages[0].match.source == "React"
+        assert import_handle.usages[0].match.start_point == (2, 9)
+
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["src/app.tsx"]]
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 

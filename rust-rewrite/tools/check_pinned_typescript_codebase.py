@@ -56,6 +56,7 @@ EXPECTED_RECORDS = {
     "rust_external_modules": 13525,
     "rust_exports": 16026,
     "rust_references": 48157,
+    "rust_external_references": 23282,
     "rust_dependencies": 16260,
     "rust_subclass_edges": 151,
 }
@@ -139,6 +140,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "rust_external_modules": len(codebase.rust_external_modules),
         "rust_exports": len(codebase.rust_exports),
         "rust_references": len(codebase.rust_references),
+        "rust_external_references": len(codebase.rust_external_references),
         "rust_dependencies": len(codebase.rust_dependencies),
         "rust_subclass_edges": len(codebase.rust_subclass_edges),
     }
@@ -245,6 +247,7 @@ def print_human(report: dict[str, Any]) -> None:
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
         f"external_modules={summary['external_modules']} exports={compat['exports']} "
         f"references={summary['references']} dependencies={summary['dependencies']} "
+        f"external_references={report['records']['rust_external_references']} "
         f"subclass_edges={report['records']['rust_subclass_edges']}"
     )
     print(

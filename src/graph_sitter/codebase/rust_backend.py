@@ -1594,13 +1594,12 @@ class RustCompactSymbol(RustCompactHandle):
             if should_include_target and target not in seen:
                 seen.add(target)
                 dependencies.append(target)
-        if self._preserve_import_dependencies():
-            for reference in self.backend.external_references_from_symbol(self.record.id):
-                import_handle = self.backend.import_handle_by_id(reference.import_id)
-                if import_handle is None or import_handle in seen:
-                    continue
-                seen.add(import_handle)
-                dependencies.append(import_handle)
+        for reference in self.backend.external_references_from_symbol(self.record.id):
+            import_handle = self.backend.import_handle_by_id(reference.import_id)
+            if import_handle is None or import_handle in seen:
+                continue
+            seen.add(import_handle)
+            dependencies.append(import_handle)
         return dependencies
 
     def _preserve_import_dependencies(self) -> bool:

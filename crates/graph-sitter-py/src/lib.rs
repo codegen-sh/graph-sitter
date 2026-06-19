@@ -313,6 +313,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn external_references_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.external_references)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn dependencies_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.dependencies)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
