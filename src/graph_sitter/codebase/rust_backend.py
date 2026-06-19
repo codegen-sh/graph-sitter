@@ -2142,6 +2142,49 @@ class RustCompactImport(RustCompactHandle):
     def is_reexport(self) -> bool:
         return False
 
+    def set_import_module(self, new_module: str) -> None:
+        current_module = self.record.module or (self.record.name if self.record.kind == "import" else None)
+        if current_module is None:
+            return
+
+        if _is_typescript_like_extension(self.file.extension):
+            replacement = self._typescript_module_replacement(new_module)
+            candidates = [f"'{current_module}'", f'"{current_module}"', f"`{current_module}`", current_module]
+        else:
+            replacement = new_module
+            candidates = [current_module]
+
+        self._replace_first_line_fragment(candidates, replacement)
+        self.module = RustCompactName(replacement if _is_typescript_like_extension(self.file.extension) else new_module)
+
+    def set_import_symbol_alias(self, new_alias: str) -> None:
+        if not self.is_aliased_import():
+            self.rename(new_alias)
+            return
+
+        old_alias = self.record.alias
+        if old_alias is None:
+            self.rename(new_alias)
+            return
+
+        self._replace_import_binding(old_alias, new_alias, imported_name=False)
+        for imported_usage in self.usages:
+            if imported_usage.match is not None:
+                imported_usage.match.rename_if_matching(old_alias, new_alias)
+        self.alias = RustCompactName(new_alias)
+
+    def rename(self, new_name: str, priority: int = 0) -> None:
+        old_name = self.record.name or self.name
+        if old_name is None:
+            return
+
+        self._replace_import_binding(old_name, new_name, imported_name=True, priority=priority)
+        if not self.is_aliased_import():
+            for usage in self.usages:
+                usage.match.rename_if_matching(old_name, new_name, priority=priority)
+            self.alias = RustCompactName(new_name)
+        self.symbol_name = RustCompactName(new_name)
+
     @property
     def parent_symbol(self) -> RustCompactImport:
         return self
@@ -2190,6 +2233,84 @@ class RustCompactImport(RustCompactHandle):
         if self.symbol_name is not None:
             return self.symbol_name
         return self.module
+
+    def _statement_line(self) -> tuple[str, int]:
+        content = self.file.content
+        lines = content.splitlines(keepends=True)
+        offsets = _line_byte_offsets(content)
+        row = self.record.range.start_row
+        if row >= len(lines) or row >= len(offsets):
+            msg = f"Cannot locate import statement line for compact import {self.record.id}"
+            raise RuntimeError(msg)
+        return lines[row].rstrip("\r\n"), offsets[row]
+
+    def _replace_first_line_fragment(self, candidates: list[str], replacement: str, *, priority: int = 0) -> None:
+        line, line_start_byte = self._statement_line()
+        for candidate in candidates:
+            if not candidate:
+                continue
+            start_column = line.find(candidate)
+            if start_column == -1:
+                continue
+            self._replace_line_span(line, line_start_byte, start_column, start_column + len(candidate), replacement, priority=priority)
+            return
+
+        msg = f"Cannot locate import fragment {candidates!r} in compact import line: {line!r}"
+        raise RuntimeError(msg)
+
+    def _replace_import_binding(self, old_name: str, new_name: str, *, imported_name: bool, priority: int = 0) -> None:
+        line, line_start_byte = self._statement_line()
+        start_column = self._find_import_binding_column(line, old_name, imported_name=imported_name)
+        if start_column is None:
+            msg = f"Cannot locate import binding {old_name!r} in compact import line: {line!r}"
+            raise RuntimeError(msg)
+        self._replace_line_span(line, line_start_byte, start_column, start_column + len(old_name), new_name, priority=priority)
+
+    def _find_import_binding_column(self, line: str, name: str, *, imported_name: bool) -> int | None:
+        if imported_name and self.record.alias and self.record.alias != self.record.name:
+            pattern = f"{name} as {self.record.alias}"
+            pattern_start = line.find(pattern)
+            if pattern_start != -1:
+                return pattern_start
+
+        if not imported_name and self.record.name and self.record.alias and self.record.alias != self.record.name:
+            pattern = f"{self.record.name} as {name}"
+            pattern_start = line.find(pattern)
+            if pattern_start != -1:
+                return pattern_start + len(f"{self.record.name} as ")
+
+        if imported_name and self.record.kind == "import":
+            pattern = f"import {name}"
+            pattern_start = line.find(pattern)
+            if pattern_start != -1:
+                return pattern_start + len("import ")
+
+        if imported_name and self.record.kind == "default_import":
+            pattern = f"import {name}"
+            pattern_start = line.find(pattern)
+            if pattern_start != -1:
+                return pattern_start + len("import ")
+
+        return line.find(name) if line.find(name) != -1 else None
+
+    def _replace_line_span(self, line: str, line_start_byte: int, start_column: int, end_column: int, replacement: str, *, priority: int = 0) -> None:
+        start_byte = line_start_byte + len(line[:start_column].encode("utf-8"))
+        end_byte = line_start_byte + len(line[:end_column].encode("utf-8"))
+        transaction = EditTransaction(
+            start_byte,
+            end_byte,
+            self.file,
+            replacement,
+            priority=priority,
+        )
+        self.transaction_manager.add_transaction(transaction)
+
+    @staticmethod
+    def _typescript_module_replacement(new_module: str) -> str:
+        if (new_module.startswith('"') and new_module.endswith('"')) or (new_module.startswith("'") and new_module.endswith("'")):
+            return new_module
+        quote = '"' if "'" in new_module else "'"
+        return f"{quote}{new_module}{quote}"
 
     def _lookup_names(self) -> set[str]:
         names = {self.source}

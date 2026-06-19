@@ -1880,6 +1880,32 @@ def test_rust_compact_symbol_and_import_remove_commit_without_python_graph(monke
             len(codebase.ctx.nodes)
 
 
+def test_rust_compact_import_mutators_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        os_import = codebase.get_file("pkg/service.py").get_import("os")
+        os_import.set_import_symbol_alias("pl")
+        codebase.get_file("pkg/service.py").get_import("pkg.service").set_import_module("pkg.worker")
+        codebase.commit(sync_graph=False)
+
+        expected = "import pl\nimport pkg.worker\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == expected
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
 def test_rust_compact_add_decorator_commit_without_python_graph(monkeypatch, tmp_path):
     install_fake_rust_extension(monkeypatch)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST)
@@ -2142,6 +2168,34 @@ def test_rust_compact_typescript_codemod_edits_imports_without_python_graph(monk
         assert (tmp_path / "src/app.ts").read_text() == expected_app
         assert (tmp_path / "src/consumer.ts").read_text() == expected_consumer
         assert codebase.get_file("src/app.ts").content == expected_app
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_import_mutators_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files={
+            "src/app.ts": "import { helper } from './util';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return helper(props.value);\n}\n",
+            "src/util.ts": "export function helper(value: number) {\n  return value;\n}\n",
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        helper_import = codebase.get_file("src/app.ts").get_import("helper")
+        helper_import.set_import_module("./helpers")
+        helper_import.set_import_symbol_alias("compute")
+        codebase.commit(sync_graph=False)
+
+        expected = "import { compute } from './helpers';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return compute(props.value);\n}\n"
+        assert (tmp_path / "src/app.ts").read_text() == expected
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
