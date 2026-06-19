@@ -306,6 +306,11 @@ Already proven on the `rust-rewrite` branch:
   wheel, installs it through `uvx --from dist/<wheel>.whl`, parses pinned
   Next.js `v15.0.0` in strict Rust TypeScript mode, and compares the summary
   counts with the committed compact golden snapshot.
+- The same Next.js wheel gate can run with `--compare-python-backend` to sample
+  installed-wheel Python and Rust process-tree RSS. On 2026-06-19, the
+  branch-built wheel parsed pinned Next.js with strict Rust in 10.352s and
+  537.5 MB sampled RSS versus the installed-wheel Python backend at 57.956s and
+  4505.6 MB, a 5.598x parse-elapsed and 8.383x sampled-RSS improvement.
 - `.github/workflows/rust-rewrite-extension.yml` runs this wheel smoke on Linux
   and macOS for Python 3.12 and 3.13.
 
@@ -320,7 +325,6 @@ Not yet proven by the branch-built wheel smokes:
 - `uvx --from graph-sitter==<version> graph-sitter ...` against an uploaded
   release or pre-release artifact.
 - TypeScript strict Rust transform from an installed wheel on a large repo.
-- Pinned large-repo latency/RSS from an installed wheel.
 - Full codemod diff parity between Python and Rust backends from an installed
   wheel.
 - Skill installation and invocation against the published package.

@@ -271,6 +271,39 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
 
 On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.465s wall / 435.9 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.385x faster wall time and 7.112x lower max RSS with conservative CI-style ceilings.
 
+## Installed-Wheel `uvx` Next.js Evidence
+
+The branch-built wheel path now has an artifact-level large TypeScript proof
+that runs through `uvx --from dist/<wheel>.whl graph-sitter`, not through an
+editable checkout or manually copied extension.
+
+Command run on 2026-06-19:
+
+```bash
+uv run python rust-rewrite/tools/check_wheel_pinned_typescript_repo.py \
+  --wheel dist/graph_sitter-0.56.15.dev166+g2f790c9f7.d20260619-cp313-cp313-macosx_26_0_arm64.whl \
+  --skip-fetch \
+  --compare-python-backend \
+  --min-parse-elapsed-ratio 1.5 \
+  --min-sampled-rss-ratio 3.0 \
+  --output /tmp/graph-sitter-nextjs-wheel-rust-vs-python.json
+```
+
+| Input | Installed backend | Parse elapsed | `uvx` outer wall | Sampled process-tree RSS | Files | Symbols | Imports | Exports | References | Dependencies |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | Rust strict | 10.352s | 11.508s | 537.5 MB | 13688 | 44870 | 28210 | 16026 | 114463 | 49287 |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | Python | 57.956s | 78.107s | 4505.6 MB | 13679 | 25364 | 28723 | 17878 | n/a | 811914 |
+
+The installed-wheel strict Rust path matched the committed compact TypeScript
+golden summary exactly, including 13,688 files, 44,870 symbols, 28,210 imports,
+16,026 exports, 114,463 references, 49,287 dependencies, 25,318 external
+references, 160 subclass edges, and 114 files with parse errors. Compared with
+the installed-wheel Python backend on the same checkout and wheel, the Rust path
+was 5.598x faster by CLI parse elapsed and 8.383x lower by sampled process-tree
+RSS. The Python backend materialized 9 fewer file objects than Rust selected
+files, matching the known selected-file versus materialized-file delta for this
+repo's broken fixture files.
+
 ## Pinned Compact Snapshot Evidence
 
 The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json`. It was generated from Apache Airflow `2.10.5` at commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`.

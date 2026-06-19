@@ -183,7 +183,7 @@ Required packaging decision:
 12. [x] Add artifact-level transform smokes from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter --help`, Python parse, strict Rust import-path `transform --check` without target mutation, and strict Rust import-path `transform --write` with target mutation from the built wheel.
 13. [x] Add artifact-level TypeScript strict Rust parse smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter parse <tiny-typescript-repo> --language typescript --backend rust --fallback error --format json` from the built wheel.
 14. [x] Add artifact-level TypeScript strict Rust transform smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves a TypeScript function rename with `transform --check` and `transform --write` from the built wheel.
-15. [x] Add artifact-level large TypeScript parse proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py` builds or accepts a wheel, runs `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Next.js `v15.0.0` in strict Rust mode, and compares summary counts with the committed compact TypeScript golden snapshot.
+15. [x] Add artifact-level large TypeScript parse proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py` builds or accepts a wheel, runs `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Next.js `v15.0.0` in strict Rust mode, compares summary counts with the committed compact TypeScript golden snapshot, and optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`.
 
 ## Test Strategy
 
@@ -221,6 +221,9 @@ Distribution tests:
 - Run `rust-rewrite/tools/check_wheel_pinned_typescript_repo.py` before release
   candidates to prove the installed wheel can strict-parse pinned Next.js and
   match the committed compact TypeScript golden summary.
+- Run the same script with `--compare-python-backend` before public performance
+  claims to prove installed-wheel Rust improvement over installed-wheel Python
+  on the pinned Next.js checkout.
 - Keep `rust-rewrite/tools/check_extension_build.sh` for direct PyO3 diagnostics; use `rust-rewrite/tools/check_wheel_rust_backend.sh` for the distribution proof.
 - Add a CI lane that exercises Python 3.12 and 3.13 on Linux/macOS because `requires-python` is currently `>=3.12, <3.14`.
 
