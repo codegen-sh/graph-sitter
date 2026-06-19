@@ -1285,6 +1285,9 @@ class RustCompactFile(RustCompactHandle):
             return
 
         if not self.content:
+            if not self._pending_imports:
+                self.insert_at(0, f"\n\n{symbol_source}")
+                return
             self.insert_at(0, f"{symbol_source}\n")
             return
 
@@ -1856,23 +1859,32 @@ class RustCompactSymbol(RustCompactHandle):
 
         if strategy == "duplicate_dependencies":
             if not is_used_in_source_file and not imported_usages:
-                self.remove()
+                self._remove_after_move()
             return
 
         if strategy == "add_back_edge":
             if is_used_in_source_file or imported_usages:
                 self.file.add_import(import_line)
-            self.remove()
+            self._remove_after_move()
             return
 
         for usage in imported_usages:
             imported_by = usage.imported_by
             if imported_by is not None and imported_by.file != file:
                 imported_by.file.add_import(import_line)
-                imported_by.remove()
+                imported_by.remove(delete_following_blank_line=True)
 
         if is_used_in_source_file:
             self.file.add_import(import_line)
+        self._remove_after_move()
+
+    def _remove_after_move(self) -> None:
+        content_bytes = self.file.content_bytes
+        suffix = content_bytes[self.end_byte :]
+        if self.start_byte == 0 and suffix.strip() == b"":
+            transaction = EditTransaction(0, len(content_bytes), self.file, "\n")
+            self.transaction_manager.add_transaction(transaction)
+            return
         self.remove()
 
     def _alias_for_import_dependency(self, dependency: RustCompactImport, imported_symbol: RustCompactSymbol) -> str | None:
@@ -2193,7 +2205,7 @@ class RustCompactImport(RustCompactHandle):
     def descendant_symbols(self) -> list[RustCompactImport]:
         return [self]
 
-    def remove(self, priority: int = 0) -> None:
+    def remove(self, priority: int = 0, *, delete_following_blank_line: bool = False) -> None:
         start_byte = self.start_byte
         end_byte = self.end_byte
         content = self.file.content
@@ -2203,6 +2215,8 @@ class RustCompactImport(RustCompactHandle):
         if row < len(lines) and row < len(line_offsets):
             start_byte = line_offsets[row]
             end_byte = line_offsets[row] + len(lines[row].encode("utf-8"))
+            if delete_following_blank_line and row + 1 < len(lines) and not lines[row + 1].strip():
+                end_byte += len(lines[row + 1].encode("utf-8"))
 
         transaction = RemoveTransaction(
             start_byte,
