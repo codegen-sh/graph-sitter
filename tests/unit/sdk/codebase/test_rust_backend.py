@@ -1319,6 +1319,178 @@ class FakeTypeScriptIndex:
         )
 
 
+FAKE_TYPESCRIPT_PROMISE_CONTENT = (
+    "export function first() {\n"
+    "  return Promise.resolve(1).then(value => value + 1);\n"
+    "}\n\n"
+    "export function second() {\n"
+    "  return fetchUser().then(user => user.name).catch(error => 'default');\n"
+    "}\n"
+)
+
+
+class FakeTypeScriptPromiseChainSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 1,
+                "symbols": 2,
+                "classes": 0,
+                "functions": 2,
+                "global_variables": 0,
+                "imports": 0,
+                "import_resolutions": 0,
+                "external_modules": 0,
+                "exports": 0,
+                "references": 0,
+                "external_references": 0,
+                "dependencies": 0,
+                "subclass_edges": 0,
+                "bytes": len(FAKE_TYPESCRIPT_PROMISE_CONTENT),
+                "lines": 7,
+            }
+        )
+        return data
+
+
+class FakeTypeScriptPromiseChainIndex:
+    def summary(self):
+        return FakeTypeScriptPromiseChainSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[],"promise_chains":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "src/promises.ts",
+                    "module_name": None,
+                    "byte_len": len(FAKE_TYPESCRIPT_PROMISE_CONTENT),
+                    "line_count": 7,
+                    "has_error": False,
+                    "root_range": fake_range(0, len(FAKE_TYPESCRIPT_PROMISE_CONTENT), 0, 0, 7, 0),
+                }
+            ]
+        )
+
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "first",
+                    "kind": "function",
+                    "range": fake_range(0, 81, 0, 0, 2, 1),
+                    "name_range": fake_range(16, 21, 0, 16, 0, 21),
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "second",
+                    "kind": "function",
+                    "range": fake_range(83, 183, 4, 0, 6, 1),
+                    "name_range": fake_range(99, 105, 4, 16, 4, 22),
+                },
+            ]
+        )
+
+    def symbol_by_id_json(self, symbol_id: int):
+        return json.dumps(next((symbol for symbol in json.loads(self.symbols_json()) if symbol["id"] == symbol_id), None))
+
+    def symbols_for_file_by_name_json(self, file_id: int, name: str):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["file_id"] == file_id and symbol["name"] == name
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps([])
+
+    def import_resolutions_json(self):
+        return json.dumps([])
+
+    def external_modules_json(self):
+        return json.dumps([])
+
+    def exports_json(self):
+        return json.dumps([])
+
+    def references_json(self):
+        return json.dumps([])
+
+    def external_references_json(self):
+        return json.dumps([])
+
+    def function_calls_json(self):
+        return json.dumps([])
+
+    def promise_chains_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "stage_names": ["then"],
+                    "range": fake_range(35, 78, 1, 9, 1, 52),
+                    "base_range": fake_range(35, 53, 1, 9, 1, 27),
+                },
+                {
+                    "id": 1,
+                    "source_file_id": 0,
+                    "source_symbol_id": 1,
+                    "stage_names": ["then", "catch"],
+                    "range": fake_range(119, 180, 5, 9, 5, 70),
+                    "base_range": fake_range(119, 130, 5, 9, 5, 20),
+                },
+            ]
+        )
+
+    def promise_chain_by_id_json(self, chain_id: int):
+        return json.dumps(next((chain for chain in json.loads(self.promise_chains_json()) if chain["id"] == chain_id), None))
+
+    def promise_chains_for_file_json(self, file_id: int):
+        return json.dumps(
+            [
+                chain
+                for chain in json.loads(self.promise_chains_json())
+                if chain["source_file_id"] == file_id
+            ]
+        )
+
+    def promise_chains_for_symbol_json(self, symbol_id: int):
+        return json.dumps(
+            [
+                chain
+                for chain in json.loads(self.promise_chains_json())
+                if chain["source_symbol_id"] == symbol_id
+            ]
+        )
+
+    def dependencies_json(self):
+        return json.dumps([])
+
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
 class FakeTypeScriptMoveUpdateSummary(FakeSummary):
     def as_dict(self):
         data = super().as_dict()
@@ -2386,6 +2558,60 @@ def test_rust_compact_typescript_function_calls_do_not_materialize_python_graph(
         assert backend._function_call_handles is None
         assert backend._function_calls_by_file_id == {0: [call]}
         assert backend._function_calls_by_source_symbol_id == {2: [call]}
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+
+
+def test_rust_compact_typescript_promise_chains_do_not_materialize_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptPromiseChainIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"src/promises.ts": FAKE_TYPESCRIPT_PROMISE_CONTENT},
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        file = codebase.get_file("src/promises.ts")
+        first = backend.symbol_handle_by_id(0)
+        second = backend.symbol_handle_by_id(1)
+        assert first is not None
+        assert second is not None
+
+        chains = file.promise_chains
+        assert len(chains) == 2
+
+        first_chain = first.promise_chains[0]
+        assert first_chain == chains[0]
+        assert first_chain.parent_function == first
+        assert first_chain.source == "Promise.resolve(1).then(value => value + 1)"
+        assert first_chain.base_source == "Promise.resolve(1)"
+        assert [stage.name for stage in first_chain.then_chain] == ["then"]
+        assert not first_chain.has_catch_call
+        assert not first_chain.has_finally_call
+
+        second_chain = second.promise_chains[0]
+        assert second_chain == chains[1]
+        assert second_chain.parent_function == second
+        assert second_chain.stage_names == ["then", "catch"]
+        assert len(second_chain.then_chain) == 1
+        assert second_chain.catch_call is not None
+        assert second_chain.catch_call.name == "catch"
+        assert second_chain.has_catch_call
+        assert not second_chain.has_finally_call
+        assert backend.promise_chain_by_id(second_chain.record.id) == second_chain
+        with pytest.raises(RustBackendUnsupportedError):
+            second_chain.convert_to_async_await(inplace_edit=False)
+
+        assert backend._promise_chains is None
+        assert backend._promise_chain_handles is None
+        assert backend._promise_chains_by_file_id == {0: chains}
+        assert backend._promise_chains_by_source_symbol_id == {0: [first_chain], 1: [second_chain]}
         assert backend._symbols is None
         assert backend._symbol_handles is None
 

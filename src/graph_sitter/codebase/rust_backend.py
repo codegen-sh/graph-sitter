@@ -282,6 +282,28 @@ class RustFunctionCallRecord:
 
 
 @dataclass(frozen=True)
+class RustPromiseChainRecord:
+    id: int
+    source_file_id: int
+    source_symbol_id: int | None
+    stage_names: tuple[str, ...]
+    range: RustSourceRange
+    base_range: RustSourceRange
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustPromiseChainRecord:
+        source_symbol_id = data["source_symbol_id"]
+        return cls(
+            id=int(data["id"]),
+            source_file_id=int(data["source_file_id"]),
+            source_symbol_id=None if source_symbol_id is None else int(source_symbol_id),
+            stage_names=tuple(str(stage) for stage in data["stage_names"]),
+            range=RustSourceRange.from_dict(data["range"]),
+            base_range=RustSourceRange.from_dict(data["base_range"]),
+        )
+
+
+@dataclass(frozen=True)
 class RustDependencyRecord:
     id: int
     source_symbol_id: int
@@ -376,6 +398,7 @@ class RustIndexBackend:
     _references: list[RustReferenceRecord] | None = None
     _external_references: list[RustExternalReferenceRecord] | None = None
     _function_calls: list[RustFunctionCallRecord] | None = None
+    _promise_chains: list[RustPromiseChainRecord] | None = None
     _dependencies: list[RustDependencyRecord] | None = None
     _subclass_edges: list[RustSubclassRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
@@ -384,6 +407,7 @@ class RustIndexBackend:
     _external_module_handles: list[RustCompactExternalModule] | None = None
     _export_handles: list[RustCompactExport] | None = None
     _function_call_handles: list[RustCompactFunctionCall] | None = None
+    _promise_chain_handles: list[RustCompactPromiseChain] | None = None
     _file_handles_by_id: dict[int, RustCompactFile] | None = None
     _file_handles_by_path: dict[str, RustCompactFile] | None = None
     _symbol_handles_by_id: dict[int, RustCompactSymbol] | None = None
@@ -391,6 +415,7 @@ class RustIndexBackend:
     _external_module_handles_by_import_id: dict[int, RustCompactExternalModule] | None = None
     _export_handles_by_id: dict[int, RustCompactExport] | None = None
     _function_call_handles_by_id: dict[int, RustCompactFunctionCall] | None = None
+    _promise_chain_handles_by_id: dict[int, RustCompactPromiseChain] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
     _symbols_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactSymbol]] | None = None
     _imports_by_file_id_and_lookup: dict[tuple[int, str], list[RustCompactImport]] | None = None
@@ -412,6 +437,8 @@ class RustIndexBackend:
     _external_references_by_import_id: dict[int, list[RustExternalReferenceRecord]] | None = None
     _function_calls_by_file_id: dict[int, list[RustCompactFunctionCall]] | None = None
     _function_calls_by_source_symbol_id: dict[int, list[RustCompactFunctionCall]] | None = None
+    _promise_chains_by_file_id: dict[int, list[RustCompactPromiseChain]] | None = None
+    _promise_chains_by_source_symbol_id: dict[int, list[RustCompactPromiseChain]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
@@ -621,6 +648,16 @@ class RustIndexBackend:
         self._function_call_handles_by_id[record.id] = handle
         return handle
 
+    def _promise_chain_handle_from_record(self, record: RustPromiseChainRecord) -> RustCompactPromiseChain:
+        if self._promise_chain_handles_by_id is None:
+            self._promise_chain_handles_by_id = {}
+        handle = self._promise_chain_handles_by_id.get(record.id)
+        if handle is None:
+            handle = RustCompactPromiseChain(self, record)
+        self._bind_handle(handle)
+        self._promise_chain_handles_by_id[record.id] = handle
+        return handle
+
     def compact_record_counts(self) -> dict[str, int]:
         return {
             "rust_files": self.summary.files,
@@ -753,6 +790,16 @@ class RustIndexBackend:
         return self._function_calls
 
     @property
+    def promise_chains(self) -> list[RustPromiseChainRecord]:
+        if self._promise_chains is None:
+            promise_chains_json = getattr(self.index, "promise_chains_json", None)
+            if promise_chains_json is None:
+                self._promise_chains = []
+            else:
+                self._promise_chains = [RustPromiseChainRecord.from_dict(record) for record in json.loads(promise_chains_json())]
+        return self._promise_chains
+
+    @property
     def dependencies(self) -> list[RustDependencyRecord]:
         if self._dependencies is None:
             self._dependencies = [RustDependencyRecord.from_dict(record) for record in json.loads(self.index.dependencies_json())]
@@ -820,10 +867,25 @@ class RustIndexBackend:
             self._function_call_handles = [self._function_call_handle_from_record(record) for record in self.function_calls]
         return self._function_call_handles
 
+    @property
+    def promise_chain_handles(self) -> list[RustCompactPromiseChain]:
+        if self._promise_chain_handles is None:
+            self._promise_chain_handles = [self._promise_chain_handle_from_record(record) for record in self.promise_chains]
+        return self._promise_chain_handles
+
     def bind_context(self, ctx: CodebaseContext) -> None:
         self._ctx = ctx
         directory_handles = list(self._directory_handles_by_path.values()) if self._directory_handles_by_path is not None else None
-        for handles in (self._file_handles, self._symbol_handles, self._import_handles, self._external_module_handles, self._export_handles, self._function_call_handles, directory_handles):
+        for handles in (
+            self._file_handles,
+            self._symbol_handles,
+            self._import_handles,
+            self._external_module_handles,
+            self._export_handles,
+            self._function_call_handles,
+            self._promise_chain_handles,
+            directory_handles,
+        ):
             if handles is None:
                 continue
             for handle in handles:
@@ -836,6 +898,7 @@ class RustIndexBackend:
             self._external_module_handles_by_import_id,
             self._export_handles_by_id,
             self._function_call_handles_by_id,
+            self._promise_chain_handles_by_id,
         ):
             if handles_by_key is None:
                 continue
@@ -947,6 +1010,8 @@ class RustIndexBackend:
             self._exports_by_file_id[record.id] = []
         if self._function_calls_by_file_id is not None:
             self._function_calls_by_file_id[record.id] = []
+        if self._promise_chains_by_file_id is not None:
+            self._promise_chains_by_file_id[record.id] = []
         self._invalidate_directory_handles()
         return file
 
@@ -998,6 +1063,8 @@ class RustIndexBackend:
             self._external_references = [reference for reference in self._external_references if reference.source_file_id != file_id]
         if self._function_calls is not None:
             self._function_calls = [call for call in self._function_calls if call.source_file_id != file_id]
+        if self._promise_chains is not None:
+            self._promise_chains = [chain for chain in self._promise_chains if chain.source_file_id != file_id]
         if self._dependencies is not None:
             self._dependencies = [dependency for dependency in self._dependencies if dependency.source_file_id != file_id and dependency.target_file_id != file_id]
         if self._subclass_edges is not None:
@@ -1009,9 +1076,11 @@ class RustIndexBackend:
         self._external_module_handles = None
         self._export_handles = None
         self._function_call_handles = None
+        self._promise_chain_handles = None
         self._external_module_handles_by_import_id = None
         self._export_handles_by_id = None
         self._function_call_handles_by_id = None
+        self._promise_chain_handles_by_id = None
         self._symbols_by_file_id = None
         self._symbols_by_file_id_and_byte_range = None
         self._imports_by_file_id_and_lookup = None
@@ -1033,6 +1102,8 @@ class RustIndexBackend:
         self._external_references_by_import_id = None
         self._function_calls_by_file_id = None
         self._function_calls_by_source_symbol_id = None
+        self._promise_chains_by_file_id = None
+        self._promise_chains_by_source_symbol_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
         self._subclass_edges_by_source_symbol_id = None
@@ -1674,6 +1745,56 @@ class RustIndexBackend:
             self._function_calls_by_source_symbol_id = calls_by_source_symbol_id
         return self._function_calls_by_source_symbol_id.get(symbol_id, [])
 
+    def promise_chain_by_id(self, chain_id: int) -> RustCompactPromiseChain | None:
+        if self._promise_chain_handles is None and hasattr(self.index, "promise_chain_by_id_json"):
+            if self._promise_chain_handles_by_id is None:
+                self._promise_chain_handles_by_id = {}
+            if chain_id not in self._promise_chain_handles_by_id:
+                record = self._record_from_json_method("promise_chain_by_id_json", RustPromiseChainRecord.from_dict, chain_id)
+                if record is not None:
+                    return self._promise_chain_handle_from_record(record)
+                return None
+            if chain_id in self._promise_chain_handles_by_id:
+                return self._promise_chain_handles_by_id[chain_id]
+        if self._promise_chain_handles_by_id is None:
+            self._promise_chain_handles_by_id = {chain.record.id: chain for chain in self.promise_chain_handles}
+        return self._promise_chain_handles_by_id.get(chain_id)
+
+    def promise_chains_for_file(self, file_id: int) -> list[RustCompactPromiseChain]:
+        if self._promise_chain_handles is None and hasattr(self.index, "promise_chains_for_file_json"):
+            if self._promise_chains_by_file_id is None:
+                self._promise_chains_by_file_id = {}
+            if file_id not in self._promise_chains_by_file_id:
+                records = self._records_from_json_method("promise_chains_for_file_json", RustPromiseChainRecord.from_dict, file_id)
+                if records is not None:
+                    self._promise_chains_by_file_id[file_id] = [self._promise_chain_handle_from_record(record) for record in records]
+            if file_id in self._promise_chains_by_file_id:
+                return self._promise_chains_by_file_id[file_id]
+        if self._promise_chains_by_file_id is None:
+            chains_by_file_id: dict[int, list[RustCompactPromiseChain]] = {}
+            for chain in self.promise_chain_handles:
+                chains_by_file_id.setdefault(chain.record.source_file_id, []).append(chain)
+            self._promise_chains_by_file_id = chains_by_file_id
+        return self._promise_chains_by_file_id.get(file_id, [])
+
+    def promise_chains_for_symbol(self, symbol_id: int) -> list[RustCompactPromiseChain]:
+        if self._promise_chain_handles is None and hasattr(self.index, "promise_chains_for_symbol_json"):
+            if self._promise_chains_by_source_symbol_id is None:
+                self._promise_chains_by_source_symbol_id = {}
+            if symbol_id not in self._promise_chains_by_source_symbol_id:
+                records = self._records_from_json_method("promise_chains_for_symbol_json", RustPromiseChainRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._promise_chains_by_source_symbol_id[symbol_id] = [self._promise_chain_handle_from_record(record) for record in records]
+            if symbol_id in self._promise_chains_by_source_symbol_id:
+                return self._promise_chains_by_source_symbol_id[symbol_id]
+        if self._promise_chains_by_source_symbol_id is None:
+            chains_by_source_symbol_id: dict[int, list[RustCompactPromiseChain]] = {}
+            for chain in self.promise_chain_handles:
+                if chain.record.source_symbol_id is not None:
+                    chains_by_source_symbol_id.setdefault(chain.record.source_symbol_id, []).append(chain)
+            self._promise_chains_by_source_symbol_id = chains_by_source_symbol_id
+        return self._promise_chains_by_source_symbol_id.get(symbol_id, [])
+
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies is None and hasattr(self.index, "dependencies_from_symbol_json"):
             if self._dependencies_by_source_symbol_id is None:
@@ -2295,6 +2416,101 @@ class RustCompactFunctionCall(RustCompactHandle):
         return self._name_node
 
 
+@dataclass(frozen=True)
+class RustCompactPromiseChainStage:
+    parent: RustCompactPromiseChain
+    name: str
+    index: int
+
+    @property
+    def source(self) -> str:
+        return self.name
+
+    @property
+    def full_name(self) -> str:
+        return self.name
+
+
+class RustCompactPromiseChain(RustCompactHandle):
+    node_type = NodeType.EXPRESSION
+
+    def __init__(self, backend: RustIndexBackend, record: RustPromiseChainRecord) -> None:
+        self.record = record
+        self.stage_names = list(record.stage_names)
+        super().__init__(backend, record.id, record.range)
+        self.name = self.base_source
+
+    def __repr__(self) -> str:
+        return f"RustCompactPromiseChain(stages={self.stage_names!r}, filepath={self.filepath!r})"
+
+    @property
+    def file(self) -> RustCompactFile:
+        file = self.backend.file_handle_by_id(self.record.source_file_id)
+        if file is None:
+            msg = f"Rust compact promise chain {self.record.id} references missing file {self.record.source_file_id}"
+            raise RuntimeError(msg)
+        return file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def source(self) -> str:
+        return self.file.content_bytes[self.start_byte : self.end_byte].decode("utf-8")
+
+    @property
+    def base_source(self) -> str:
+        return self.file.content_bytes[self.record.base_range.start_byte : self.record.base_range.end_byte].decode("utf-8")
+
+    @property
+    def parent_symbol(self) -> RustCompactSymbol | RustCompactFile:
+        if self.record.source_symbol_id is not None:
+            symbol = self.backend.symbol_handle_by_id(self.record.source_symbol_id)
+            if symbol is not None:
+                return symbol
+        return self.file
+
+    @property
+    def parent_function(self) -> RustCompactSymbol | None:
+        parent = self.parent_symbol
+        return parent if isinstance(parent, RustCompactSymbol) and parent.symbol_type == SymbolType.Function else None
+
+    @property
+    def then_chain(self) -> list[RustCompactPromiseChainStage]:
+        return [
+            RustCompactPromiseChainStage(parent=self, name=stage_name, index=index)
+            for index, stage_name in enumerate(self.stage_names)
+            if stage_name == "then"
+        ]
+
+    @property
+    def catch_call(self) -> RustCompactPromiseChainStage | None:
+        return self._first_stage("catch")
+
+    @property
+    def finally_call(self) -> RustCompactPromiseChainStage | None:
+        return self._first_stage("finally")
+
+    @property
+    def has_catch_call(self) -> bool:
+        return self.catch_call is not None
+
+    @property
+    def has_finally_call(self) -> bool:
+        return self.finally_call is not None
+
+    def _first_stage(self, name: str) -> RustCompactPromiseChainStage | None:
+        for index, stage_name in enumerate(self.stage_names):
+            if stage_name == name:
+                return RustCompactPromiseChainStage(parent=self, name=stage_name, index=index)
+        return None
+
+    def convert_to_async_await(self, assignment_variable_name: str | None = None, inplace_edit: bool = True) -> str | None:
+        method = "RustCompactPromiseChain.convert_to_async_await"
+        raise self._unsupported(method)
+
+
 class RustCompactDirectory:
     def __init__(self, backend: RustIndexBackend, record: RustDirectoryRecord) -> None:
         self.backend = backend
@@ -2689,6 +2905,10 @@ class RustCompactFile(RustCompactHandle):
     @property
     def function_calls(self) -> list[RustCompactFunctionCall]:
         return self.backend.function_calls_for_file(self.record.id)
+
+    @property
+    def promise_chains(self) -> list[RustCompactPromiseChain]:
+        return self.backend.promise_chains_for_file(self.record.id)
 
     @property
     def import_statements(self) -> list[RustCompactImport]:
@@ -3290,6 +3510,10 @@ class RustCompactSymbol(RustCompactHandle):
     @property
     def function_calls(self) -> list[RustCompactFunctionCall]:
         return self.backend.function_calls_for_symbol(self.record.id)
+
+    @property
+    def promise_chains(self) -> list[RustCompactPromiseChain]:
+        return self.backend.promise_chains_for_symbol(self.record.id)
 
     @property
     def is_exported(self) -> bool:

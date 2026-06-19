@@ -353,6 +353,7 @@ pub struct TypeScriptIndex {
     pub references: Vec<ReferenceRecord>,
     pub external_references: Vec<ExternalReferenceRecord>,
     pub function_calls: Vec<FunctionCallRecord>,
+    pub promise_chains: Vec<PromiseChainRecord>,
     pub dependencies: Vec<DependencyRecord>,
     pub subclass_edges: Vec<SubclassRecord>,
     #[serde(skip)]
@@ -652,6 +653,16 @@ pub struct FunctionCallRecord {
     pub name: InternedString,
     pub range: SourceRange,
     pub name_range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct PromiseChainRecord {
+    pub id: u32,
+    pub source_file_id: u32,
+    pub source_symbol_id: Option<u32>,
+    pub stage_names: Vec<InternedString>,
+    pub range: SourceRange,
+    pub base_range: SourceRange,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -1185,6 +1196,7 @@ impl TypeScriptIndexer {
             references: Vec::new(),
             external_references: Vec::new(),
             function_calls: Vec::new(),
+            promise_chains: Vec::new(),
             dependencies: Vec::new(),
             subclass_edges: Vec::new(),
             strings: StringInterner::default(),
@@ -1604,6 +1616,7 @@ fn extract_typescript_file(
     }
     extract_typescript_nested_local_symbols(file_id, source, root, index);
     collect_typescript_reference_candidates(file_id, source, root, index, reference_candidates);
+    collect_typescript_promise_chains(file_id, source, root, index);
 }
 
 fn extract_typescript_top_level_node(
@@ -2497,6 +2510,110 @@ fn collect_typescript_reference_candidates(
         &indexed_local_symbols,
         out,
     );
+}
+
+fn collect_typescript_promise_chains(
+    file_id: u32,
+    source: &str,
+    root: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    let symbol_ranges = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id)
+        .map(|symbol| (symbol.id, symbol.range))
+        .collect::<Vec<_>>();
+    collect_typescript_promise_chains_from_node(file_id, source, root, &symbol_ranges, index);
+}
+
+fn collect_typescript_promise_chains_from_node(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    index: &mut TypeScriptIndex,
+) {
+    if node.kind() == "call_expression" && !typescript_is_nested_promise_stage_call(source, node) {
+        if let Some((base_range, stage_names)) = typescript_promise_chain_components(source, node) {
+            if stage_names.iter().any(|stage| stage == "then") {
+                let range = SourceRange::from(node.range());
+                let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+                let stage_names = stage_names
+                    .into_iter()
+                    .map(|stage| index.intern(stage))
+                    .collect::<Vec<_>>();
+                index.promise_chains.push(PromiseChainRecord {
+                    id: index.promise_chains.len() as u32,
+                    source_file_id: file_id,
+                    source_symbol_id,
+                    stage_names,
+                    range,
+                    base_range,
+                });
+            }
+        }
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_typescript_promise_chains_from_node(file_id, source, child, symbol_ranges, index);
+    }
+}
+
+fn typescript_promise_chain_components(
+    source: &str,
+    node: Node<'_>,
+) -> Option<(SourceRange, Vec<String>)> {
+    if node.kind() != "call_expression" {
+        return None;
+    }
+    let function = node.child_by_field_name("function")?;
+    if function.kind() != "member_expression" {
+        return None;
+    }
+    let property = function.child_by_field_name("property")?;
+    let stage_name = typescript_promise_stage_name(source, property)?;
+    let object = function.child_by_field_name("object")?;
+    let (base_range, mut stage_names) = typescript_promise_chain_components(source, object)
+        .unwrap_or_else(|| (SourceRange::from(object.range()), Vec::new()));
+    stage_names.push(stage_name);
+    Some((base_range, stage_names))
+}
+
+fn typescript_is_nested_promise_stage_call(source: &str, node: Node<'_>) -> bool {
+    let Some(parent) = node.parent() else {
+        return false;
+    };
+    if parent.kind() != "member_expression" {
+        return false;
+    }
+    let Some(object) = parent.child_by_field_name("object") else {
+        return false;
+    };
+    if SourceRange::from(object.range()) != SourceRange::from(node.range()) {
+        return false;
+    }
+    let Some(property) = parent.child_by_field_name("property") else {
+        return false;
+    };
+    if typescript_promise_stage_name(source, property).is_none() {
+        return false;
+    }
+    parent
+        .parent()
+        .is_some_and(|grandparent| grandparent.kind() == "call_expression")
+}
+
+fn typescript_promise_stage_name(source: &str, node: Node<'_>) -> Option<String> {
+    if !matches!(
+        node.kind(),
+        "identifier" | "property_identifier" | "private_property_identifier"
+    ) {
+        return None;
+    }
+    let name = node.utf8_text(source.as_bytes()).ok()?;
+    matches!(name, "then" | "catch" | "finally").then(|| name.to_owned())
 }
 
 fn collect_typescript_local_bindings(
@@ -7817,6 +7934,61 @@ export function run() {\n  local(helper(1));\n  return run();\n}\n",
             reference.source_symbol_id == Some(run.id)
                 && reference.target_symbol_id == run.id
                 && reference.name == "run"
+        }));
+    }
+
+    #[test]
+    fn extracts_typescript_promise_chain_records() {
+        let repo = temp_repo_path("typescript-promise-chain-records");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "export function run() {\n\
+  Promise.resolve(1).then(value => value + 1).catch(error => 0).finally(() => cleanup());\n\
+  fetchUser().then(user => user.name);\n\
+}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let run = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "run")
+            .unwrap();
+        let chains = index
+            .promise_chains
+            .iter()
+            .filter(|chain| chain.source_symbol_id == Some(run.id))
+            .collect::<Vec<_>>();
+        assert_eq!(chains.len(), 2);
+
+        let full_chain = chains
+            .iter()
+            .find(|chain| {
+                chain
+                    .stage_names
+                    .iter()
+                    .any(|stage| stage.as_ref() == "finally")
+            })
+            .unwrap();
+        assert_eq!(
+            full_chain
+                .stage_names
+                .iter()
+                .map(|stage| stage.as_ref())
+                .collect::<Vec<_>>(),
+            vec!["then", "catch", "finally"]
+        );
+        assert!(chains.iter().any(|chain| {
+            chain
+                .stage_names
+                .iter()
+                .map(|stage| stage.as_ref())
+                .collect::<Vec<_>>()
+                == vec!["then"]
         }));
     }
 

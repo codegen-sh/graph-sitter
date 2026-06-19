@@ -63,7 +63,7 @@ Docs/tests/codemods evidence: `docs/api-reference/core/File.mdx`, `docs/api-refe
   - `file.interfaces`, `file.get_interface(name, optional=False)`.
   - `file.types`, `file.get_type(name, optional=False)`.
   - `file.get_namespace(name, optional=False)`.
-  - `file.promise_chains` should return the same shape if the Rust slice exposes TS expression indexes; otherwise route to Python initially.
+  - `file.promise_chains` should return compact read-only Promise-chain handles first; full async conversion/mutable expression behavior can route to Python or remain explicitly unsupported until the expression index lands.
 - Import string helpers:
   - `file.import_module_name(...)`.
   - `PyFile.get_import_string(...)`.

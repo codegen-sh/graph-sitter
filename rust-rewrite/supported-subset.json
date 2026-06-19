@@ -53,6 +53,7 @@
         "compact files, symbols, functions, interfaces, types, imports, exports",
         "file.get_namespace and namespace member lookup helpers",
         "read-only file/symbol.function_calls",
+        "read-only file/symbol.promise_chains",
         "relative and alias import resolution",
         "external import dependencies",
         "subclass and implementation traversal"
@@ -63,6 +64,7 @@
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_external_import_dependencies",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_function_calls_do_not_materialize_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_promise_chains_do_not_materialize_python_graph",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_namespace_lookups_do_not_materialize_python_graph"
       ]
     },

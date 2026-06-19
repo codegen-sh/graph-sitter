@@ -157,12 +157,12 @@
       "status": "open_gap",
       "api_inventory": [
         "full namespace export/private/member semantics beyond direct member lookup",
-        "file.promise_chains",
+        "promise-chain async conversion and mutable expression-object semantics beyond compact read-only file/symbol.promise_chains",
         "full mutable FunctionCall expression object semantics beyond compact read-only file/symbol.function_calls",
         "full TypeScript lexical/type/interface/reference coverage",
         "complete namespace and expression dependency parity"
       ],
-      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, direct file.get_namespace/member lookup helpers, and read-only compact file/symbol.function_calls, but broader namespace export/private semantics, mutable expression nodes, and type-system P0 surfaces still need parity tests and targeted Rust data."
+      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, and read-only compact file/symbol.promise_chains, but broader namespace export/private semantics, mutable expression nodes, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
     },
     {
       "name": "Full graph-wide large-repo semantic parity",
