@@ -81,6 +81,8 @@ def test_uvx_large_typescript_wheel_gate_is_documented():
     assert "error" in gate_script
     assert "--compare-python-backend" in gate_script
     assert "python_to_rust_sampled_rss_ratio" in gate_script
+    assert "--run-transform-proof" in gate_script
+    assert "AppRouterAnnouncerWheelProof" in gate_script
     assert "check_wheel_pinned_typescript_repo.py" in roadmap
 
 

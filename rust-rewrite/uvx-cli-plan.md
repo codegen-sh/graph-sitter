@@ -184,6 +184,7 @@ Required packaging decision:
 13. [x] Add artifact-level TypeScript strict Rust parse smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter parse <tiny-typescript-repo> --language typescript --backend rust --fallback error --format json` from the built wheel.
 14. [x] Add artifact-level TypeScript strict Rust transform smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves a TypeScript function rename with `transform --check` and `transform --write` from the built wheel.
 15. [x] Add artifact-level large TypeScript parse proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py` builds or accepts a wheel, runs `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Next.js `v15.0.0` in strict Rust mode, compares summary counts with the committed compact TypeScript golden snapshot, and optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`.
+16. [x] Add artifact-level large TypeScript transform proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py --run-transform-proof` clones pinned Next.js, runs strict Rust `graph-sitter transform` through `uvx --from dist/<wheel>.whl`, renames `AppRouterAnnouncer`, rewrites the importing usage, and asserts only the two expected files changed.
 
 ## Test Strategy
 
@@ -224,6 +225,9 @@ Distribution tests:
 - Run the same script with `--compare-python-backend` before public performance
   claims to prove installed-wheel Rust improvement over installed-wheel Python
   on the pinned Next.js checkout.
+- Run the same script with `--run-transform-proof` before large TypeScript
+  codemod claims to prove the installed wheel can mutate pinned Next.js through
+  strict Rust `graph-sitter transform`.
 - Keep `rust-rewrite/tools/check_extension_build.sh` for direct PyO3 diagnostics; use `rust-rewrite/tools/check_wheel_rust_backend.sh` for the distribution proof.
 - Add a CI lane that exercises Python 3.12 and 3.13 on Linux/macOS because `requires-python` is currently `>=3.12, <3.14`.
 

@@ -42,6 +42,11 @@ SUMMARY_KEYS = (
     "files_with_errors",
 )
 
+TYPESCRIPT_TARGET_FILE = "packages/next/src/client/components/app-router-announcer.tsx"
+TYPESCRIPT_USAGE_FILE = "packages/next/src/client/components/app-router.tsx"
+TYPESCRIPT_IMPORTED_LINE = "import { act } from 'react-dom/test-utils';"
+TYPESCRIPT_RENAMED_FUNCTION = "AppRouterAnnouncerWheelProof"
+
 
 @dataclass
 class SampledRun:
@@ -90,6 +95,23 @@ def load_expected_summary(path: Path) -> dict[str, int]:
     snapshot = json.loads(path.read_text())
     summary = snapshot["summary"]
     return {key: summary[key] for key in SUMMARY_KEYS}
+
+
+def git(command: list[str], *, cwd: Path, timeout: int) -> str:
+    result = run(["git", *command], cwd=cwd, timeout=timeout)
+    return result.stdout.strip()
+
+
+def clone_mutable_checkout(cache_repo: Path, commit: str, *, destination: Path, repo_url: str, timeout: int) -> Path:
+    checkout = destination / "nextjs-transform-repo"
+    git(["clone", "--shared", "--no-checkout", str(cache_repo), str(checkout)], cwd=REPO_ROOT, timeout=timeout)
+    git(["remote", "set-url", "origin", repo_url], cwd=checkout, timeout=timeout)
+    git(["checkout", "--detach", commit], cwd=checkout, timeout=timeout)
+    return checkout
+
+
+def git_status(checkout: Path, *, timeout: int) -> list[str]:
+    return [line for line in git(["status", "--porcelain"], cwd=checkout, timeout=timeout).splitlines() if line]
 
 
 def process_tree_rss(process: Any) -> int:
@@ -217,6 +239,83 @@ def run_wheel_parse(
         timeout=args.timeout,
     )
     return parse_json_output(sampled.stdout), sampled
+
+
+def write_nextjs_transform(path: Path, *, renamed_function: str) -> None:
+    path.write_text(
+        f"""def rename(codebase):
+    target_file = codebase.get_file({TYPESCRIPT_TARGET_FILE!r})
+    target_file.add_import({TYPESCRIPT_IMPORTED_LINE!r})
+    target_file.get_function("AppRouterAnnouncer").rename({renamed_function!r})
+    codebase.commit()
+""",
+        encoding="utf-8",
+    )
+
+
+def run_wheel_transform(
+    repo: Path,
+    transform: Path,
+    wheel: Path,
+    args: argparse.Namespace,
+    *,
+    env: dict[str, str],
+) -> SampledRun:
+    command = graph_sitter_command(
+        wheel,
+        args,
+        "transform",
+        f"{transform}:rename",
+        str(repo),
+        "--language",
+        "typescript",
+        "--backend",
+        "rust",
+        "--fallback",
+        "error",
+        "--write",
+    )
+    return run_sampled(
+        command,
+        cwd=REPO_ROOT,
+        env=env,
+        sample_interval=args.sample_interval,
+        timeout=args.timeout,
+    )
+
+
+def validate_transform(checkout: Path, sampled: SampledRun, args: argparse.Namespace) -> dict[str, Any]:
+    target_content = (checkout / TYPESCRIPT_TARGET_FILE).read_text(encoding="utf-8")
+    usage_content = (checkout / TYPESCRIPT_USAGE_FILE).read_text(encoding="utf-8")
+    status = git_status(checkout, timeout=args.timeout)
+    modified_paths = {line[2:].lstrip() for line in status if line[:2].strip() == "M"}
+    expected_modified_paths = {
+        TYPESCRIPT_TARGET_FILE,
+        TYPESCRIPT_USAGE_FILE,
+    }
+    assertions = {
+        "added_import": TYPESCRIPT_IMPORTED_LINE in target_content,
+        "renamed_declaration": f"export function {args.transform_new_name}" in target_content,
+        "removed_original_declaration": "export function AppRouterAnnouncer(" not in target_content,
+        "rewrote_importing_usage": args.transform_new_name in usage_content,
+        "only_expected_files_modified": modified_paths == expected_modified_paths,
+        "reported_applied_changes": "Changes have been applied" in sampled.stdout,
+    }
+    failed = [name for name, passed in assertions.items() if not passed]
+    if failed:
+        msg = (
+            f"installed-wheel Next.js transform assertions failed: {', '.join(failed)}; "
+            f"git_status={status!r}"
+        )
+        raise RuntimeError(msg)
+    return {
+        "status": "passed",
+        "target_file": TYPESCRIPT_TARGET_FILE,
+        "usage_file": TYPESCRIPT_USAGE_FILE,
+        "git_status": status,
+        "modified_paths": sorted(modified_paths),
+        "assertions": assertions,
+    }
 
 
 def validate_payload(
@@ -358,6 +457,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         python_sampled = None
         python_validation = None
         comparison = None
+        transform_report = None
         if args.compare_python_backend:
             python_payload, python_sampled = run_wheel_parse(
                 repo,
@@ -374,6 +474,29 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
                 python_sampled=python_sampled,
                 args=args,
             )
+        if args.run_transform_proof:
+            mutable_checkout = clone_mutable_checkout(
+                repo,
+                actual_commit,
+                destination=Path(scratch),
+                repo_url=args.repo_url,
+                timeout=args.timeout,
+            )
+            transform = Path(scratch) / "rename_nextjs.py"
+            write_nextjs_transform(transform, renamed_function=args.transform_new_name)
+            transform_sampled = run_wheel_transform(
+                mutable_checkout,
+                transform,
+                wheel,
+                args,
+                env=env,
+            )
+            transform_validation = validate_transform(mutable_checkout, transform_sampled, args)
+            transform_report = {
+                "process": transform_sampled.as_report(),
+                "renamed_function": args.transform_new_name,
+                "validation": transform_validation,
+            }
     validation = validate_payload(
         payload=payload,
         expected_summary=expected_summary,
@@ -413,6 +536,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         }
     if comparison is not None:
         report["comparison"] = comparison
+    if transform_report is not None:
+        report["transform"] = transform_report
     return report
 
 
@@ -445,6 +570,16 @@ def print_human(report: dict[str, Any]) -> None:
             f"parse_elapsed={comparison['python_to_rust_parse_elapsed_ratio']}x "
             f"outer_wall={comparison['python_to_rust_outer_wall_ratio']}x "
             f"sampled_rss={comparison['python_to_rust_sampled_rss_ratio']}x"
+        )
+    transform = report.get("transform")
+    if transform is not None:
+        process = transform["process"]
+        validation = transform["validation"]
+        print(
+            "uvx transform: "
+            f"wall={process['wall_seconds']:.3f}s "
+            f"rss_peak={process['rss_peak_mb']:.1f} MB "
+            f"modified={', '.join(validation['git_status'])}"
         )
 
 
@@ -530,6 +665,16 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=1.0,
         help="Minimum Python/Rust sampled process-tree RSS ratio when --compare-python-backend is enabled.",
+    )
+    parser.add_argument(
+        "--run-transform-proof",
+        action="store_true",
+        help="Run a strict Rust installed-wheel transform against a temporary clone of pinned Next.js.",
+    )
+    parser.add_argument(
+        "--transform-new-name",
+        default=TYPESCRIPT_RENAMED_FUNCTION,
+        help="New function name used by the optional pinned Next.js transform proof.",
     )
     parser.add_argument("--output", type=Path, help="Optional path to write the JSON report.")
     parser.add_argument("--json", action="store_true", help="Print the full JSON report.")

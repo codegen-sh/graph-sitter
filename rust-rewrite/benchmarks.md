@@ -304,6 +304,30 @@ RSS. The Python backend materialized 9 fewer file objects than Rust selected
 files, matching the known selected-file versus materialized-file delta for this
 repo's broken fixture files.
 
+The same branch-built wheel gate also proves a real pinned Next.js transform
+through the distributed CLI:
+
+```bash
+uv run python rust-rewrite/tools/check_wheel_pinned_typescript_repo.py \
+  --wheel dist/graph_sitter-0.56.15.dev166+g2f790c9f7.d20260619-cp313-cp313-macosx_26_0_arm64.whl \
+  --skip-fetch \
+  --run-transform-proof \
+  --output /tmp/graph-sitter-nextjs-wheel-transform.json
+```
+
+That run parsed pinned Next.js in strict Rust mode, cloned a temporary mutable
+checkout, ran `graph-sitter transform ... --language typescript --backend rust
+--fallback error --write` through `uvx --from`, added
+`import { act } from 'react-dom/test-utils';` to
+`packages/next/src/client/components/app-router-announcer.tsx`, renamed
+`AppRouterAnnouncer` to `AppRouterAnnouncerWheelProof`, and rewrote the
+importing usage in `packages/next/src/client/components/app-router.tsx`.
+
+| Operation | Wall | Sampled process-tree RSS | Validation |
+| --- | ---: | ---: | --- |
+| Installed-wheel strict Rust parse | 10.386s | 549.7 MB | matched compact golden summary |
+| Installed-wheel strict Rust transform | 11.834s | 525.8 MB | only `app-router-announcer.tsx` and `app-router.tsx` changed |
+
 ## Pinned Compact Snapshot Evidence
 
 The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json`. It was generated from Apache Airflow `2.10.5` at commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`.
