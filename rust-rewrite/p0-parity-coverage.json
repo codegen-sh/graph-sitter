@@ -129,15 +129,31 @@
       }
     },
     {
-      "name": "Directory traversal and recursive directory symbol APIs",
-      "status": "open_gap",
+      "name": "Source-backed directory traversal and recursive symbol APIs",
+      "status": "parity_covered",
       "api_inventory": [
         "codebase.directories/get_directory/has_directory",
         "directory.files/subdirectories/items/tree",
         "directory recursive symbols/imports/exports/classes/functions/global_vars",
         "directory get_symbol/get_import/get_export helpers"
       ],
-      "gap": "The compact Rust backend does not yet provide a graph-free Directory handle parity layer; these APIs must either stay Python-backed or get targeted Rust directory indexes before default-backend promotion."
+      "evidence": {
+        "pytest": [
+          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_queries_do_not_materialize_python_graph"
+        ],
+        "tools": []
+      }
+    },
+    {
+      "name": "Non-source directory and all-file traversal parity",
+      "status": "open_gap",
+      "api_inventory": [
+        "directory.files(extensions='*') for non-source files",
+        "directory.items/tree entries for non-source files and empty directories",
+        "create_directory(...) visibility in compact Rust mode",
+        "directory traversal parity when disable_file_parse or Pink all-file mode is active"
+      ],
+      "gap": "The compact Rust directory layer is source-backed by selected Rust index file paths. Non-source files, empty created directories, and all-file traversal still need an all-file compact directory index or an explicit fallback policy before default-backend promotion."
     },
     {
       "name": "Full TypeScript expression, namespace, and type-system surface",

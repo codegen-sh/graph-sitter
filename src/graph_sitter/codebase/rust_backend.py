@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import posixpath
 from dataclasses import dataclass, field
 from importlib import import_module
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
 
 from graph_sitter._proxy import proxy_property
 from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction
+from graph_sitter.compiled.sort import sort_editables
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
@@ -322,6 +324,13 @@ class RustExportRecord:
         )
 
 
+@dataclass(frozen=True)
+class RustDirectoryRecord:
+    path: str
+    files: tuple[str, ...]
+    subdirectories: tuple[str, ...]
+
+
 @dataclass
 class RustIndexBackend:
     repo_path: Path
@@ -373,10 +382,13 @@ class RustIndexBackend:
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
     _subclass_edges_by_target_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
     _symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] | None = None
+    _directory_records_by_path: dict[str, RustDirectoryRecord] | None = None
+    _directory_handles_by_path: dict[str, RustCompactDirectory] | None = None
     _removed_file_ids: set[int] = field(default_factory=set)
     _removed_file_paths: set[str] = field(default_factory=set)
     _added_file_records_by_id: dict[int, RustFileRecord] = field(default_factory=dict)
     _added_file_records_by_path: dict[str, RustFileRecord] = field(default_factory=dict)
+    _source_file_paths: tuple[str, ...] = ()
     _next_added_file_id: int | None = None
     _ctx: CodebaseContext | None = None
 
@@ -408,7 +420,18 @@ class RustIndexBackend:
             message = f"Rust graph backend failed to index {path}"
             raise RustIndexBuildError(message) from error
 
-        return cls(repo_path=path, extension=extension, index=index, summary=summary)
+        source_file_paths = tuple(cls._normalize_relative_path_for_repo(path, file_path) for file_path in file_paths or ())
+        return cls(repo_path=path, extension=extension, index=index, summary=summary, _source_file_paths=source_file_paths)
+
+    @staticmethod
+    def _normalize_relative_path_for_repo(repo_path: Path, filepath: str | Path) -> str:
+        path = Path(str(filepath).replace("\\", "/"))
+        if path.is_absolute():
+            path = path.resolve().relative_to(repo_path)
+        normalized = path.as_posix()
+        if normalized.startswith("./"):
+            normalized = normalized[2:]
+        return normalized
 
     @property
     def engine_version(self) -> str:
@@ -681,7 +704,8 @@ class RustIndexBackend:
 
     def bind_context(self, ctx: CodebaseContext) -> None:
         self._ctx = ctx
-        for handles in (self._file_handles, self._symbol_handles, self._import_handles, self._external_module_handles, self._export_handles):
+        directory_handles = list(self._directory_handles_by_path.values()) if self._directory_handles_by_path is not None else None
+        for handles in (self._file_handles, self._symbol_handles, self._import_handles, self._external_module_handles, self._export_handles, directory_handles):
             if handles is None:
                 continue
             for handle in handles:
@@ -748,6 +772,7 @@ class RustIndexBackend:
             self._imports_by_file_id[record.id] = []
         if self._exports_by_file_id is not None:
             self._exports_by_file_id[record.id] = []
+        self._invalidate_directory_handles()
         return file
 
     def unregister_file(self, file_id: int, filepath: str | None = None) -> None:
@@ -819,15 +844,108 @@ class RustIndexBackend:
         self._subclass_edges_by_source_symbol_id = None
         self._subclass_edges_by_target_symbol_id = None
         self._symbols_by_parent_symbol_id = None
+        self._invalidate_directory_handles()
+
+    def _invalidate_directory_handles(self) -> None:
+        self._directory_records_by_path = None
+        self._directory_handles_by_path = None
 
     def _normalize_relative_path(self, filepath: str) -> str:
-        path = Path(filepath.replace("\\", "/"))
+        return self._normalize_relative_path_for_repo(self.repo_path, filepath)
+
+    def _normalize_directory_path(self, dirpath: str | Path) -> str | None:
+        path = Path(str(dirpath).replace("\\", "/"))
         if path.is_absolute():
-            path = path.resolve().relative_to(self.repo_path)
-        normalized = path.as_posix()
+            try:
+                path = path.resolve().relative_to(self.repo_path)
+            except ValueError:
+                return None
+        normalized = PurePosixPath(path.as_posix()).as_posix()
+        if normalized in {".", ""}:
+            return ""
         if normalized.startswith("./"):
             normalized = normalized[2:]
-        return normalized
+        return normalized.rstrip("/")
+
+    def _active_file_paths(self) -> list[str]:
+        if self._source_file_paths:
+            paths = list(self._source_file_paths)
+        else:
+            paths = [record.path for record in self.files]
+        paths.extend(self._added_file_records_by_path)
+
+        removed_paths = set(self._removed_file_paths)
+        active_paths: dict[str, None] = {}
+        for path in paths:
+            normalized = self._normalize_relative_path(path)
+            if normalized in removed_paths:
+                continue
+            active_paths[normalized] = None
+        return sorted(active_paths)
+
+    @property
+    def directory_records_by_path(self) -> dict[str, RustDirectoryRecord]:
+        if self._directory_records_by_path is None:
+            files_by_directory: dict[str, set[str]] = {"": set()}
+            subdirectories_by_directory: dict[str, set[str]] = {"": set()}
+
+            def ensure_directory(path: str) -> None:
+                files_by_directory.setdefault(path, set())
+                subdirectories_by_directory.setdefault(path, set())
+
+            for filepath in self._active_file_paths():
+                file_path = PurePosixPath(filepath)
+                parent_path = "" if file_path.parent.as_posix() == "." else file_path.parent.as_posix()
+                ensure_directory(parent_path)
+                files_by_directory[parent_path].add(file_path.name)
+
+                current = ""
+                for part in parent_path.split("/"):
+                    if not part:
+                        continue
+                    child = part if not current else f"{current}/{part}"
+                    ensure_directory(current)
+                    ensure_directory(child)
+                    subdirectories_by_directory[current].add(part)
+                    current = child
+
+            self._directory_records_by_path = {
+                path: RustDirectoryRecord(
+                    path=path,
+                    files=tuple(sorted(files_by_directory[path])),
+                    subdirectories=tuple(sorted(subdirectories_by_directory[path])),
+                )
+                for path in sorted(files_by_directory)
+            }
+        return self._directory_records_by_path
+
+    def _directory_handle_from_record(self, record: RustDirectoryRecord) -> RustCompactDirectory:
+        if self._directory_handles_by_path is None:
+            self._directory_handles_by_path = {}
+        handle = self._directory_handles_by_path.get(record.path)
+        if handle is None:
+            handle = RustCompactDirectory(self, record)
+        self._bind_handle(handle)
+        self._directory_handles_by_path[record.path] = handle
+        return handle
+
+    @property
+    def directory_handles(self) -> list[RustCompactDirectory]:
+        return [self._directory_handle_from_record(record) for record in self.directory_records_by_path.values()]
+
+    def get_directory_handle(self, dirpath: str | Path, *, ignore_case: bool = False) -> RustCompactDirectory | None:
+        normalized = self._normalize_directory_path(dirpath)
+        if normalized is None:
+            return None
+        records = self.directory_records_by_path
+        if ignore_case:
+            normalized_lower = normalized.lower()
+            record = next((candidate for path, candidate in records.items() if path.lower() == normalized_lower), None)
+        else:
+            record = records.get(normalized)
+        if record is None:
+            return None
+        return self._directory_handle_from_record(record)
 
     def get_file_handle(self, filepath: str, *, ignore_case: bool = False) -> RustCompactFile | None:
         path = Path(filepath.replace("\\", "/"))
@@ -1842,6 +1960,174 @@ class RustCompactHandle:
         return self.ctx.transaction_manager
 
 
+class RustCompactDirectory:
+    def __init__(self, backend: RustIndexBackend, record: RustDirectoryRecord) -> None:
+        self.backend = backend
+        self.record = record
+        self.ctx: CodebaseContext | None = None
+        self.dirpath = record.path
+        self.path = backend.repo_path / record.path if record.path else backend.repo_path
+        self._files = list(record.files)
+        self._subdirectories = list(record.subdirectories)
+
+    def __iter__(self):
+        return iter(self.items)
+
+    def __contains__(self, item: str | RustCompactFile | RustCompactDirectory) -> bool:
+        if isinstance(item, str) and item in self.item_names:
+            return True
+        if isinstance(item, RustCompactDirectory) and item.name in {directory.name for directory in self.subdirectories}:
+            return True
+        if isinstance(item, RustCompactFile) and item.name in {file.name for file in self.files(extensions="*")}:
+            return True
+        return any(item in directory for directory in self.subdirectories)
+
+    def __len__(self) -> int:
+        return len(self.item_names)
+
+    def __getitem__(self, item_name: str) -> RustCompactFile | RustCompactDirectory | None:
+        return next((item for item in self.items if item.name == item_name), None)
+
+    def __repr__(self) -> str:
+        return f"RustCompactDirectory(name={self.name!r}, items={self.item_names})"
+
+    @property
+    def name(self) -> str:
+        return posixpath.basename(self.dirpath)
+
+    @property
+    def parent(self) -> RustCompactDirectory | None:
+        if not self.dirpath:
+            return None
+        parent = PurePosixPath(self.dirpath).parent.as_posix()
+        if parent == ".":
+            parent = ""
+        return self.backend.get_directory_handle(parent)
+
+    @proxy_property
+    def files(self, *, extensions: list[str] | Literal["*"] | None = None, recursive: bool = False) -> list[RustCompactFile]:
+        if isinstance(extensions, str) and extensions != "*":
+            msg = "extensions must be a list of extensions or '*'"
+            raise ValueError(msg)
+        allowed = set(extensions if extensions is not None and extensions != "*" else [])
+        files: list[RustCompactFile] = []
+        for file_name in self._files:
+            filepath = f"{self.dirpath}/{file_name}" if self.dirpath else file_name
+            file = self.backend.get_file_handle(filepath)
+            if file is None:
+                continue
+            if extensions in (None, "*") or file.extension in allowed:
+                files.append(file)
+
+        if recursive:
+            for directory in self.subdirectories:
+                files.extend(directory.files(extensions=extensions, recursive=True))
+
+        return sort_editables(files, alphabetical=True, dedupe=False)
+
+    @proxy_property
+    def subdirectories(self, recursive: bool = False) -> list[RustCompactDirectory]:
+        subdirectories = []
+        for directory_name in self._subdirectories:
+            subdirectory = self.get_subdirectory(directory_name)
+            if subdirectory is not None:
+                subdirectories.append(subdirectory)
+        if recursive:
+            for directory in list(subdirectories):
+                subdirectories.extend(directory.subdirectories(recursive=True))
+        return sorted(subdirectories, key=lambda directory: directory.name)
+
+    @proxy_property
+    def items(self, recursive: bool = False) -> list[RustCompactDirectory | RustCompactFile]:
+        return self.files(extensions="*", recursive=recursive) + self.subdirectories(recursive=recursive)
+
+    @property
+    def item_names(self) -> list[str]:
+        return self._files + self._subdirectories
+
+    @property
+    def file_names(self) -> list[str]:
+        return self._files
+
+    @property
+    def tree(self) -> list[RustCompactDirectory | RustCompactFile]:
+        return self.items(recursive=True)
+
+    def files_generator(self, *args: Any, **kwargs: Any):
+        yield from self.files(*args, extensions="*", **kwargs, recursive=True)
+
+    def get_file(self, filename: str, ignore_case: bool = False) -> RustCompactFile | None:
+        filepath = f"{self.dirpath}/{filename}" if self.dirpath else filename
+        return self.backend.get_file_handle(filepath, ignore_case=ignore_case)
+
+    def get_subdirectory(self, subdirectory_name: str) -> RustCompactDirectory | None:
+        dirpath = f"{self.dirpath}/{subdirectory_name}" if self.dirpath else subdirectory_name
+        return self.backend.get_directory_handle(dirpath)
+
+    @property
+    def symbols(self) -> list[RustCompactSymbol]:
+        return [symbol for file in self.files(recursive=True) for symbol in file.symbols]
+
+    @property
+    def import_statements(self) -> list[RustCompactImport]:
+        return [import_statement for file in self.files(recursive=True) for import_statement in file.import_statements]
+
+    @property
+    def global_vars(self) -> list[RustCompactSymbol]:
+        return [global_var for file in self.files(recursive=True) for global_var in file.global_vars]
+
+    @property
+    def classes(self) -> list[RustCompactSymbol]:
+        return [class_handle for file in self.files(recursive=True) for class_handle in file.classes]
+
+    @property
+    def functions(self) -> list[RustCompactSymbol]:
+        return [function for file in self.files(recursive=True) for function in file.functions]
+
+    @property
+    def exports(self) -> list[RustCompactExport]:
+        return [export for file in self.files(recursive=True) for export in file.exports]
+
+    @property
+    def imports(self) -> list[RustCompactImport]:
+        return [import_handle for file in self.files(recursive=True) for import_handle in file.imports]
+
+    def get_symbol(self, name: str) -> RustCompactSymbol | None:
+        return next((symbol for symbol in self.symbols if symbol.name == name), None)
+
+    def get_import_statement(self, name: str) -> RustCompactImport | None:
+        return next((import_statement for import_statement in self.import_statements if import_statement.name == name), None)
+
+    def get_global_var(self, name: str) -> RustCompactSymbol | None:
+        return next((global_var for global_var in self.global_vars if global_var.name == name), None)
+
+    def get_class(self, name: str) -> RustCompactSymbol | None:
+        return next((class_handle for class_handle in self.classes if class_handle.name == name), None)
+
+    def get_function(self, name: str) -> RustCompactSymbol | None:
+        return next((function for function in self.functions if function.name == name), None)
+
+    def get_export(self, name: str) -> RustCompactExport | None:
+        return next((export for export in self.exports if export.name == name), None)
+
+    def get_import(self, name: str) -> RustCompactImport | None:
+        return next((import_handle for import_handle in self.imports if import_handle.name == name), None)
+
+    def _fallback_to_python(self, method: str, reason: str | None = None) -> None:
+        if self.ctx is None:
+            raise RustBackendUnsupportedError(method=method, handle=type(self).__name__, reason=reason)
+        self.ctx.promote_rust_compact_to_python(method=method, handle=type(self).__name__, reason=reason)
+
+    def update_filepath(self, new_filepath: str) -> None:
+        self._fallback_to_python("RustCompactDirectory.update_filepath")
+
+    def remove(self) -> None:
+        self._fallback_to_python("RustCompactDirectory.remove")
+
+    def rename(self, new_name: str) -> None:
+        self._fallback_to_python("RustCompactDirectory.rename")
+
+
 class RustCompactFile(RustCompactHandle):
     node_type = NodeType.FILE
 
@@ -1909,6 +2195,13 @@ class RustCompactFile(RustCompactHandle):
     @property
     def extension(self) -> str:
         return self.path.suffix
+
+    @property
+    def directory(self) -> RustCompactDirectory | None:
+        parent = PurePosixPath(self.filepath).parent.as_posix()
+        if parent == ".":
+            parent = ""
+        return self.backend.get_directory_handle(parent)
 
     @property
     def is_binary(self) -> bool:

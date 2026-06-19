@@ -440,6 +440,10 @@ class FakeOrderingIndex:
     def file_by_path_json(self, path: str):
         return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
 
+    def file_by_path_ignore_case_json(self, path: str):
+        normalized = path.lower()
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"].lower() == normalized), None))
+
     def symbols_json(self):
         return json.dumps(
             [
@@ -506,13 +510,28 @@ class FakeOrderingIndex:
             ]
         )
 
+    def symbols_for_file_json(self, file_id: int):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["file_id"] == file_id
+            ]
+        )
+
     def imports_json(self):
+        return json.dumps([])
+
+    def imports_for_file_json(self, file_id: int):
         return json.dumps([])
 
     def import_resolutions_json(self):
         return json.dumps([])
 
     def external_modules_json(self):
+        return json.dumps([])
+
+    def exports_for_file_json(self, file_id: int):
         return json.dumps([])
 
     def references_json(self):
@@ -1774,6 +1793,71 @@ def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_pa
         assert [file.filepath for file in codebase.files(extensions=[".py"])] == ["pkg/alpha.py", "a/service.py", "z/service.py"]
         assert [symbol.name for symbol in codebase.classes] == ["Zed", "Beta", "Alpha"]
         assert [symbol.name for symbol in codebase.functions] == ["z_func", "b_func", "a_func"]
+
+
+def test_rust_compact_directory_queries_do_not_materialize_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, index_cls=FakeOrderingIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "z/service.py": "class Zed:\n    pass\n\ndef z_func():\n    pass\n",
+        "a/service.py": "class Alpha:\n    pass\n\ndef a_func():\n    pass\n",
+        "pkg/alpha.py": "class Beta:\n    pass\n\ndef b_func():\n    pass\n",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+        assert codebase.ctx.rust_compact_mode is True
+
+        assert codebase.has_directory("pkg")
+        assert codebase.get_directory("PKG", ignore_case=True).dirpath == "pkg"
+        assert codebase.get_directory("missing", optional=True) is None
+        assert [directory.dirpath for directory in codebase.directories] == ["", "a", "pkg", "z"]
+
+        root = codebase.get_directory("")
+        pkg = codebase.get_directory("pkg")
+        assert pkg.path == tmp_path / "pkg"
+        assert pkg.parent == root
+        assert pkg.name == "pkg"
+        assert pkg.item_names == ["alpha.py"]
+        assert pkg.file_names == ["alpha.py"]
+        assert "alpha.py" in pkg
+        assert pkg.get_file("ALPHA.PY", ignore_case=True).filepath == "pkg/alpha.py"
+        assert pkg.get_subdirectory("missing") is None
+
+        assert [file.filepath for file in pkg.files] == ["pkg/alpha.py"]
+        assert [file.filepath for file in root.files(recursive=True)] == ["pkg/alpha.py", "a/service.py", "z/service.py"]
+        assert [directory.dirpath for directory in root.subdirectories] == ["a", "pkg", "z"]
+        assert [item.name for item in pkg.items] == ["alpha"]
+        assert [item.filepath for item in pkg.tree] == ["pkg/alpha.py"]
+
+        assert [symbol.name for symbol in pkg.symbols] == ["b_func", "Beta"]
+        assert pkg.get_class("Beta").filepath == "pkg/alpha.py"
+        assert pkg.get_function("b_func").filepath == "pkg/alpha.py"
+        assert root.get_function("a_func").filepath == "a/service.py"
+        assert root.get_class("Zed").filepath == "z/service.py"
+        assert codebase.get_file("pkg/alpha.py").directory == pkg
+
+        generated_file = codebase.create_file("pkg/generated.py", "VALUE = 1\n", sync=False)
+        assert codebase.get_directory("pkg").get_file("generated.py") == generated_file
+        generated_file.remove()
+        assert codebase.get_directory("pkg").get_file("generated.py") is None
+
+        assert codebase.ctx.rust_compact_mode is True
+        assert backend._files is None
+        assert backend._file_handles is None
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._exports is None
+        assert backend._export_handles is None
 
 
 def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkeypatch, tmp_path):

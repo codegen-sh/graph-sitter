@@ -444,6 +444,8 @@ class Codebase(
         Returns:
             list[TDirectory]: A list of Directory objects in the codebase.
         """
+        if self.ctx.rust_compact_mode:
+            return self._require_rust_index().directory_handles
         return list(self.ctx.directories.values())
 
     @property
@@ -745,7 +747,10 @@ class Codebase(
         # Sanitize the path
         dir_path = os.path.normpath(dir_path)
         dir_path = "" if dir_path == "." else dir_path
-        directory = self.ctx.get_directory(self.ctx.to_absolute(dir_path), ignore_case=ignore_case)
+        if self.ctx.rust_compact_mode:
+            directory = self._require_rust_index().get_directory_handle(dir_path, ignore_case=ignore_case)
+        else:
+            directory = self.ctx.get_directory(self.ctx.to_absolute(dir_path), ignore_case=ignore_case)
         if directory is None and not optional:
             msg = f"Directory {dir_path} not found in codebase. Use optional=True to return None instead."
             raise ValueError(msg)
