@@ -58,6 +58,8 @@ EXPECTED_RECORDS = {
     "rust_exports": 16026,
     "rust_references": 114463,
     "rust_external_references": 25318,
+    "rust_function_calls": 197581,
+    "rust_promise_chains": 878,
     "rust_dependencies": 49287,
     "rust_subclass_edges": 160,
 }
@@ -101,6 +103,54 @@ EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS = {
     }
 }
 
+EXPECTED_KNOWN_FILE_LOCAL_CALL_LOOKUPS = {
+    "next_lint_file": {
+        "filepath": "packages/next/src/cli/next-lint.ts",
+        "function_call_count": 27,
+        "first_function_call_names": [
+            "getProjectDir",
+            "existsSync",
+            "printAndExit",
+            "loadConfig",
+            "reduce",
+            "isAbsolute",
+            "join",
+            "existsSync",
+        ],
+        "promise_chain_count": 1,
+        "promise_chain_base_lines": ["runLintCheck(baseDir, pathsToLint, {"],
+        "promise_chain_stage_names": [["then", "catch"]],
+        "promise_chain_has_catch": [True],
+        "promise_chain_has_finally": [False],
+    },
+    "next_lint_symbol": {
+        "filepath": "packages/next/src/cli/next-lint.ts",
+        "handle": "RustCompactSymbol",
+        "kind": "function",
+        "name": "nextLint",
+        "function_call_count": 16,
+        "first_function_call_names": [
+            "existsSync",
+            "printAndExit",
+            "verifyTypeScriptSetup",
+            "filter",
+            "catch",
+            "then",
+            "runLintCheck",
+            "eslintOptions",
+            "record",
+            "eventLintCheckCompleted",
+            "flush",
+            "printAndExit",
+        ],
+        "promise_chain_count": 1,
+        "promise_chain_base_lines": ["runLintCheck(baseDir, pathsToLint, {"],
+        "promise_chain_stage_names": [["then", "catch"]],
+        "promise_chain_has_catch": [True],
+        "promise_chain_has_finally": [False],
+    },
+}
+
 EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
@@ -108,12 +158,22 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "exports": False,
     "references": False,
     "external_references": False,
+    "function_calls": False,
+    "promise_chains": False,
     "dependencies": False,
     "file_handles": False,
     "symbol_handles": False,
     "import_handles": False,
     "export_handles": False,
+    "function_call_handles": False,
+    "promise_chain_handles": False,
+    "function_call_handles_by_id": True,
+    "promise_chain_handles_by_id": True,
     "exports_by_file": False,
+    "function_calls_by_file": True,
+    "promise_chains_by_file": True,
+    "function_calls_by_symbol": True,
+    "promise_chains_by_symbol": True,
 }
 
 EXPECTED_LARGE_CACHE_MATERIALIZATION = {
@@ -123,6 +183,8 @@ EXPECTED_LARGE_CACHE_MATERIALIZATION = {
     "exports": False,
     "references": False,
     "external_references": False,
+    "function_calls": False,
+    "promise_chains": False,
     "dependencies": False,
 }
 
@@ -207,6 +269,41 @@ def known_ignore_case_file_lookup_report(codebase: Any) -> dict[str, dict[str, A
     }
 
 
+def promise_chain_signatures(chains: list[Any]) -> dict[str, Any]:
+    return {
+        "promise_chain_count": len(chains),
+        "promise_chain_base_lines": [chain.base_source.splitlines()[0] for chain in chains],
+        "promise_chain_stage_names": [chain.stage_names for chain in chains],
+        "promise_chain_has_catch": [chain.has_catch_call for chain in chains],
+        "promise_chain_has_finally": [chain.has_finally_call for chain in chains],
+    }
+
+
+def known_file_local_call_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    file = codebase.get_file("packages/next/src/cli/next-lint.ts")
+    file_calls = file.function_calls
+    file_chains = file.promise_chains
+    symbol = file.get_function("nextLint")
+    symbol_calls = symbol.function_calls
+    symbol_chains = symbol.promise_chains
+    symbol_signature = handle_signature(symbol)
+    symbol_signature["filepath"] = symbol.filepath
+    return {
+        "next_lint_file": {
+            "filepath": file.filepath,
+            "function_call_count": len(file_calls),
+            "first_function_call_names": [call.name for call in file_calls[:8]],
+            **promise_chain_signatures(file_chains),
+        },
+        "next_lint_symbol": {
+            **symbol_signature,
+            "function_call_count": len(symbol_calls),
+            "first_function_call_names": [call.name for call in symbol_calls[:12]],
+            **promise_chain_signatures(symbol_chains),
+        },
+    }
+
+
 def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
     return {
         "files": backend._files is not None,
@@ -215,6 +312,8 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "exports": backend._exports is not None,
         "references": backend._references is not None,
         "external_references": backend._external_references is not None,
+        "function_calls": backend._function_calls is not None,
+        "promise_chains": backend._promise_chains is not None,
         "dependencies": backend._dependencies is not None,
     }
 
@@ -225,7 +324,15 @@ def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
     report["symbol_handles"] = backend._symbol_handles is not None
     report["import_handles"] = backend._import_handles is not None
     report["export_handles"] = backend._export_handles is not None
+    report["function_call_handles"] = backend._function_call_handles is not None
+    report["promise_chain_handles"] = backend._promise_chain_handles is not None
+    report["function_call_handles_by_id"] = backend._function_call_handles_by_id is not None
+    report["promise_chain_handles_by_id"] = backend._promise_chain_handles_by_id is not None
     report["exports_by_file"] = backend._exports_by_file_id is not None
+    report["function_calls_by_file"] = backend._function_calls_by_file_id is not None
+    report["promise_chains_by_file"] = backend._promise_chains_by_file_id is not None
+    report["function_calls_by_symbol"] = backend._function_calls_by_source_symbol_id is not None
+    report["promise_chains_by_symbol"] = backend._promise_chains_by_source_symbol_id is not None
     return report
 
 
@@ -283,6 +390,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_known_file_local_export_lookups"))
     known_ignore_case_file_lookups = known_ignore_case_file_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_ignore_case_file_lookups"))
+    known_file_local_call_lookups = known_file_local_call_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_file_local_call_lookups"))
     targeted_cache_materialization = targeted_cache_materialization_report(backend)
     large_cache_materialization = large_cache_materialization_report(backend)
 
@@ -319,6 +428,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "known_global_lookups": known_global_lookups,
         "known_file_local_export_lookups": known_file_local_export_lookups,
         "known_ignore_case_file_lookups": known_ignore_case_file_lookups,
+        "known_file_local_call_lookups": known_file_local_call_lookups,
         "targeted_cache_materialization": targeted_cache_materialization,
         "large_cache_materialization": large_cache_materialization,
         "comparison": comparison,
@@ -348,6 +458,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("known file-local export lookup results drifted")
         if report["known_ignore_case_file_lookups"] != EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS:
             failures.append("known ignore-case file lookup results drifted")
+        if report["known_file_local_call_lookups"] != EXPECTED_KNOWN_FILE_LOCAL_CALL_LOOKUPS:
+            failures.append("known file-local call lookup results drifted")
         if report["targeted_cache_materialization"] != EXPECTED_TARGETED_CACHE_MATERIALIZATION:
             failures.append("targeted lookup caches were materialized during known queries")
         if report["large_cache_materialization"] != EXPECTED_LARGE_CACHE_MATERIALIZATION:
@@ -401,6 +513,8 @@ def print_human(report: dict[str, Any]) -> None:
         f"external_modules={summary['external_modules']} exports={compat['exports']} "
         f"references={summary['references']} dependencies={summary['dependencies']} "
         f"external_references={report['records']['rust_external_references']} "
+        f"function_calls={report['records']['rust_function_calls']} "
+        f"promise_chains={report['records']['rust_promise_chains']} "
         f"subclass_edges={report['records']['rust_subclass_edges']}"
     )
     print(

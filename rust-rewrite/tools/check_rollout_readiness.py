@@ -321,6 +321,12 @@ def assert_nextjs_codebase_contract(report: dict[str, Any], failures: list[str])
         nextjs_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS,
         failures,
     )
+    assert_exact_mapping(
+        "nextjs_codebase.known_file_local_call_lookups",
+        report.get("known_file_local_call_lookups"),
+        nextjs_codebase.EXPECTED_KNOWN_FILE_LOCAL_CALL_LOOKUPS,
+        failures,
+    )
     assert_cache_contract(
         "nextjs_codebase.targeted_cache_materialization",
         report.get("targeted_cache_materialization", {}),

@@ -97,6 +97,9 @@ def nextjs_codebase_report() -> dict[str, Any]:
         "known_ignore_case_file_lookups": cloned(
             readiness.nextjs_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS
         ),
+        "known_file_local_call_lookups": cloned(
+            readiness.nextjs_codebase.EXPECTED_KNOWN_FILE_LOCAL_CALL_LOOKUPS
+        ),
         "targeted_cache_materialization": cloned(
             readiness.nextjs_codebase.EXPECTED_TARGETED_CACHE_MATERIALIZATION
         ),
@@ -260,4 +263,14 @@ def test_rollout_readiness_rejects_slow_semantic_parity(tmp_path: Path) -> None:
     write_reports(tmp_path, reports)
 
     with pytest.raises(RuntimeError, match=r"semantic_parity\.python: wall ratio 1\.5x"):
+        readiness.make_report(readiness_args(tmp_path))
+
+
+def test_rollout_readiness_rejects_missing_nextjs_call_proof(tmp_path: Path) -> None:
+    reports = complete_reports()
+    reports["nextjs_codebase"] = copy.deepcopy(reports["nextjs_codebase"])
+    reports["nextjs_codebase"].pop("known_file_local_call_lookups")
+    write_reports(tmp_path, reports)
+
+    with pytest.raises(RuntimeError, match=r"nextjs_codebase\.known_file_local_call_lookups"):
         readiness.make_report(readiness_args(tmp_path))

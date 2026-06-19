@@ -634,6 +634,16 @@ mod bindings {
         }
 
         #[getter]
+        fn function_call_count(&self) -> usize {
+            0
+        }
+
+        #[getter]
+        fn promise_chain_count(&self) -> usize {
+            0
+        }
+
+        #[getter]
         fn dependency_count(&self) -> usize {
             self.inner.dependencies.len()
         }
@@ -1363,6 +1373,16 @@ mod bindings {
         }
 
         #[getter]
+        fn function_call_count(&self) -> usize {
+            self.inner.function_calls.len()
+        }
+
+        #[getter]
+        fn promise_chain_count(&self) -> usize {
+            self.inner.promise_chains.len()
+        }
+
+        #[getter]
         fn dependency_count(&self) -> usize {
             self.inner.dependencies.len()
         }
@@ -1802,6 +1822,8 @@ mod bindings {
             assert_eq!(index.reference_count(), 1);
             assert_eq!(index.dependency_count(), 1);
             assert_eq!(index.subclass_edge_count(), 0);
+            assert_eq!(index.function_call_count(), 1);
+            assert_eq!(index.promise_chain_count(), 0);
             assert_eq!(index.file_ids(), vec![0, 1]);
             assert_eq!(index.symbol_ids(), vec![0, 1]);
             assert_eq!(index.top_level_symbol_ids(), vec![0, 1]);

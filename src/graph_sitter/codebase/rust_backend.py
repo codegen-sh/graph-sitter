@@ -659,6 +659,14 @@ class RustIndexBackend:
         return handle
 
     def compact_record_counts(self) -> dict[str, int]:
+        def count_attr(name: str, fallback: int) -> int:
+            value = getattr(self.index, name, None)
+            if value is None:
+                return fallback
+            if callable(value):
+                value = value()
+            return int(value)
+
         return {
             "rust_files": self.summary.files,
             "rust_symbols": self.summary.symbols,
@@ -671,6 +679,8 @@ class RustIndexBackend:
             "rust_exports": self.summary.exports,
             "rust_references": self.summary.references,
             "rust_external_references": self.summary.external_references,
+            "rust_function_calls": count_attr("function_call_count", 0),
+            "rust_promise_chains": count_attr("promise_chain_count", 0),
             "rust_dependencies": self.summary.dependencies,
             "rust_subclass_edges": self.summary.subclass_edges,
         }

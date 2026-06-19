@@ -244,7 +244,7 @@ The Rust selected-file count matches the Python `RepoOperator` selected file lis
 
 ## TypeScript Rust `Codebase` Construction Evidence
 
-This measurement uses real `Codebase(...)` construction against the pinned Next.js checkout with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. It exercises compact TypeScript files, symbols, classes, functions, globals, interfaces, types, imports, exports, relative and tsconfig path/baseUrl import resolutions, references, and dependencies through the Python shell while keeping `CodebaseContext.nodes` blocked.
+This measurement uses real `Codebase(...)` construction against the pinned Next.js checkout with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. It exercises compact TypeScript files, symbols, classes, functions, globals, interfaces, types, imports, exports, relative and tsconfig path/baseUrl import resolutions, references, dependencies, read-only function calls, and read-only Promise chains through the Python shell while keeping `CodebaseContext.nodes` blocked.
 
 Command run on 2026-06-19:
 
@@ -255,11 +255,11 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
   --json
 ```
 
-| Input | Rust `Codebase` wall | Rust `Codebase` max RSS | Files | Symbols | Imports | Exports | Import resolutions | References | Dependencies | Python graph blocked |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 5.053s | 551.0 MB | 13688 | 23957 | 28210 | 16026 | 13462 | 47676 | 16041 | yes |
+| Input | Rust `Codebase` wall | Rust `Codebase` max RSS | Files | Symbols | Imports | Exports | Import resolutions | References | Dependencies | Function calls | Promise chains | Python graph blocked |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 10.465s | 435.9 MB | 13688 | 44870 | 28210 | 16026 | 13462 | 114463 | 49287 | 197581 | 878 | yes |
 
-Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 4.939x faster and about 5.626x lower max RSS while exposing compact export handles and keeping the eager Python graph unbuilt. Adding tsconfig path/baseUrl resolution increased the pinned Next.js proof by 4,038 import resolutions, 10,122 references, and 865 dependency edges.
+Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 2.385x faster and about 7.112x lower max RSS while exposing compact export, call, and Promise-chain handles and keeping the eager Python graph unbuilt. The pinned proof also validates a real `packages/next/src/cli/next-lint.ts` file/symbol lookup for 27 file-local call records, 16 `nextLint` symbol call records, and one `.then/.catch` Promise chain without materializing the full call or chain caches.
 
 The same proof is now available as an opt-in test gate:
 
@@ -269,7 +269,7 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
   --skip-fetch
 ```
 
-On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts, confirmed the Python graph stayed blocked, and measured 5.053s wall / 551.0 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 4.939x faster wall time and 5.626x lower max RSS with conservative CI-style ceilings.
+On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.465s wall / 435.9 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.385x faster wall time and 7.112x lower max RSS with conservative CI-style ceilings.
 
 ## Pinned Compact Snapshot Evidence
 
