@@ -50,6 +50,29 @@ class FakeIndex:
     def to_json(self):
         return '{"files":[],"symbols":[],"imports":[]}'
 
+    def debug_graph_json(self):
+        return json.dumps(
+            {
+                "nodes": [
+                    {"id": "file:0", "node_type": "file", "record_id": 0, "file_id": 0, "name": "pkg.service", "path": "pkg/service.py"},
+                    {"id": "symbol:0", "node_type": "symbol", "record_id": 0, "file_id": 0, "name": "Service"},
+                    {"id": "import:0", "node_type": "import", "record_id": 0, "file_id": 0, "name": "os"},
+                ],
+                "edges": [
+                    {"edge_type": "contains_symbol", "source": "file:0", "target": "symbol:0", "name": "Service"},
+                    {"edge_type": "contains_import", "source": "file:0", "target": "import:0", "import_id": 0, "name": "os"},
+                    {
+                        "edge_type": "dependency",
+                        "source": "symbol:1",
+                        "target": "symbol:0",
+                        "dependency_id": 0,
+                        "reference_ids": [0],
+                        "reference_count": 1,
+                    },
+                ],
+            }
+        )
+
     def files_json(self):
         return json.dumps(
             [
@@ -1588,6 +1611,9 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.rust_dependencies[0].reference_ids == [0]
         assert codebase.rust_files[0].language == ""
         assert codebase.rust_files[0].content_hash == ""
+        debug_graph = json.loads(codebase.rust_debug_graph_json)
+        assert debug_graph["nodes"][0]["id"] == "file:0"
+        assert [edge["edge_type"] for edge in debug_graph["edges"]] == ["contains_symbol", "contains_import", "dependency"]
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]
 

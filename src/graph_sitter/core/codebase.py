@@ -338,6 +338,11 @@ class Codebase(
     def rust_subclass_edges(self):
         return self._require_rust_index().subclass_edges
 
+    @property
+    @noapidoc
+    def rust_debug_graph_json(self):
+        return self._require_rust_index().debug_graph_json()
+
     def _require_rust_index(self):
         if self.ctx.rust_index is None:
             msg = "Rust compact index is unavailable; construct Codebase with CodebaseConfig(graph_backend='rust')"
