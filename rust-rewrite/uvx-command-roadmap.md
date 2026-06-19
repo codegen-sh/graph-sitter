@@ -228,16 +228,16 @@ uvx --python 3.13 graph-sitter parse ./repo --format summary
 
 ### Transform Implementation
 
-- [ ] Add uvx-level import-path transform smokes from a built wheel for both `--check` and `--write`. owner: distribution test agent.
+- [x] Add uvx-level import-path transform smokes from a built wheel for both `--check` and `--write`. owner: codex. Result: `check_wheel_rust_backend.sh` runs a file-based transform from the built wheel in strict Rust mode, proves `--check` reports a diff without mutating the target repo, then proves `--write` mutates the target repo.
 - [ ] Add Rust-backend transform tests that either pass fully or fail/fallback according to `--fallback`. owner: parity/test agent.
 - [ ] Add a no-op transform test for `--check` returning exit zero and "No changes would be produced". owner: CLI test agent.
 - [ ] Decide whether `run` should eventually require explicit `--check` or `--write` in a major release. owner: CLI/contracts agent.
 
 ### Packaging And Release
 
-- [ ] Prove built wheels include `codemods` and `graph_sitter_py` in clean uv environments. owner: packaging/CI agent.
-- [ ] Add Linux and macOS wheel uvx smokes for Python 3.12 and 3.13. owner: packaging/CI agent.
-- [ ] Add artifact-level smoke for `--backend rust --fallback error` before advertising Rust-backed uvx parse. owner: packaging/CI agent.
+- [x] Prove built wheels include `codemods` and `graph_sitter_py` in clean uv environments. owner: codex. Result: `check_wheel_rust_backend.sh` asserts both wheel contents and imports the CLI from a clean `uvx --from dist/<wheel>.whl` environment.
+- [x] Add Linux and macOS wheel uvx smokes for Python 3.12 and 3.13. owner: codex. Result: `.github/workflows/rust-rewrite-extension.yml` runs `check_wheel_rust_backend.sh` across the supported Python/OS matrix.
+- [x] Add artifact-level smoke for `--backend rust --fallback error` before advertising Rust-backed uvx parse. owner: codex. Result: branch-built wheel CI runs strict Rust parse and strict Rust transform smokes from the installed artifact.
 - [ ] Add release checklist entry requiring `uvx graph-sitter --help`, parse, and transform against the uploaded artifact. owner: release agent.
 - [ ] Decide long-term Rust extension import namespace: keep top-level `graph_sitter_py` or move to `graph_sitter._rust`. owner: packaging/API agent.
 

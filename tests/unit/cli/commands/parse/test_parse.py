@@ -52,9 +52,17 @@ def test_uvx_wheel_builds_rust_extension_by_default():
 
 def test_rust_extension_ci_exercises_wheel_uvx_smoke():
     workflow = Path(".github/workflows/rust-rewrite-extension.yml").read_text()
+    smoke_script = Path("rust-rewrite/tools/check_wheel_rust_backend.sh").read_text()
 
     assert "rust-rewrite/tools/check_wheel_rust_backend.sh" in workflow
     assert "PYTHON_VERSION: ${{ matrix.python-version }}" in workflow
+    assert "graph_sitter_py" in smoke_script
+    assert "codemods/codemod.py" in smoke_script
+    assert "run_graph_sitter --help" in smoke_script
+    assert "run_graph_sitter parse" in smoke_script
+    assert "run_graph_sitter transform" in smoke_script
+    assert "--check" in smoke_script
+    assert "--write" in smoke_script
 
 
 def test_graph_sitter_version_uses_canonical_program_name():
