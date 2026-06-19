@@ -476,10 +476,7 @@ impl PythonIndexer {
 
         for path in paths {
             let file_id = index.files.len() as u32;
-            let content = fs::read_to_string(&path).map_err(|source| IndexError::Io {
-                path: path.clone(),
-                source,
-            })?;
+            let (content, byte_len) = read_source_lossy(&path)?;
             let tree = self
                 .parser
                 .parse(&content, None)
@@ -495,7 +492,7 @@ impl PythonIndexer {
                 id: file_id,
                 module_name: python_module_name(&relative_path),
                 path: relative_path,
-                byte_len: content.len(),
+                byte_len,
                 line_count: line_count(&content),
                 has_error: root.has_error(),
                 root_range: root.range().into(),
@@ -574,10 +571,7 @@ impl TypeScriptIndexer {
 
         for path in paths {
             let file_id = index.files.len() as u32;
-            let content = fs::read_to_string(&path).map_err(|source| IndexError::Io {
-                path: path.clone(),
-                source,
-            })?;
+            let (content, byte_len) = read_source_lossy(&path)?;
             let tree = self
                 .parser
                 .parse(&content, None)
@@ -593,7 +587,7 @@ impl TypeScriptIndexer {
                 id: file_id,
                 module_name: None,
                 path: relative_path,
-                byte_len: content.len(),
+                byte_len,
                 line_count: line_count(&content),
                 has_error: root.has_error(),
                 root_range: root.range().into(),
@@ -603,6 +597,15 @@ impl TypeScriptIndexer {
 
         Ok(index)
     }
+}
+
+fn read_source_lossy(path: &Path) -> Result<(String, usize), IndexError> {
+    let bytes = fs::read(path).map_err(|source| IndexError::Io {
+        path: path.to_path_buf(),
+        source,
+    })?;
+    let byte_len = bytes.len();
+    Ok((String::from_utf8_lossy(&bytes).into_owned(), byte_len))
 }
 
 fn collect_typescript_files(dir: &Path, out: &mut Vec<PathBuf>) -> Result<(), IndexError> {
@@ -4049,6 +4052,150 @@ def caller():\n    return helper()\n",
                 ]
             })
         );
+    }
+
+    #[test]
+    fn compact_typescript_syntax_snapshot_is_stable() {
+        let repo = temp_repo_path("compact-typescript-syntax-snapshot");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.tsx"),
+            "import React, { useMemo as memo, ReactNode } from 'react';\n\
+import * as path from 'path';\n\
+import './polyfill';\n\
+\n\
+const lazy = require('./lazy');\n\
+const dynamicModule = import('./dynamic');\n\
+\n\
+export interface Props { title: string; child?: ReactNode }\n\
+export type Mode = 'light' | 'dark';\n\
+export enum Status { Ready = 'ready' }\n\
+export namespace Tokens { export const spacing = 8; }\n\
+export const helper = (value: number) => value + 1;\n\
+export function Page(props: Props) { return <main>{props.title}</main>; }\n\
+export default class Widget {}\n\
+export { helper as renamedHelper, Props };\n\
+export * from './shared';\n\
+export * as shared from './shared';\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/shared.ts"),
+            "export const sharedValue = 1;\nexport function sharedFn() { return sharedValue; }\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        let actual = compact_typescript_snapshot_json(&index);
+        let expected_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../rust-rewrite/golden/typescript-fixture-rust-compact.json");
+        if std::env::var_os("GRAPH_SITTER_UPDATE_TYPESCRIPT_FIXTURE_SNAPSHOT").is_some() {
+            fs::write(
+                &expected_path,
+                serde_json::to_string_pretty(&actual).unwrap() + "\n",
+            )
+            .unwrap();
+        } else {
+            let expected: serde_json::Value =
+                serde_json::from_str(&fs::read_to_string(&expected_path).unwrap()).unwrap();
+            assert_eq!(actual, expected);
+        }
+        fs::remove_dir_all(&repo).unwrap();
+    }
+
+    fn compact_typescript_snapshot_json(index: &TypeScriptIndex) -> serde_json::Value {
+        let files = index
+            .files
+            .iter()
+            .map(|file| {
+                serde_json::json!({
+                    "id": file.id,
+                    "path": file.path,
+                    "byte_len": file.byte_len,
+                    "line_count": file.line_count,
+                    "has_error": file.has_error,
+                    "root_range": compact_range_json(file.root_range),
+                })
+            })
+            .collect::<Vec<_>>();
+        let symbols = index
+            .symbols
+            .iter()
+            .map(|symbol| {
+                serde_json::json!({
+                    "id": symbol.id,
+                    "file_id": symbol.file_id,
+                    "parent_symbol_id": symbol.parent_symbol_id,
+                    "is_top_level": symbol.is_top_level,
+                    "name": symbol.name,
+                    "kind": symbol.kind,
+                    "range": compact_range_json(symbol.range),
+                    "name_range": compact_range_json(symbol.name_range),
+                })
+            })
+            .collect::<Vec<_>>();
+        let imports = index
+            .imports
+            .iter()
+            .map(|import| {
+                serde_json::json!({
+                    "id": import.id,
+                    "file_id": import.file_id,
+                    "kind": import.kind,
+                    "module": import.module,
+                    "name": import.name,
+                    "alias": import.alias,
+                    "range": compact_range_json(import.range),
+                })
+            })
+            .collect::<Vec<_>>();
+        let exports = index
+            .exports
+            .iter()
+            .map(|export| {
+                serde_json::json!({
+                    "id": export.id,
+                    "file_id": export.file_id,
+                    "kind": export.kind,
+                    "name": export.name,
+                    "local_name": export.local_name,
+                    "source_module": export.source_module,
+                    "symbol_id": export.symbol_id,
+                    "import_id": export.import_id,
+                    "range": compact_range_json(export.range),
+                })
+            })
+            .collect::<Vec<_>>();
+
+        serde_json::json!({
+            "summary": {
+                "files": index.summary().files,
+                "symbols": index.summary().symbols,
+                "classes": index.summary().classes,
+                "functions": index.summary().functions,
+                "global_variables": index.summary().global_variables,
+                "imports": index.summary().imports,
+                "exports": index.exports.len(),
+                "bytes": index.summary().bytes,
+                "lines": index.summary().lines,
+                "files_with_errors": index.summary().files_with_errors,
+            },
+            "files": files,
+            "symbols": symbols,
+            "imports": imports,
+            "exports": exports,
+        })
+    }
+
+    fn compact_range_json(range: SourceRange) -> serde_json::Value {
+        serde_json::json!([
+            range.start_byte,
+            range.end_byte,
+            range.start_row,
+            range.start_column,
+            range.end_row,
+            range.end_column
+        ])
     }
 
     fn temp_repo_path(prefix: &str) -> PathBuf {

@@ -113,6 +113,23 @@ uv run python rust-rewrite/tools/benchmark_pinned_python_repo.py \
   --json
 ```
 
+`rust-rewrite/tools/measure_typescript_rust_index.py` measures the standalone compact Rust TypeScript/JavaScript syntax index through the PyO3 extension. By default it discovers `.js`, `.jsx`, `.ts`, and `.tsx` files through the same Python `RepoOperator.iter_files(...)` filters used by `CodebaseContext`, then passes that selected list into Rust:
+
+```bash
+PYTHONPATH=/path/to/dir/containing/graph_sitter_py_extension \
+  uv run python rust-rewrite/tools/measure_typescript_rust_index.py /path/to/ts-repo --json
+```
+
+Use `--raw-rust-walk` to measure Rust's standalone recursive TS/JS walk instead of Python-selected file discovery.
+
+`rust-rewrite/tools/benchmark_pinned_typescript_repo.py` prepares a pinned external TypeScript/JavaScript repository, builds the PyO3 extension, runs the Python TS parse/object-materialization harness, runs the Rust TS syntax-index harness, and fails if the configured wall/RSS ratio gates are not met. The default pinned repo is Next.js `v15.0.0`, resolved to commit `51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`:
+
+```bash
+uv run python rust-rewrite/tools/benchmark_pinned_typescript_repo.py \
+  --output /tmp/graph-sitter-nextjs-v15.0.0-benchmark.json \
+  --json
+```
+
 `rust-rewrite/tools/snapshot_pinned_python_repo.py` verifies a deterministic compact Rust graph snapshot for the same pinned Airflow checkout. The committed golden stores counts, stable SHA-256 digests, and sorted sample rows for files, symbols, imports, import resolutions, references, and dependencies:
 
 ```bash
@@ -198,6 +215,26 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 | `graph-sitter` repo checkout | `--disable-graph` | 2.731s | 543.0 MB | 0.681s | 124.0 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4110 | 2953 | yes | 4.009x | 4.378x |
 | Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 18.940s | 3469.5 MB | 4.085s | 266.2 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109817 | 71932 | yes | 4.637x | 13.031x |
 
+## Standalone TypeScript/JavaScript Rust Index Evidence
+
+These measurements use the current syntax-only Rust TypeScript/JavaScript index exposed through PyO3. The Rust path uses Python-selected file discovery for a fair file-list comparison, but does not yet run TypeScript import resolution, reference extraction, dependency construction, or lazy `Codebase` compatibility handles.
+
+The Next.js measurement was run on this branch on 2026-06-18 against `vercel/next.js` `v15.0.0` at commit `51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`:
+
+```bash
+uv run python rust-rewrite/tools/benchmark_pinned_typescript_repo.py \
+  --extension-dir /tmp/graph_sitter_py_ts_smoke \
+  --skip-build-extension \
+  --skip-fetch \
+  --output /tmp/graph-sitter-nextjs-v15.0.0-benchmark.json
+```
+
+| Input | Python mode | Python wall | Python max RSS | Python files | Python nodes | Rust TS index wall | Rust TS index max RSS | Rust selected files | Rust files | Rust symbols | Rust imports | Rust exports | Rust files with errors | Wall ratio | RSS ratio |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | `--disable-graph` | 24.959s | 3100.1 MB | 13679 | 213969 | 3.347s | 200.3 MB | 13688 | 13688 | 23957 | 28210 | 16026 | 114 | 7.457x | 15.475x |
+
+The Rust selected-file count matches the Python `RepoOperator` selected file list exactly. Python materialized 9 fewer source-file objects because the repo includes intentionally broken/non-UTF-8 fixture files; Rust now records selected files and marks parser-error files instead of aborting or dropping the file.
+
 ## Pinned Compact Snapshot Evidence
 
 The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json`. It was generated from Apache Airflow `2.10.5` at commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`.
@@ -223,6 +260,7 @@ Important caveats:
 - The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.
+- The TypeScript/JavaScript Rust path is currently syntax-only: it emits compact files, symbols, imports, exports, and parser-error status, but no TypeScript resolver, reference, dependency, or `Codebase` compatibility handles yet.
 - The generated fixture, this repo, and the pinned Airflow baseline are useful proof points, but Python-vs-Rust semantic parity snapshots and additional canonical repos are still open.
 
 ## Open Questions
