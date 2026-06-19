@@ -22,20 +22,29 @@ from benchmark_pinned_python_repo import build_rust_extension  # noqa: E402
 DEFAULT_EXTENSION_DIR = Path("/tmp/graph_sitter_py_parity_fixture")
 
 FIXTURE_FILES = {
-    "pkg/__init__.py": "from .models import Helper as public_helper\n",
+    "pkg/__init__.py": "from .api import ApiHelper as public_helper\n",
+    "pkg/api.py": "from .models import Helper as ApiHelper\n",
     "pkg/models.py": "class Helper:\n    pass\n\n\ndef build():\n    return Helper()\n",
     "pkg/service.py": (
         "import requests\n"
         "import pkg.models as models\n"
         "from pkg.models import Helper\n"
+        "from pkg.api import ApiHelper\n"
         "from pkg import public_helper\n"
         "\n\n"
         "def run():\n"
         "    item = Helper()\n"
+        "    api = ApiHelper()\n"
         "    other = models.build()\n"
-        "    return public_helper(), item, other, requests.get\n"
+        "    public = public_helper()\n"
+        "    return public, api, item, other, requests.get\n"
     ),
 }
+
+MUTATION_FILES = {
+    "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n",
+}
+MUTATION_OUTPUT_PATHS = ["pkg/service.py"]
 
 
 def node_type_name(value: Any) -> str:
@@ -179,6 +188,56 @@ def make_codebase_report(files: dict[str, str], *, backend: str) -> dict[str, An
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+def read_outputs(root: Path, paths: list[str]) -> dict[str, str]:
+    return {path: (root / path).read_text(encoding="utf-8") for path in paths}
+
+
+def make_mutation_report(files: dict[str, str], *, backend: str) -> dict[str, Any]:
+    from graph_sitter.codebase.factory.get_session import get_codebase_session
+    from graph_sitter.configs.models.codebase import (
+        CodebaseConfig,
+        GraphBackend,
+        RustFallbackMode,
+    )
+
+    tmpdir = Path(tempfile.mkdtemp(prefix=f"graph-sitter-mutation-{backend}-"))
+    try:
+        graph_backend = GraphBackend.PYTHON if backend == "python" else GraphBackend.RUST
+        config = CodebaseConfig(
+            graph_backend=graph_backend,
+            rust_fallback=RustFallbackMode.ERROR,
+        )
+        with get_codebase_session(
+            tmpdir=tmpdir,
+            files=files,
+            config=config,
+            sync_graph=False,
+            verify_input=False,
+            verify_output=False,
+        ) as codebase:
+            service_file = codebase.get_file("pkg/service.py")
+            service_file.add_import("from typing import Any")
+            codebase.imports[0].remove()
+            codebase.get_class("Service").rename("Worker")
+            codebase.commit(sync_graph=False)
+
+            python_graph_blocked = False
+            try:
+                len(codebase.ctx.nodes)
+            except RuntimeError:
+                python_graph_blocked = True
+            if backend == "rust" and not python_graph_blocked:
+                msg = "expected compact Rust mutation flow to keep Python graph blocked"
+                raise RuntimeError(msg)
+
+        return {
+            "python_graph_blocked": python_graph_blocked,
+            "outputs": read_outputs(tmpdir, MUTATION_OUTPUT_PATHS),
+        }
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
 def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) -> dict[str, Any]:
     exact_keys = [
         "files",
@@ -212,19 +271,28 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     python_report = make_codebase_report(FIXTURE_FILES, backend="python")
     rust_report = make_codebase_report(FIXTURE_FILES, backend="rust")
     comparison = compare_reports(python_report, rust_report)
+    python_mutation_report = make_mutation_report(MUTATION_FILES, backend="python")
+    rust_mutation_report = make_mutation_report(MUTATION_FILES, backend="rust")
+    mutation_mismatch = python_mutation_report["outputs"] != rust_mutation_report["outputs"]
     report = {
         "metadata": {
             "extension_path": str(extension_path) if extension_path else None,
             "fixture_files": sorted(FIXTURE_FILES),
+            "mutation_files": sorted(MUTATION_FILES),
         },
         "python": python_report,
         "rust": rust_report,
+        "python_mutation": python_mutation_report,
+        "rust_mutation": rust_mutation_report,
         "comparison": comparison,
     }
     if comparison["mismatches"]:
         msg = "Python/Rust parity fixture mismatches: " + ", ".join(
             comparison["mismatches"]
         )
+        raise RuntimeError(msg)
+    if mutation_mismatch:
+        msg = "Python/Rust mutation parity fixture mismatched file outputs"
         raise RuntimeError(msg)
     return report
 
@@ -256,6 +324,7 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"exact keys: {', '.join(comparison['exact_keys'])}")
     print(f"external modules: {len(report['rust']['external_modules'])}")
     print(f"service imports: {len(report['rust']['service_imports'])}")
+    print(f"mutation outputs: {len(report['rust_mutation']['outputs'])}")
     print(f"known deltas: {len(comparison['known_deltas'])}")
 
 
