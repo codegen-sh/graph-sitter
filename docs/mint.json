@@ -149,6 +149,7 @@
       "group": "CLI",
       "pages": [
         "cli/about",
+        "cli/doctor",
         "cli/init",
         "cli/notebook",
         "cli/create",

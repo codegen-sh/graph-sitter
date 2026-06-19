@@ -6,6 +6,7 @@ cd "$ROOT"
 
 CLI_FILES=(
   src/graph_sitter/cli/cli.py
+  src/graph_sitter/cli/commands/doctor/main.py
   src/graph_sitter/cli/commands/parse/main.py
   src/graph_sitter/cli/commands/run/main.py
   src/graph_sitter/cli/commands/run/run_local.py
@@ -19,6 +20,8 @@ uv run ruff check "${CLI_FILES[@]}"
 uv run python -m py_compile "${CLI_FILES[@]}"
 
 uv run graph-sitter --help >/dev/null
+uv run graph-sitter doctor --help >/dev/null
+uv run graph-sitter doctor --json >/dev/null
 uv run graph-sitter parse --help >/dev/null
 uv run graph-sitter run --help >/dev/null
 uv run graph-sitter transform --help >/dev/null

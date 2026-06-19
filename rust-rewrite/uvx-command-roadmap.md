@@ -40,6 +40,8 @@ Implemented local command surfaces:
   functions and keeps the historical active-session fallback.
 - `graph-sitter transform MODULE:OBJECT [PATH] --check|--write` runs ad hoc
   import-path transforms without `.codegen` registration.
+- `graph-sitter doctor [--backend python|rust] [--json]` reports local
+  installation, dependency, and optional Rust-backend readiness.
 
 Observed command options from the current Click implementations:
 
@@ -48,6 +50,7 @@ Observed command options from the current Click implementations:
 | `parse` | optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--format summary|json` |
 | `run` | `LABEL`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write`, `--daemon` |
 | `transform` | `MODULE:OBJECT`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write` |
+| `doctor` | none | `--backend python|rust`, `--language python|typescript` | `--json` |
 
 Current defaults:
 
@@ -278,6 +281,28 @@ uvx graph-sitter parse ./repo --backend auto --fallback python --format summary
 uvx graph-sitter transform ./codemod.py:run ./repo --backend auto --fallback python --check
 ```
 
+### Doctor
+
+Primary forms:
+
+```bash
+uvx graph-sitter doctor
+uvx graph-sitter doctor --json
+uvx graph-sitter doctor --backend rust --language python --json
+uvx graph-sitter doctor --backend rust --language typescript --json
+```
+
+Contract:
+
+- `doctor --json` is machine-readable and suitable for setup docs, CI, and
+  skills.
+- `--backend python` reports package, platform, parser dependency, and Rust
+  extension availability without requiring the Rust extension.
+- `--backend rust` additionally runs a generated tiny-repo strict Rust parse
+  smoke with `rust_fallback=error` and exits non-zero if the extension is
+  unavailable or the smoke fails.
+- The command should not inspect or mutate the user's target repo.
+
 ## Branch-Built Wheel Proof
 
 Already proven on the `rust-rewrite` branch:
@@ -460,6 +485,10 @@ Skill rules:
 - [ ] Replace remaining user-facing "codegen function" copy in
   `graph-sitter run --help` with Graph-sitter/codemod wording. owner: CLI UX
   agent.
+- [x] Add `graph-sitter doctor` for setup and skill diagnostics. owner: codex.
+  Result: `doctor --json` reports Python/package/platform/parser dependency
+  readiness, Rust extension status, and an optional generated strict Rust parse
+  smoke for Python or TypeScript.
 
 ### Parse Implementation
 

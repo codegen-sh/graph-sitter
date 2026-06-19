@@ -116,8 +116,9 @@ One-shot validation:
 
 ```bash
 uvx graph-sitter doctor
-uvx graph-sitter doctor --backend rust
 uvx graph-sitter doctor --json
+uvx graph-sitter doctor --backend rust --language python --json
+uvx graph-sitter doctor --backend rust --language typescript --json
 ```
 
 Target behavior:
@@ -262,8 +263,11 @@ Skill validation expectations:
 ### Stage 1: Command Contract
 
 - [ ] Freeze the JSON contract for `graph-sitter parse --format json`.
-- [ ] Add `graph-sitter doctor` with Python, package, platform, and Rust
-  extension diagnostics.
+- [x] Add `graph-sitter doctor` with Python, package, platform, parser
+  dependency, Rust extension, and optional strict Rust parse-smoke diagnostics.
+  Result: `doctor --json` is machine-readable; `--backend rust` generates a
+  tiny temporary repo and fails if the Rust extension or strict Rust parse is
+  unavailable.
 - [ ] Decide whether `graph-sitter init` remains historical session setup,
   codemod scaffolding, or both.
 - [ ] Update help text so `graph-sitter`, not legacy Codegen naming, is the

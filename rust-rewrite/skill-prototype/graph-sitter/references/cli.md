@@ -13,6 +13,22 @@ uv run graph-sitter --help
 
 Use `graph-sitter` for new examples and keep `gs` as the compatibility alias. `graph_sitter.cli.cli:main` is the public CLI entry point; do not use `graph_sitter.gscli` for the `uvx graph-sitter` surface.
 
+## Doctor
+
+Check local/package readiness before parsing or transforming:
+
+```bash
+uv run graph-sitter doctor --json
+uv run graph-sitter doctor --backend rust --language python --json
+uv run graph-sitter doctor --backend rust --language typescript --json
+```
+
+For installed package flows, replace `uv run` with `uvx graph-sitter` or
+`uvx --from dist/<wheel>.whl graph-sitter`. `--backend python` reports Python,
+package, platform, parser dependencies, and Rust extension availability without
+requiring the Rust extension. `--backend rust` also runs a generated tiny-repo
+strict Rust parse smoke and fails if the extension or parse path is unavailable.
+
 ## Parse
 
 Local source checkout:

@@ -3,10 +3,35 @@ import subprocess
 import sys
 import tomllib
 from pathlib import Path
+from types import ModuleType
 
 from click.testing import CliRunner
 
 from graph_sitter.cli.cli import main
+
+
+class _DoctorFakeSummary:
+    files = 1
+    symbols = 1
+    classes = 0
+    functions = 1
+    global_variables = 0
+    imports = 0
+    import_resolutions = 0
+    external_modules = 0
+    exports = 0
+    references = 0
+    external_references = 0
+    dependencies = 0
+    subclass_edges = 0
+    bytes = 0
+    lines = 0
+    files_with_errors = 0
+
+
+class _DoctorFakeIndex:
+    def summary(self):
+        return _DoctorFakeSummary()
 
 
 def _init_repo(path: Path) -> None:
@@ -98,6 +123,37 @@ def test_graph_sitter_version_uses_canonical_program_name():
     assert result.exit_code == 0
     assert result.output.startswith("graph-sitter, version ")
     assert "codegen" not in result.output
+
+
+def test_doctor_reports_python_readiness_without_rust_extension(monkeypatch):
+    monkeypatch.setitem(sys.modules, "graph_sitter_py", None)
+
+    result = CliRunner().invoke(main, ["doctor", "--json"])
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["backend_requested"] == "python"
+    assert payload["rust_extension"]["ok"] is False
+    assert "graph_sitter_py" in payload["rust_extension"]["error"]
+
+
+def test_doctor_runs_strict_rust_smoke_with_extension(monkeypatch):
+    module = ModuleType("graph_sitter_py")
+    module.engine_version = lambda: "test-rust-engine"
+    module.index_python_paths = lambda _path, _file_paths: _DoctorFakeIndex()
+    monkeypatch.setitem(sys.modules, "graph_sitter_py", module)
+
+    result = CliRunner().invoke(main, ["doctor", "--backend", "rust", "--json"])
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["rust_extension"]["ok"] is True
+    assert payload["rust_extension"]["engine_version"] == "test-rust-engine"
+    assert payload["rust_parse_smoke"]["ok"] is True
+    assert payload["rust_parse_smoke"]["backend"] == "rust"
+    assert payload["rust_parse_smoke"]["files"] == 1
 
 
 def test_parse_command_summarizes_python_repo_as_json(tmp_path):
