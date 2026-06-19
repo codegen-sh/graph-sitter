@@ -55,6 +55,7 @@ def test_rust_extension_ci_exercises_wheel_uvx_smoke():
     smoke_script = Path("rust-rewrite/tools/check_wheel_rust_backend.sh").read_text()
 
     assert "rust-rewrite/tools/check_wheel_rust_backend.sh" in workflow
+    assert workflow.count("rust-rewrite/tools/check_wheel_rust_backend.sh") >= 3
     assert "PYTHON_VERSION: ${{ matrix.python-version }}" in workflow
     assert "graph_sitter_py" in smoke_script
     assert "codemods/codemod.py" in smoke_script

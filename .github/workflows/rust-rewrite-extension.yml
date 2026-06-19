@@ -10,6 +10,7 @@ on:
       - "Cargo.toml"
       - "crates/**"
       - "rust-rewrite/tools/check_extension_build.sh"
+      - "rust-rewrite/tools/check_wheel_rust_backend.sh"
       - "pyproject.toml"
   push:
     branches:
@@ -21,6 +22,7 @@ on:
       - "Cargo.toml"
       - "crates/**"
       - "rust-rewrite/tools/check_extension_build.sh"
+      - "rust-rewrite/tools/check_wheel_rust_backend.sh"
       - "pyproject.toml"
   workflow_dispatch:
 
