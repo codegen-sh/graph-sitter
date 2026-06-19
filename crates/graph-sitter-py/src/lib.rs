@@ -314,6 +314,25 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn imports_for_file_by_lookup_json(&self, file_id: u32, lookup: &str) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .imports
+                .iter()
+                .filter(|import| {
+                    import.file_id == file_id
+                        && import_lookup_candidates(
+                            import.module.as_ref().map(|value| value.as_ref()),
+                            import.name.as_ref().map(|value| value.as_ref()),
+                            import.alias.as_ref().map(|value| value.as_ref()),
+                            lookup,
+                        )
+                })
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn import_by_id_json(&self, import_id: u32) -> PyResult<String> {
             serde_json::to_string(
                 &self
@@ -742,6 +761,25 @@ mod bindings {
                 .imports
                 .iter()
                 .filter(|import| import.file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn imports_for_file_by_lookup_json(&self, file_id: u32, lookup: &str) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .imports
+                .iter()
+                .filter(|import| {
+                    import.file_id == file_id
+                        && import_lookup_candidates(
+                            import.module.as_ref().map(|value| value.as_ref()),
+                            import.name.as_ref().map(|value| value.as_ref()),
+                            import.alias.as_ref().map(|value| value.as_ref()),
+                            lookup,
+                        )
+                })
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -1254,6 +1292,25 @@ mod bindings {
         graph_sitter_engine::index_typescript_paths(path, file_paths)
             .map(PyTypeScriptIndex::from)
             .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+    }
+
+    fn import_lookup_candidates(
+        module: Option<&str>,
+        name: Option<&str>,
+        alias: Option<&str>,
+        lookup: &str,
+    ) -> bool {
+        let lookup = lookup.trim();
+        [alias, name, module]
+            .into_iter()
+            .flatten()
+            .filter(|value| !value.is_empty())
+            .any(|value| {
+                let unquoted = value.trim_matches(['\'', '"', '`']);
+                lookup == value
+                    || lookup.contains(value)
+                    || (!unquoted.is_empty() && (lookup == unquoted || lookup.contains(unquoted)))
+            })
     }
 
     #[pymodule]

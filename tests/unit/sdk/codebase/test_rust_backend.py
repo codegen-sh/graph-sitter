@@ -238,6 +238,20 @@ class FakeIndex:
             ]
         )
 
+    def imports_for_file_by_lookup_json(self, file_id: int, lookup: str):
+        rows = []
+        for import_record in json.loads(self.imports_json()):
+            if import_record["file_id"] != file_id:
+                continue
+            candidates = {
+                import_record["module"],
+                import_record["name"],
+                import_record["alias"],
+            }
+            if any(candidate and (lookup == candidate or candidate in lookup) for candidate in candidates):
+                rows.append(import_record)
+        return json.dumps(rows)
+
     def import_resolutions_json(self):
         return json.dumps(
             [
@@ -1624,10 +1638,16 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert codebase.get_file("pkg/service.py").get_class("Service").name == "Service"
         assert codebase.get_file("pkg/service.py").get_function("helper").name == "helper"
         assert codebase.get_file("pkg/service.py").get_symbol("missing") is None
+        assert codebase.get_file("pkg/service.py").has_import("os")
+        assert codebase.get_file("pkg/service.py").get_import("import os").name == "os"
+        assert codebase.get_file("pkg/service.py").get_import("missing") is None
 
         assert backend._symbols is None
         assert backend._symbol_handles is None
         assert backend._symbols_by_file_id is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._imports_by_file_id is None
         assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
 
 

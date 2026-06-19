@@ -350,6 +350,7 @@ class RustIndexBackend:
     _external_module_handles_by_import_id: dict[int, RustCompactExternalModule] | None = None
     _export_handles_by_id: dict[int, RustCompactExport] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
+    _imports_by_file_id_and_lookup: dict[tuple[int, str], list[RustCompactImport]] | None = None
     _imports_by_file_id: dict[int, list[RustCompactImport]] | None = None
     _exports_by_file_id: dict[int, list[RustCompactExport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
@@ -720,6 +721,7 @@ class RustIndexBackend:
         self._external_module_handles_by_import_id = None
         self._export_handles_by_id = None
         self._symbols_by_file_id = None
+        self._imports_by_file_id_and_lookup = None
         self._imports_by_file_id = None
         self._exports_by_file_id = None
         self._import_resolutions_by_import_id = None
@@ -845,6 +847,21 @@ class RustIndexBackend:
                 imports_by_file_id.setdefault(import_handle.record.file_id, []).append(import_handle)
             self._imports_by_file_id = imports_by_file_id
         return self._imports_by_file_id.get(file_id, [])
+
+    def imports_for_file_by_lookup(self, file_id: int, lookup: str) -> list[RustCompactImport]:
+        if self._import_handles is None and hasattr(self.index, "imports_for_file_by_lookup_json"):
+            if self._imports_by_file_id_and_lookup is None:
+                self._imports_by_file_id_and_lookup = {}
+            key = (file_id, lookup)
+            if key not in self._imports_by_file_id_and_lookup:
+                records = self._records_from_json_method("imports_for_file_by_lookup_json", RustImportRecord.from_dict, file_id, lookup)
+                if records is not None:
+                    self._imports_by_file_id_and_lookup[key] = [self._import_handle_from_record(record) for record in records]
+                else:
+                    self._import_handles = [self._import_handle_from_record(record) for record in self.imports]
+            if key in self._imports_by_file_id_and_lookup:
+                return self._imports_by_file_id_and_lookup[key]
+        return [import_handle for import_handle in self.imports_for_file(file_id) if import_handle.matches_lookup(lookup)]
 
     def exports_for_file(self, file_id: int) -> list[RustCompactExport]:
         if self._export_handles is None and hasattr(self.index, "exports_for_file_json"):
@@ -1971,7 +1988,7 @@ class RustCompactFile(RustCompactHandle):
         return self.get_import(symbol_alias) is not None
 
     def get_import(self, symbol_alias: str) -> RustCompactImport | None:
-        return next((import_handle for import_handle in self.imports if import_handle.matches_lookup(symbol_alias)), None)
+        return next((import_handle for import_handle in self.backend.imports_for_file_by_lookup(self.record.id, symbol_alias) if import_handle.matches_lookup(symbol_alias)), None)
 
     @property
     def inbound_imports(self) -> list[RustCompactImport]:
