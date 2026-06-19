@@ -239,7 +239,7 @@ class CodebaseContext:
 
         try:
             file_paths = self._rust_index_file_paths()
-            self.rust_index = RustIndexBackend.build(self.repo_path, file_paths=file_paths)
+            self.rust_index = RustIndexBackend.build(self.repo_path, file_paths=file_paths, language=self.programming_language)
         except (RustBackendUnavailableError, RustIndexBuildError) as error:
             self._handle_rust_backend_unavailable(str(error))
 
@@ -257,8 +257,8 @@ class CodebaseContext:
         ]
 
     def _rust_index_unsupported_reason(self) -> str | None:
-        if self.programming_language is not ProgrammingLanguage.PYTHON:
-            return "Rust compact index currently supports Python codebases only"
+        if self.programming_language not in {ProgrammingLanguage.PYTHON, ProgrammingLanguage.TYPESCRIPT}:
+            return "Rust compact index currently supports Python and TypeScript codebases only"
         if self.config.use_pink == PinkMode.ALL_FILES:
             return "Rust compact index cannot be combined with PinkMode.ALL_FILES"
         return None

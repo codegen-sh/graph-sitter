@@ -526,8 +526,6 @@ class Codebase(
         Returns:
             list[TInterface]: A list of Interface objects defined in the codebase's source files.
         """
-        if self.ctx.rust_compact_mode:
-            return []
         return self._symbols(symbol_type=SymbolType.Interface)
 
     @property
@@ -540,8 +538,6 @@ class Codebase(
         Returns:
             list[TTypeAlias]: A list of all type aliases defined in the codebase.
         """
-        if self.ctx.rust_compact_mode:
-            return []
         return self._symbols(symbol_type=SymbolType.Type)
 
     ####################################################################################################################

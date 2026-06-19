@@ -105,6 +105,13 @@ PYTHONPATH=/path/to/dir/containing/graph_sitter_py_extension \
   uv run python rust-rewrite/tools/measure_codebase_rust_backend.py . --json
 ```
 
+Pass `--language typescript` to measure the compact Rust TypeScript/JavaScript Codebase shell instead of the Python shell:
+
+```bash
+PYTHONPATH=/path/to/dir/containing/graph_sitter_py_extension \
+  uv run python rust-rewrite/tools/measure_codebase_rust_backend.py /path/to/ts-repo --language typescript --json
+```
+
 `rust-rewrite/tools/benchmark_pinned_python_repo.py` prepares a pinned external Python repository, builds the PyO3 extension, runs the Python parse/object-materialization harness, runs the Rust compact `Codebase` harness, and fails if the configured wall/RSS ratio gates are not met. The default pinned repo is Apache Airflow `2.10.5`, resolved to commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`:
 
 ```bash

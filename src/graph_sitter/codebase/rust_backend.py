@@ -15,6 +15,7 @@ from graph_sitter._proxy import proxy_property
 from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction, RemoveTransaction
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
 class RustBackendUnavailableError(RuntimeError):
@@ -235,7 +236,7 @@ class RustIndexBackend:
     _ctx: CodebaseContext | None = None
 
     @classmethod
-    def build(cls, repo_path: str | Path, file_paths: Sequence[str] | None = None) -> RustIndexBackend:
+    def build(cls, repo_path: str | Path, file_paths: Sequence[str] | None = None, *, language: ProgrammingLanguage = ProgrammingLanguage.PYTHON) -> RustIndexBackend:
         path = Path(repo_path).resolve()
         try:
             extension = import_module("graph_sitter_py")
@@ -244,10 +245,19 @@ class RustIndexBackend:
             raise RustBackendUnavailableError(message) from error
 
         try:
-            if file_paths is None:
-                index = extension.index_python_path(str(path))
+            if language is ProgrammingLanguage.PYTHON:
+                if file_paths is None:
+                    index = extension.index_python_path(str(path))
+                else:
+                    index = extension.index_python_paths(str(path), list(file_paths))
+            elif language is ProgrammingLanguage.TYPESCRIPT:
+                if file_paths is None:
+                    index = extension.index_typescript_path(str(path))
+                else:
+                    index = extension.index_typescript_paths(str(path), list(file_paths))
             else:
-                index = extension.index_python_paths(str(path), list(file_paths))
+                message = f"Rust graph backend does not support {language}"
+                raise RustBackendUnavailableError(message)
             summary = RustIndexSummary.from_object(index.summary())
         except Exception as error:
             message = f"Rust graph backend failed to index {path}"
@@ -1170,6 +1180,10 @@ class RustCompactSymbol(RustCompactHandle):
             "class": SymbolType.Class,
             "function": SymbolType.Function,
             "global_variable": SymbolType.GlobalVar,
+            "interface": SymbolType.Interface,
+            "type_alias": SymbolType.Type,
+            "enum": SymbolType.Enum,
+            "namespace": SymbolType.Namespace,
         }[self.record.kind]
 
     @property

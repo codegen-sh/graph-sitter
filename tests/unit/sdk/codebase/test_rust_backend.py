@@ -8,6 +8,18 @@ from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType
+from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+
+
+def fake_range(start_byte: int, end_byte: int, start_row: int = 0, start_column: int = 0, end_row: int = 0, end_column: int = 0):
+    return {
+        "start_byte": start_byte,
+        "end_byte": end_byte,
+        "start_row": start_row,
+        "start_column": start_column,
+        "end_row": end_row,
+        "end_column": end_column,
+    }
 
 
 class FakeSummary:
@@ -224,6 +236,163 @@ class FakeIndex:
                     "target_symbol_id": 0,
                     "source_file_id": 0,
                     "target_file_id": 0,
+                    "reference_ids": [0],
+                    "reference_count": 1,
+                }
+            ]
+        )
+
+
+class FakeTypeScriptSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 2,
+                "symbols": 4,
+                "classes": 0,
+                "functions": 2,
+                "global_variables": 0,
+                "imports": 1,
+                "import_resolutions": 1,
+                "references": 1,
+                "dependencies": 1,
+                "bytes": 198,
+                "lines": 10,
+            }
+        )
+        return data
+
+
+class FakeTypeScriptIndex:
+    def summary(self):
+        return FakeTypeScriptSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "src/app.ts",
+                    "module_name": None,
+                    "byte_len": 141,
+                    "line_count": 7,
+                    "has_error": False,
+                    "root_range": fake_range(0, 141, 0, 0, 7, 0),
+                },
+                {
+                    "id": 1,
+                    "path": "src/util.ts",
+                    "module_name": None,
+                    "byte_len": 57,
+                    "line_count": 3,
+                    "has_error": False,
+                    "root_range": fake_range(0, 57, 0, 0, 3, 0),
+                },
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Props",
+                    "kind": "interface",
+                    "range": fake_range(35, 68, 2, 0, 2, 33),
+                    "name_range": fake_range(45, 50, 2, 10, 2, 15),
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Mode",
+                    "kind": "type_alias",
+                    "range": fake_range(69, 86, 3, 0, 3, 17),
+                    "name_range": fake_range(74, 78, 3, 5, 3, 9),
+                },
+                {
+                    "id": 2,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "run",
+                    "kind": "function",
+                    "range": fake_range(87, 141, 4, 0, 6, 1),
+                    "name_range": fake_range(103, 106, 4, 16, 4, 19),
+                },
+                {
+                    "id": 3,
+                    "file_id": 1,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "helper",
+                    "kind": "function",
+                    "range": fake_range(0, 57, 0, 0, 2, 1),
+                    "name_range": fake_range(16, 22, 0, 16, 0, 22),
+                },
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "kind": "named_import",
+                    "module": "./util",
+                    "name": "helper",
+                    "alias": "helper",
+                    "range": fake_range(9, 15, 0, 9, 0, 15),
+                }
+            ]
+        )
+
+    def import_resolutions_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "import_id": 0,
+                    "source_file_id": 0,
+                    "target_file_id": 1,
+                    "target_symbol_id": 3,
+                }
+            ]
+        )
+
+    def references_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 2,
+                    "target_symbol_id": 3,
+                    "import_id": 0,
+                    "name": "helper",
+                    "range": fake_range(119, 125, 5, 9, 5, 15),
+                }
+            ]
+        )
+
+    def dependencies_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_symbol_id": 2,
+                    "target_symbol_id": 3,
+                    "source_file_id": 0,
+                    "target_file_id": 1,
                     "reference_ids": [0],
                     "reference_count": 1,
                 }
@@ -552,7 +721,7 @@ class FakeMoveUpdateSummary(FakeSummary):
         return data
 
 
-def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeIndex) -> tuple[list[str], list[list[str]]]:
+def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeIndex, typescript_index_cls=FakeTypeScriptIndex) -> tuple[list[str], list[list[str]]]:
     indexed_paths: list[str] = []
     selected_paths: list[list[str]] = []
     module = ModuleType("graph_sitter_py")
@@ -567,8 +736,19 @@ def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeI
         selected_paths.append(file_paths)
         return index_cls()
 
+    def index_typescript_path(path: str):
+        indexed_paths.append(path)
+        return typescript_index_cls()
+
+    def index_typescript_paths(path: str, file_paths: list[str]):
+        indexed_paths.append(path)
+        selected_paths.append(file_paths)
+        return typescript_index_cls()
+
     module.index_python_path = index_python_path
     module.index_python_paths = index_python_paths
+    module.index_typescript_path = index_typescript_path
+    module.index_typescript_paths = index_typescript_paths
     monkeypatch.setitem(sys.modules, "graph_sitter_py", module)
     return indexed_paths, selected_paths
 
@@ -722,6 +902,57 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert import_handle.usages[0].usage_symbol == helper
         assert import_handle.usages[0].imported_by == import_handle
         assert import_handle.usages[0].match.source == "Service"
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "src/app.ts": "import { helper } from './util';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return helper(props.value);\n}\n",
+        "src/util.ts": "export function helper(value: number) {\n  return value;\n}\n",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        assert codebase.ctx.rust_compact_mode is True
+        assert codebase.ctx.rust_index is not None
+        assert codebase.ctx.rust_index.summary.files == 2
+        assert codebase.ctx.rust_index.summary.functions == 2
+        assert codebase.ctx.rust_index.summary.imports == 1
+        assert codebase.ctx.rust_index.summary.import_resolutions == 1
+        assert codebase.ctx.rust_index.summary.references == 1
+        assert codebase.ctx.rust_index.summary.dependencies == 1
+        assert [file.path for file in codebase.rust_files] == ["src/app.ts", "src/util.ts"]
+        assert [symbol.name for symbol in codebase.rust_symbols] == ["Props", "Mode", "run", "helper"]
+        assert codebase.rust_imports[0].module == "./util"
+        assert codebase.rust_import_resolutions[0].target_symbol_id == 3
+        assert codebase.rust_references[0].name == "helper"
+        assert codebase.rust_dependencies[0].target_symbol_id == 3
+
+        assert [file.filepath for file in codebase.files] == ["src/app.ts", "src/util.ts"]
+        assert [symbol.name for symbol in codebase.symbols] == ["Props", "Mode", "run", "helper"]
+        assert [function.name for function in codebase.functions] == ["helper", "run"]
+        assert [interface.name for interface in codebase.interfaces] == ["Props"]
+        assert [type_alias.name for type_alias in codebase.types] == ["Mode"]
+        assert codebase.imports[0].name == "helper"
+
+        run = codebase.get_function("run")
+        helper = codebase.get_function("helper")
+        assert run is not None
+        assert helper is not None
+        assert run.dependencies == [helper]
+        assert helper.usages[0].match.source == "helper"
+
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["src/app.ts", "src/util.ts"]]
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 

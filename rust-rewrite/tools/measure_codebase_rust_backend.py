@@ -29,10 +29,10 @@ def max_rss_bytes() -> int:
     return int(rss * 1024)
 
 
-def make_report(repo: Path) -> dict:
+def make_report(repo: Path, *, language: str) -> dict:
     config = CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR)
     start = time.perf_counter()
-    codebase = Codebase(str(repo), language="python", config=config)
+    codebase = Codebase(str(repo), language=language, config=config)
     wall = time.perf_counter() - start
     python_graph_blocked = False
     try:
@@ -44,6 +44,7 @@ def make_report(repo: Path) -> dict:
     return {
         "metadata": {
             "repo_path": str(repo),
+            "language": language,
             "python": sys.version,
             "platform": platform.platform(),
             "python_graph_blocked": python_graph_blocked,
@@ -83,6 +84,8 @@ def make_report(repo: Path) -> dict:
             "classes": len(codebase.classes),
             "functions": len(codebase.functions),
             "global_vars": len(codebase.global_vars),
+            "interfaces": len(codebase.interfaces),
+            "types": len(codebase.types),
             "imports": len(codebase.imports),
         },
     }
@@ -90,7 +93,8 @@ def make_report(repo: Path) -> dict:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Measure Codebase construction with the opt-in compact Rust backend.")
-    parser.add_argument("repo", nargs="?", default=".", help="Path to the Python repository to index.")
+    parser.add_argument("repo", nargs="?", default=".", help="Path to the repository to index.")
+    parser.add_argument("--language", choices=["python", "typescript"], default="python", help="Codebase language to index.")
     parser.add_argument("--output", type=Path, help="Optional path to write JSON report.")
     parser.add_argument("--json", action="store_true", help="Print JSON report instead of a human summary.")
     return parser.parse_args()
@@ -102,6 +106,7 @@ def print_human(report: dict) -> None:
     records = report["records"]
     compat_handles = report["compat_handles"]
     print(f"repo: {report['metadata']['repo_path']}")
+    print(f"language: {report['metadata']['language']}")
     print(f"rust Codebase: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB")
     print(f"python graph blocked: {report['metadata']['python_graph_blocked']}")
     print(
@@ -127,13 +132,15 @@ def print_human(report: dict) -> None:
         "compat handles: "
         f"files={compat_handles['files']} "
         f"symbols={compat_handles['symbols']} "
+        f"interfaces={compat_handles['interfaces']} "
+        f"types={compat_handles['types']} "
         f"imports={compat_handles['imports']}"
     )
 
 
 def main() -> int:
     args = parse_args()
-    report = make_report(Path(args.repo).expanduser().resolve())
+    report = make_report(Path(args.repo).expanduser().resolve(), language=args.language)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
