@@ -51,12 +51,55 @@ def run(codebase, arguments: RenameArgs):
             '{"new_name": "renamed"}',
             "--backend",
             "python",
+            "--write",
         ],
     )
 
     assert result.exit_code == 0, result.output
     assert "def renamed()" in (tmp_path / "app.py").read_text()
     assert "Changes have been applied" in result.output
+
+
+def test_run_command_check_reports_diff_without_writing_target_repo(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def target():\n    return 1\n")
+    codemod_dir = tmp_path / ".codegen" / "codemods" / "rename"
+    codemod_dir.mkdir(parents=True)
+    (codemod_dir / "rename.py").write_text(
+        """
+import graph_sitter
+
+
+@graph_sitter.function("rename-target")
+def run(codebase):
+    function = codebase.get_function("target")
+    function.rename("renamed")
+    codebase.commit()
+""".lstrip()
+    )
+    _commit_all(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "run",
+            "rename-target",
+            str(tmp_path),
+            "--check",
+        ],
+    )
+
+    assert result.exit_code == 1, result.output
+    assert "Codemod would produce changes" in result.output
+    assert "target -> renamed" in result.output
+    assert (tmp_path / "app.py").read_text() == "def target():\n    return 1\n"
+
+
+def test_run_command_rejects_check_and_write_together(tmp_path):
+    result = CliRunner().invoke(main, ["run", "anything", str(tmp_path), "--check", "--write"])
+
+    assert result.exit_code != 0
+    assert "--check and --write cannot be used together" in result.output
 
 
 def test_run_command_rejects_arguments_for_codemod_without_arguments_parameter(tmp_path):

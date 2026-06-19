@@ -46,6 +46,8 @@ def _parse_arguments(raw_arguments: str | None) -> dict | None:
 @click.option("--backend", type=click.Choice(["python", "rust", "auto"]), default="python", show_default=True, help="Graph backend to use.")
 @click.option("--fallback", type=click.Choice(["python", "error"]), default="python", show_default=True, help="Fallback behavior when the Rust backend is unavailable.")
 @click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")
+@click.option("--check", is_flag=True, help="Run in a temporary sandbox and exit non-zero if changes would be produced.")
+@click.option("--write", is_flag=True, help="Apply changes to the target repo. This remains the default for compatibility.")
 def run_command(
     label: str,
     path: Path | None = None,
@@ -55,8 +57,14 @@ def run_command(
     backend: str = "python",
     fallback: str = "python",
     language: str = "auto",
+    check: bool = False,
+    write: bool = False,
 ):
     """Run a codegen function by its label."""
+    if check and write:
+        msg = "--check and --write cannot be used together"
+        raise click.ClickException(msg)
+
     session = None if path is not None else CliSession.from_active_session()
     if path is None and session is None:
         msg = "Graph-sitter not initialized. Pass PATH or run `gs init` from a git repo workspace."
@@ -95,6 +103,9 @@ def run_command(
 
     # Run the codemod
     if daemon:
+        if check:
+            msg = "--check is only supported for local codemod runs"
+            raise click.ClickException(msg)
         if session is None:
             msg = "--daemon requires an initialized active session. Run without PATH or omit --daemon."
             raise click.ClickException(msg)
@@ -113,4 +124,5 @@ def run_command(
             backend=GraphBackend(backend),
             fallback=RustFallbackMode(fallback),
             language=_parse_language(language),
+            check=check,
         )
