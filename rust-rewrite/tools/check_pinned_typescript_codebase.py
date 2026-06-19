@@ -36,9 +36,9 @@ EXPECTED_SUMMARY = {
     "functions": 13497,
     "global_variables": 7843,
     "imports": 28210,
-    "import_resolutions": 9424,
-    "references": 37554,
-    "dependencies": 15176,
+    "import_resolutions": 13462,
+    "references": 47676,
+    "dependencies": 16041,
     "bytes": 25421217,
     "lines": 634891,
     "files_with_errors": 114,
@@ -51,10 +51,10 @@ EXPECTED_RECORDS = {
     "rust_functions": 13497,
     "rust_global_vars": 7843,
     "rust_imports": 28210,
-    "rust_import_resolutions": 9424,
+    "rust_import_resolutions": 13462,
     "rust_exports": 16026,
-    "rust_references": 37554,
-    "rust_dependencies": 15176,
+    "rust_references": 47676,
+    "rust_dependencies": 16041,
 }
 
 EXPECTED_COMPAT_HANDLES = {

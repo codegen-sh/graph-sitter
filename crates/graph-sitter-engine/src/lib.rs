@@ -575,6 +575,7 @@ impl TypeScriptIndexer {
         };
         let mut reference_candidates = Vec::new();
         paths.sort();
+        let ts_configs = collect_typescript_configs(repo_path);
 
         for path in paths {
             let file_id = index.files.len() as u32;
@@ -608,11 +609,299 @@ impl TypeScriptIndexer {
             );
         }
 
-        resolve_typescript_imports(&mut index);
+        resolve_typescript_imports(&mut index, &ts_configs);
         resolve_typescript_references(&mut index, reference_candidates);
         build_typescript_dependencies(&mut index);
         Ok(index)
     }
+}
+
+#[derive(Debug, Clone)]
+struct TypeScriptConfig {
+    dir: String,
+    base_url: Option<String>,
+    path_base: String,
+    paths: Vec<TypeScriptPathMapping>,
+}
+
+#[derive(Debug, Clone)]
+struct TypeScriptPathMapping {
+    pattern_prefix: String,
+    pattern_suffix: String,
+    pattern_has_wildcard: bool,
+    target_prefix: String,
+    target_suffix: String,
+    target_has_wildcard: bool,
+}
+
+impl TypeScriptPathMapping {
+    fn from_pattern(pattern: &str, target: &str) -> Self {
+        let (pattern_prefix, pattern_suffix, pattern_has_wildcard) =
+            split_typescript_path_pattern(pattern);
+        let (target_prefix, target_suffix, target_has_wildcard) =
+            split_typescript_path_pattern(target);
+        Self {
+            pattern_prefix,
+            pattern_suffix,
+            pattern_has_wildcard,
+            target_prefix,
+            target_suffix,
+            target_has_wildcard,
+        }
+    }
+
+    fn apply(&self, module: &str) -> Option<String> {
+        let wildcard = if self.pattern_has_wildcard {
+            module
+                .strip_prefix(&self.pattern_prefix)
+                .and_then(|rest| rest.strip_suffix(&self.pattern_suffix))
+        } else if module == self.pattern_prefix {
+            Some("")
+        } else {
+            None
+        }?;
+        if self.target_has_wildcard {
+            Some(format!(
+                "{}{}{}",
+                self.target_prefix, wildcard, self.target_suffix
+            ))
+        } else {
+            Some(self.target_prefix.clone())
+        }
+    }
+
+    fn specificity(&self) -> usize {
+        self.pattern_prefix.len() + self.pattern_suffix.len()
+    }
+}
+
+fn split_typescript_path_pattern(pattern: &str) -> (String, String, bool) {
+    pattern
+        .split_once('*')
+        .map(|(prefix, suffix)| (prefix.to_owned(), suffix.to_owned(), true))
+        .unwrap_or_else(|| (pattern.to_owned(), String::new(), false))
+}
+
+fn collect_typescript_configs(repo_path: &Path) -> Vec<TypeScriptConfig> {
+    let mut config_paths = Vec::new();
+    if collect_typescript_config_files(repo_path, &mut config_paths).is_err() {
+        return Vec::new();
+    }
+    config_paths.sort();
+    config_paths
+        .into_iter()
+        .filter_map(|path| parse_typescript_config(repo_path, &path))
+        .collect()
+}
+
+fn collect_typescript_config_files(dir: &Path, out: &mut Vec<PathBuf>) -> Result<(), IndexError> {
+    let entries = fs::read_dir(dir).map_err(|source| IndexError::Io {
+        path: dir.to_path_buf(),
+        source,
+    })?;
+    for entry in entries {
+        let entry = entry.map_err(|source| IndexError::Io {
+            path: dir.to_path_buf(),
+            source,
+        })?;
+        let path = entry.path();
+        let file_type = entry.file_type().map_err(|source| IndexError::Io {
+            path: path.clone(),
+            source,
+        })?;
+        if file_type.is_dir() {
+            if should_skip_dir(&path) {
+                continue;
+            }
+            collect_typescript_config_files(&path, out)?;
+        } else if file_type.is_file()
+            && path.file_name().and_then(|name| name.to_str()) == Some("tsconfig.json")
+        {
+            out.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn parse_typescript_config(repo_path: &Path, path: &Path) -> Option<TypeScriptConfig> {
+    let source = fs::read_to_string(path).ok()?;
+    let json_source = strip_jsonc_comments_and_trailing_commas(&source);
+    let json: serde_json::Value = serde_json::from_str(&json_source).ok()?;
+    let compiler_options = json.get("compilerOptions")?.as_object()?;
+    let dir = path
+        .parent()
+        .unwrap_or(repo_path)
+        .strip_prefix(repo_path)
+        .unwrap_or_else(|_| Path::new(""))
+        .to_string_lossy()
+        .replace('\\', "/");
+    let base_url = compiler_options
+        .get("baseUrl")
+        .and_then(|value| value.as_str())
+        .and_then(|value| normalize_typescript_config_path(&dir, value));
+    let path_base = base_url.clone().unwrap_or_else(|| dir.clone());
+
+    let mut paths = Vec::new();
+    if let Some(paths_object) = compiler_options
+        .get("paths")
+        .and_then(|value| value.as_object())
+    {
+        for (pattern, targets) in paths_object {
+            if let Some(target) = targets.as_str() {
+                paths.push(TypeScriptPathMapping::from_pattern(pattern, target));
+                continue;
+            }
+            if let Some(targets) = targets.as_array() {
+                for target in targets.iter().filter_map(|target| target.as_str()) {
+                    paths.push(TypeScriptPathMapping::from_pattern(pattern, target));
+                }
+            }
+        }
+    }
+    paths.sort_by(|left, right| {
+        right
+            .specificity()
+            .cmp(&left.specificity())
+            .then_with(|| left.pattern_has_wildcard.cmp(&right.pattern_has_wildcard))
+    });
+
+    Some(TypeScriptConfig {
+        dir,
+        base_url,
+        path_base,
+        paths,
+    })
+}
+
+fn strip_jsonc_comments_and_trailing_commas(source: &str) -> String {
+    strip_json_trailing_commas(&strip_json_comments(source))
+}
+
+fn strip_json_comments(source: &str) -> String {
+    let mut output = String::with_capacity(source.len());
+    let mut chars = source.chars().peekable();
+    let mut in_string = false;
+    let mut escaped = false;
+
+    while let Some(ch) = chars.next() {
+        if in_string {
+            output.push(ch);
+            if escaped {
+                escaped = false;
+            } else if ch == '\\' {
+                escaped = true;
+            } else if ch == '"' {
+                in_string = false;
+            }
+            continue;
+        }
+
+        if ch == '"' {
+            in_string = true;
+            output.push(ch);
+            continue;
+        }
+
+        if ch == '/' && chars.peek() == Some(&'/') {
+            chars.next();
+            for comment_ch in chars.by_ref() {
+                if comment_ch == '\n' {
+                    output.push('\n');
+                    break;
+                }
+            }
+            continue;
+        }
+
+        if ch == '/' && chars.peek() == Some(&'*') {
+            chars.next();
+            let mut previous = '\0';
+            for comment_ch in chars.by_ref() {
+                if comment_ch == '\n' {
+                    output.push('\n');
+                }
+                if previous == '*' && comment_ch == '/' {
+                    break;
+                }
+                previous = comment_ch;
+            }
+            continue;
+        }
+
+        output.push(ch);
+    }
+
+    output
+}
+
+fn strip_json_trailing_commas(source: &str) -> String {
+    let chars: Vec<char> = source.chars().collect();
+    let mut output = String::with_capacity(source.len());
+    let mut index = 0;
+    let mut in_string = false;
+    let mut escaped = false;
+
+    while index < chars.len() {
+        let ch = chars[index];
+        if in_string {
+            output.push(ch);
+            if escaped {
+                escaped = false;
+            } else if ch == '\\' {
+                escaped = true;
+            } else if ch == '"' {
+                in_string = false;
+            }
+            index += 1;
+            continue;
+        }
+
+        if ch == '"' {
+            in_string = true;
+            output.push(ch);
+            index += 1;
+            continue;
+        }
+
+        if ch == ',' {
+            let mut lookahead = index + 1;
+            while lookahead < chars.len() && chars[lookahead].is_whitespace() {
+                lookahead += 1;
+            }
+            if lookahead < chars.len() && matches!(chars[lookahead], '}' | ']') {
+                index += 1;
+                continue;
+            }
+        }
+
+        output.push(ch);
+        index += 1;
+    }
+
+    output
+}
+
+fn normalize_typescript_config_path(base: &str, path: &str) -> Option<String> {
+    let mut raw_path = if path.starts_with('/') {
+        path.trim_start_matches('/').to_owned()
+    } else if base.is_empty() || path.is_empty() {
+        format!("{base}{path}")
+    } else {
+        format!("{base}/{path}")
+    };
+    raw_path = raw_path.replace('\\', "/");
+
+    let mut parts = Vec::new();
+    for part in raw_path.split('/') {
+        match part {
+            "" | "." => {}
+            ".." => {
+                parts.pop()?;
+            }
+            _ => parts.push(part),
+        }
+    }
+    Some(parts.join("/"))
 }
 
 fn read_source_lossy(path: &Path) -> Result<(String, usize), IndexError> {
@@ -1467,7 +1756,7 @@ fn typescript_reference_is_shadowed(
     })
 }
 
-fn resolve_typescript_imports(index: &mut TypeScriptIndex) {
+fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScriptConfig]) {
     let file_by_path: HashMap<String, u32> = index
         .files
         .iter()
@@ -1487,15 +1776,15 @@ fn resolve_typescript_imports(index: &mut TypeScriptIndex) {
         let Some(module) = import.module.as_deref() else {
             continue;
         };
-        if !module.starts_with('.') {
-            continue;
-        }
         let Some(source_file) = index.files.get(import.file_id as usize) else {
             continue;
         };
-        let Some(target_file_id) =
+        let target_file_id = if module.starts_with('.') {
             resolve_typescript_relative_module(source_file, module, &file_by_path)
-        else {
+        } else {
+            resolve_typescript_config_module(source_file, module, &file_by_path, ts_configs)
+        };
+        let Some(target_file_id) = target_file_id else {
             continue;
         };
         let target_symbol_id = resolve_typescript_import_symbol(
@@ -1602,6 +1891,58 @@ fn normalize_typescript_relative_module(source_path: &str, module: &str) -> Opti
         }
     }
     Some(parts.join("/"))
+}
+
+fn resolve_typescript_config_module(
+    source_file: &FileRecord,
+    module: &str,
+    file_by_path: &HashMap<String, u32>,
+    ts_configs: &[TypeScriptConfig],
+) -> Option<u32> {
+    let config = typescript_config_for_file(&source_file.path, ts_configs)?;
+
+    for mapping in &config.paths {
+        let Some(target) = mapping.apply(module) else {
+            continue;
+        };
+        let Some(base) = normalize_typescript_config_path(&config.path_base, &target) else {
+            continue;
+        };
+        if let Some(file_id) = resolve_typescript_module_base(&base, file_by_path) {
+            return Some(file_id);
+        }
+    }
+
+    let base_url = config.base_url.as_deref()?;
+    let base = normalize_typescript_config_path(base_url, module)?;
+    resolve_typescript_module_base(&base, file_by_path)
+}
+
+fn resolve_typescript_module_base(base: &str, file_by_path: &HashMap<String, u32>) -> Option<u32> {
+    for candidate in typescript_module_candidates(base) {
+        if let Some(file_id) = file_by_path.get(candidate.as_str()).copied() {
+            return Some(file_id);
+        }
+    }
+    None
+}
+
+fn typescript_config_for_file<'a>(
+    file_path: &str,
+    ts_configs: &'a [TypeScriptConfig],
+) -> Option<&'a TypeScriptConfig> {
+    ts_configs
+        .iter()
+        .filter(|config| typescript_file_is_under_config(file_path, &config.dir))
+        .max_by_key(|config| config.dir.len())
+}
+
+fn typescript_file_is_under_config(file_path: &str, config_dir: &str) -> bool {
+    config_dir.is_empty()
+        || file_path == config_dir
+        || file_path
+            .strip_prefix(config_dir)
+            .is_some_and(|rest| rest.starts_with('/'))
 }
 
 fn typescript_module_candidates(base: &str) -> Vec<String> {
@@ -3878,6 +4219,135 @@ export * from './feature';\n\
             resolution.target_file_id == dotted_file_id
                 && resolution.target_symbol_id == Some(dotted_symbol_id)
         }));
+    }
+
+    #[test]
+    fn resolves_typescript_tsconfig_path_aliases() {
+        let repo = temp_repo_path("resolve-typescript-tsconfig-paths");
+        fs::create_dir_all(repo.join("src/lib")).unwrap();
+        fs::create_dir_all(repo.join("src/lib/special")).unwrap();
+        fs::create_dir_all(repo.join("src/special")).unwrap();
+        fs::create_dir_all(repo.join("src/components")).unwrap();
+        fs::write(
+            repo.join("tsconfig.json"),
+            "{\n\
+  // JSONC comments and trailing commas are common in tsconfig files.\n\
+  \"compilerOptions\": {\n\
+    \"baseUrl\": \"src\",\n\
+    \"paths\": {\n\
+      \"@lib/*\": [\"lib/*\"],\n\
+      \"@lib/special/*\": [\"special/*\"],\n\
+      \"components\": [\"components/index\"],\n\
+    },\n\
+  },\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { helper } from '@lib/helper';\n\
+import { specialHelper } from '@lib/special/helper';\n\
+import { Button } from 'components';\n\
+import { shared } from 'shared';\n\
+import { Nope } from 'components-extra';\n\
+\n\
+export function run() {\n\
+  return helper() + specialHelper() + Button + shared;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/lib/helper.ts"),
+            "export function helper() { return 1; }\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/lib/special/helper.ts"),
+            "export function wrongSpecial() { return 0; }\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/special/helper.ts"),
+            "export function specialHelper() { return 4; }\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/components/index.ts"),
+            "export const Button = 2;\n",
+        )
+        .unwrap();
+        fs::write(repo.join("src/shared.ts"), "export const shared = 3;\n").unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 6);
+        assert_eq!(index.summary().imports, 5);
+        assert_eq!(index.summary().import_resolutions, 4);
+        assert_eq!(index.summary().references, 4);
+        assert_eq!(index.summary().dependencies, 4);
+
+        let helper_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/lib/helper.ts")
+            .unwrap()
+            .id;
+        let special_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/special/helper.ts")
+            .unwrap()
+            .id;
+        let wrong_special_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/lib/special/helper.ts")
+            .unwrap()
+            .id;
+        let components_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/components/index.ts")
+            .unwrap()
+            .id;
+        let shared_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/shared.ts")
+            .unwrap()
+            .id;
+        let unresolved_import_id = index
+            .imports
+            .iter()
+            .find(|import| import.module.as_deref() == Some("components-extra"))
+            .unwrap()
+            .id;
+
+        assert!(index
+            .import_resolutions
+            .iter()
+            .any(|resolution| resolution.target_file_id == helper_file_id));
+        assert!(index
+            .import_resolutions
+            .iter()
+            .any(|resolution| resolution.target_file_id == special_file_id));
+        assert!(!index
+            .import_resolutions
+            .iter()
+            .any(|resolution| resolution.target_file_id == wrong_special_file_id));
+        assert!(index
+            .import_resolutions
+            .iter()
+            .any(|resolution| resolution.target_file_id == components_file_id));
+        assert!(index
+            .import_resolutions
+            .iter()
+            .any(|resolution| resolution.target_file_id == shared_file_id));
+        assert!(!index
+            .import_resolutions
+            .iter()
+            .any(|resolution| resolution.import_id == unresolved_import_id));
     }
 
     #[test]

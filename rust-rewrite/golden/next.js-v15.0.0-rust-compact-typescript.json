@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 15176,
+      "count": 16041,
       "samples": [
         {
           "reference_count": 2,
@@ -211,7 +211,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513"
         }
       ],
-      "sha256": "3f165e2f4515d9bdbf9109e22b7b17f3ec008fddf4ab790d6208b1b9ac455a26"
+      "sha256": "e521e4cf282980ead76eec02dd87f814d6f7d9116222b7cd3f18f99b82ca5b5d"
     },
     "exports": {
       "count": 16026,
@@ -866,7 +866,7 @@
       "sha256": "caf02ccc4d64cb10b5db5432e3a3e0edc363d0901bb53191e2ef8d8cee2768f8"
     },
     "import_resolutions": {
-      "count": 9424,
+      "count": 13462,
       "samples": [
         {
           "import": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./constants:benchTitle:benchTitle@227",
@@ -1009,7 +1009,7 @@
           "target_symbol": null
         }
       ],
-      "sha256": "f67da516a88fee6fd7021455e4377a268d2513bbe896af001730a7340ffdfa2d"
+      "sha256": "09319ebe567f5b1858c892314a223447fc5435a1765e6960c8d9a04de2f1ca8e"
     },
     "imports": {
       "count": 28210,
@@ -1338,7 +1338,7 @@
       "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
     },
     "references": {
-      "count": 37554,
+      "count": 47676,
       "samples": [
         {
           "import": null,
@@ -1661,7 +1661,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630"
         }
       ],
-      "sha256": "8f364cd2b962269ef04b0d44c859925857221cf46fb7a2fe29c24aed1a924a1e"
+      "sha256": "8fdf367d2bf15b5ed71532b24e615ff6a880eec962bbf31500100df0b530162c"
     },
     "symbols": {
       "count": 23957,
@@ -2183,16 +2183,16 @@
   "summary": {
     "bytes": 25421217,
     "classes": 502,
-    "dependencies": 15176,
+    "dependencies": 16041,
     "exports": 16026,
     "files": 13688,
     "files_with_errors": 114,
     "functions": 13497,
     "global_variables": 7843,
-    "import_resolutions": 9424,
+    "import_resolutions": 13462,
     "imports": 28210,
     "lines": 634891,
-    "references": 37554,
+    "references": 47676,
     "symbols": 23957
   }
 }

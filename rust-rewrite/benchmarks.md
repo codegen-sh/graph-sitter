@@ -244,23 +244,22 @@ The Rust selected-file count matches the Python `RepoOperator` selected file lis
 
 ## TypeScript Rust `Codebase` Construction Evidence
 
-This measurement uses real `Codebase(...)` construction against the pinned Next.js checkout with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. It exercises compact TypeScript files, symbols, classes, functions, globals, interfaces, types, imports, exports, relative import resolutions, references, and dependencies through the Python shell while keeping `CodebaseContext.nodes` blocked.
+This measurement uses real `Codebase(...)` construction against the pinned Next.js checkout with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. It exercises compact TypeScript files, symbols, classes, functions, globals, interfaces, types, imports, exports, relative and tsconfig path/baseUrl import resolutions, references, and dependencies through the Python shell while keeping `CodebaseContext.nodes` blocked.
 
-Command run on 2026-06-18:
+Command run on 2026-06-19:
 
 ```bash
-PYTHONPATH=/tmp/graph_sitter_py_pinned_typescript_benchmark \
-  uv run python rust-rewrite/tools/measure_codebase_rust_backend.py \
-  /tmp/graph-sitter-pinned-repos/next.js-v15.0.0 \
-  --language typescript \
+uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
+  --skip-build-extension \
+  --skip-fetch \
   --json
 ```
 
 | Input | Rust `Codebase` wall | Rust `Codebase` max RSS | Files | Symbols | Imports | Exports | Import resolutions | References | Dependencies | Python graph blocked |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 4.417s | 337.1 MB | 13688 | 23957 | 28210 | 16026 | 9424 | 37554 | 15176 | yes |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 5.053s | 551.0 MB | 13688 | 23957 | 28210 | 16026 | 13462 | 47676 | 16041 | yes |
 
-Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 5.650x faster and about 9.197x lower max RSS while exposing compact export handles and keeping the eager Python graph unbuilt.
+Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 4.939x faster and about 5.626x lower max RSS while exposing compact export handles and keeping the eager Python graph unbuilt. Adding tsconfig path/baseUrl resolution increased the pinned Next.js proof by 4,038 import resolutions, 10,122 references, and 865 dependency edges.
 
 The same proof is now available as an opt-in test gate:
 
@@ -270,7 +269,7 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
   --skip-fetch
 ```
 
-On 2026-06-18, that checker validated exact pinned Next.js `Codebase` handle counts, confirmed the Python graph stayed blocked, and measured 4.498s wall / 477.5 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 5.549x faster wall time and 6.493x lower max RSS with conservative CI-style ceilings.
+On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts, confirmed the Python graph stayed blocked, and measured 5.053s wall / 551.0 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 4.939x faster wall time and 5.626x lower max RSS with conservative CI-style ceilings.
 
 ## Pinned Compact Snapshot Evidence
 
@@ -297,7 +296,7 @@ Important caveats:
 - The Python-facing Rust facade uses Python's selected file list, but the compact Rust records are not yet full Python graph parity. Symbol and import totals should not be compared directly with current Python graph node totals until the resolver and lazy handle layers are implemented.
 - The Python backend numbers include the current eager Python object materialization and, in full graph mode, dependency edge computation.
 - The Rust RSS number is sampled from a short-lived release process; it is suitable for directional comparison, not allocator-level attribution.
-- The TypeScript/JavaScript Rust path now emits compact files, symbols, imports, exports, parser-error status, relative import-resolution rows, first-slice reference rows, dependency rows, and lazy `Codebase` compatibility handles. Full TypeScript config/path alias handling, external module modeling, lexical/type/interface parity, and codemod parity remain future work.
+- The TypeScript/JavaScript Rust path now emits compact files, symbols, imports, exports, parser-error status, relative and tsconfig path/baseUrl import-resolution rows, first-slice reference rows, dependency rows, and lazy `Codebase` compatibility handles. External module modeling, lexical/type/interface parity, and codemod parity remain future work.
 - The generated fixture, this repo, and the pinned Airflow baseline are useful proof points, but Python-vs-Rust semantic parity snapshots and additional canonical repos are still open.
 
 ## Open Questions
