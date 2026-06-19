@@ -1,5 +1,6 @@
 import json
 import sys
+from pathlib import Path
 from types import ModuleType
 
 import pytest
@@ -1371,6 +1372,14 @@ def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeI
     return indexed_paths, selected_paths
 
 
+def _read_outputs(root: Path, paths: list[str]) -> dict[str, str]:
+    return {path: (root / path).read_text() for path in paths}
+
+
+def _read_nonblank_output_lines(root: Path, paths: list[str]) -> dict[str, list[str]]:
+    return {path: [line for line in (root / path).read_text().splitlines() if line.strip()] for path in paths}
+
+
 def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
     indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST)
@@ -2057,6 +2066,51 @@ def test_rust_compact_move_updates_imported_usages_commit_without_python_graph(m
             len(codebase.ctx.nodes)
 
 
+def test_rust_compact_codemod_symbol_import_edits_match_python_backend(monkeypatch, tmp_path):
+    files = {
+        "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+    }
+    output_paths = ["pkg/service.py"]
+
+    def execute(codebase):
+        service_file = codebase.get_file("pkg/service.py")
+        service_file.add_import("from typing import Any")
+        codebase.imports[0].remove()
+        codebase.get_class("Service").rename("Worker")
+
+    codemod = Codemod(name="rust-python-symbol-import-parity", execute=execute)
+
+    python_root = tmp_path / "python"
+    with get_codebase_session(
+        tmpdir=python_root,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.PYTHON),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+    expected_outputs = _read_outputs(python_root, output_paths)
+
+    install_fake_rust_extension(monkeypatch)
+    rust_root = tmp_path / "rust"
+    with get_codebase_session(
+        tmpdir=rust_root,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.RUST),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+
+        assert _read_outputs(rust_root, output_paths) == expected_outputs
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
 def test_rust_compact_codemod_execute_symbol_import_edits_without_python_graph(monkeypatch, tmp_path):
     install_fake_rust_extension(monkeypatch)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST)
@@ -2120,6 +2174,102 @@ def test_rust_compact_codemod_execute_move_updates_imports_without_python_graph(
         assert (tmp_path / "pkg/models.py").read_text() == "class Service:\n    pass\n"
         assert (tmp_path / "pkg/consumer.py").read_text() == expected_consumer
 
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_codemod_import_edits_match_python_backend(monkeypatch, tmp_path):
+    files = {
+        "src/app.ts": "import { helper } from './util';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return helper(props.value);\n}\n",
+        "src/util.ts": "export function helper(value: number) {\n  return value;\n}\n",
+    }
+    output_paths = ["src/app.ts", "src/consumer.ts"]
+
+    def execute(codebase):
+        app_file = codebase.get_file("src/app.ts")
+        consumer_file = codebase.create_file("src/consumer.ts", "export const value = compute(1);\n", sync=False)
+        helper = codebase.get_function("helper")
+
+        app_file.add_import("import { describe } from 'node:test';")
+        consumer_file.add_import(helper, alias="compute")
+        codebase.get_function("run").rename("executeRun")
+
+    codemod = Codemod(name="rust-typescript-import-parity", execute=execute)
+
+    python_root = tmp_path / "python"
+    with get_codebase_session(
+        tmpdir=python_root,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.PYTHON),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+    expected_outputs = _read_outputs(python_root, output_paths)
+
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
+    rust_root = tmp_path / "rust"
+    with get_codebase_session(
+        tmpdir=rust_root,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.RUST),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+
+        assert _read_outputs(rust_root, output_paths) == expected_outputs
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_codemod_move_updates_imports_matches_python_backend_nonblank_lines(monkeypatch, tmp_path):
+    files = {
+        "pkg/service.py": "class Service:\n    pass\n",
+        "pkg/consumer.py": "from pkg.service import Service\n\ndef use():\n    return Service()\n",
+    }
+    output_paths = ["pkg/service.py", "pkg/models.py", "pkg/consumer.py"]
+
+    def execute(codebase):
+        service = codebase.get_class("Service")
+        models_file = codebase.create_file("pkg/models.py", "", sync=False)
+        service.move_to_file(models_file, include_dependencies=False, strategy="update_all_imports")
+
+    codemod = Codemod(name="rust-python-move-import-parity", execute=execute)
+
+    python_root = tmp_path / "python"
+    with get_codebase_session(
+        tmpdir=python_root,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.PYTHON),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+    expected_outputs = _read_nonblank_output_lines(python_root, output_paths)
+
+    install_fake_rust_extension(monkeypatch, index_cls=FakeMoveUpdateIndex)
+    rust_root = tmp_path / "rust"
+    with get_codebase_session(
+        tmpdir=rust_root,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.RUST),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+
+        assert _read_nonblank_output_lines(rust_root, output_paths) == expected_outputs
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 
@@ -2197,6 +2347,53 @@ def test_rust_compact_typescript_import_mutators_commit_without_python_graph(mon
         expected = "import { compute } from './helpers';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return compute(props.value);\n}\n"
         assert (tmp_path / "src/app.ts").read_text() == expected
 
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_codemod_move_updates_imports_matches_python_backend_nonblank_lines(monkeypatch, tmp_path):
+    files = {
+        "src/app.ts": "export function run() {\n  return 1;\n}\n",
+        "src/consumer.ts": "import { run } from './app';\n\nexport function use() {\n  return run();\n}\n",
+    }
+    output_paths = ["src/app.ts", "src/runner.ts", "src/consumer.ts"]
+
+    def execute(codebase):
+        run = codebase.get_function("run")
+        runner_file = codebase.create_file("src/runner.ts", "", sync=False)
+        run.move_to_file(runner_file, include_dependencies=False, strategy="update_all_imports")
+
+    codemod = Codemod(name="rust-typescript-move-import-parity", execute=execute)
+
+    python_root = tmp_path / "python"
+    with get_codebase_session(
+        tmpdir=python_root,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.PYTHON),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+    expected_outputs = _read_nonblank_output_lines(python_root, output_paths)
+
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptMoveUpdateIndex)
+    rust_root = tmp_path / "rust"
+    with get_codebase_session(
+        tmpdir=rust_root,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=CodebaseConfig(graph_backend=GraphBackend.RUST),
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+
+        assert _read_nonblank_output_lines(rust_root, output_paths) == expected_outputs
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 
