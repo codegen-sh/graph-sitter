@@ -6,6 +6,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+import benchmark_pinned_python_repo as airflow_benchmark
+import benchmark_pinned_typescript_repo as nextjs_benchmark
+import check_pinned_python_codebase as airflow_codebase
+import check_pinned_typescript_codebase as nextjs_codebase
+import snapshot_pinned_python_repo as airflow_snapshot
+import snapshot_pinned_typescript_repo as nextjs_snapshot
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REPORT_DIR = REPO_ROOT / "rust-rewrite/reports"
 
@@ -16,6 +23,27 @@ REQUIRED_REPORTS = {
     "nextjs_codebase": "nextjs-rust-codebase.json",
     "codemods": "pinned-rust-codemods.json",
     "semantic_parity": "pinned-semantic-parity.json",
+}
+
+AIRFLOW_EXPECTED_SNAPSHOT_SUMMARY = airflow_codebase.EXPECTED_SUMMARY
+NEXTJS_EXPECTED_SNAPSHOT_SUMMARY = {
+    **nextjs_codebase.EXPECTED_SUMMARY,
+    "exports": nextjs_codebase.EXPECTED_RECORDS["rust_exports"],
+    "external_references": nextjs_codebase.EXPECTED_RECORDS["rust_external_references"],
+    "subclass_edges": nextjs_codebase.EXPECTED_RECORDS["rust_subclass_edges"],
+}
+
+AIRFLOW_EXPECTED_METADATA = {
+    "name": airflow_benchmark.DEFAULT_REPO_NAME,
+    "repo_url": airflow_benchmark.DEFAULT_REPO_URL,
+    "ref": airflow_benchmark.DEFAULT_REF,
+    "commit": airflow_benchmark.DEFAULT_EXPECTED_COMMIT,
+}
+NEXTJS_EXPECTED_METADATA = {
+    "name": nextjs_benchmark.DEFAULT_REPO_NAME,
+    "repo_url": nextjs_benchmark.DEFAULT_REPO_URL,
+    "ref": nextjs_benchmark.DEFAULT_REF,
+    "commit": nextjs_benchmark.DEFAULT_EXPECTED_COMMIT,
 }
 
 
@@ -30,6 +58,35 @@ def ratio_at_least(value: Any, minimum: float) -> bool:
     return isinstance(value, int | float) and value >= minimum
 
 
+def assert_metadata(name: str, metadata: dict[str, Any], expected: dict[str, Any], failures: list[str]) -> None:
+    for key, expected_value in expected.items():
+        observed_value = metadata.get(key)
+        if observed_value != expected_value:
+            failures.append(f"{name}: metadata.{key} expected {expected_value!r}, got {observed_value!r}")
+
+
+def assert_exact_counts(name: str, observed: dict[str, Any], expected: dict[str, int], failures: list[str]) -> None:
+    if not isinstance(observed, dict):
+        failures.append(f"{name}: missing count mapping")
+        return
+    for key, expected_value in expected.items():
+        observed_value = observed.get(key)
+        if observed_value != expected_value:
+            failures.append(f"{name}: {key} expected {expected_value}, got {observed_value}")
+
+
+def assert_exact_mapping(name: str, observed: Any, expected: Any, failures: list[str]) -> None:
+    if observed != expected:
+        failures.append(f"{name}: drifted")
+
+
+def assert_cache_contract(name: str, observed: dict[str, Any], expected: dict[str, bool], failures: list[str]) -> None:
+    if not isinstance(observed, dict):
+        failures.append(f"{name}: missing cache materialization report")
+        return
+    assert_exact_mapping(name, observed, expected, failures)
+
+
 def assert_no_integrity_failures(name: str, snapshot: dict[str, Any], failures: list[str]) -> None:
     integrity = snapshot.get("integrity")
     if not isinstance(integrity, dict):
@@ -40,12 +97,17 @@ def assert_no_integrity_failures(name: str, snapshot: dict[str, Any], failures: 
         failures.append(f"{name}: integrity drifted: {drift}")
 
 
-def assert_nonempty_graphs(name: str, snapshot: dict[str, Any], failures: list[str]) -> None:
+def assert_nonempty_graphs(
+    name: str,
+    snapshot: dict[str, Any],
+    failures: list[str],
+    *,
+    required_graphs: list[str],
+) -> None:
     graphs = snapshot.get("graphs")
     if not isinstance(graphs, dict):
         failures.append(f"{name}: missing graph hashes")
         return
-    required_graphs = ["files", "symbols", "imports", "import_resolutions", "references", "dependencies"]
     for graph_name in required_graphs:
         graph = graphs.get(graph_name)
         if not isinstance(graph, dict):
@@ -55,6 +117,37 @@ def assert_nonempty_graphs(name: str, snapshot: dict[str, Any], failures: list[s
             failures.append(f"{name}: graph {graph_name} is empty")
         if not graph.get("sha256"):
             failures.append(f"{name}: graph {graph_name} is missing sha256")
+
+
+def assert_snapshot_contract(
+    name: str,
+    snapshot: dict[str, Any],
+    *,
+    expected_schema_version: int,
+    expected_metadata: dict[str, Any],
+    expected_summary: dict[str, int],
+    required_graphs: list[str],
+    failures: list[str],
+) -> None:
+    schema_version = snapshot.get("schema_version")
+    if schema_version != expected_schema_version:
+        failures.append(
+            f"{name}: schema_version expected {expected_schema_version}, got {schema_version}"
+        )
+    assert_metadata(name, snapshot.get("metadata", {}), expected_metadata, failures)
+    assert_exact_counts(f"{name}.summary", snapshot.get("summary", {}), expected_summary, failures)
+    assert_no_integrity_failures(name, snapshot, failures)
+    assert_nonempty_graphs(name, snapshot, failures, required_graphs=required_graphs)
+    graphs = snapshot.get("graphs", {})
+    if isinstance(graphs, dict):
+        for graph_name in required_graphs:
+            graph = graphs.get(graph_name, {})
+            summary_count = expected_summary.get(graph_name)
+            graph_count = graph.get("count") if isinstance(graph, dict) else None
+            if summary_count is not None and graph_count != summary_count:
+                failures.append(
+                    f"{name}: graph {graph_name} count expected {summary_count}, got {graph_count}"
+                )
 
 
 def assert_codebase_report(
@@ -88,6 +181,152 @@ def assert_codebase_report(
         "wall_ratio": wall_ratio,
         "rss_ratio": rss_ratio,
     }
+
+
+def assert_airflow_codebase_contract(report: dict[str, Any], failures: list[str]) -> None:
+    assert_metadata("airflow_codebase", report.get("metadata", {}), AIRFLOW_EXPECTED_METADATA, failures)
+    assert_exact_counts(
+        "airflow_codebase.summary",
+        report.get("summary", {}),
+        airflow_codebase.EXPECTED_SUMMARY,
+        failures,
+    )
+    assert_exact_counts(
+        "airflow_codebase.records",
+        report.get("records", {}),
+        airflow_codebase.EXPECTED_RECORDS,
+        failures,
+    )
+    assert_exact_counts(
+        "airflow_codebase.compat_handles",
+        report.get("compat_handles", {}),
+        airflow_codebase.EXPECTED_COMPAT_HANDLES,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_global_lookups",
+        report.get("known_global_lookups"),
+        airflow_codebase.EXPECTED_KNOWN_GLOBAL_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_child_lookups",
+        report.get("known_child_lookups"),
+        airflow_codebase.EXPECTED_KNOWN_CHILD_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_file_local_lookups",
+        report.get("known_file_local_lookups"),
+        airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_file_local_import_lookups",
+        report.get("known_file_local_import_lookups"),
+        airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_IMPORT_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_file_local_name_resolution",
+        report.get("known_file_local_name_resolution"),
+        airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_NAME_RESOLUTION,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_module_import_attribute_resolution",
+        report.get("known_module_import_attribute_resolution"),
+        airflow_codebase.EXPECTED_KNOWN_MODULE_IMPORT_ATTRIBUTE_RESOLUTION,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_ignore_case_file_lookups",
+        report.get("known_ignore_case_file_lookups"),
+        airflow_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_lookups",
+        report.get("known_lookups"),
+        airflow_codebase.EXPECTED_KNOWN_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "airflow_codebase.known_dependencies",
+        report.get("known_dependencies"),
+        airflow_codebase.EXPECTED_KNOWN_DEPENDENCIES,
+        failures,
+    )
+    assert_cache_contract(
+        "airflow_codebase.targeted_cache_materialization",
+        report.get("targeted_cache_materialization", {}),
+        airflow_codebase.EXPECTED_TARGETED_CACHE_MATERIALIZATION,
+        failures,
+    )
+    assert_cache_contract(
+        "airflow_codebase.byte_range_cache_materialization",
+        report.get("byte_range_cache_materialization", {}),
+        airflow_codebase.EXPECTED_BYTE_RANGE_CACHE_MATERIALIZATION,
+        failures,
+    )
+    assert_cache_contract(
+        "airflow_codebase.large_cache_materialization",
+        report.get("large_cache_materialization", {}),
+        airflow_codebase.EXPECTED_LARGE_CACHE_MATERIALIZATION,
+        failures,
+    )
+
+
+def assert_nextjs_codebase_contract(report: dict[str, Any], failures: list[str]) -> None:
+    assert_metadata("nextjs_codebase", report.get("metadata", {}), NEXTJS_EXPECTED_METADATA, failures)
+    assert_exact_counts(
+        "nextjs_codebase.summary",
+        report.get("summary", {}),
+        nextjs_codebase.EXPECTED_SUMMARY,
+        failures,
+    )
+    assert_exact_counts(
+        "nextjs_codebase.records",
+        report.get("records", {}),
+        nextjs_codebase.EXPECTED_RECORDS,
+        failures,
+    )
+    assert_exact_counts(
+        "nextjs_codebase.compat_handles",
+        report.get("compat_handles", {}),
+        nextjs_codebase.EXPECTED_COMPAT_HANDLES,
+        failures,
+    )
+    assert_exact_mapping(
+        "nextjs_codebase.known_global_lookups",
+        report.get("known_global_lookups"),
+        nextjs_codebase.EXPECTED_KNOWN_GLOBAL_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "nextjs_codebase.known_file_local_export_lookups",
+        report.get("known_file_local_export_lookups"),
+        nextjs_codebase.EXPECTED_KNOWN_FILE_LOCAL_EXPORT_LOOKUPS,
+        failures,
+    )
+    assert_exact_mapping(
+        "nextjs_codebase.known_ignore_case_file_lookups",
+        report.get("known_ignore_case_file_lookups"),
+        nextjs_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS,
+        failures,
+    )
+    assert_cache_contract(
+        "nextjs_codebase.targeted_cache_materialization",
+        report.get("targeted_cache_materialization", {}),
+        nextjs_codebase.EXPECTED_TARGETED_CACHE_MATERIALIZATION,
+        failures,
+    )
+    assert_cache_contract(
+        "nextjs_codebase.large_cache_materialization",
+        report.get("large_cache_materialization", {}),
+        nextjs_codebase.EXPECTED_LARGE_CACHE_MATERIALIZATION,
+        failures,
+    )
 
 
 def assert_codemods(report: dict[str, Any], failures: list[str]) -> list[dict[str, Any]]:
@@ -168,9 +407,48 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     }
 
     failures: list[str] = []
-    for name in ("airflow_snapshot", "nextjs_snapshot"):
-        assert_no_integrity_failures(name, reports[name], failures)
-        assert_nonempty_graphs(name, reports[name], failures)
+    assert_snapshot_contract(
+        "airflow_snapshot",
+        reports["airflow_snapshot"],
+        expected_schema_version=airflow_snapshot.SNAPSHOT_SCHEMA_VERSION,
+        expected_metadata=AIRFLOW_EXPECTED_METADATA,
+        expected_summary=AIRFLOW_EXPECTED_SNAPSHOT_SUMMARY,
+        required_graphs=[
+            "files",
+            "symbols",
+            "imports",
+            "import_resolutions",
+            "external_modules",
+            "references",
+            "external_references",
+            "dependencies",
+        ],
+        failures=failures,
+    )
+    assert_snapshot_contract(
+        "nextjs_snapshot",
+        reports["nextjs_snapshot"],
+        expected_schema_version=nextjs_snapshot.SNAPSHOT_SCHEMA_VERSION,
+        expected_metadata={
+            **NEXTJS_EXPECTED_METADATA,
+            "raw_rust_walk": False,
+            "selected_file_count": nextjs_codebase.EXPECTED_SUMMARY["files"],
+        },
+        expected_summary=NEXTJS_EXPECTED_SNAPSHOT_SUMMARY,
+        required_graphs=[
+            "files",
+            "symbols",
+            "imports",
+            "import_resolutions",
+            "external_modules",
+            "exports",
+            "references",
+            "external_references",
+            "dependencies",
+            "subclass_edges",
+        ],
+        failures=failures,
+    )
 
     codebase_summary = {
         "airflow": assert_codebase_report(
@@ -188,6 +466,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
             failures=failures,
         ),
     }
+    assert_airflow_codebase_contract(reports["airflow_codebase"], failures)
+    assert_nextjs_codebase_contract(reports["nextjs_codebase"], failures)
     codemod_summary = assert_codemods(reports["codemods"], failures)
     semantic_summary = assert_semantic_parity(reports["semantic_parity"], failures)
 
