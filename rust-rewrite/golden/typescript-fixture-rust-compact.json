@@ -267,6 +267,22 @@
       ]
     }
   ],
+  "import_resolutions": [
+    {
+      "id": 0,
+      "import_id": 7,
+      "source_file_id": 0,
+      "target_file_id": 1,
+      "target_symbol_id": null
+    },
+    {
+      "id": 1,
+      "import_id": 8,
+      "source_file_id": 0,
+      "target_file_id": 1,
+      "target_symbol_id": null
+    }
+  ],
   "imports": [
     {
       "alias": "React",
@@ -421,6 +437,7 @@
     "files_with_errors": 0,
     "functions": 3,
     "global_variables": 3,
+    "import_resolutions": 2,
     "imports": 9,
     "lines": 19,
     "symbols": 11

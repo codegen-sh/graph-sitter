@@ -120,6 +120,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
             "rust_functions": rust_summary["functions"],
             "rust_global_variables": rust_summary["global_variables"],
             "rust_imports": rust_summary["imports"],
+            "rust_import_resolutions": rust_summary["import_resolutions"],
             "rust_exports": rust_summary["exports"],
             "rust_files_with_errors": rust_summary["files_with_errors"],
             "python_nodes": python_graph["nodes"],
@@ -171,7 +172,9 @@ def print_human(report: dict[str, Any]) -> None:
         f"wall={comparison['rust_wall_seconds']:.3f}s "
         f"max_rss={comparison['rust_max_rss_mb']:.1f} MB "
         f"files={comparison['rust_files']} symbols={comparison['rust_symbols']} "
-        f"imports={comparison['rust_imports']} exports={comparison['rust_exports']} "
+        f"imports={comparison['rust_imports']} "
+        f"import_resolutions={comparison['rust_import_resolutions']} "
+        f"exports={comparison['rust_exports']} "
         f"files_with_errors={comparison['rust_files_with_errors']}"
     )
     print(

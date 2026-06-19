@@ -182,7 +182,7 @@ Recommended task format:
 - [x] Inventory current resolver/dependency algorithms and Rust relation-table plan. owner: Gauss. Result: documented in `rust-rewrite/resolution-algorithms.md`.
 - [ ] Port Python import resolution rules.
 - [x] Implement compact Python import-to-file and import-to-symbol resolution for indexed internal modules. owner: codex. Result: Rust now emits `ImportResolutionRecord` rows for direct, absolute `from`, and relative `from` imports when targets are inside the selected file set.
-- [ ] Port TypeScript relative import resolution rules.
+- [x] Port TypeScript relative import resolution rules. owner: codex. Result: `TypeScriptIndex` now emits compact `ImportResolutionRecord` rows for relative TS/JS module specifiers that resolve to selected files via exact, extensionless `.ts/.tsx/.js/.jsx`, and directory `index` candidates, including default/named symbol targets when local exports identify a symbol.
 - [ ] Port TypeScript config/path alias handling.
 - [ ] Represent external modules compactly.
 - [ ] Implement full import-to-file and import-to-symbol edges for all Python and TypeScript rules.
@@ -345,3 +345,4 @@ Recommended task format:
 - [x] 2026-06-18: Added compact Rust decorator mutation smoke coverage. owner: codex. Notes: compact symbols now derive lightweight decorator handles from Rust byte ranges, can add decorators to classes/methods, and can remove decorator lines without building the Python graph.
 - [x] 2026-06-18: Added compact Rust move-to-file mutation smoke coverage. owner: codex. Notes: compact files now support `add_symbol`/`add_symbol_from_source`, and compact symbols can move into created files while copying dependency imports or adding source-file back-edge imports without materializing the Python graph.
 - [x] 2026-06-18: Added compact Rust cross-file import-update smoke coverage. owner: codex. Notes: a two-file fixture now proves `update_all_imports` moves a symbol into a created module, removes the old consumer import line, and inserts the new destination import without building the Python graph.
+- [x] 2026-06-19: Added first compact TypeScript relative import-resolution slice. owner: codex. Notes: Rust TS/JS indexing now stores import-resolution rows, exposes them through PyO3, snapshots them in the small TS golden and pinned Next.js tool, and resolves local default/named imports plus namespace/side-effect/re-export file edges without path-alias or dependency-edge parity yet. Refreshed pinned Next.js `v15.0.0` benchmark: Rust emits 9,424 TS import resolutions while staying 7.212x faster with 15.033x lower max RSS than Python parse/object materialization.

@@ -211,6 +211,7 @@ pub struct TypeScriptIndex {
     pub files: Vec<FileRecord>,
     pub symbols: Vec<SymbolRecord>,
     pub imports: Vec<ImportRecord>,
+    pub import_resolutions: Vec<ImportResolutionRecord>,
     pub exports: Vec<ExportRecord>,
 }
 
@@ -235,7 +236,7 @@ impl TypeScriptIndex {
                 .filter(|symbol| symbol.kind == SymbolKind::GlobalVariable)
                 .count(),
             imports: self.imports.len(),
-            import_resolutions: 0,
+            import_resolutions: self.import_resolutions.len(),
             references: 0,
             dependencies: 0,
             bytes: self.files.iter().map(|file| file.byte_len).sum(),
@@ -565,6 +566,7 @@ impl TypeScriptIndexer {
             files: Vec::new(),
             symbols: Vec::new(),
             imports: Vec::new(),
+            import_resolutions: Vec::new(),
             exports: Vec::new(),
         };
         paths.sort();
@@ -595,6 +597,7 @@ impl TypeScriptIndexer {
             extract_typescript_file(file_id, &content, &tree, &mut index);
         }
 
+        resolve_typescript_imports(&mut index);
         Ok(index)
     }
 }
@@ -1222,6 +1225,168 @@ fn push_typescript_export(
         import_id,
         range,
     });
+}
+
+fn resolve_typescript_imports(index: &mut TypeScriptIndex) {
+    let file_by_path: HashMap<String, u32> = index
+        .files
+        .iter()
+        .map(|file| (file.path.clone(), file.id))
+        .collect();
+    let symbol_by_file_and_name: HashMap<(u32, String), u32> = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.is_top_level)
+        .map(|symbol| ((symbol.file_id, symbol.name.clone()), symbol.id))
+        .collect();
+    let exported_symbol_by_file_and_name =
+        typescript_exported_symbol_map(index, &symbol_by_file_and_name);
+
+    let mut resolutions = Vec::new();
+    for import in &index.imports {
+        let Some(module) = import.module.as_deref() else {
+            continue;
+        };
+        if !module.starts_with('.') {
+            continue;
+        }
+        let Some(source_file) = index.files.get(import.file_id as usize) else {
+            continue;
+        };
+        let Some(target_file_id) =
+            resolve_typescript_relative_module(source_file, module, &file_by_path)
+        else {
+            continue;
+        };
+        let target_symbol_id = resolve_typescript_import_symbol(
+            import,
+            target_file_id,
+            &exported_symbol_by_file_and_name,
+            &symbol_by_file_and_name,
+        );
+        resolutions.push(ImportResolutionRecord {
+            id: resolutions.len() as u32,
+            import_id: import.id,
+            source_file_id: import.file_id,
+            target_file_id,
+            target_symbol_id,
+        });
+    }
+    index.import_resolutions = resolutions;
+}
+
+fn typescript_exported_symbol_map(
+    index: &TypeScriptIndex,
+    symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+) -> HashMap<(u32, String), u32> {
+    let mut exported_symbols = HashMap::new();
+    for export in &index.exports {
+        if export.source_module.is_some() {
+            continue;
+        }
+        let Some(name) = export.name.as_deref() else {
+            continue;
+        };
+        let symbol_id = export.symbol_id.or_else(|| {
+            export.local_name.as_deref().and_then(|local_name| {
+                symbol_by_file_and_name
+                    .get(&(export.file_id, local_name.to_owned()))
+                    .copied()
+            })
+        });
+        if let Some(symbol_id) = symbol_id {
+            exported_symbols.insert((export.file_id, name.to_owned()), symbol_id);
+        }
+    }
+    exported_symbols
+}
+
+fn resolve_typescript_import_symbol(
+    import: &ImportRecord,
+    target_file_id: u32,
+    exported_symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+    symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+) -> Option<u32> {
+    let export_name = match import.kind {
+        ImportKind::DefaultImport => "default",
+        ImportKind::NamedImport => import.name.as_deref()?,
+        ImportKind::Import
+        | ImportKind::FromImport
+        | ImportKind::FutureImport
+        | ImportKind::SideEffect
+        | ImportKind::NamespaceImport
+        | ImportKind::DynamicImport => return None,
+    };
+    exported_symbol_by_file_and_name
+        .get(&(target_file_id, export_name.to_owned()))
+        .copied()
+        .or_else(|| {
+            symbol_by_file_and_name
+                .get(&(target_file_id, export_name.to_owned()))
+                .copied()
+        })
+}
+
+fn resolve_typescript_relative_module(
+    source_file: &FileRecord,
+    module: &str,
+    file_by_path: &HashMap<String, u32>,
+) -> Option<u32> {
+    let base = normalize_typescript_relative_module(&source_file.path, module)?;
+    for candidate in typescript_module_candidates(&base) {
+        if let Some(file_id) = file_by_path.get(candidate.as_str()).copied() {
+            return Some(file_id);
+        }
+    }
+    None
+}
+
+fn normalize_typescript_relative_module(source_path: &str, module: &str) -> Option<String> {
+    let source_dir = source_path
+        .rsplit_once('/')
+        .map(|(dir, _)| dir)
+        .unwrap_or("");
+    let raw_path = if source_dir.is_empty() {
+        module.to_owned()
+    } else {
+        format!("{source_dir}/{module}")
+    };
+    let mut parts = Vec::new();
+    for part in raw_path.split('/') {
+        match part {
+            "" | "." => {}
+            ".." => {
+                parts.pop()?;
+            }
+            _ => parts.push(part),
+        }
+    }
+    Some(parts.join("/"))
+}
+
+fn typescript_module_candidates(base: &str) -> Vec<String> {
+    const EXTENSIONS: &[&str] = &["ts", "tsx", "d.ts", "js", "jsx"];
+    let mut candidates = vec![base.to_owned()];
+    if !has_typescript_module_suffix(base, EXTENSIONS) {
+        candidates.extend(
+            EXTENSIONS
+                .iter()
+                .map(|extension| format!("{base}.{extension}")),
+        );
+    }
+    candidates.extend(
+        EXTENSIONS
+            .iter()
+            .map(|extension| format!("{base}/index.{extension}")),
+    );
+    candidates
+}
+
+fn has_typescript_module_suffix(path: &str, suffixes: &[&str]) -> bool {
+    suffixes.iter().any(|suffix| {
+        path.strip_suffix(suffix)
+            .is_some_and(|prefix| prefix.ends_with('.'))
+    })
 }
 
 fn typescript_string_literal_value(text: &str) -> Option<String> {
@@ -3225,6 +3390,114 @@ const Component = () => <div />;
     }
 
     #[test]
+    fn resolves_relative_typescript_imports_to_files_and_symbols() {
+        let repo = temp_repo_path("resolve-typescript-imports");
+        fs::create_dir_all(repo.join("src/feature")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import DefaultThing, { helper } from './utils';\n\
+import * as utils from './utils';\n\
+import { dotted } from './foo.test';\n\
+import './setup';\n\
+export { helper as publicHelper } from './utils';\n\
+export * from './feature';\n\
+",
+        )
+        .unwrap();
+        fs::write(repo.join("src/setup.ts"), "window.__ready = true;\n").unwrap();
+        fs::write(
+            repo.join("src/utils.ts"),
+            "export const helper = 1;\nexport default function DefaultThing() {}\n",
+        )
+        .unwrap();
+        fs::write(repo.join("src/foo.test.ts"), "export const dotted = 1;\n").unwrap();
+        fs::write(
+            repo.join("src/feature/index.ts"),
+            "export const feature = 1;\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 5);
+        assert_eq!(index.summary().imports, 7);
+        assert_eq!(index.summary().import_resolutions, 7);
+
+        let utils_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/utils.ts")
+            .unwrap()
+            .id;
+        let setup_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/setup.ts")
+            .unwrap()
+            .id;
+        let feature_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/feature/index.ts")
+            .unwrap()
+            .id;
+        let dotted_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/foo.test.ts")
+            .unwrap()
+            .id;
+        let helper_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == utils_file_id && symbol.name == "helper")
+            .unwrap()
+            .id;
+        let default_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == utils_file_id && symbol.name == "DefaultThing")
+            .unwrap()
+            .id;
+        let dotted_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == dotted_file_id && symbol.name == "dotted")
+            .unwrap()
+            .id;
+
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.target_file_id == utils_file_id
+                && resolution.target_symbol_id == Some(default_symbol_id)
+        }));
+        assert_eq!(
+            index
+                .import_resolutions
+                .iter()
+                .filter(|resolution| {
+                    resolution.target_file_id == utils_file_id
+                        && resolution.target_symbol_id == Some(helper_symbol_id)
+                })
+                .count(),
+            2
+        );
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.target_file_id == utils_file_id && resolution.target_symbol_id.is_none()
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.target_file_id == setup_file_id && resolution.target_symbol_id.is_none()
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.target_file_id == feature_file_id && resolution.target_symbol_id.is_none()
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.target_file_id == dotted_file_id
+                && resolution.target_symbol_id == Some(dotted_symbol_id)
+        }));
+    }
+
+    #[test]
     fn resolves_internal_python_imports_to_files_and_symbols() {
         let repo = temp_repo_path("resolve-python-imports");
         fs::create_dir_all(repo.join("pkg")).unwrap();
@@ -4149,6 +4422,19 @@ export * as shared from './shared';\n",
                 })
             })
             .collect::<Vec<_>>();
+        let import_resolutions = index
+            .import_resolutions
+            .iter()
+            .map(|resolution| {
+                serde_json::json!({
+                    "id": resolution.id,
+                    "import_id": resolution.import_id,
+                    "source_file_id": resolution.source_file_id,
+                    "target_file_id": resolution.target_file_id,
+                    "target_symbol_id": resolution.target_symbol_id,
+                })
+            })
+            .collect::<Vec<_>>();
         let exports = index
             .exports
             .iter()
@@ -4175,6 +4461,7 @@ export * as shared from './shared';\n",
                 "functions": index.summary().functions,
                 "global_variables": index.summary().global_variables,
                 "imports": index.summary().imports,
+                "import_resolutions": index.summary().import_resolutions,
                 "exports": index.exports.len(),
                 "bytes": index.summary().bytes,
                 "lines": index.summary().lines,
@@ -4183,6 +4470,7 @@ export * as shared from './shared';\n",
             "files": files,
             "symbols": symbols,
             "imports": imports,
+            "import_resolutions": import_resolutions,
             "exports": exports,
         })
     }

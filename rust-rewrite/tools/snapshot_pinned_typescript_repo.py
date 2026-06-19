@@ -34,7 +34,7 @@ from snapshot_pinned_python_repo import (  # noqa: E402
 DEFAULT_EXPECTED_SNAPSHOT = (
     REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
 )
-SNAPSHOT_SCHEMA_VERSION = 1
+SNAPSHOT_SCHEMA_VERSION = 2
 
 
 def range_list(record: dict[str, Any], name: str = "range") -> list[int]:
@@ -62,6 +62,22 @@ def import_key(import_record: dict[str, Any], file_by_id: dict[int, dict[str, An
     name = import_record["name"] or ""
     alias = import_record["alias"] or ""
     return f"{file['path']}:{import_record['kind']}:{module}:{name}:{alias}@{range_list(import_record)[0]}"
+
+
+def import_resolution_key(
+    resolution: dict[str, Any],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> str:
+    import_record = import_by_id[resolution["import_id"]]
+    target_file = file_by_id[resolution["target_file_id"]]["path"]
+    target_symbol = (
+        ""
+        if resolution["target_symbol_id"] is None
+        else symbol_key(symbol_by_id[resolution["target_symbol_id"]], file_by_id)
+    )
+    return f"{import_key(import_record, file_by_id)}->{target_file}:{target_symbol}"
 
 
 def export_key(export: dict[str, Any], file_by_id: dict[int, dict[str, Any]]) -> str:
@@ -141,6 +157,41 @@ def make_import_rows(
     )
 
 
+def make_import_resolution_rows(
+    import_resolutions: list[dict[str, Any]],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = []
+    for resolution in import_resolutions:
+        target_symbol = (
+            None
+            if resolution["target_symbol_id"] is None
+            else symbol_key(symbol_by_id[resolution["target_symbol_id"]], file_by_id)
+        )
+        rows.append(
+            {
+                "key": import_resolution_key(
+                    resolution, file_by_id, symbol_by_id, import_by_id
+                ),
+                "import": import_key(import_by_id[resolution["import_id"]], file_by_id),
+                "source_file": file_by_id[resolution["source_file_id"]]["path"],
+                "target_file": file_by_id[resolution["target_file_id"]]["path"],
+                "target_symbol": target_symbol,
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            row["source_file"],
+            row["target_file"],
+            row["target_symbol"] or "",
+            row["import"],
+        ),
+    )
+
+
 def make_export_rows(
     exports: list[dict[str, Any]],
     file_by_id: dict[int, dict[str, Any]],
@@ -190,6 +241,7 @@ def validate_integrity(
     files: list[dict[str, Any]],
     symbols: list[dict[str, Any]],
     imports: list[dict[str, Any]],
+    import_resolutions: list[dict[str, Any]],
     exports: list[dict[str, Any]],
     selected_file_count: int | None,
 ) -> dict[str, int]:
@@ -214,6 +266,25 @@ def validate_integrity(
         int(export["import_id"] is not None and export["import_id"] not in import_ids)
         for export in exports
     )
+    missing_resolution_import_links = sum(
+        int(resolution["import_id"] not in import_ids)
+        for resolution in import_resolutions
+    )
+    missing_resolution_source_file_links = sum(
+        int(resolution["source_file_id"] not in file_ids)
+        for resolution in import_resolutions
+    )
+    missing_resolution_target_file_links = sum(
+        int(resolution["target_file_id"] not in file_ids)
+        for resolution in import_resolutions
+    )
+    missing_resolution_target_symbol_links = sum(
+        int(
+            resolution["target_symbol_id"] is not None
+            and resolution["target_symbol_id"] not in symbol_ids
+        )
+        for resolution in import_resolutions
+    )
 
     selected_file_count_delta = (
         0 if selected_file_count is None else len(files) - selected_file_count
@@ -224,6 +295,10 @@ def validate_integrity(
         "missing_export_file_links": missing_export_file_links,
         "missing_export_symbol_links": missing_export_symbol_links,
         "missing_export_import_links": missing_export_import_links,
+        "missing_resolution_import_links": missing_resolution_import_links,
+        "missing_resolution_source_file_links": missing_resolution_source_file_links,
+        "missing_resolution_target_file_links": missing_resolution_target_file_links,
+        "missing_resolution_target_symbol_links": missing_resolution_target_symbol_links,
         "selected_file_count_delta": selected_file_count_delta,
     }
 
@@ -263,6 +338,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     files = json.loads(index.files_json())
     symbols = json.loads(index.symbols_json())
     imports = json.loads(index.imports_json())
+    import_resolutions = json.loads(index.import_resolutions_json())
     exports = json.loads(index.exports_json())
 
     file_by_id = {file["id"]: file for file in files}
@@ -272,11 +348,15 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     file_rows = make_file_rows(files)
     symbol_rows = make_symbol_rows(symbols, file_by_id, symbol_by_id)
     import_rows = make_import_rows(imports, file_by_id)
+    import_resolution_rows = make_import_resolution_rows(
+        import_resolutions, file_by_id, symbol_by_id, import_by_id
+    )
     export_rows = make_export_rows(exports, file_by_id, symbol_by_id, import_by_id)
     integrity = validate_integrity(
         files=files,
         symbols=symbols,
         imports=imports,
+        import_resolutions=import_resolutions,
         exports=exports,
         selected_file_count=selected_file_count,
     )
@@ -301,6 +381,9 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             "files": compact_record_set(file_rows, sample_size=args.sample_size),
             "symbols": compact_record_set(symbol_rows, sample_size=args.sample_size),
             "imports": compact_record_set(import_rows, sample_size=args.sample_size),
+            "import_resolutions": compact_record_set(
+                import_resolution_rows, sample_size=args.sample_size
+            ),
             "exports": compact_record_set(export_rows, sample_size=args.sample_size),
         },
         "integrity": integrity,
@@ -406,6 +489,7 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
+        f"import_resolutions={summary['import_resolutions']} "
         f"exports={summary['exports']} files_with_errors={summary['files_with_errors']}"
     )
     print(
@@ -413,6 +497,7 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         f"files={snapshot['graphs']['files']['sha256']} "
         f"symbols={snapshot['graphs']['symbols']['sha256']} "
         f"imports={snapshot['graphs']['imports']['sha256']} "
+        f"import_resolutions={snapshot['graphs']['import_resolutions']['sha256']} "
         f"exports={snapshot['graphs']['exports']['sha256']}"
     )
 

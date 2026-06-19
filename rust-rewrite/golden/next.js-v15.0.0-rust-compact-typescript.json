@@ -652,6 +652,152 @@
       ],
       "sha256": "caf02ccc4d64cb10b5db5432e3a3e0edc363d0901bb53191e2ef8d8cee2768f8"
     },
+    "import_resolutions": {
+      "count": 9424,
+      "samples": [
+        {
+          "import": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./constants:benchTitle:benchTitle@227",
+          "key": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./constants:benchTitle:benchTitle@227->.github/actions/next-stats-action/src/constants.js:",
+          "source_file": ".github/actions/next-stats-action/src/add-comment.js",
+          "target_file": ".github/actions/next-stats-action/src/constants.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./util/logger:logger:logger@143",
+          "key": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./util/logger:logger:logger@143->.github/actions/next-stats-action/src/util/logger.js:",
+          "source_file": ".github/actions/next-stats-action/src/add-comment.js",
+          "target_file": ".github/actions/next-stats-action/src/util/logger.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./add-comment:addComment:addComment@218",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./add-comment:addComment:addComment@218->.github/actions/next-stats-action/src/add-comment.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/add-comment.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:diffRepoDir:diffRepoDir@316",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:diffRepoDir:diffRepoDir@316->.github/actions/next-stats-action/src/constants.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/constants.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:mainRepoDir:mainRepoDir@316",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:mainRepoDir:mainRepoDir@316->.github/actions/next-stats-action/src/constants.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/constants.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/action-info:actionInfo:actionInfo@262",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/action-info:actionInfo:actionInfo@262->.github/actions/next-stats-action/src/prepare/action-info.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/prepare/action-info.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/load-stats-config:loadStatsConfig:loadStatsConfig@376",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/load-stats-config:loadStatsConfig:loadStatsConfig@376->.github/actions/next-stats-action/src/prepare/load-stats-config.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:cloneRepo:cloneRepo@439",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:cloneRepo:cloneRepo@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getCommitId:getCommitId@439",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getCommitId:getCommitId@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getLastStable:getLastStable@439",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getLastStable:getLastStable@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:linkPackages:linkPackages@439",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:linkPackages:linkPackages@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:mergeBranch:mergeBranch@439",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:mergeBranch:mergeBranch@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./run:runConfigs:runConfigs@182",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./run:runConfigs:runConfigs@182->.github/actions/next-stats-action/src/run/index.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/run/index.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/exec:exec:exec@106",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/exec:exec:exec@106->.github/actions/next-stats-action/src/util/exec.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/util/exec.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/logger:logger:logger@142",
+          "key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/logger:logger:logger@142->.github/actions/next-stats-action/src/util/logger.js:",
+          "source_file": ".github/actions/next-stats-action/src/index.js",
+          "target_file": ".github/actions/next-stats-action/src/util/logger.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/prepare/action-info.js:dynamic_import:../util/logger:logger:logger@35",
+          "key": ".github/actions/next-stats-action/src/prepare/action-info.js:dynamic_import:../util/logger:logger:logger@35->.github/actions/next-stats-action/src/util/logger.js:",
+          "source_file": ".github/actions/next-stats-action/src/prepare/action-info.js",
+          "target_file": ".github/actions/next-stats-action/src/util/logger.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:allowedConfigLocations:allowedConfigLocations@76",
+          "key": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:allowedConfigLocations:allowedConfigLocations@76->.github/actions/next-stats-action/src/constants.js:",
+          "source_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+          "target_file": ".github/actions/next-stats-action/src/constants.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:diffRepoDir:diffRepoDir@76",
+          "key": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:diffRepoDir:diffRepoDir@76->.github/actions/next-stats-action/src/constants.js:",
+          "source_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+          "target_file": ".github/actions/next-stats-action/src/constants.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../util/logger:logger:logger@35",
+          "key": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../util/logger:logger:logger@35->.github/actions/next-stats-action/src/util/logger.js:",
+          "source_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+          "target_file": ".github/actions/next-stats-action/src/util/logger.js",
+          "target_symbol": null
+        },
+        {
+          "import": ".github/actions/next-stats-action/src/prepare/repo-setup.js:dynamic_import:../util/exec:exec:exec@97",
+          "key": ".github/actions/next-stats-action/src/prepare/repo-setup.js:dynamic_import:../util/exec:exec:exec@97->.github/actions/next-stats-action/src/util/exec.js:",
+          "source_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+          "target_file": ".github/actions/next-stats-action/src/util/exec.js",
+          "target_symbol": null
+        }
+      ],
+      "sha256": "f67da516a88fee6fd7021455e4377a268d2513bbe896af001730a7340ffdfa2d"
+    },
     "imports": {
       "count": 28210,
       "samples": [
@@ -1470,6 +1616,10 @@
     "missing_export_import_links": 0,
     "missing_export_symbol_links": 0,
     "missing_import_file_links": 0,
+    "missing_resolution_import_links": 0,
+    "missing_resolution_source_file_links": 0,
+    "missing_resolution_target_file_links": 0,
+    "missing_resolution_target_symbol_links": 0,
     "missing_symbol_file_links": 0,
     "selected_file_count_delta": 0
   },
@@ -1481,7 +1631,7 @@
     "repo_url": "https://github.com/vercel/next.js.git",
     "selected_file_count": 13688
   },
-  "schema_version": 1,
+  "schema_version": 2,
   "summary": {
     "bytes": 25421217,
     "classes": 502,
@@ -1491,7 +1641,7 @@
     "files_with_errors": 114,
     "functions": 13497,
     "global_variables": 7843,
-    "import_resolutions": 0,
+    "import_resolutions": 9424,
     "imports": 28210,
     "lines": 634891,
     "references": 0,

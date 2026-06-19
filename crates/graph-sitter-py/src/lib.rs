@@ -278,6 +278,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn import_resolutions_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.import_resolutions)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn exports_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.exports)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -299,6 +304,11 @@ mod bindings {
         }
 
         #[getter]
+        fn import_resolution_count(&self) -> usize {
+            self.inner.import_resolutions.len()
+        }
+
+        #[getter]
         fn export_count(&self) -> usize {
             self.inner.exports.len()
         }
@@ -306,10 +316,11 @@ mod bindings {
         fn __repr__(&self) -> String {
             let summary = self.inner.summary();
             format!(
-                "TypeScriptIndex(files={}, symbols={}, imports={}, exports={})",
+                "TypeScriptIndex(files={}, symbols={}, imports={}, import_resolutions={}, exports={})",
                 summary.files,
                 summary.symbols,
                 summary.imports,
+                summary.import_resolutions,
                 self.inner.exports.len()
             )
         }
@@ -592,7 +603,12 @@ mod bindings {
             fs::create_dir_all(repo.join("src")).unwrap();
             fs::write(
                 repo.join("src/app.tsx"),
-                "import React from 'react';\nexport function Page() { return <div />; }\n",
+                "import React from 'react';\nimport { helper } from './util';\nexport function Page() { return helper(<div />); }\n",
+            )
+            .unwrap();
+            fs::write(
+                repo.join("src/util.ts"),
+                "export function helper(value: unknown) { return value; }\n",
             )
             .unwrap();
             fs::write(repo.join("src/skipped.py"), "class Skipped:\n    pass\n").unwrap();
@@ -603,14 +619,21 @@ mod bindings {
             fs::remove_dir_all(&repo).unwrap();
 
             let summary = index.summary();
-            assert_eq!(summary.files, 1);
-            assert_eq!(summary.functions, 1);
-            assert_eq!(summary.imports, 1);
-            assert_eq!(index.export_count(), 1);
+            assert_eq!(summary.files, 2);
+            assert_eq!(summary.functions, 2);
+            assert_eq!(summary.imports, 2);
+            assert_eq!(summary.import_resolutions, 1);
+            assert_eq!(index.import_resolution_count(), 1);
+            assert_eq!(index.export_count(), 2);
             assert!(index.files_json().unwrap().contains("\"src/app.tsx\""));
             assert!(index.symbols_json().unwrap().contains("\"Page\""));
             assert!(index.imports_json().unwrap().contains("\"default_import\""));
+            assert!(index
+                .import_resolutions_json()
+                .unwrap()
+                .contains("target_symbol_id"));
             assert!(index.exports_json().unwrap().contains("\"Page\""));
+            assert!(index.to_json().unwrap().contains("\"import_resolutions\""));
             assert!(index.to_json().unwrap().contains("\"exports\""));
         }
 
