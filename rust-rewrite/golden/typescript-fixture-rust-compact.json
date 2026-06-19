@@ -251,8 +251,10 @@
   "files": [
     {
       "byte_len": 639,
+      "content_hash": "825a13117e50e433",
       "has_error": false,
       "id": 0,
+      "language": "tsx",
       "line_count": 17,
       "path": "src/app.tsx",
       "root_range": [
@@ -266,8 +268,10 @@
     },
     {
       "byte_len": 81,
+      "content_hash": "7ed060fdc0c18e96",
       "has_error": false,
       "id": 1,
+      "language": "typescript",
       "line_count": 2,
       "path": "src/shared.ts",
       "root_range": [

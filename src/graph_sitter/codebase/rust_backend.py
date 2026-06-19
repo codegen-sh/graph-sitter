@@ -85,6 +85,8 @@ class RustFileRecord:
     id: int
     path: str
     module_name: str | None
+    language: str
+    content_hash: str
     byte_len: int
     line_count: int
     has_error: bool
@@ -96,6 +98,8 @@ class RustFileRecord:
             id=int(data["id"]),
             path=str(data["path"]),
             module_name=data["module_name"],
+            language=str(data.get("language", "")),
+            content_hash=str(data.get("content_hash", "")),
             byte_len=int(data["byte_len"]),
             line_count=int(data["line_count"]),
             has_error=bool(data["has_error"]),
@@ -536,6 +540,8 @@ class RustIndexBackend:
             id=max((file.id for file in self.files), default=-1) + 1,
             path=relative_path,
             module_name=module_name,
+            language=_rust_file_language_for_path(relative_path),
+            content_hash=_stable_content_hash(content_bytes),
             byte_len=len(content_bytes),
             line_count=_line_count(content),
             has_error=False,
@@ -1116,6 +1122,29 @@ def _line_count(source: str) -> int:
     if source == "":
         return 0
     return source.count("\n") + int(not source.endswith("\n"))
+
+
+def _stable_content_hash(content: bytes) -> str:
+    hash_value = 0xCBF29CE484222325
+    for byte in content:
+        hash_value ^= byte
+        hash_value = (hash_value * 0x00000100000001B3) & 0xFFFFFFFFFFFFFFFF
+    return f"{hash_value:016x}"
+
+
+def _rust_file_language_for_path(filepath: str) -> str:
+    extension = Path(filepath).suffix
+    if extension == ".py":
+        return "python"
+    if extension == ".ts":
+        return "typescript"
+    if extension == ".tsx":
+        return "tsx"
+    if extension == ".js":
+        return "javascript"
+    if extension == ".jsx":
+        return "jsx"
+    return ""
 
 
 def _source_range_for_content(source: str) -> RustSourceRange:

@@ -758,6 +758,11 @@ mod bindings {
             assert_eq!(index.global_variable_ids(), vec![0]);
             assert_eq!(index.import_ids(), vec![0, 1]);
             assert!(index.files_json().unwrap().contains("\"pkg/base.py\""));
+            assert!(index
+                .files_json()
+                .unwrap()
+                .contains("\"language\":\"python\""));
+            assert!(index.files_json().unwrap().contains("\"content_hash\""));
             assert!(index.symbols_json().unwrap().contains("\"CONSTANT\""));
             assert!(index.symbols_json().unwrap().contains("\"Base\""));
             assert!(index.imports_json().unwrap().contains("\".base\""));
@@ -823,6 +828,8 @@ mod bindings {
             assert_eq!(index.import_ids(), vec![0, 1]);
             assert_eq!(index.export_ids(), vec![0, 1]);
             assert!(index.files_json().unwrap().contains("\"src/app.tsx\""));
+            assert!(index.files_json().unwrap().contains("\"language\":\"tsx\""));
+            assert!(index.files_json().unwrap().contains("\"content_hash\""));
             assert!(index.symbols_json().unwrap().contains("\"Page\""));
             assert!(index.imports_json().unwrap().contains("\"default_import\""));
             assert!(index

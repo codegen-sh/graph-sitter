@@ -274,10 +274,26 @@ pub struct FileRecord {
     pub id: u32,
     pub path: String,
     pub module_name: Option<String>,
+    pub language: FileLanguage,
+    pub content_hash: String,
     pub byte_len: usize,
     pub line_count: usize,
     pub has_error: bool,
     pub root_range: SourceRange,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum FileLanguage {
+    #[serde(rename = "python")]
+    Python,
+    #[serde(rename = "typescript")]
+    TypeScript,
+    #[serde(rename = "tsx")]
+    Tsx,
+    #[serde(rename = "javascript")]
+    JavaScript,
+    #[serde(rename = "jsx")]
+    Jsx,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -518,7 +534,7 @@ impl PythonIndexer {
 
         for path in paths {
             let file_id = index.files.len() as u32;
-            let (content, byte_len) = read_source_lossy(&path)?;
+            let (content, byte_len, content_hash) = read_source_lossy(&path)?;
             let tree = self
                 .parser
                 .parse(&content, None)
@@ -534,6 +550,8 @@ impl PythonIndexer {
                 id: file_id,
                 module_name: python_module_name(&relative_path),
                 path: relative_path,
+                language: FileLanguage::Python,
+                content_hash,
                 byte_len,
                 line_count: line_count(&content),
                 has_error: root.has_error(),
@@ -621,7 +639,7 @@ impl TypeScriptIndexer {
 
         for path in paths {
             let file_id = index.files.len() as u32;
-            let (content, byte_len) = read_source_lossy(&path)?;
+            let (content, byte_len, content_hash) = read_source_lossy(&path)?;
             let tree = self
                 .parser
                 .parse(&content, None)
@@ -636,6 +654,8 @@ impl TypeScriptIndexer {
             index.files.push(FileRecord {
                 id: file_id,
                 module_name: None,
+                language: file_language_for_typescript_path(&path),
+                content_hash,
                 path: relative_path,
                 byte_len,
                 line_count: line_count(&content),
@@ -946,13 +966,37 @@ fn normalize_typescript_config_path(base: &str, path: &str) -> Option<String> {
     Some(parts.join("/"))
 }
 
-fn read_source_lossy(path: &Path) -> Result<(String, usize), IndexError> {
+fn read_source_lossy(path: &Path) -> Result<(String, usize, String), IndexError> {
     let bytes = fs::read(path).map_err(|source| IndexError::Io {
         path: path.to_path_buf(),
         source,
     })?;
     let byte_len = bytes.len();
-    Ok((String::from_utf8_lossy(&bytes).into_owned(), byte_len))
+    let content_hash = stable_content_hash(&bytes);
+    Ok((
+        String::from_utf8_lossy(&bytes).into_owned(),
+        byte_len,
+        content_hash,
+    ))
+}
+
+fn stable_content_hash(bytes: &[u8]) -> String {
+    let mut hash = 0xcbf2_9ce4_8422_2325u64;
+    for byte in bytes {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
+    }
+    format!("{hash:016x}")
+}
+
+fn file_language_for_typescript_path(path: &Path) -> FileLanguage {
+    match path.extension().and_then(|extension| extension.to_str()) {
+        Some("ts") => FileLanguage::TypeScript,
+        Some("tsx") => FileLanguage::Tsx,
+        Some("js") => FileLanguage::JavaScript,
+        Some("jsx") => FileLanguage::Jsx,
+        _ => FileLanguage::TypeScript,
+    }
 }
 
 fn collect_typescript_files(dir: &Path, out: &mut Vec<PathBuf>) -> Result<(), IndexError> {
@@ -6693,6 +6737,8 @@ def caller():\n    return helper()\n",
                     "id": file.id,
                     "path": file.path,
                     "module_name": file.module_name,
+                    "language": file.language,
+                    "content_hash": file.content_hash,
                 })
             })
             .collect::<Vec<_>>();
@@ -6765,9 +6811,9 @@ def caller():\n    return helper()\n",
             }),
             serde_json::json!({
                 "files": [
-                    {"id": 0, "path": "pkg/__init__.py", "module_name": "pkg"},
-                    {"id": 1, "path": "pkg/base.py", "module_name": "pkg.base"},
-                    {"id": 2, "path": "pkg/service.py", "module_name": "pkg.service"}
+                    {"id": 0, "path": "pkg/__init__.py", "module_name": "pkg", "language": "python", "content_hash": "cbf29ce484222325"},
+                    {"id": 1, "path": "pkg/base.py", "module_name": "pkg.base", "language": "python", "content_hash": "aba9f9794b1c932b"},
+                    {"id": 2, "path": "pkg/service.py", "module_name": "pkg.service", "language": "python", "content_hash": "aeab60e038068a85"}
                 ],
                 "symbols": [
                     {"id": 0, "file_id": 1, "parent_symbol_id": null, "is_top_level": true, "name": "CONSTANT", "kind": "global_variable"},
@@ -6854,6 +6900,8 @@ export * as shared from './shared';\n",
                 serde_json::json!({
                     "id": file.id,
                     "path": file.path,
+                    "language": file.language,
+                    "content_hash": file.content_hash,
                     "byte_len": file.byte_len,
                     "line_count": file.line_count,
                     "has_error": file.has_error,

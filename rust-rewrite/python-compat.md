@@ -120,7 +120,7 @@ Current implemented bridge status:
 - `Engine.index_python_paths(repo_path, file_paths)` and module-level `index_python_paths(repo_path, file_paths)` index an explicit Python file list. The Python shell integration uses this path so Rust sees the same `RepoOperator.iter_files(...)` selection as the current Python backend.
 - `PythonIndex.summary()` returns `IndexSummary` with file, symbol, class, function, global-variable, import, import-resolution, reference, dependency, byte, line, and error counts.
 - `PythonIndex.to_json()` serializes the compact Rust records for debug and benchmark use.
-- `PythonIndex.files_json()`, `symbols_json()`, `imports_json()`, and `import_resolutions_json()` expose each record family without forcing callers to deserialize the full index payload.
+- `PythonIndex.files_json()`, `symbols_json()`, `imports_json()`, and `import_resolutions_json()` expose each record family without forcing callers to deserialize the full index payload. File records include repo-relative path, module name, extension-derived language, stable raw-byte content hash, byte/line counts, parse-error status, and root range.
 - `PythonIndex.file_ids()`, `symbol_ids()`, `top_level_symbol_ids()`, `class_ids()`, `function_ids()`, `global_variable_ids()`, and `import_ids()` expose direct compact ID queries without record JSON deserialization.
 - `TypeScriptIndex` exposes the same ID queries plus `interface_ids()`, `type_ids()`, `enum_ids()`, `namespace_ids()`, and `export_ids()`.
 - `PythonIndex.references_json()` exposes compact symbol reference records.

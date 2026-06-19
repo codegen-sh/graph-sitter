@@ -1586,6 +1586,8 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert codebase.rust_import_resolutions[1].target_symbol_id is None
         assert codebase.rust_references[0].name == "Service"
         assert codebase.rust_dependencies[0].reference_ids == [0]
+        assert codebase.rust_files[0].language == ""
+        assert codebase.rust_files[0].content_hash == ""
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]
 
