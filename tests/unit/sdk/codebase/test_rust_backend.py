@@ -1743,6 +1743,40 @@ def test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes(monkeypat
         assert sorted(backend._import_handles_by_id) == [0]
 
 
+def test_rust_compact_name_resolution_does_not_materialize_file_maps(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        service_file = codebase.get_file("pkg/service.py")
+        assert service_file.resolve_attribute("Service").name == "Service"
+        assert service_file.resolve_attribute("os").name == "os"
+        assert [node.name for node in service_file.resolve_name("Service")] == ["Service"]
+        assert list(service_file.resolve_name("helper", start_byte=40)) == []
+        assert service_file.get_node_by_name("os").name == "os"
+
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._symbols_by_file_id is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._imports_by_file_id is None
+        assert backend._exports is None
+        assert backend._export_handles is None
+        assert backend._exports_by_file_id is None
+        assert sorted(backend._symbol_handles_by_id) == [0, 2]
+        assert sorted(backend._import_handles_by_id) == [0]
+
+
 def test_rust_compact_exact_export_lookups_do_not_materialize_all_exports(monkeypatch, tmp_path):
     install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST)

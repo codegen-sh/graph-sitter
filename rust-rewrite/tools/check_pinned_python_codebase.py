@@ -139,6 +139,31 @@ EXPECTED_KNOWN_FILE_LOCAL_IMPORT_LOOKUPS = {
     }
 }
 
+EXPECTED_KNOWN_FILE_LOCAL_NAME_RESOLUTION = {
+    "airflow_init_resolve_getattr": [
+        {
+            "filepath": "airflow/__init__.py",
+            "handle": "RustCompactSymbol",
+            "kind": "function",
+            "name": "__getattr__",
+        }
+    ],
+    "airflow_init_resolve_import_os": {
+        "filepath": "airflow/__init__.py",
+        "handle": "RustCompactImport",
+        "kind": "import",
+        "name": "os",
+        "source": "import os",
+    },
+    "airflow_init_get_node_import_os": {
+        "filepath": "airflow/__init__.py",
+        "handle": "RustCompactImport",
+        "kind": "import",
+        "name": "os",
+        "source": "import os",
+    },
+}
+
 EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
@@ -304,6 +329,27 @@ def known_file_local_import_lookup_report(codebase: Any) -> dict[str, dict[str, 
     }
 
 
+def known_file_local_name_resolution_report(codebase: Any) -> dict[str, Any]:
+    init_file = codebase.get_file("airflow/__init__.py")
+    resolved_import = init_file.resolve_attribute("os")
+    node_import = init_file.get_node_by_name("os")
+    import_signature = handle_signature(resolved_import)
+    import_signature["filepath"] = resolved_import.filepath
+    node_signature = handle_signature(node_import)
+    node_signature["filepath"] = node_import.filepath
+    return {
+        "airflow_init_resolve_getattr": [
+            {
+                **handle_signature(handle),
+                "filepath": handle.filepath,
+            }
+            for handle in init_file.resolve_name("__getattr__")
+        ],
+        "airflow_init_resolve_import_os": import_signature,
+        "airflow_init_get_node_import_os": node_signature,
+    }
+
+
 def dependency_signature(handle: Any) -> dict[str, Any]:
     node_type = getattr(handle, "node_type", None)
     signature = {
@@ -413,6 +459,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_known_file_local_lookups"))
     known_file_local_import_lookups = known_file_local_import_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_file_local_import_lookups"))
+    known_file_local_name_resolution = known_file_local_name_resolution_report(codebase)
+    memory_samples.append(memory_sample("after_known_file_local_name_resolution"))
     targeted_cache_materialization = targeted_cache_materialization_report(backend)
     known_lookups = known_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_lookups"))
@@ -455,6 +503,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "known_child_lookups": known_child_lookups,
         "known_file_local_lookups": known_file_local_lookups,
         "known_file_local_import_lookups": known_file_local_import_lookups,
+        "known_file_local_name_resolution": known_file_local_name_resolution,
         "targeted_cache_materialization": targeted_cache_materialization,
         "known_lookups": known_lookups,
         "byte_range_cache_materialization": byte_range_cache_materialization,
@@ -489,6 +538,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("known file-local lookup results drifted")
         if report["known_file_local_import_lookups"] != EXPECTED_KNOWN_FILE_LOCAL_IMPORT_LOOKUPS:
             failures.append("known file-local import lookup results drifted")
+        if report["known_file_local_name_resolution"] != EXPECTED_KNOWN_FILE_LOCAL_NAME_RESOLUTION:
+            failures.append("known file-local name resolution results drifted")
         if report["targeted_cache_materialization"] != EXPECTED_TARGETED_CACHE_MATERIALIZATION:
             failures.append("targeted lookup caches were materialized before byte-range queries")
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:

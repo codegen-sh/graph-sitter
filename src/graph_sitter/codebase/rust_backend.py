@@ -1977,13 +1977,28 @@ class RustCompactFile(RustCompactHandle):
     def valid_import_names(self) -> dict[str, RustCompactImport | RustCompactSymbol]:
         return self.valid_symbol_names
 
+    def _resolve_valid_symbol_name(self, name: str) -> RustCompactImport | RustCompactSymbol | None:
+        for import_handle in self.backend.imports_for_file_by_lookup(self.record.id, name):
+            for import_name, destination in import_handle.names:
+                if import_name == name:
+                    return destination
+        return next(
+            (symbol for symbol in self.backend.symbols_for_file_by_name(self.record.id, name) if symbol.is_top_level and symbol.full_name == name),
+            None,
+        )
+
     def resolve_name(self, name: str, start_byte: int | None = None, strict: bool = True) -> Any:
-        resolved = self.valid_symbol_names.get(name)
+        resolved = self._resolve_valid_symbol_name(name)
         if resolved is None:
             return
 
         if start_byte is not None and resolved.end_byte > start_byte:
-            for symbol in reversed(self.symbols):
+            symbols = sorted(
+                self.backend.symbols_for_file_by_name(self.record.id, name),
+                key=lambda symbol: (symbol.start_byte, symbol.end_byte, symbol.node_id),
+                reverse=True,
+            )
+            for symbol in symbols:
                 symbol_boundary = symbol.start_byte if symbol.symbol_type in {SymbolType.Class, SymbolType.Function} else symbol.end_byte
                 if symbol.name == name and symbol_boundary <= start_byte:
                     yield symbol
@@ -1995,7 +2010,7 @@ class RustCompactFile(RustCompactHandle):
         yield resolved
 
     def resolve_attribute(self, name: str) -> RustCompactImport | RustCompactSymbol | None:
-        return self.valid_import_names.get(name)
+        return self._resolve_valid_symbol_name(name)
 
     def get_node_by_name(self, name: str) -> RustCompactImport | RustCompactSymbol | None:
         symbol = self.get_symbol(name)
