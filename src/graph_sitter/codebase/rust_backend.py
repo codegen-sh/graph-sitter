@@ -1112,6 +1112,8 @@ class RustIndexBackend:
                 record = self._record_from_json_method("import_resolution_for_import_json", RustImportResolutionRecord.from_dict, import_id)
                 if record is not None:
                     self._import_resolutions_by_import_id[record.import_id] = record
+                else:
+                    return None
             if import_id in self._import_resolutions_by_import_id:
                 return self._import_resolutions_by_import_id[import_id]
         if self._import_resolutions_by_import_id is None:
@@ -1196,6 +1198,8 @@ class RustIndexBackend:
                 record = self._record_from_json_method("reference_by_id_json", RustReferenceRecord.from_dict, reference_id)
                 if record is not None:
                     self._references_by_id[record.id] = record
+                else:
+                    return None
             if reference_id in self._references_by_id:
                 return self._references_by_id[reference_id]
         if self._references_by_id is None:

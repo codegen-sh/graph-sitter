@@ -308,6 +308,9 @@ class FakeIndex:
             ]
         )
 
+    def import_resolution_for_import_json(self, import_id: int):
+        return json.dumps(next((resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["import_id"] == import_id), None))
+
     def external_modules_json(self):
         return json.dumps([])
 
@@ -335,6 +338,9 @@ class FakeIndex:
                 }
             ]
         )
+
+    def reference_by_id_json(self, reference_id: int):
+        return json.dumps(next((reference for reference in json.loads(self.references_json()) if reference["id"] == reference_id), None))
 
     def dependencies_json(self):
         return json.dumps(
@@ -1755,6 +1761,8 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert backend.symbol_handle_by_id(999) is None
         assert backend.import_handle_by_id(999) is None
         assert backend.external_module_for_import(999) is None
+        assert backend.import_resolution_for_import(999) is None
+        assert backend.reference_by_id(999) is None
 
         assert backend._symbols is None
         assert backend._symbol_handles is None
@@ -1762,6 +1770,8 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert backend._imports is None
         assert backend._import_handles is None
         assert backend._imports_by_file_id is None
+        assert backend._import_resolutions is None
+        assert backend._references is None
         assert backend._external_modules is None
         assert backend._external_module_handles is None
         assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
