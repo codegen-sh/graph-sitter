@@ -172,6 +172,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
             "rust_symbols": rust_summary["symbols"],
             "rust_imports": rust_summary["imports"],
             "rust_import_resolutions": rust_summary["import_resolutions"],
+            "rust_external_modules": rust_summary["external_modules"],
             "rust_references": rust_summary["references"],
             "rust_dependencies": rust_summary["dependencies"],
             "python_nodes": python_graph["nodes"],
@@ -216,7 +217,8 @@ def print_human(report: dict[str, Any]) -> None:
         f"wall={comparison['rust_wall_seconds']:.3f}s "
         f"max_rss={comparison['rust_max_rss_mb']:.1f} MB "
         f"files={comparison['rust_files']} symbols={comparison['rust_symbols']} imports={comparison['rust_imports']} "
-        f"import_resolutions={comparison['rust_import_resolutions']} references={comparison['rust_references']} dependencies={comparison['rust_dependencies']}"
+        f"import_resolutions={comparison['rust_import_resolutions']} external_modules={comparison['rust_external_modules']} "
+        f"references={comparison['rust_references']} dependencies={comparison['rust_dependencies']}"
     )
     print(
         "ratios: "

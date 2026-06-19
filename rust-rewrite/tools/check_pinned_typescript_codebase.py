@@ -37,6 +37,7 @@ EXPECTED_SUMMARY = {
     "global_variables": 7866,
     "imports": 28210,
     "import_resolutions": 13462,
+    "external_modules": 13525,
     "references": 48157,
     "dependencies": 16260,
     "bytes": 25421217,
@@ -52,6 +53,7 @@ EXPECTED_RECORDS = {
     "rust_global_vars": 7866,
     "rust_imports": 28210,
     "rust_import_resolutions": 13462,
+    "rust_external_modules": 13525,
     "rust_exports": 16026,
     "rust_references": 48157,
     "rust_dependencies": 16260,
@@ -67,6 +69,7 @@ EXPECTED_COMPAT_HANDLES = {
     "interfaces": 515,
     "types": 1556,
     "imports": 28210,
+    "external_modules": 13525,
     "exports": 16026,
 }
 
@@ -118,6 +121,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "global_variables": summary.global_variables,
         "imports": summary.imports,
         "import_resolutions": summary.import_resolutions,
+        "external_modules": len(codebase.rust_external_modules),
         "references": summary.references,
         "dependencies": summary.dependencies,
         "bytes": summary.bytes,
@@ -132,6 +136,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "rust_global_vars": len(codebase.rust_global_vars),
         "rust_imports": len(codebase.rust_imports),
         "rust_import_resolutions": len(codebase.rust_import_resolutions),
+        "rust_external_modules": len(codebase.rust_external_modules),
         "rust_exports": len(codebase.rust_exports),
         "rust_references": len(codebase.rust_references),
         "rust_dependencies": len(codebase.rust_dependencies),
@@ -146,6 +151,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "interfaces": len(codebase.interfaces),
         "types": len(codebase.types),
         "imports": len(codebase.imports),
+        "external_modules": len(codebase.external_modules),
         "exports": len(codebase.exports),
     }
 
@@ -237,13 +243,15 @@ def print_human(report: dict[str, Any]) -> None:
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
-        f"exports={compat['exports']} references={summary['references']} dependencies={summary['dependencies']} "
+        f"external_modules={summary['external_modules']} exports={compat['exports']} "
+        f"references={summary['references']} dependencies={summary['dependencies']} "
         f"subclass_edges={report['records']['rust_subclass_edges']}"
     )
     print(
         "compat handles: "
         f"files={compat['files']} symbols={compat['symbols']} interfaces={compat['interfaces']} "
         f"types={compat['types']} imports={compat['imports']} exports={compat['exports']}"
+        f" external_modules={compat['external_modules']}"
     )
     print(
         "recorded baseline ratios: "

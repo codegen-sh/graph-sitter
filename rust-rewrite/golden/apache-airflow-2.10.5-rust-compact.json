@@ -146,6 +146,252 @@
       ],
       "sha256": "cbf361a2b46e5ea2e5cad352c5abe8ab493869eb422cbdb77912484ea9fab1d1"
     },
+    "external_modules": {
+      "count": 17880,
+      "samples": [
+        {
+          "alias": null,
+          "file": "airflow/__init__.py",
+          "import": "airflow/__init__.py:import::os:@847",
+          "key": "airflow/__init__.py:import::os:@847:os",
+          "module": null,
+          "name": "os",
+          "range": [
+            847,
+            856
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/__init__.py",
+          "import": "airflow/__init__.py:import::sys:@857",
+          "key": "airflow/__init__.py:import::sys:@857:sys",
+          "module": null,
+          "name": "sys",
+          "range": [
+            857,
+            867
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/__init__.py",
+          "import": "airflow/__init__.py:import::warnings:@868",
+          "key": "airflow/__init__.py:import::warnings:@868:warnings",
+          "module": null,
+          "name": "warnings",
+          "range": [
+            868,
+            883
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/__init__.py",
+          "import": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884",
+          "key": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884:TYPE_CHECKING",
+          "module": "typing",
+          "name": "TYPE_CHECKING",
+          "range": [
+            884,
+            916
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/__main__.py",
+          "import": "airflow/__main__.py:import::os:@900",
+          "key": "airflow/__main__.py:import::os:@900:os",
+          "module": null,
+          "name": "os",
+          "range": [
+            900,
+            909
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/__main__.py",
+          "import": "airflow/__main__.py:from_import:argparse:Namespace:@910",
+          "key": "airflow/__main__.py:from_import:argparse:Namespace:@910:Namespace",
+          "module": "argparse",
+          "name": "Namespace",
+          "range": [
+            910,
+            940
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/__main__.py",
+          "import": "airflow/__main__.py:import::argcomplete:@942",
+          "key": "airflow/__main__.py:import::argcomplete:@942:argcomplete",
+          "module": null,
+          "name": "argcomplete",
+          "range": [
+            942,
+            960
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/__init__.py",
+          "import": "airflow/api/__init__.py:import::logging:@854",
+          "key": "airflow/api/__init__.py:import::logging:@854:logging",
+          "module": null,
+          "name": "logging",
+          "range": [
+            854,
+            868
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/__init__.py",
+          "import": "airflow/api/__init__.py:from_import:importlib:import_module:@869",
+          "key": "airflow/api/__init__.py:from_import:importlib:import_module:@869:import_module",
+          "module": "importlib",
+          "name": "import_module",
+          "range": [
+            869,
+            904
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/basic_auth.py",
+          "import": "airflow/api/auth/backend/basic_auth.py:import::warnings:@948",
+          "key": "airflow/api/auth/backend/basic_auth.py:import::warnings:@948:warnings",
+          "module": null,
+          "name": "warnings",
+          "range": [
+            948,
+            963
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/basic_auth.py",
+          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964",
+          "key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964:Any",
+          "module": "typing",
+          "name": "Any",
+          "range": [
+            964,
+            1011
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/basic_auth.py",
+          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Callable:@964",
+          "key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Callable:@964:Callable",
+          "module": "typing",
+          "name": "Callable",
+          "range": [
+            964,
+            1011
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/basic_auth.py",
+          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964",
+          "key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964:TYPE_CHECKING",
+          "module": "typing",
+          "name": "TYPE_CHECKING",
+          "range": [
+            964,
+            1011
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/default.py",
+          "import": "airflow/api/auth/backend/default.py:from_import:functools:wraps:@886",
+          "key": "airflow/api/auth/backend/default.py:from_import:functools:wraps:@886:wraps",
+          "module": "functools",
+          "name": "wraps",
+          "range": [
+            886,
+            913
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/default.py",
+          "import": "airflow/api/auth/backend/default.py:from_import:typing:Any:@914",
+          "key": "airflow/api/auth/backend/default.py:from_import:typing:Any:@914:Any",
+          "module": "typing",
+          "name": "Any",
+          "range": [
+            914,
+            961
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/default.py",
+          "import": "airflow/api/auth/backend/default.py:from_import:typing:Callable:@914",
+          "key": "airflow/api/auth/backend/default.py:from_import:typing:Callable:@914:Callable",
+          "module": "typing",
+          "name": "Callable",
+          "range": [
+            914,
+            961
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/default.py",
+          "import": "airflow/api/auth/backend/default.py:from_import:typing:TypeVar:@914",
+          "key": "airflow/api/auth/backend/default.py:from_import:typing:TypeVar:@914:TypeVar",
+          "module": "typing",
+          "name": "TypeVar",
+          "range": [
+            914,
+            961
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/default.py",
+          "import": "airflow/api/auth/backend/default.py:from_import:typing:cast:@914",
+          "key": "airflow/api/auth/backend/default.py:from_import:typing:cast:@914:cast",
+          "module": "typing",
+          "name": "cast",
+          "range": [
+            914,
+            961
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/deny_all.py",
+          "import": "airflow/api/auth/backend/deny_all.py:from_import:functools:wraps:@879",
+          "key": "airflow/api/auth/backend/deny_all.py:from_import:functools:wraps:@879:wraps",
+          "module": "functools",
+          "name": "wraps",
+          "range": [
+            879,
+            906
+          ]
+        },
+        {
+          "alias": null,
+          "file": "airflow/api/auth/backend/deny_all.py",
+          "import": "airflow/api/auth/backend/deny_all.py:from_import:typing:Any:@907",
+          "key": "airflow/api/auth/backend/deny_all.py:from_import:typing:Any:@907:Any",
+          "module": "typing",
+          "name": "Any",
+          "range": [
+            907,
+            954
+          ]
+        }
+      ],
+      "sha256": "86926ed12e13fb1863f02da893f537e8d07f559c9be15b38fb5f3004187642ae"
+    },
     "files": {
       "count": 4789,
       "samples": [
@@ -1221,6 +1467,7 @@
     "bad_dependency_reference_counts": 0,
     "bad_dependency_reference_targets": 0,
     "missing_dependency_links": 0,
+    "missing_external_module_links": 0,
     "missing_import_resolution_links": 0,
     "missing_reference_links": 0
   },
@@ -1230,11 +1477,12 @@
     "ref": "refs/tags/2.10.5",
     "repo_url": "https://github.com/apache/airflow.git"
   },
-  "schema_version": 1,
+  "schema_version": 2,
   "summary": {
     "bytes": 36617627,
     "classes": 5665,
     "dependencies": 71932,
+    "external_modules": 17880,
     "files": 4789,
     "files_with_errors": 0,
     "functions": 34535,

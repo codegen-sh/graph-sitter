@@ -70,7 +70,10 @@ def make_report(repo: Path, *, raw_rust_walk: bool) -> dict:
             "wall_seconds": round(wall, 6),
             "max_rss_mb": round(bytes_to_mb(max_rss_bytes()), 3),
         },
-        "summary": dataclasses.asdict(backend.summary),
+        "summary": {
+            **dataclasses.asdict(backend.summary),
+            "external_modules": len(backend.external_modules),
+        },
     }
 
 
@@ -99,6 +102,7 @@ def print_human(report: dict) -> None:
         f"global_variables={summary['global_variables']} "
         f"imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']} "
+        f"external_modules={summary['external_modules']} "
         f"references={summary['references']} "
         f"dependencies={summary['dependencies']}"
     )

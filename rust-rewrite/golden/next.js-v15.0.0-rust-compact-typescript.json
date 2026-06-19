@@ -579,6 +579,332 @@
       ],
       "sha256": "5a88b8e63c7e9fd52e305199fbdf61c3cd2abc40c85031db233f4247a126a9ef"
     },
+    "external_modules": {
+      "count": 13525,
+      "samples": [
+        {
+          "alias": "github",
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
+          "key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7:*",
+          "module": "@actions/github",
+          "name": "*",
+          "range": [
+            7,
+            18,
+            0,
+            7,
+            0,
+            18
+          ]
+        },
+        {
+          "alias": "core",
+          "file": ".github/actions/needs-triage/src/index.ts",
+          "import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49",
+          "key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49:*",
+          "module": "@actions/core",
+          "name": "*",
+          "range": [
+            49,
+            58,
+            1,
+            7,
+            1,
+            16
+          ]
+        },
+        {
+          "alias": "context",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context",
+          "module": "@actions/github",
+          "name": "context",
+          "range": [
+            9,
+            16,
+            0,
+            9,
+            0,
+            16
+          ]
+        },
+        {
+          "alias": "getOctokit",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18:getOctokit",
+          "module": "@actions/github",
+          "name": "getOctokit",
+          "range": [
+            18,
+            28,
+            0,
+            18,
+            0,
+            28
+          ]
+        },
+        {
+          "alias": "info",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63:info",
+          "module": "@actions/core",
+          "name": "info",
+          "range": [
+            63,
+            67,
+            1,
+            9,
+            1,
+            13
+          ]
+        },
+        {
+          "alias": "getInput",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+          "key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69:getInput",
+          "module": "@actions/core",
+          "name": "getInput",
+          "range": [
+            69,
+            77,
+            1,
+            15,
+            1,
+            23
+          ]
+        },
+        {
+          "alias": "stripAnsi",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:strip-ansi:stripAnsi:stripAnsi@107",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:strip-ansi:stripAnsi:stripAnsi@107:stripAnsi",
+          "module": "strip-ansi",
+          "name": "stripAnsi",
+          "range": [
+            107,
+            153,
+            2,
+            6,
+            2,
+            52
+          ]
+        },
+        {
+          "alias": "fs",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:fs:fs:fs@160",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:fs:fs:fs@160:fs",
+          "module": "fs",
+          "name": "fs",
+          "range": [
+            160,
+            178,
+            3,
+            6,
+            3,
+            24
+          ]
+        },
+        {
+          "alias": "path",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:path:path:path@185",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:path:path:path@185:path",
+          "module": "path",
+          "name": "path",
+          "range": [
+            185,
+            207,
+            4,
+            6,
+            4,
+            28
+          ]
+        },
+        {
+          "alias": "semver",
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:semver:semver:semver@214",
+          "key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:semver:semver:semver@214:semver",
+          "module": "semver",
+          "name": "semver",
+          "range": [
+            214,
+            240,
+            5,
+            6,
+            5,
+            32
+          ]
+        },
+        {
+          "alias": "info",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:info:info@9",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:info:info@9:info",
+          "module": "@actions/core",
+          "name": "info",
+          "range": [
+            9,
+            13,
+            0,
+            9,
+            0,
+            13
+          ]
+        },
+        {
+          "alias": "setFailed",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:setFailed:setFailed@15",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:setFailed:setFailed@15:setFailed",
+          "module": "@actions/core",
+          "name": "setFailed",
+          "range": [
+            15,
+            24,
+            0,
+            15,
+            0,
+            24
+          ]
+        },
+        {
+          "alias": "context",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:context:context@57",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:context:context@57:context",
+          "module": "@actions/github",
+          "name": "context",
+          "range": [
+            57,
+            64,
+            1,
+            9,
+            1,
+            16
+          ]
+        },
+        {
+          "alias": "getOctokit",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:getOctokit:getOctokit@66",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:getOctokit:getOctokit@66:getOctokit",
+          "module": "@actions/github",
+          "name": "getOctokit",
+          "range": [
+            66,
+            76,
+            1,
+            18,
+            1,
+            28
+          ]
+        },
+        {
+          "alias": "WebClient",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@slack/web-api:WebClient:WebClient@111",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@slack/web-api:WebClient:WebClient@111:WebClient",
+          "module": "@slack/web-api",
+          "name": "WebClient",
+          "range": [
+            111,
+            120,
+            2,
+            9,
+            2,
+            18
+          ]
+        },
+        {
+          "alias": "BlockCollection",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:BlockCollection:BlockCollection@154",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:BlockCollection:BlockCollection@154:BlockCollection",
+          "module": "slack-block-builder",
+          "name": "BlockCollection",
+          "range": [
+            154,
+            169,
+            3,
+            9,
+            3,
+            24
+          ]
+        },
+        {
+          "alias": "Section",
+          "file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+          "import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:Section:Section@171",
+          "key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:Section:Section@171:Section",
+          "module": "slack-block-builder",
+          "name": "Section",
+          "range": [
+            171,
+            178,
+            3,
+            26,
+            3,
+            33
+          ]
+        },
+        {
+          "alias": "info",
+          "file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+          "import": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:info:info@9",
+          "key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:info:info@9:info",
+          "module": "@actions/core",
+          "name": "info",
+          "range": [
+            9,
+            13,
+            0,
+            9,
+            0,
+            13
+          ]
+        },
+        {
+          "alias": "setFailed",
+          "file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+          "import": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:setFailed:setFailed@15",
+          "key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:setFailed:setFailed@15:setFailed",
+          "module": "@actions/core",
+          "name": "setFailed",
+          "range": [
+            15,
+            24,
+            0,
+            15,
+            0,
+            24
+          ]
+        },
+        {
+          "alias": "context",
+          "file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+          "import": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/github:context:context@57",
+          "key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/github:context:context@57:context",
+          "module": "@actions/github",
+          "name": "context",
+          "range": [
+            57,
+            64,
+            1,
+            9,
+            1,
+            16
+          ]
+        }
+      ],
+      "sha256": "75176bcfeb2ad12c09a7dfddc5de0f357b3f760e0b16b6cd05c9cf8260113b33"
+    },
     "files": {
       "count": 13688,
       "samples": [
@@ -2326,6 +2652,8 @@
     "missing_export_file_links": 0,
     "missing_export_import_links": 0,
     "missing_export_symbol_links": 0,
+    "missing_external_module_file_links": 0,
+    "missing_external_module_import_links": 0,
     "missing_import_file_links": 0,
     "missing_reference_import_links": 0,
     "missing_reference_source_file_links": 0,
@@ -2351,12 +2679,13 @@
     "repo_url": "https://github.com/vercel/next.js.git",
     "selected_file_count": 13688
   },
-  "schema_version": 4,
+  "schema_version": 5,
   "summary": {
     "bytes": 25421217,
     "classes": 502,
     "dependencies": 16260,
     "exports": 16026,
+    "external_modules": 13525,
     "files": 13688,
     "files_with_errors": 114,
     "functions": 13497,

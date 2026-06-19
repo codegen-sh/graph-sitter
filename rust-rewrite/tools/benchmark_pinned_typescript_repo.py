@@ -121,6 +121,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
             "rust_global_variables": rust_summary["global_variables"],
             "rust_imports": rust_summary["imports"],
             "rust_import_resolutions": rust_summary["import_resolutions"],
+            "rust_external_modules": rust_summary["external_modules"],
             "rust_exports": rust_summary["exports"],
             "rust_references": rust_summary["references"],
             "rust_dependencies": rust_summary["dependencies"],
@@ -176,6 +177,7 @@ def print_human(report: dict[str, Any]) -> None:
         f"files={comparison['rust_files']} symbols={comparison['rust_symbols']} "
         f"imports={comparison['rust_imports']} "
         f"import_resolutions={comparison['rust_import_resolutions']} "
+        f"external_modules={comparison['rust_external_modules']} "
         f"exports={comparison['rust_exports']} "
         f"references={comparison['rust_references']} "
         f"dependencies={comparison['rust_dependencies']} "

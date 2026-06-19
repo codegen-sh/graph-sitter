@@ -30,7 +30,7 @@ from benchmark_pinned_python_repo import (  # noqa: E402
 )
 
 DEFAULT_EXPECTED_SNAPSHOT = REPO_ROOT / "rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json"
-SNAPSHOT_SCHEMA_VERSION = 1
+SNAPSHOT_SCHEMA_VERSION = 2
 
 
 def bytes_to_mb(value: float) -> float:
@@ -75,6 +75,10 @@ def import_key(import_record: Any, file_by_id: dict[int, Any]) -> str:
     name = import_record.name if import_record.name is not None else ""
     alias = import_record.alias if import_record.alias is not None else ""
     return f"{file.path}:{import_record.kind}:{module}:{name}:{alias}@{import_record.range.start_byte}"
+
+
+def external_module_key(external_module: Any, file_by_id: dict[int, Any], import_by_id: dict[int, Any]) -> str:
+    return f"{import_key(import_by_id[external_module.import_id], file_by_id)}:{external_module.name}"
 
 
 def make_file_rows(codebase: Any) -> list[dict[str, Any]]:
@@ -145,6 +149,26 @@ def make_import_resolution_rows(
     return sorted(rows, key=lambda row: (row["source_file"], row["import"], row["target_file"], row["target_symbol"] or ""))
 
 
+def make_external_module_rows(
+    codebase: Any,
+    file_by_id: dict[int, Any],
+    import_by_id: dict[int, Any],
+) -> list[dict[str, Any]]:
+    rows = [
+        {
+            "key": external_module_key(external_module, file_by_id, import_by_id),
+            "file": file_by_id[external_module.file_id].path,
+            "import": import_key(import_by_id[external_module.import_id], file_by_id),
+            "module": external_module.module,
+            "name": external_module.name,
+            "alias": external_module.alias,
+            "range": [external_module.range.start_byte, external_module.range.end_byte],
+        }
+        for external_module in codebase.rust_external_modules
+    ]
+    return sorted(rows, key=lambda row: (row["file"], row["range"], row["module"] or "", row["name"], row["alias"] or ""))
+
+
 def make_reference_rows(
     codebase: Any,
     file_by_id: dict[int, Any],
@@ -191,6 +215,11 @@ def validate_integrity(codebase: Any) -> dict[str, int]:
     import_ids = {import_record.id for import_record in codebase.rust_imports}
     reference_by_id = {reference.id: reference for reference in codebase.rust_references}
 
+    missing_external_module_links = 0
+    for external_module in codebase.rust_external_modules:
+        missing_external_module_links += int(external_module.import_id not in import_ids)
+        missing_external_module_links += int(external_module.file_id not in file_ids)
+
     missing_import_resolution_links = 0
     for resolution in codebase.rust_import_resolutions:
         missing_import_resolution_links += int(resolution.import_id not in import_ids)
@@ -227,6 +256,7 @@ def validate_integrity(codebase: Any) -> dict[str, int]:
                 bad_dependency_reference_targets += 1
 
     return {
+        "missing_external_module_links": missing_external_module_links,
         "missing_import_resolution_links": missing_import_resolution_links,
         "missing_reference_links": missing_reference_links,
         "missing_dependency_links": missing_dependency_links,
@@ -266,6 +296,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     symbol_rows = make_symbol_rows(codebase, file_by_id)
     import_rows = make_import_rows(codebase, file_by_id)
     import_resolution_rows = make_import_resolution_rows(codebase, file_by_id, symbol_by_id, import_by_id)
+    external_module_rows = make_external_module_rows(codebase, file_by_id, import_by_id)
     reference_rows = make_reference_rows(codebase, file_by_id, symbol_by_id, import_by_id)
     dependency_rows = make_dependency_rows(codebase, file_by_id, symbol_by_id)
     integrity = validate_integrity(codebase)
@@ -288,6 +319,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             "global_variables": summary.global_variables,
             "imports": summary.imports,
             "import_resolutions": summary.import_resolutions,
+            "external_modules": len(codebase.rust_external_modules),
             "references": summary.references,
             "dependencies": summary.dependencies,
             "bytes": summary.bytes,
@@ -299,6 +331,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             "symbols": compact_record_set(symbol_rows, sample_size=args.sample_size),
             "imports": compact_record_set(import_rows, sample_size=args.sample_size),
             "import_resolutions": compact_record_set(import_resolution_rows, sample_size=args.sample_size),
+            "external_modules": compact_record_set(external_module_rows, sample_size=args.sample_size),
             "references": compact_record_set(reference_rows, sample_size=args.sample_size),
             "dependencies": compact_record_set(dependency_rows, sample_size=args.sample_size),
         },
@@ -359,12 +392,14 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
-        f"import_resolutions={summary['import_resolutions']} references={summary['references']} dependencies={summary['dependencies']}"
+        f"import_resolutions={summary['import_resolutions']} external_modules={summary['external_modules']} "
+        f"references={summary['references']} dependencies={summary['dependencies']}"
     )
     print(
         "hashes: "
         f"files={snapshot['graphs']['files']['sha256']} "
         f"imports={snapshot['graphs']['imports']['sha256']} "
+        f"external_modules={snapshot['graphs']['external_modules']['sha256']} "
         f"references={snapshot['graphs']['references']['sha256']} "
         f"dependencies={snapshot['graphs']['dependencies']['sha256']}"
     )

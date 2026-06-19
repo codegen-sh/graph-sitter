@@ -34,7 +34,7 @@ from snapshot_pinned_python_repo import (  # noqa: E402
 DEFAULT_EXPECTED_SNAPSHOT = (
     REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
 )
-SNAPSHOT_SCHEMA_VERSION = 4
+SNAPSHOT_SCHEMA_VERSION = 5
 
 
 def range_list(record: dict[str, Any], name: str = "range") -> list[int]:
@@ -62,6 +62,14 @@ def import_key(import_record: dict[str, Any], file_by_id: dict[int, dict[str, An
     name = import_record["name"] or ""
     alias = import_record["alias"] or ""
     return f"{file['path']}:{import_record['kind']}:{module}:{name}:{alias}@{range_list(import_record)[0]}"
+
+
+def external_module_key(
+    external_module: dict[str, Any],
+    file_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> str:
+    return f"{import_key(import_by_id[external_module['import_id']], file_by_id)}:{external_module['name']}"
 
 
 def import_resolution_key(
@@ -231,6 +239,35 @@ def make_import_resolution_rows(
             row["target_file"],
             row["target_symbol"] or "",
             row["import"],
+        ),
+    )
+
+
+def make_external_module_rows(
+    external_modules: list[dict[str, Any]],
+    file_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = [
+        {
+            "key": external_module_key(external_module, file_by_id, import_by_id),
+            "file": file_by_id[external_module["file_id"]]["path"],
+            "import": import_key(import_by_id[external_module["import_id"]], file_by_id),
+            "module": external_module["module"],
+            "name": external_module["name"],
+            "alias": external_module["alias"],
+            "range": range_list(external_module),
+        }
+        for external_module in external_modules
+    ]
+    return sorted(
+        rows,
+        key=lambda row: (
+            row["file"],
+            row["range"],
+            row["module"] or "",
+            row["name"],
+            row["alias"] or "",
         ),
     )
 
@@ -406,6 +443,7 @@ def validate_integrity(
     symbols: list[dict[str, Any]],
     imports: list[dict[str, Any]],
     import_resolutions: list[dict[str, Any]],
+    external_modules: list[dict[str, Any]],
     exports: list[dict[str, Any]],
     references: list[dict[str, Any]],
     dependencies: list[dict[str, Any]],
@@ -422,6 +460,14 @@ def validate_integrity(
     )
     missing_import_file_links = sum(
         int(import_record["file_id"] not in file_ids) for import_record in imports
+    )
+    missing_external_module_file_links = sum(
+        int(external_module["file_id"] not in file_ids)
+        for external_module in external_modules
+    )
+    missing_external_module_import_links = sum(
+        int(external_module["import_id"] not in import_ids)
+        for external_module in external_modules
     )
     missing_export_file_links = sum(
         int(export["file_id"] not in file_ids) for export in exports
@@ -526,6 +572,8 @@ def validate_integrity(
     return {
         "missing_symbol_file_links": missing_symbol_file_links,
         "missing_import_file_links": missing_import_file_links,
+        "missing_external_module_file_links": missing_external_module_file_links,
+        "missing_external_module_import_links": missing_external_module_import_links,
         "missing_export_file_links": missing_export_file_links,
         "missing_export_symbol_links": missing_export_symbol_links,
         "missing_export_import_links": missing_export_import_links,
@@ -588,6 +636,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     symbols = json.loads(index.symbols_json())
     imports = json.loads(index.imports_json())
     import_resolutions = json.loads(index.import_resolutions_json())
+    external_modules = json.loads(index.external_modules_json())
     exports = json.loads(index.exports_json())
     references = json.loads(index.references_json())
     dependencies = json.loads(index.dependencies_json())
@@ -604,6 +653,9 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     import_resolution_rows = make_import_resolution_rows(
         import_resolutions, file_by_id, symbol_by_id, import_by_id
     )
+    external_module_rows = make_external_module_rows(
+        external_modules, file_by_id, import_by_id
+    )
     export_rows = make_export_rows(exports, file_by_id, symbol_by_id, import_by_id)
     reference_rows = make_reference_rows(references, file_by_id, symbol_by_id, import_by_id)
     dependency_rows = make_dependency_rows(
@@ -617,6 +669,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
         symbols=symbols,
         imports=imports,
         import_resolutions=import_resolutions,
+        external_modules=external_modules,
         exports=exports,
         references=references,
         dependencies=dependencies,
@@ -638,6 +691,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
         },
         "summary": {
             **summary,
+            "external_modules": index.external_module_count,
             "exports": index.export_count,
             "subclass_edges": index.subclass_edge_count,
         },
@@ -647,6 +701,9 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             "imports": compact_record_set(import_rows, sample_size=args.sample_size),
             "import_resolutions": compact_record_set(
                 import_resolution_rows, sample_size=args.sample_size
+            ),
+            "external_modules": compact_record_set(
+                external_module_rows, sample_size=args.sample_size
             ),
             "exports": compact_record_set(export_rows, sample_size=args.sample_size),
             "references": compact_record_set(reference_rows, sample_size=args.sample_size),
@@ -761,6 +818,7 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']} "
+        f"external_modules={summary['external_modules']} "
         f"exports={summary['exports']} references={summary['references']} "
         f"dependencies={summary['dependencies']} subclass_edges={summary['subclass_edges']} "
         f"files_with_errors={summary['files_with_errors']}"
@@ -771,6 +829,7 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         f"symbols={snapshot['graphs']['symbols']['sha256']} "
         f"imports={snapshot['graphs']['imports']['sha256']} "
         f"import_resolutions={snapshot['graphs']['import_resolutions']['sha256']} "
+        f"external_modules={snapshot['graphs']['external_modules']['sha256']} "
         f"exports={snapshot['graphs']['exports']['sha256']} "
         f"references={snapshot['graphs']['references']['sha256']} "
         f"dependencies={snapshot['graphs']['dependencies']['sha256']} "
