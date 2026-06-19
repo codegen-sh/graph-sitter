@@ -1586,6 +1586,16 @@ fn collect_typescript_reference_candidates(
         &excluded_ranges,
         out,
     );
+    collect_typescript_heritage_reference_candidates(
+        file_id,
+        source,
+        root,
+        &symbol_ranges,
+        &local_bindings_by_symbol_id,
+        &local_binding_scopes,
+        &excluded_ranges,
+        out,
+    );
 }
 
 fn collect_typescript_local_bindings(
@@ -2049,6 +2059,137 @@ fn collect_typescript_identifier_candidates(
             excluded_ranges,
             out,
         );
+    }
+}
+
+fn collect_typescript_heritage_reference_candidates(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    if matches!(node.kind(), "implements_clause" | "extends_type_clause") {
+        let mut cursor = node.walk();
+        for child in node.named_children(&mut cursor) {
+            push_typescript_heritage_type_reference_candidate(
+                file_id,
+                source,
+                child,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                out,
+            );
+        }
+        return;
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_typescript_heritage_reference_candidates(
+            file_id,
+            source,
+            child,
+            symbol_ranges,
+            local_bindings_by_symbol_id,
+            local_binding_scopes,
+            excluded_ranges,
+            out,
+        );
+    }
+}
+
+fn push_typescript_heritage_type_reference_candidate(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    match node.kind() {
+        "type_identifier" => {
+            let range = SourceRange::from(node.range());
+            if range_matches_any(range, excluded_ranges) {
+                return;
+            }
+            let Ok(name) = node.utf8_text(source.as_bytes()) else {
+                return;
+            };
+            let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+            if !typescript_reference_is_shadowed(
+                source_symbol_id,
+                name,
+                range,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+            ) {
+                out.push(ReferenceCandidate {
+                    source_file_id: file_id,
+                    source_symbol_id,
+                    name: name.to_owned(),
+                    qualifier: None,
+                    range,
+                });
+            }
+        }
+        "generic_type" => {
+            if let Some(name) = node.child_by_field_name("name") {
+                push_typescript_heritage_type_reference_candidate(
+                    file_id,
+                    source,
+                    name,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    out,
+                );
+            }
+        }
+        "nested_type_identifier" => {
+            let Some(name_node) = node.child_by_field_name("name") else {
+                return;
+            };
+            let Some(module_node) = node.child_by_field_name("module") else {
+                return;
+            };
+            let range = SourceRange::from(name_node.range());
+            if range_matches_any(range, excluded_ranges) {
+                return;
+            }
+            let Ok(name) = name_node.utf8_text(source.as_bytes()) else {
+                return;
+            };
+            let Ok(module) = module_node.utf8_text(source.as_bytes()) else {
+                return;
+            };
+            let qualifier = module.split('.').next().unwrap_or(module);
+            let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+            if !typescript_reference_is_shadowed(
+                source_symbol_id,
+                qualifier,
+                range,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+            ) {
+                out.push(ReferenceCandidate {
+                    source_file_id: file_id,
+                    source_symbol_id,
+                    name: name.to_owned(),
+                    qualifier: Some(qualifier.to_owned()),
+                    range,
+                });
+            }
+        }
+        _ => {}
     }
 }
 
@@ -5328,6 +5469,106 @@ export function shadow(localHelper: number) {\n\
                 && dependency.target_symbol_id == helper_symbol_id
                 && dependency.reference_count == 1
         }));
+    }
+
+    #[test]
+    fn resolves_typescript_heritage_references_and_dependencies() {
+        let repo = temp_repo_path("resolve-typescript-heritage-references");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { Base, IFace, IExtra } from './base';\n\
+import * as base from './base';\n\
+\n\
+export interface Local extends IFace {}\n\
+export class Child extends Base implements IFace, base.Other {}\n\
+export interface Derived extends Local, IExtra {}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/base.ts"),
+            "export class Base {}\n\
+export interface IFace {}\n\
+export interface IExtra {}\n\
+export interface Other {}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 2);
+        assert_eq!(index.summary().imports, 4);
+        assert_eq!(index.summary().import_resolutions, 4);
+        assert_eq!(index.summary().references, 6);
+        assert_eq!(index.summary().dependencies, 6);
+
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.ts")
+            .unwrap()
+            .id;
+        let base_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/base.ts")
+            .unwrap()
+            .id;
+        let local = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "Local")
+            .unwrap();
+        let child = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "Child")
+            .unwrap();
+        let derived = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "Derived")
+            .unwrap();
+        let base = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == base_file_id && symbol.name == "Base")
+            .unwrap();
+        let iface = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == base_file_id && symbol.name == "IFace")
+            .unwrap();
+        let iextra = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == base_file_id && symbol.name == "IExtra")
+            .unwrap();
+        let other = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == base_file_id && symbol.name == "Other")
+            .unwrap();
+
+        for (source_symbol_id, target_symbol_id, name) in [
+            (local.id, iface.id, "IFace"),
+            (child.id, base.id, "Base"),
+            (child.id, iface.id, "IFace"),
+            (child.id, other.id, "Other"),
+            (derived.id, local.id, "Local"),
+            (derived.id, iextra.id, "IExtra"),
+        ] {
+            assert!(index.references.iter().any(|reference| {
+                reference.source_symbol_id == Some(source_symbol_id)
+                    && reference.target_symbol_id == target_symbol_id
+                    && reference.name == name
+            }));
+            assert!(index.dependencies.iter().any(|dependency| {
+                dependency.source_symbol_id == source_symbol_id
+                    && dependency.target_symbol_id == target_symbol_id
+            }));
+        }
     }
 
     #[test]
