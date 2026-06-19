@@ -128,5 +128,45 @@ if ! grep -q "def renamed():" "$REPO/pkg/service.py"; then
   exit 1
 fi
 
-print_message="wheel Rust backend parse and transform smoke passed"
+TS_REPO="$SCRATCH/typescript-repo"
+git init "$TS_REPO" >/dev/null
+git -C "$TS_REPO" config user.email test@example.com
+git -C "$TS_REPO" config user.name "Test User"
+mkdir -p "$TS_REPO/src"
+cat > "$TS_REPO/src/util.ts" <<'TS'
+export function helper() {
+  return 1;
+}
+TS
+cat > "$TS_REPO/src/app.ts" <<'TS'
+import { helper } from './util';
+
+export function run() {
+  return helper();
+}
+TS
+git -C "$TS_REPO" add .
+git -C "$TS_REPO" commit -m initial >/dev/null
+
+TS_OUTPUT="$(run_graph_sitter parse "$TS_REPO" --language typescript --backend rust --fallback error --format json)"
+uv run python - "$TS_OUTPUT" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+assert payload["backend"] == "rust", payload
+assert payload["backend_requested"] == "rust", payload
+assert payload["language"] == "typescript", payload
+assert payload["files"] == 2, payload
+assert payload["symbols"] == 2, payload
+assert payload["classes"] == 0, payload
+assert payload["functions"] == 2, payload
+assert payload["imports"] == 1, payload
+assert payload["exports"] == 2, payload
+assert payload["references"] == 1, payload
+assert payload["dependencies"] == 1, payload
+assert payload["files_with_errors"] == 0, payload
+PY
+
+print_message="wheel Rust backend Python/TypeScript parse and transform smoke passed"
 echo "$print_message"

@@ -141,7 +141,7 @@ Current packaging audit:
 - Existing Hatch wheel hooks cover Cython, package initialization, and now the PyO3 crate.
 - The PyO3 crate currently builds a top-level `graph_sitter_py` module, and `src/graph_sitter/codebase/rust_backend.py` imports that module directly.
 - `rust-rewrite/tools/check_extension_build.sh` proves the extension can compile and import when manually copied onto `PYTHONPATH`, but it does not prove that a built wheel contains the extension.
-- `rust-rewrite/tools/check_wheel_rust_backend.sh` builds a wheel, asserts it contains `graph_sitter_py` and `codemods`, installs it through `uvx --from dist/<wheel>.whl`, parses a tiny repo with Python and strict Rust backends, and runs a strict Rust import-path transform with both `--check` and `--write`.
+- `rust-rewrite/tools/check_wheel_rust_backend.sh` builds a wheel, asserts it contains `graph_sitter_py` and `codemods`, installs it through `uvx --from dist/<wheel>.whl`, parses tiny Python and TypeScript repos with strict Rust, validates Python parsing, and runs a strict Rust import-path transform with both `--check` and `--write`.
 - `.github/workflows/rust-rewrite-extension.yml` runs the wheel smoke on Linux and macOS for Python 3.12 and 3.13.
 
 Required packaging decision:
@@ -158,6 +158,7 @@ Required packaging decision:
    uvx --from dist/<wheel>.whl graph-sitter --help
    uvx --from dist/<wheel>.whl graph-sitter parse <tiny-python-repo> --backend python --format json
    uvx --from dist/<wheel>.whl graph-sitter parse <tiny-python-repo> --backend rust --format json
+   uvx --from dist/<wheel>.whl graph-sitter parse <tiny-typescript-repo> --language typescript --backend rust --fallback error --format json
    uvx --from dist/<wheel>.whl graph-sitter transform <transform.py>:rename <tiny-python-repo> --backend rust --fallback error --check
    uvx --from dist/<wheel>.whl graph-sitter transform <transform.py>:rename <tiny-python-repo> --backend rust --fallback error --write
    ```
@@ -178,6 +179,7 @@ Required packaging decision:
 10. [x] Make the Python-backend `uvx --from <checkout>` path executable. Result: include `codemods` in the wheel package list and constrain clean-install dependency resolution for tree-sitter and `mini-racer`.
 11. [x] Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install. Result: `src/gsbuild/build.py` builds `graph-sitter-py` through Cargo, force-includes `graph_sitter_py{EXT_SUFFIX}` into wheels, marks wheels platform-specific, and `check_wheel_rust_backend.sh` proves `uvx --from dist/<wheel>.whl graph-sitter parse --backend rust --fallback error`.
 12. [x] Add artifact-level transform smokes from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter --help`, Python parse, strict Rust import-path `transform --check` without target mutation, and strict Rust import-path `transform --write` with target mutation from the built wheel.
+13. [x] Add artifact-level TypeScript strict Rust parse smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter parse <tiny-typescript-repo> --language typescript --backend rust --fallback error --format json` from the built wheel.
 
 ## Test Strategy
 
@@ -210,7 +212,7 @@ Distribution tests:
 
 - Build a wheel and install it in a clean uv environment.
 - Run `uvx --from dist/<wheel>.whl graph-sitter --help`.
-- Run Python and Rust parse smoke tests against the installed wheel.
+- Run Python and Rust parse smoke tests against the installed wheel for Python and TypeScript fixtures.
 - Run import-path transform `--check` and `--write` smoke tests against the installed wheel.
 - Keep `rust-rewrite/tools/check_extension_build.sh` for direct PyO3 diagnostics; use `rust-rewrite/tools/check_wheel_rust_backend.sh` for the distribution proof.
 - Add a CI lane that exercises Python 3.12 and 3.13 on Linux/macOS because `requires-python` is currently `>=3.12, <3.14`.

@@ -292,6 +292,8 @@ Already proven on the `rust-rewrite` branch:
   `--backend python --format json`.
 - The installed wheel parses the same repo with
   `--backend rust --fallback error --format json`.
+- The installed wheel parses a tiny TypeScript repo with
+  `--language typescript --backend rust --fallback error --format json`.
 - The installed wheel runs a file-based import-path transform in strict Rust
   mode with `--check`, exits `1`, reports produced changes, and leaves the
   target repo unchanged.
@@ -444,8 +446,9 @@ Skill rules:
   CLI/contracts agent.
 - [ ] Add `--backend auto` unit coverage for unavailable Rust fallback and
   selected-backend disclosure. owner: test agent.
-- [ ] Add installed-wheel TypeScript strict Rust parse smoke. owner:
-  packaging/CI agent.
+- [x] Add installed-wheel TypeScript strict Rust parse smoke. owner: codex.
+  Result: `check_wheel_rust_backend.sh` now builds a tiny TypeScript repo and
+  asserts strict Rust parse counts through `uvx --from dist/<wheel>.whl`.
 
 ### Transform Implementation
 
