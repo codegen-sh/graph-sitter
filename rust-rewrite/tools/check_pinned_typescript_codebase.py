@@ -31,14 +31,14 @@ from benchmark_pinned_typescript_repo import (  # noqa: E402
 
 EXPECTED_SUMMARY = {
     "files": 13688,
-    "symbols": 23957,
+    "symbols": 23980,
     "classes": 502,
     "functions": 13497,
-    "global_variables": 7843,
+    "global_variables": 7866,
     "imports": 28210,
     "import_resolutions": 13462,
-    "references": 47676,
-    "dependencies": 16041,
+    "references": 48157,
+    "dependencies": 16260,
     "bytes": 25421217,
     "lines": 634891,
     "files_with_errors": 114,
@@ -46,23 +46,24 @@ EXPECTED_SUMMARY = {
 
 EXPECTED_RECORDS = {
     "rust_files": 13688,
-    "rust_symbols": 23957,
+    "rust_symbols": 23980,
     "rust_classes": 502,
     "rust_functions": 13497,
-    "rust_global_vars": 7843,
+    "rust_global_vars": 7866,
     "rust_imports": 28210,
     "rust_import_resolutions": 13462,
     "rust_exports": 16026,
-    "rust_references": 47676,
-    "rust_dependencies": 16041,
+    "rust_references": 48157,
+    "rust_dependencies": 16260,
+    "rust_subclass_edges": 151,
 }
 
 EXPECTED_COMPAT_HANDLES = {
     "files": 13688,
-    "symbols": 23957,
+    "symbols": 23980,
     "classes": 502,
     "functions": 13497,
-    "global_vars": 7843,
+    "global_vars": 7866,
     "interfaces": 515,
     "types": 1556,
     "imports": 28210,
@@ -134,6 +135,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "rust_exports": len(codebase.rust_exports),
         "rust_references": len(codebase.rust_references),
         "rust_dependencies": len(codebase.rust_dependencies),
+        "rust_subclass_edges": len(codebase.rust_subclass_edges),
     }
     compat_counts = {
         "files": len(codebase.files),
@@ -235,7 +237,8 @@ def print_human(report: dict[str, Any]) -> None:
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
-        f"exports={compat['exports']} references={summary['references']} dependencies={summary['dependencies']}"
+        f"exports={compat['exports']} references={summary['references']} dependencies={summary['dependencies']} "
+        f"subclass_edges={report['records']['rust_subclass_edges']}"
     )
     print(
         "compat handles: "

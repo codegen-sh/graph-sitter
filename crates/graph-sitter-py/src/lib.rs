@@ -298,6 +298,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn subclass_edges_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.subclass_edges)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         #[getter]
         fn file_count(&self) -> usize {
             self.inner.files.len()
@@ -331,6 +336,11 @@ mod bindings {
         #[getter]
         fn dependency_count(&self) -> usize {
             self.inner.dependencies.len()
+        }
+
+        #[getter]
+        fn subclass_edge_count(&self) -> usize {
+            self.inner.subclass_edges.len()
         }
 
         fn __repr__(&self) -> String {
@@ -651,6 +661,7 @@ mod bindings {
             assert_eq!(index.export_count(), 2);
             assert_eq!(index.reference_count(), 1);
             assert_eq!(index.dependency_count(), 1);
+            assert_eq!(index.subclass_edge_count(), 0);
             assert!(index.files_json().unwrap().contains("\"src/app.tsx\""));
             assert!(index.symbols_json().unwrap().contains("\"Page\""));
             assert!(index.imports_json().unwrap().contains("\"default_import\""));
@@ -664,10 +675,12 @@ mod bindings {
                 .dependencies_json()
                 .unwrap()
                 .contains("reference_count"));
+            assert_eq!(index.subclass_edges_json().unwrap(), "[]");
             assert!(index.to_json().unwrap().contains("\"import_resolutions\""));
             assert!(index.to_json().unwrap().contains("\"exports\""));
             assert!(index.to_json().unwrap().contains("\"references\""));
             assert!(index.to_json().unwrap().contains("\"dependencies\""));
+            assert!(index.to_json().unwrap().contains("\"subclass_edges\""));
         }
 
         #[test]

@@ -460,6 +460,7 @@
       "target_symbol_id": 9
     }
   ],
+  "subclass_edges": [],
   "summary": {
     "bytes": 720,
     "classes": 1,

@@ -215,6 +215,7 @@ pub struct TypeScriptIndex {
     pub exports: Vec<ExportRecord>,
     pub references: Vec<ReferenceRecord>,
     pub dependencies: Vec<DependencyRecord>,
+    pub subclass_edges: Vec<SubclassRecord>,
 }
 
 impl TypeScriptIndex {
@@ -377,6 +378,16 @@ pub struct DependencyRecord {
     pub reference_count: usize,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct SubclassRecord {
+    pub id: u32,
+    pub source_symbol_id: u32,
+    pub target_symbol_id: u32,
+    pub source_file_id: u32,
+    pub target_file_id: u32,
+    pub reference_id: u32,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct SourceRange {
     pub start_byte: usize,
@@ -411,6 +422,7 @@ struct ReferenceCandidate {
     name: String,
     qualifier: Option<String>,
     range: SourceRange,
+    is_subclass: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -572,6 +584,7 @@ impl TypeScriptIndexer {
             exports: Vec::new(),
             references: Vec::new(),
             dependencies: Vec::new(),
+            subclass_edges: Vec::new(),
         };
         let mut reference_candidates = Vec::new();
         paths.sort();
@@ -1975,7 +1988,12 @@ fn collect_typescript_identifier_candidates(
     out: &mut Vec<ReferenceCandidate>,
 ) {
     match node.kind() {
-        "import_statement" | "export_clause" | "namespace_export" => return,
+        "import_statement"
+        | "export_clause"
+        | "namespace_export"
+        | "extends_clause"
+        | "implements_clause"
+        | "extends_type_clause" => return,
         "member_expression" => {
             if let (Some(object), Some(property)) = (
                 node.child_by_field_name("object"),
@@ -2003,6 +2021,7 @@ fn collect_typescript_identifier_candidates(
                                 name: name.to_owned(),
                                 qualifier: Some(qualifier.to_owned()),
                                 range,
+                                is_subclass: false,
                             });
                         }
                     }
@@ -2042,6 +2061,7 @@ fn collect_typescript_identifier_candidates(
                     name: name.to_owned(),
                     qualifier: None,
                     range,
+                    is_subclass: false,
                 });
             }
         }
@@ -2072,6 +2092,27 @@ fn collect_typescript_heritage_reference_candidates(
     excluded_ranges: &[SourceRange],
     out: &mut Vec<ReferenceCandidate>,
 ) {
+    if node.kind() == "extends_clause" {
+        let mut cursor = node.walk();
+        for child in node.named_children(&mut cursor) {
+            if child.kind() == "type_arguments" {
+                continue;
+            }
+            push_typescript_heritage_expression_reference_candidate(
+                file_id,
+                source,
+                child,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                out,
+            );
+            break;
+        }
+        return;
+    }
+
     if matches!(node.kind(), "implements_clause" | "extends_type_clause") {
         let mut cursor = node.walk();
         for child in node.named_children(&mut cursor) {
@@ -2101,6 +2142,83 @@ fn collect_typescript_heritage_reference_candidates(
             excluded_ranges,
             out,
         );
+    }
+}
+
+fn push_typescript_heritage_expression_reference_candidate(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    match node.kind() {
+        "identifier" => {
+            let range = SourceRange::from(node.range());
+            if range_matches_any(range, excluded_ranges) {
+                return;
+            }
+            let Ok(name) = node.utf8_text(source.as_bytes()) else {
+                return;
+            };
+            let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+            if !typescript_reference_is_shadowed(
+                source_symbol_id,
+                name,
+                range,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+            ) {
+                out.push(ReferenceCandidate {
+                    source_file_id: file_id,
+                    source_symbol_id,
+                    name: name.to_owned(),
+                    qualifier: None,
+                    range,
+                    is_subclass: true,
+                });
+            }
+        }
+        "member_expression" => {
+            let (Some(object), Some(property)) = (
+                node.child_by_field_name("object"),
+                node.child_by_field_name("property"),
+            ) else {
+                return;
+            };
+            let range = SourceRange::from(property.range());
+            if range_matches_any(range, excluded_ranges) {
+                return;
+            }
+            let Ok(name) = property.utf8_text(source.as_bytes()) else {
+                return;
+            };
+            let Ok(qualifier) = object.utf8_text(source.as_bytes()) else {
+                return;
+            };
+            let qualifier = qualifier.split('.').next().unwrap_or(qualifier);
+            let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+            if !typescript_reference_is_shadowed(
+                source_symbol_id,
+                qualifier,
+                range,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+            ) {
+                out.push(ReferenceCandidate {
+                    source_file_id: file_id,
+                    source_symbol_id,
+                    name: name.to_owned(),
+                    qualifier: Some(qualifier.to_owned()),
+                    range,
+                    is_subclass: true,
+                });
+            }
+        }
+        _ => {}
     }
 }
 
@@ -2137,6 +2255,7 @@ fn push_typescript_heritage_type_reference_candidate(
                     name: name.to_owned(),
                     qualifier: None,
                     range,
+                    is_subclass: true,
                 });
             }
         }
@@ -2186,6 +2305,7 @@ fn push_typescript_heritage_type_reference_candidate(
                     name: name.to_owned(),
                     qualifier: Some(qualifier.to_owned()),
                     range,
+                    is_subclass: true,
                 });
             }
         }
@@ -2569,7 +2689,14 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         imported_symbol_by_binding.insert((import.file_id, binding), (target_symbol_id, import.id));
     }
 
+    let symbol_file_ids: HashMap<u32, u32> = index
+        .symbols
+        .iter()
+        .map(|symbol| (symbol.id, symbol.file_id))
+        .collect();
     let mut references = Vec::new();
+    let mut subclass_edges = Vec::new();
+    let mut subclass_edge_pairs = HashSet::new();
     for candidate in candidates {
         let resolved_target = if let Some(qualifier) = candidate.qualifier.as_ref() {
             imported_module_by_qualifier
@@ -2602,8 +2729,9 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
             continue;
         }
 
+        let reference_id = references.len() as u32;
         references.push(ReferenceRecord {
-            id: references.len() as u32,
+            id: reference_id,
             source_file_id: candidate.source_file_id,
             source_symbol_id: candidate.source_symbol_id,
             target_symbol_id,
@@ -2611,8 +2739,31 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
             name: candidate.name,
             range: candidate.range,
         });
+        if candidate.is_subclass {
+            if let Some(source_symbol_id) = candidate.source_symbol_id {
+                if subclass_edge_pairs.insert((source_symbol_id, target_symbol_id)) {
+                    let Some(source_file_id) = symbol_file_ids.get(&source_symbol_id).copied()
+                    else {
+                        continue;
+                    };
+                    let Some(target_file_id) = symbol_file_ids.get(&target_symbol_id).copied()
+                    else {
+                        continue;
+                    };
+                    subclass_edges.push(SubclassRecord {
+                        id: subclass_edges.len() as u32,
+                        source_symbol_id,
+                        target_symbol_id,
+                        source_file_id,
+                        target_file_id,
+                        reference_id,
+                    });
+                }
+            }
+        }
     }
     index.references = references;
+    index.subclass_edges = subclass_edges;
 }
 
 fn typescript_import_binding_name(import: &ImportRecord) -> Option<String> {
@@ -3594,6 +3745,7 @@ fn collect_identifier_candidates(
                             name: name.to_owned(),
                             qualifier: Some(qualifier.to_owned()),
                             range,
+                            is_subclass: false,
                         });
                     }
                 }
@@ -3644,6 +3796,7 @@ fn collect_identifier_candidates(
                 name: name.to_owned(),
                 qualifier: None,
                 range,
+                is_subclass: false,
             });
         }
     }
@@ -5502,6 +5655,7 @@ export interface Other {}\n",
         assert_eq!(index.summary().import_resolutions, 4);
         assert_eq!(index.summary().references, 6);
         assert_eq!(index.summary().dependencies, 6);
+        assert_eq!(index.subclass_edges.len(), 6);
 
         let app_file_id = index
             .files
@@ -5567,6 +5721,16 @@ export interface Other {}\n",
             assert!(index.dependencies.iter().any(|dependency| {
                 dependency.source_symbol_id == source_symbol_id
                     && dependency.target_symbol_id == target_symbol_id
+            }));
+            assert!(index.subclass_edges.iter().any(|edge| {
+                edge.source_symbol_id == source_symbol_id
+                    && edge.target_symbol_id == target_symbol_id
+                    && index.references.iter().any(|reference| {
+                        reference.id == edge.reference_id
+                            && reference.source_symbol_id == Some(source_symbol_id)
+                            && reference.target_symbol_id == target_symbol_id
+                            && reference.name == name
+                    })
             }));
         }
     }
@@ -6556,6 +6720,20 @@ export * as shared from './shared';\n",
                 })
             })
             .collect::<Vec<_>>();
+        let subclass_edges = index
+            .subclass_edges
+            .iter()
+            .map(|edge| {
+                serde_json::json!({
+                    "id": edge.id,
+                    "source_symbol_id": edge.source_symbol_id,
+                    "target_symbol_id": edge.target_symbol_id,
+                    "source_file_id": edge.source_file_id,
+                    "target_file_id": edge.target_file_id,
+                    "reference_id": edge.reference_id,
+                })
+            })
+            .collect::<Vec<_>>();
 
         serde_json::json!({
             "summary": {
@@ -6580,6 +6758,7 @@ export * as shared from './shared';\n",
             "exports": exports,
             "references": references,
             "dependencies": dependencies,
+            "subclass_edges": subclass_edges,
         })
     }
 

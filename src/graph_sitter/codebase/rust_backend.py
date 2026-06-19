@@ -206,6 +206,27 @@ class RustDependencyRecord:
 
 
 @dataclass(frozen=True)
+class RustSubclassRecord:
+    id: int
+    source_symbol_id: int
+    target_symbol_id: int
+    source_file_id: int
+    target_file_id: int
+    reference_id: int
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustSubclassRecord:
+        return cls(
+            id=int(data["id"]),
+            source_symbol_id=int(data["source_symbol_id"]),
+            target_symbol_id=int(data["target_symbol_id"]),
+            source_file_id=int(data["source_file_id"]),
+            target_file_id=int(data["target_file_id"]),
+            reference_id=int(data["reference_id"]),
+        )
+
+
+@dataclass(frozen=True)
 class RustExportRecord:
     id: int
     file_id: int
@@ -247,6 +268,7 @@ class RustIndexBackend:
     _exports: list[RustExportRecord] | None = None
     _references: list[RustReferenceRecord] | None = None
     _dependencies: list[RustDependencyRecord] | None = None
+    _subclass_edges: list[RustSubclassRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
     _symbol_handles: list[RustCompactSymbol] | None = None
     _import_handles: list[RustCompactImport] | None = None
@@ -265,6 +287,8 @@ class RustIndexBackend:
     _references_by_import_id: dict[int, list[RustReferenceRecord]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
+    _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
+    _subclass_edges_by_target_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
     _symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] | None = None
     _ctx: CodebaseContext | None = None
 
@@ -349,6 +373,16 @@ class RustIndexBackend:
         return self._dependencies
 
     @property
+    def subclass_edges(self) -> list[RustSubclassRecord]:
+        if self._subclass_edges is None:
+            subclass_edges_json = getattr(self.index, "subclass_edges_json", None)
+            if subclass_edges_json is None:
+                self._subclass_edges = []
+            else:
+                self._subclass_edges = [RustSubclassRecord.from_dict(record) for record in json.loads(subclass_edges_json())]
+        return self._subclass_edges
+
+    @property
     def file_handles(self) -> list[RustCompactFile]:
         if self._file_handles is None:
             self._file_handles = [RustCompactFile(self, record) for record in self.files]
@@ -422,6 +456,7 @@ class RustIndexBackend:
         self._symbols = [symbol for symbol in self.symbols if symbol.file_id != file_id]
         self._imports = [import_record for import_record in self.imports if import_record.file_id != file_id]
         self._exports = [export for export in self.exports if export.file_id != file_id]
+        self._subclass_edges = [edge for edge in self.subclass_edges if edge.source_file_id != file_id and edge.target_file_id != file_id]
         self._file_handles_by_id = None
         self._symbol_handles = None
         self._import_handles = None
@@ -437,6 +472,8 @@ class RustIndexBackend:
         self._references_by_import_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
+        self._subclass_edges_by_source_symbol_id = None
+        self._subclass_edges_by_target_symbol_id = None
         self._symbols_by_parent_symbol_id = None
 
     def _normalize_relative_path(self, filepath: str) -> str:
@@ -570,6 +607,22 @@ class RustIndexBackend:
                 dependencies_by_target_symbol_id.setdefault(dependency.target_symbol_id, []).append(dependency)
             self._dependencies_by_target_symbol_id = dependencies_by_target_symbol_id
         return self._dependencies_by_target_symbol_id.get(symbol_id, [])
+
+    def subclass_edges_from_symbol(self, symbol_id: int) -> list[RustSubclassRecord]:
+        if self._subclass_edges_by_source_symbol_id is None:
+            subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] = {}
+            for edge in self.subclass_edges:
+                subclass_edges_by_source_symbol_id.setdefault(edge.source_symbol_id, []).append(edge)
+            self._subclass_edges_by_source_symbol_id = subclass_edges_by_source_symbol_id
+        return self._subclass_edges_by_source_symbol_id.get(symbol_id, [])
+
+    def subclass_edges_to_symbol(self, symbol_id: int) -> list[RustSubclassRecord]:
+        if self._subclass_edges_by_target_symbol_id is None:
+            subclass_edges_by_target_symbol_id: dict[int, list[RustSubclassRecord]] = {}
+            for edge in self.subclass_edges:
+                subclass_edges_by_target_symbol_id.setdefault(edge.target_symbol_id, []).append(edge)
+            self._subclass_edges_by_target_symbol_id = subclass_edges_by_target_symbol_id
+        return self._subclass_edges_by_target_symbol_id.get(symbol_id, [])
 
     def to_json(self) -> str:
         return str(self.index.to_json())
@@ -1413,6 +1466,92 @@ class RustCompactSymbol(RustCompactHandle):
             seen.add(target)
             dependencies.append(target)
         return dependencies
+
+    def _direct_superclasses(self) -> list[RustCompactSymbol]:
+        superclasses: list[RustCompactSymbol] = []
+        seen: set[RustCompactSymbol] = set()
+        for edge in self.backend.subclass_edges_from_symbol(self.record.id):
+            target = self.backend.symbol_handle_by_id(edge.target_symbol_id)
+            if target is None or target in seen:
+                continue
+            seen.add(target)
+            superclasses.append(target)
+        return superclasses
+
+    def _direct_subclasses(self) -> list[RustCompactSymbol]:
+        subclasses: list[RustCompactSymbol] = []
+        seen: set[RustCompactSymbol] = set()
+        for edge in self.backend.subclass_edges_to_symbol(self.record.id):
+            source = self.backend.symbol_handle_by_id(edge.source_symbol_id)
+            if source is None or source in seen:
+                continue
+            seen.add(source)
+            subclasses.append(source)
+        return subclasses
+
+    @staticmethod
+    def _walk_subclass_edges(seed: list[RustCompactSymbol], next_edges: str, max_depth: int | None = None) -> list[RustCompactSymbol]:
+        if max_depth is not None and max_depth <= 0:
+            return []
+
+        results: list[RustCompactSymbol] = []
+        seen: set[RustCompactSymbol] = set()
+        frontier = seed
+        depth = 0
+        while frontier and (max_depth is None or depth < max_depth):
+            next_frontier: list[RustCompactSymbol] = []
+            for symbol in frontier:
+                for candidate in getattr(symbol, next_edges)():
+                    if candidate in seen:
+                        continue
+                    seen.add(candidate)
+                    results.append(candidate)
+                    next_frontier.append(candidate)
+            frontier = next_frontier
+            depth += 1
+        return results
+
+    @proxy_property
+    def superclasses(self, max_depth: int | None = None) -> list[RustCompactSymbol]:
+        return self._walk_subclass_edges([self], "_direct_superclasses", max_depth=max_depth)
+
+    @proxy_property
+    def subclasses(self, max_depth: int | None = None) -> list[RustCompactSymbol]:
+        return self._walk_subclass_edges([self], "_direct_subclasses", max_depth=max_depth)
+
+    @proxy_property
+    def implementations(self, max_depth: int | None = None) -> list[RustCompactSymbol]:
+        return self.subclasses(max_depth=max_depth)
+
+    @property
+    def parent_classes(self) -> list[str] | None:
+        parents = [parent.name for parent in self._direct_superclasses()]
+        return parents or None
+
+    @property
+    def parent_interfaces(self) -> list[str] | None:
+        parents = [parent.name for parent in self._direct_superclasses()]
+        return parents or None
+
+    @property
+    def parent_class_names(self) -> list[RustCompactName]:
+        return [RustCompactName(name) for name in (self.parent_classes or [])]
+
+    @property
+    def is_subclass(self) -> bool:
+        return bool(self.parent_classes)
+
+    def is_subclass_of(self, parent_class: str | RustCompactSymbol, max_depth: int | None = None) -> bool:
+        for superclass in self.superclasses(max_depth=max_depth):
+            if isinstance(parent_class, RustCompactSymbol):
+                if superclass == parent_class:
+                    return True
+            elif superclass.name == parent_class or superclass.full_name == parent_class:
+                return True
+        return False
+
+    def extends(self, parent_interface: str | RustCompactSymbol, max_depth: int | None = None) -> bool:
+        return self.is_subclass_of(parent_interface, max_depth=max_depth)
 
     @proxy_property
     def usages(self, usage_types: UsageType | None = None) -> list[RustCompactUsage]:

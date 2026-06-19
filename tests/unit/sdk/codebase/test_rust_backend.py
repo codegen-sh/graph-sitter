@@ -243,6 +243,165 @@ class FakeIndex:
             ]
         )
 
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
+class FakeTypeScriptInheritanceSummary(FakeSummary):
+    def as_dict(self):
+        return {
+            "files": 1,
+            "symbols": 3,
+            "classes": 1,
+            "functions": 0,
+            "global_variables": 0,
+            "imports": 0,
+            "import_resolutions": 0,
+            "references": 2,
+            "dependencies": 2,
+            "bytes": 92,
+            "lines": 3,
+            "files_with_errors": 0,
+        }
+
+
+class FakeTypeScriptInheritanceIndex:
+    def summary(self):
+        return FakeTypeScriptInheritanceSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "src/app.ts",
+                    "module_name": None,
+                    "byte_len": 92,
+                    "line_count": 3,
+                    "has_error": False,
+                    "root_range": fake_range(0, 92, 0, 0, 3, 0),
+                }
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Animal",
+                    "kind": "interface",
+                    "range": fake_range(0, 19, 0, 0, 0, 19),
+                    "name_range": fake_range(10, 16, 0, 10, 0, 16),
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Dog",
+                    "kind": "interface",
+                    "range": fake_range(20, 51, 1, 0, 1, 31),
+                    "name_range": fake_range(30, 33, 1, 10, 1, 13),
+                },
+                {
+                    "id": 2,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Labrador",
+                    "kind": "class",
+                    "range": fake_range(52, 91, 2, 0, 2, 39),
+                    "name_range": fake_range(65, 73, 2, 13, 2, 21),
+                },
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps([])
+
+    def import_resolutions_json(self):
+        return json.dumps([])
+
+    def exports_json(self):
+        return json.dumps([])
+
+    def references_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "import_id": None,
+                    "name": "Animal",
+                    "range": fake_range(42, 48, 1, 22, 1, 28),
+                },
+                {
+                    "id": 1,
+                    "source_file_id": 0,
+                    "source_symbol_id": 2,
+                    "target_symbol_id": 1,
+                    "import_id": None,
+                    "name": "Dog",
+                    "range": fake_range(85, 88, 2, 33, 2, 36),
+                },
+            ]
+        )
+
+    def dependencies_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "source_file_id": 0,
+                    "target_file_id": 0,
+                    "reference_ids": [0],
+                    "reference_count": 1,
+                },
+                {
+                    "id": 1,
+                    "source_symbol_id": 2,
+                    "target_symbol_id": 1,
+                    "source_file_id": 0,
+                    "target_file_id": 0,
+                    "reference_ids": [1],
+                    "reference_count": 1,
+                },
+            ]
+        )
+
+    def subclass_edges_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "source_file_id": 0,
+                    "target_file_id": 0,
+                    "reference_id": 0,
+                },
+                {
+                    "id": 1,
+                    "source_symbol_id": 2,
+                    "target_symbol_id": 1,
+                    "source_file_id": 0,
+                    "target_file_id": 0,
+                    "reference_id": 1,
+                },
+            ]
+        )
+
 
 class FakeTypeScriptSummary(FakeSummary):
     def as_dict(self):
@@ -1014,6 +1173,48 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
 
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["src/app.ts", "src/util.ts"]]
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_subclass_traversal(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptInheritanceIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "src/app.ts": "interface Animal {}\ninterface Dog extends Animal {}\nexport class Labrador implements Dog {}\n",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        animal = codebase.get_symbol("Animal")
+        dog = codebase.get_symbol("Dog")
+        labrador = codebase.get_class("Labrador")
+
+        assert len(codebase.rust_subclass_edges) == 2
+        assert animal.parent_interfaces is None
+        assert [symbol.name for symbol in animal.implementations] == ["Dog", "Labrador"]
+        assert dog.parent_interfaces == ["Animal"]
+        assert [symbol.name for symbol in dog.implementations] == ["Labrador"]
+        assert dog.extends("Animal")
+        assert dog.extends(animal)
+        assert not dog.extends(labrador)
+        assert labrador.parent_classes == ["Dog"]
+        assert [symbol.name for symbol in labrador.superclasses] == ["Dog", "Animal"]
+        assert [symbol.name for symbol in labrador.superclasses(max_depth=1)] == ["Dog"]
+        assert labrador.is_subclass
+        assert labrador.is_subclass_of(dog)
+        assert labrador.is_subclass_of(animal)
+        assert not labrador.is_subclass_of(animal, max_depth=0)
+        assert labrador.subclasses == []
+
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["src/app.ts"]]
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 
