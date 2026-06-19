@@ -248,6 +248,18 @@ mod bindings {
             .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn file_by_path_ignore_case_json(&self, path: &str) -> PyResult<String> {
+            let normalized = path.to_lowercase();
+            serde_json::to_string(
+                &self
+                    .inner
+                    .files
+                    .iter()
+                    .find(|file| file.path.as_ref().to_lowercase() == normalized),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn symbols_for_file_json(&self, file_id: u32) -> PyResult<String> {
             let records: Vec<_> = self
                 .inner
@@ -744,6 +756,18 @@ mod bindings {
                     .files
                     .iter()
                     .find(|file| file.path.as_ref() == path),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn file_by_path_ignore_case_json(&self, path: &str) -> PyResult<String> {
+            let normalized = path.to_lowercase();
+            serde_json::to_string(
+                &self
+                    .inner
+                    .files
+                    .iter()
+                    .find(|file| file.path.as_ref().to_lowercase() == normalized),
             )
             .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
@@ -1517,6 +1541,16 @@ mod bindings {
             assert_eq!(summary.imports, 1);
             assert!(index.to_json().unwrap().contains("\"Service\""));
             assert!(index
+                .file_by_path_ignore_case_json("PKG/MOD.PY")
+                .unwrap()
+                .contains("\"pkg/mod.py\""));
+            assert_eq!(
+                index
+                    .file_by_path_ignore_case_json("PKG/MISSING.PY")
+                    .unwrap(),
+                "null"
+            );
+            assert!(index
                 .symbols_for_file_by_byte_range_json(0, 0, 1_000)
                 .unwrap()
                 .contains("\"Service\""));
@@ -1671,6 +1705,16 @@ mod bindings {
             assert_eq!(index.namespace_ids(), Vec::<u32>::new());
             assert_eq!(index.import_ids(), vec![0, 1]);
             assert_eq!(index.export_ids(), vec![0, 1]);
+            assert!(index
+                .file_by_path_ignore_case_json("SRC/APP.TSX")
+                .unwrap()
+                .contains("\"src/app.tsx\""));
+            assert_eq!(
+                index
+                    .file_by_path_ignore_case_json("SRC/MISSING.TSX")
+                    .unwrap(),
+                "null"
+            );
             assert!(index.files_json().unwrap().contains("\"src/app.tsx\""));
             assert!(index.files_json().unwrap().contains("\"language\":\"tsx\""));
             assert!(index.files_json().unwrap().contains("\"content_hash\""));

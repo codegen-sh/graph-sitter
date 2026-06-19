@@ -107,6 +107,10 @@ class FakeIndex:
     def file_by_path_json(self, path: str):
         return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
 
+    def file_by_path_ignore_case_json(self, path: str):
+        normalized = path.lower()
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"].lower() == normalized), None))
+
     def symbols_json(self):
         return json.dumps(
             [
@@ -1775,6 +1779,36 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert backend._external_modules is None
         assert backend._external_module_handles is None
         assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
+
+
+def test_rust_compact_ignore_case_file_lookup_does_not_materialize_file_lists(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        service_file = codebase.get_file("PKG/SERVICE.PY", ignore_case=True)
+        assert service_file.filepath == "pkg/service.py"
+        assert codebase.get_file("PKG/MISSING.PY", optional=True, ignore_case=True) is None
+
+        generated_file = codebase.create_file("pkg/generated.py", "VALUE = 1\n", sync=False)
+        assert codebase.get_file("PKG/GENERATED.PY", ignore_case=True) == generated_file
+
+        assert backend._files is None
+        assert backend._file_handles is None
+        assert backend._symbols is None
+        assert backend._imports is None
+        assert backend._exports is None
+        assert sorted(backend._file_handles_by_id) == [0, generated_file.record.id]
 
 
 def test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes(monkeypatch, tmp_path):

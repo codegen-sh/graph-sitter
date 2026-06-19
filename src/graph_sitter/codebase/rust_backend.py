@@ -442,6 +442,13 @@ class RustIndexBackend:
             return self._added_file_records_by_path[filepath]
         return self._record_from_json_method("file_by_path_json", RustFileRecord.from_dict, filepath)
 
+    def _file_record_by_path_ignore_case(self, filepath: str) -> RustFileRecord | None:
+        normalized = filepath.lower()
+        for added_path, record in self._added_file_records_by_path.items():
+            if added_path.lower() == normalized:
+                return record
+        return self._record_from_json_method("file_by_path_ignore_case_json", RustFileRecord.from_dict, filepath)
+
     def _symbol_record_by_id(self, symbol_id: int) -> RustSymbolRecord | None:
         return self._record_from_json_method("symbol_by_id_json", RustSymbolRecord.from_dict, symbol_id)
 
@@ -828,7 +835,9 @@ class RustIndexBackend:
         normalized = path.as_posix()
         if normalized.startswith("./"):
             normalized = normalized[2:]
-        if normalized in self._removed_file_paths:
+        normalized_for_lookup = normalized.lower() if ignore_case else normalized
+        removed_paths = {path.lower() for path in self._removed_file_paths} if ignore_case else self._removed_file_paths
+        if normalized_for_lookup in removed_paths:
             return None
         if not ignore_case and self._file_handles is None and hasattr(self.index, "file_by_path_json"):
             if self._file_handles_by_path is not None and normalized in self._file_handles_by_path:
@@ -836,6 +845,17 @@ class RustIndexBackend:
             record = self._file_record_by_path(normalized)
             if record is not None:
                 if record.id in self._removed_file_ids:
+                    return None
+                return self._file_handle_from_record(record)
+            return None
+        if ignore_case and self._file_handles is None and hasattr(self.index, "file_by_path_ignore_case_json"):
+            if self._file_handles_by_path is not None:
+                for existing_path, handle in self._file_handles_by_path.items():
+                    if existing_path.lower() == normalized_for_lookup:
+                        return handle
+            record = self._file_record_by_path_ignore_case(normalized)
+            if record is not None:
+                if record.id in self._removed_file_ids or record.path.lower() in removed_paths:
                     return None
                 return self._file_handle_from_record(record)
             return None
