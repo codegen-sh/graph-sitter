@@ -46,6 +46,24 @@ MUTATION_FILES = {
 }
 MUTATION_OUTPUT_PATHS = ["pkg/service.py"]
 
+TYPESCRIPT_FIXTURE_FILES = {
+    "src/util.ts": "export function helper(value: number) { return value; }\n",
+    "src/index.ts": "export { helper as publicHelper } from './util';\n",
+    "src/app.ts": (
+        "import { helper } from './util';\n"
+        "import { publicHelper } from './index';\n"
+        "\n"
+        "export function run() {\n"
+        "  return helper(publicHelper(1));\n"
+        "}\n"
+    ),
+}
+TYPESCRIPT_MUTATION_FILES = {
+    "src/util.ts": "export function helper(value: number) { return value; }\n",
+    "src/app.ts": "import { helper } from './util';\n\nexport function run() {\n  return helper(1);\n}\n",
+}
+TYPESCRIPT_MUTATION_OUTPUT_PATHS = ["src/app.ts"]
+
 
 def node_type_name(value: Any) -> str:
     return str(getattr(value, "name", value))
@@ -83,6 +101,53 @@ def import_signature(imp: Any) -> dict[str, Any]:
         "from_file": None if imp.from_file is None else imp.from_file.filepath,
         "resolved_symbol": node_signature(imp.resolved_symbol),
     }
+
+
+def import_target_signature(imp: Any) -> dict[str, Any]:
+    return {
+        "name": imp.name,
+        "from_file": None if imp.from_file is None else imp.from_file.filepath,
+        "resolved_symbol": node_signature(imp.resolved_symbol),
+    }
+
+
+def export_signature(export: Any) -> dict[str, Any]:
+    return {
+        "filepath": export.filepath,
+        "name": export.name,
+        "declared_symbol": node_signature(export.declared_symbol),
+        "exported_symbol": node_signature(export.exported_symbol),
+        "resolved_symbol": node_signature(export.resolved_symbol),
+        "is_default": export.is_default_export(),
+        "is_reexport": export.is_reexport(),
+    }
+
+
+def resolved_target_signature(node: Any) -> dict[str, Any] | None:
+    if node_type_name(getattr(node, "node_type", None)) in {"IMPORT", "EXPORT"}:
+        resolved_symbol = getattr(node, "resolved_symbol", None)
+        if resolved_symbol is not None:
+            return node_signature(resolved_symbol)
+    return node_signature(node)
+
+
+def unique_sorted_signatures(items: list[dict[str, Any] | None]) -> list[dict[str, Any] | None]:
+    seen: set[str] = set()
+    unique = []
+    for item in items:
+        key = json.dumps(item, sort_keys=True)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(item)
+    return sorted(
+        unique,
+        key=lambda item: (
+            "" if item is None else item.get("filepath") or "",
+            "" if item is None else item.get("node_type") or "",
+            "" if item is None else item.get("name") or "",
+        ),
+    )
 
 
 def import_resolves_to_external(imp: Any) -> bool:
@@ -188,6 +253,82 @@ def make_codebase_report(files: dict[str, str], *, backend: str) -> dict[str, An
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+def collect_typescript_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, Any]:
+    python_graph_blocked = False
+    try:
+        len(codebase.ctx.nodes)
+    except RuntimeError:
+        python_graph_blocked = True
+
+    app = codebase.get_file("src/app.ts")
+    helper = get_symbol(codebase, "helper")
+    run = get_symbol(codebase, "run")
+    if helper is None or run is None:
+        missing = [
+            name
+            for name, symbol in (("helper", helper), ("run", run))
+            if symbol is None
+        ]
+        msg = "missing expected TypeScript symbols: " + ", ".join(missing)
+        raise RuntimeError(msg)
+
+    helper_symbol_usages = [
+        usage
+        for usage in helper.symbol_usages
+        if node_type_name(getattr(usage, "node_type", None)) == "SYMBOL"
+    ]
+    report = {
+        "python_graph_blocked": python_graph_blocked,
+        "files": sorted(file.filepath for file in codebase.files),
+        "symbols": sorted_signatures(codebase.symbols),
+        "app_import_targets": sorted(
+            (import_target_signature(imp) for imp in app.imports),
+            key=lambda item: (item["from_file"] or "", item["name"] or ""),
+        ),
+        "exports": sorted(
+            (export_signature(export) for export in codebase.exports),
+            key=lambda item: (item["filepath"], item["name"] or ""),
+        ),
+        "helper_symbol_usages_symbols_only": sorted_signatures(helper_symbol_usages),
+        "run_resolved_dependency_targets": unique_sorted_signatures(
+            [resolved_target_signature(dependency) for dependency in run.dependencies]
+        ),
+    }
+    if expect_blocked_graph and not python_graph_blocked:
+        msg = "expected compact Rust backend to block Python graph materialization"
+        raise RuntimeError(msg)
+    return report
+
+
+def make_typescript_codebase_report(files: dict[str, str], *, backend: str) -> dict[str, Any]:
+    from graph_sitter.codebase.factory.get_session import get_codebase_session
+    from graph_sitter.configs.models.codebase import (
+        CodebaseConfig,
+        GraphBackend,
+        RustFallbackMode,
+    )
+    from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+
+    tmpdir = Path(tempfile.mkdtemp(prefix=f"graph-sitter-ts-parity-{backend}-"))
+    try:
+        graph_backend = GraphBackend.PYTHON if backend == "python" else GraphBackend.RUST
+        config = CodebaseConfig(
+            graph_backend=graph_backend,
+            rust_fallback=RustFallbackMode.ERROR,
+        )
+        with get_codebase_session(
+            tmpdir=tmpdir,
+            programming_language=ProgrammingLanguage.TYPESCRIPT,
+            files=files,
+            config=config,
+            verify_input=False,
+            verify_output=False,
+        ) as codebase:
+            return collect_typescript_report(codebase, expect_blocked_graph=backend == "rust")
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
 def read_outputs(root: Path, paths: list[str]) -> dict[str, str]:
     return {path: (root / path).read_text(encoding="utf-8") for path in paths}
 
@@ -238,6 +379,53 @@ def make_mutation_report(files: dict[str, str], *, backend: str) -> dict[str, An
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+def make_typescript_mutation_report(files: dict[str, str], *, backend: str) -> dict[str, Any]:
+    from graph_sitter.codebase.factory.get_session import get_codebase_session
+    from graph_sitter.configs.models.codebase import (
+        CodebaseConfig,
+        GraphBackend,
+        RustFallbackMode,
+    )
+    from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
+
+    tmpdir = Path(tempfile.mkdtemp(prefix=f"graph-sitter-ts-mutation-{backend}-"))
+    try:
+        graph_backend = GraphBackend.PYTHON if backend == "python" else GraphBackend.RUST
+        config = CodebaseConfig(
+            graph_backend=graph_backend,
+            rust_fallback=RustFallbackMode.ERROR,
+        )
+        with get_codebase_session(
+            tmpdir=tmpdir,
+            programming_language=ProgrammingLanguage.TYPESCRIPT,
+            files=files,
+            config=config,
+            sync_graph=False,
+            verify_input=False,
+            verify_output=False,
+        ) as codebase:
+            app_file = codebase.get_file("src/app.ts")
+            app_file.add_import("import { describe } from 'node:test';")
+            codebase.get_function("run").rename("executeRun")
+            codebase.commit(sync_graph=False)
+
+            python_graph_blocked = False
+            try:
+                len(codebase.ctx.nodes)
+            except RuntimeError:
+                python_graph_blocked = True
+            if backend == "rust" and not python_graph_blocked:
+                msg = "expected compact Rust TypeScript mutation flow to keep Python graph blocked"
+                raise RuntimeError(msg)
+
+        return {
+            "python_graph_blocked": python_graph_blocked,
+            "outputs": read_outputs(tmpdir, TYPESCRIPT_MUTATION_OUTPUT_PATHS),
+        }
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
 def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) -> dict[str, Any]:
     exact_keys = [
         "files",
@@ -261,6 +449,25 @@ def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) 
     }
 
 
+def compare_typescript_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) -> dict[str, Any]:
+    exact_keys = [
+        "files",
+        "symbols",
+        "app_import_targets",
+        "exports",
+        "helper_symbol_usages_symbols_only",
+        "run_resolved_dependency_targets",
+    ]
+    mismatches = [
+        key for key in exact_keys if python_report.get(key) != rust_report.get(key)
+    ]
+    return {
+        "exact_keys": exact_keys,
+        "mismatches": mismatches,
+        "known_deltas": {},
+    }
+
+
 def make_report(args: argparse.Namespace) -> dict[str, Any]:
     extension_path = None
     if not args.skip_build_extension:
@@ -271,28 +478,49 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     python_report = make_codebase_report(FIXTURE_FILES, backend="python")
     rust_report = make_codebase_report(FIXTURE_FILES, backend="rust")
     comparison = compare_reports(python_report, rust_report)
+    python_typescript_report = make_typescript_codebase_report(TYPESCRIPT_FIXTURE_FILES, backend="python")
+    rust_typescript_report = make_typescript_codebase_report(TYPESCRIPT_FIXTURE_FILES, backend="rust")
+    typescript_comparison = compare_typescript_reports(python_typescript_report, rust_typescript_report)
     python_mutation_report = make_mutation_report(MUTATION_FILES, backend="python")
     rust_mutation_report = make_mutation_report(MUTATION_FILES, backend="rust")
     mutation_mismatch = python_mutation_report["outputs"] != rust_mutation_report["outputs"]
+    python_typescript_mutation_report = make_typescript_mutation_report(TYPESCRIPT_MUTATION_FILES, backend="python")
+    rust_typescript_mutation_report = make_typescript_mutation_report(TYPESCRIPT_MUTATION_FILES, backend="rust")
+    typescript_mutation_mismatch = python_typescript_mutation_report["outputs"] != rust_typescript_mutation_report["outputs"]
     report = {
         "metadata": {
             "extension_path": str(extension_path) if extension_path else None,
             "fixture_files": sorted(FIXTURE_FILES),
             "mutation_files": sorted(MUTATION_FILES),
+            "typescript_fixture_files": sorted(TYPESCRIPT_FIXTURE_FILES),
+            "typescript_mutation_files": sorted(TYPESCRIPT_MUTATION_FILES),
         },
         "python": python_report,
         "rust": rust_report,
+        "python_typescript": python_typescript_report,
+        "rust_typescript": rust_typescript_report,
         "python_mutation": python_mutation_report,
         "rust_mutation": rust_mutation_report,
+        "python_typescript_mutation": python_typescript_mutation_report,
+        "rust_typescript_mutation": rust_typescript_mutation_report,
         "comparison": comparison,
+        "typescript_comparison": typescript_comparison,
     }
     if comparison["mismatches"]:
         msg = "Python/Rust parity fixture mismatches: " + ", ".join(
             comparison["mismatches"]
         )
         raise RuntimeError(msg)
+    if typescript_comparison["mismatches"]:
+        msg = "Python/Rust TypeScript parity fixture mismatches: " + ", ".join(
+            typescript_comparison["mismatches"]
+        )
+        raise RuntimeError(msg)
     if mutation_mismatch:
         msg = "Python/Rust mutation parity fixture mismatched file outputs"
+        raise RuntimeError(msg)
+    if typescript_mutation_mismatch:
+        msg = "Python/Rust TypeScript mutation parity fixture mismatched file outputs"
         raise RuntimeError(msg)
     return report
 
@@ -320,11 +548,15 @@ def parse_args() -> argparse.Namespace:
 
 def print_human(report: dict[str, Any]) -> None:
     comparison = report["comparison"]
+    typescript_comparison = report["typescript_comparison"]
     print("Python/Rust parity fixture passed")
     print(f"exact keys: {', '.join(comparison['exact_keys'])}")
     print(f"external modules: {len(report['rust']['external_modules'])}")
     print(f"service imports: {len(report['rust']['service_imports'])}")
     print(f"mutation outputs: {len(report['rust_mutation']['outputs'])}")
+    print(f"typescript exact keys: {', '.join(typescript_comparison['exact_keys'])}")
+    print(f"typescript exports: {len(report['rust_typescript']['exports'])}")
+    print(f"typescript mutation outputs: {len(report['rust_typescript_mutation']['outputs'])}")
     print(f"known deltas: {len(comparison['known_deltas'])}")
 
 
