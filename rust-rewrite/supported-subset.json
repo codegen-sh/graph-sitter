@@ -51,6 +51,7 @@
       "scope": [
         "strict Rust compact TypeScript Codebase construction",
         "compact files, symbols, functions, interfaces, types, imports, exports",
+        "file.get_namespace and namespace member lookup helpers",
         "relative and alias import resolution",
         "external import dependencies",
         "subclass and implementation traversal"
@@ -59,7 +60,8 @@
         "tests/unit/sdk/codebase/test_rust_backend.py::test_codebase_context_builds_opt_in_typescript_rust_index",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_usages_include_import_export_wrappers_without_materializing_indexes",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_external_import_dependencies",
-        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal"
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_namespace_lookups_do_not_materialize_python_graph"
       ]
     },
     {

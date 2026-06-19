@@ -210,7 +210,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
         }
       ],
-      "sha256": "2c60114876194da543e392fac606bef6c02800a1c6723df30519079ce7c669c5"
+      "sha256": "1cd86a9e68f44e7b66be3b374864f6ff89b496cc53c38d9b659a02cb585aa0e1"
     },
     "exports": {
       "count": 16026,
@@ -1969,7 +1969,7 @@
       "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
     },
     "references": {
-      "count": 114462,
+      "count": 114463,
       "samples": [
         {
           "import": null,
@@ -2292,7 +2292,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
         }
       ],
-      "sha256": "63b502b6e59daec914e4a90cb24e8a4a3b1e78d1531c0b8a273f942d83bd799e"
+      "sha256": "1cbb225c0f15d83eba1f4512a68fce0cddd1d057e7743fafe195812bdba046ce"
     },
     "subclass_edges": {
       "count": 160,
@@ -2461,7 +2461,7 @@
       "sha256": "b55a1570991c33ad18f55ba9f3e56595d759091893a685e8ada69598b45ac8a7"
     },
     "symbols": {
-      "count": 44855,
+      "count": 44870,
       "samples": [
         {
           "file": ".github/actions/needs-triage/src/index.ts",
@@ -2944,7 +2944,7 @@
           ]
         }
       ],
-      "sha256": "8c444f5681fa89cce136a7804561b7494ad1cf270d57e202514e8739bdfd1011"
+      "sha256": "2c6e773e9e6108d671c37449fd95a52f1ed510246eb980540ae875ad903159eb"
     }
   },
   "integrity": {
@@ -3002,8 +3002,8 @@
     "import_resolutions": 13462,
     "imports": 28210,
     "lines": 634891,
-    "references": 114462,
+    "references": 114463,
     "subclass_edges": 160,
-    "symbols": 44855
+    "symbols": 44870
   }
 }

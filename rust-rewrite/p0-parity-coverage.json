@@ -42,14 +42,16 @@
         "file.get_symbol/get_class/get_function/get_global_var",
         "file.find_by_byte_range(...)",
         "file.resolve_name/resolve_attribute/get_node_by_name",
-        "TypeScript file.exports/get_export"
+        "TypeScript file.exports/get_export",
+        "TypeScript file.get_namespace and namespace member lookup helpers"
       ],
       "evidence": {
         "pytest": [
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes",
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_name_resolution_does_not_materialize_file_maps",
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_module_import_attribute_resolution_does_not_materialize_file_maps",
-          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_export_lookups_do_not_materialize_all_exports"
+          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_export_lookups_do_not_materialize_all_exports",
+          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_namespace_lookups_do_not_materialize_python_graph"
         ],
         "tools": [
           "rust-rewrite/tools/check_python_rust_parity_fixture.py",
@@ -68,6 +70,7 @@
         "export identity/predicates/resolution/import string helpers",
         "external import dependency handles",
         "TypeScript named namespace re-export member dependencies",
+        "TypeScript file.get_namespace and namespace member lookups",
         "TypeScript subclass and implementation traversal"
       ],
       "evidence": {
@@ -153,13 +156,13 @@
       "name": "Full TypeScript expression, namespace, and type-system surface",
       "status": "open_gap",
       "api_inventory": [
-        "file.get_namespace(...)",
+        "full namespace export/private/member semantics beyond direct member lookup",
         "file.promise_chains",
         "symbol.function_calls",
         "full TypeScript lexical/type/interface/reference coverage",
         "complete namespace and expression dependency parity"
       ],
-      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs plus named namespace re-export member dependencies, but broader namespace APIs, expression nodes, and type-system P0 surfaces still need parity tests and targeted Rust data."
+      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, and direct file.get_namespace/member lookup helpers, but broader namespace export/private semantics, expression nodes, and type-system P0 surfaces still need parity tests and targeted Rust data."
     },
     {
       "name": "Full graph-wide large-repo semantic parity",

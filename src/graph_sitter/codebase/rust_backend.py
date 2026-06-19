@@ -2622,6 +2622,10 @@ class RustCompactFile(RustCompactHandle):
         return [symbol for symbol in self.symbols if symbol.symbol_type == SymbolType.Function]
 
     @property
+    def namespaces(self) -> list[RustCompactSymbol]:
+        return [symbol for symbol in self.symbols if symbol.symbol_type == SymbolType.Namespace]
+
+    @property
     def symbols_sorted_topologically(self) -> list[RustCompactSymbol]:
         symbols = self.symbols
         symbols_by_id = {symbol.record.id: symbol for symbol in symbols}
@@ -2664,6 +2668,9 @@ class RustCompactFile(RustCompactHandle):
 
     def get_function(self, name: str) -> RustCompactSymbol | None:
         return next((symbol for symbol in self.backend.symbols_for_file_by_name(self.record.id, name) if symbol.is_top_level and symbol.symbol_type == SymbolType.Function), None)
+
+    def get_namespace(self, name: str) -> RustCompactSymbol | None:
+        return next((symbol for symbol in self.backend.symbols_for_file_by_name(self.record.id, name) if symbol.is_top_level and symbol.symbol_type == SymbolType.Namespace), None)
 
     def has_import(self, symbol_alias: str) -> bool:
         return self.get_import(symbol_alias) is not None
@@ -2806,6 +2813,83 @@ class RustCompactSymbol(RustCompactHandle):
 
     def get_method(self, name: str) -> RustCompactSymbol | None:
         return next((method for method in self.methods if method.name == name), None)
+
+    @property
+    def symbols(self) -> list[RustCompactSymbol]:
+        return self.child_symbols
+
+    def get_symbol(self, name: str, recursive: bool = True, get_private: bool = False) -> RustCompactSymbol | None:
+        for symbol in self.child_symbols:
+            if symbol.name == name:
+                return symbol
+            if recursive and symbol.symbol_type == SymbolType.Namespace:
+                nested_symbol = symbol.get_symbol(name, recursive=True, get_private=get_private)
+                if nested_symbol is not None:
+                    return nested_symbol
+        return None
+
+    @property
+    def functions(self) -> list[RustCompactSymbol]:
+        return [symbol for symbol in self.child_symbols if symbol.symbol_type == SymbolType.Function]
+
+    def get_function(self, name: str, recursive: bool = True) -> RustCompactSymbol | None:
+        symbol = self.get_symbol(name, recursive=recursive)
+        return symbol if symbol is not None and symbol.symbol_type == SymbolType.Function else None
+
+    @property
+    def classes(self) -> list[RustCompactSymbol]:
+        return [symbol for symbol in self.child_symbols if symbol.symbol_type == SymbolType.Class]
+
+    def get_class(self, name: str, recursive: bool = True) -> RustCompactSymbol | None:
+        symbol = self.get_symbol(name, recursive=recursive)
+        return symbol if symbol is not None and symbol.symbol_type == SymbolType.Class else None
+
+    @property
+    def interfaces(self) -> list[RustCompactSymbol]:
+        return [symbol for symbol in self.child_symbols if symbol.symbol_type == SymbolType.Interface]
+
+    def get_interface(self, name: str, recursive: bool = True) -> RustCompactSymbol | None:
+        symbol = self.get_symbol(name, recursive=recursive)
+        return symbol if symbol is not None and symbol.symbol_type == SymbolType.Interface else None
+
+    @property
+    def types(self) -> list[RustCompactSymbol]:
+        return [symbol for symbol in self.child_symbols if symbol.symbol_type == SymbolType.Type]
+
+    def get_type(self, name: str, recursive: bool = True) -> RustCompactSymbol | None:
+        symbol = self.get_symbol(name, recursive=recursive)
+        return symbol if symbol is not None and symbol.symbol_type == SymbolType.Type else None
+
+    @property
+    def enums(self) -> list[RustCompactSymbol]:
+        return [symbol for symbol in self.child_symbols if symbol.symbol_type == SymbolType.Enum]
+
+    def get_enum(self, name: str, recursive: bool = True) -> RustCompactSymbol | None:
+        symbol = self.get_symbol(name, recursive=recursive)
+        return symbol if symbol is not None and symbol.symbol_type == SymbolType.Enum else None
+
+    @property
+    def namespaces(self) -> list[RustCompactSymbol]:
+        return [symbol for symbol in self.child_symbols if symbol.symbol_type == SymbolType.Namespace]
+
+    def get_namespace(self, name: str, recursive: bool = True) -> RustCompactSymbol | None:
+        for symbol in self.child_symbols:
+            if symbol.symbol_type == SymbolType.Namespace and symbol.name == name:
+                return symbol
+            if recursive and symbol.symbol_type == SymbolType.Namespace:
+                nested_namespace = symbol.get_namespace(name, recursive=True)
+                if nested_namespace is not None:
+                    return nested_namespace
+        return None
+
+    def get_nested_namespaces(self) -> list[RustCompactSymbol]:
+        nested: list[RustCompactSymbol] = []
+        for symbol in self.child_symbols:
+            if symbol.symbol_type != SymbolType.Namespace:
+                continue
+            nested.append(symbol)
+            nested.extend(symbol.get_nested_namespaces())
+        return nested
 
     @proxy_property
     def dependencies(self, usage_types: UsageType | None = UsageType.DIRECT, max_depth: int | None = None) -> list[object]:

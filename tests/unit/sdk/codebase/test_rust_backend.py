@@ -10,7 +10,7 @@ from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
-from graph_sitter.enums import ImportType, NodeType
+from graph_sitter.enums import ImportType, NodeType, SymbolType
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
@@ -821,6 +821,183 @@ class FakeTypeScriptInheritanceIndex:
                 },
             ]
         )
+
+
+class FakeTypeScriptNamespaceSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 1,
+                "symbols": 8,
+                "classes": 0,
+                "functions": 2,
+                "global_variables": 1,
+                "imports": 0,
+                "import_resolutions": 0,
+                "external_modules": 0,
+                "exports": 1,
+                "references": 0,
+                "external_references": 0,
+                "dependencies": 0,
+                "subclass_edges": 0,
+                "bytes": 266,
+                "lines": 8,
+            }
+        )
+        return data
+
+
+class FakeTypeScriptNamespaceIndex:
+    def summary(self):
+        return FakeTypeScriptNamespaceSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "src/app.ts",
+                    "module_name": "src/app",
+                    "byte_len": 266,
+                    "line_count": 8,
+                    "has_error": False,
+                    "root_range": fake_range(0, 266, 0, 0, 8, 0),
+                }
+            ]
+        )
+
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
+
+    def _symbols(self):
+        return [
+            {
+                "id": 0,
+                "file_id": 0,
+                "parent_symbol_id": None,
+                "is_top_level": True,
+                "name": "Math",
+                "kind": "namespace",
+                "range": fake_range(7, 265, 0, 7, 7, 1),
+                "name_range": fake_range(17, 21, 0, 17, 0, 21),
+            },
+            {
+                "id": 1,
+                "file_id": 0,
+                "parent_symbol_id": 0,
+                "is_top_level": False,
+                "name": "add",
+                "kind": "function",
+                "range": fake_range(33, 85, 1, 9, 1, 61),
+                "name_range": fake_range(42, 45, 1, 18, 1, 21),
+            },
+            {
+                "id": 2,
+                "file_id": 0,
+                "parent_symbol_id": 0,
+                "is_top_level": False,
+                "name": "Shape",
+                "kind": "interface",
+                "range": fake_range(95, 127, 2, 9, 2, 41),
+                "name_range": fake_range(105, 110, 2, 19, 2, 24),
+            },
+            {
+                "id": 3,
+                "file_id": 0,
+                "parent_symbol_id": 0,
+                "is_top_level": False,
+                "name": "Mode",
+                "kind": "type_alias",
+                "range": fake_range(137, 158, 3, 9, 3, 30),
+                "name_range": fake_range(142, 146, 3, 14, 3, 18),
+            },
+            {
+                "id": 4,
+                "file_id": 0,
+                "parent_symbol_id": 0,
+                "is_top_level": False,
+                "name": "Operation",
+                "kind": "enum",
+                "range": fake_range(168, 190, 4, 9, 4, 31),
+                "name_range": fake_range(173, 182, 4, 14, 4, 23),
+            },
+            {
+                "id": 5,
+                "file_id": 0,
+                "parent_symbol_id": 0,
+                "is_top_level": False,
+                "name": "Advanced",
+                "kind": "namespace",
+                "range": fake_range(200, 263, 5, 9, 5, 72),
+                "name_range": fake_range(210, 218, 5, 19, 5, 27),
+            },
+            {
+                "id": 6,
+                "file_id": 0,
+                "parent_symbol_id": 5,
+                "is_top_level": False,
+                "name": "pi",
+                "kind": "global_variable",
+                "range": fake_range(228, 244, 5, 37, 5, 53),
+                "name_range": fake_range(234, 236, 5, 43, 5, 45),
+            },
+            {
+                "id": 7,
+                "file_id": 0,
+                "parent_symbol_id": 5,
+                "is_top_level": False,
+                "name": "pow",
+                "kind": "function",
+                "range": fake_range(245, 261, 5, 54, 5, 70),
+                "name_range": fake_range(254, 257, 5, 63, 5, 66),
+            },
+        ]
+
+    def symbols_json(self):
+        return json.dumps(self._symbols())
+
+    def symbol_by_id_json(self, symbol_id: int):
+        return json.dumps(next((symbol for symbol in self._symbols() if symbol["id"] == symbol_id), None))
+
+    def symbols_for_file_json(self, file_id: int):
+        return json.dumps([symbol for symbol in self._symbols() if symbol["file_id"] == file_id])
+
+    def symbols_for_file_by_name_json(self, file_id: int, name: str):
+        return json.dumps([symbol for symbol in self._symbols() if symbol["file_id"] == file_id and symbol["name"] == name])
+
+    def symbols_for_parent_json(self, parent_symbol_id: int):
+        return json.dumps([symbol for symbol in self._symbols() if symbol["parent_symbol_id"] == parent_symbol_id])
+
+    def imports_json(self):
+        return json.dumps([])
+
+    def import_resolutions_json(self):
+        return json.dumps([])
+
+    def external_modules_json(self):
+        return json.dumps([])
+
+    def exports_json(self):
+        return json.dumps([])
+
+    def references_json(self):
+        return json.dumps([])
+
+    def external_references_json(self):
+        return json.dumps([])
+
+    def dependencies_json(self):
+        return json.dumps([])
+
+    def subclass_edges_json(self):
+        return json.dumps([])
 
 
 class FakeTypeScriptSummary(FakeSummary):
@@ -2545,6 +2722,70 @@ def test_rust_compact_typescript_subclass_traversal(monkeypatch, tmp_path):
         assert not labrador.is_subclass_of(animal, max_depth=0)
         assert labrador.subclasses == []
 
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["src/app.ts"]]
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_namespace_lookups_do_not_materialize_python_graph(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptNamespaceIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "src/app.ts": "export namespace Math {\n"
+        "  export function add(a: number, b: number) { return a + b; }\n"
+        "  export interface Shape { area: number }\n"
+        "  export type Mode = 'simple';\n"
+        "  export enum Operation { Add }\n"
+        "  export namespace Advanced { export const pi = 3.14; export function pow() {} }\n"
+        "}\n",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        app_file = codebase.get_file("src/app.ts")
+        namespace = app_file.get_namespace("Math")
+
+        assert namespace is not None
+        assert namespace.name == "Math"
+        assert namespace.symbol_type == SymbolType.Namespace
+        assert [symbol.name for symbol in app_file.namespaces] == ["Math"]
+        assert [symbol.name for symbol in namespace.symbols] == ["add", "Shape", "Mode", "Operation", "Advanced"]
+        assert [symbol.name for symbol in namespace.functions] == ["add"]
+        assert [symbol.name for symbol in namespace.interfaces] == ["Shape"]
+        assert [symbol.name for symbol in namespace.types] == ["Mode"]
+        assert [symbol.name for symbol in namespace.enums] == ["Operation"]
+
+        add = namespace.get_function("add")
+        shape = namespace.get_interface("Shape")
+        mode = namespace.get_type("Mode")
+        operation = namespace.get_enum("Operation")
+        advanced = namespace.get_namespace("Advanced")
+
+        assert add is not None
+        assert shape is not None
+        assert mode is not None
+        assert operation is not None
+        assert advanced is not None
+        assert namespace.get_symbol("pow") == advanced.get_function("pow")
+        assert namespace.get_nested_namespaces() == [advanced]
+        assert advanced.full_name == "Math.Advanced"
+        assert [symbol.name for symbol in advanced.symbols] == ["pi", "pow"]
+        assert advanced.get_symbol("pi").symbol_type == SymbolType.GlobalVar
+        assert advanced.get_function("pow").full_name == "Math.Advanced.pow"
+
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._symbols_by_file_id_and_name is not None
+        assert backend._symbols_by_parent_symbol_id is not None
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["src/app.ts"]]
         with pytest.raises(RuntimeError, match="Python graph is not built"):

@@ -1629,6 +1629,16 @@ fn push_typescript_symbol(
     node: Node<'_>,
     index: &mut TypeScriptIndex,
 ) -> Option<u32> {
+    push_typescript_symbol_with_parent(file_id, source, node, None, index)
+}
+
+fn push_typescript_symbol_with_parent(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    parent_symbol_id: Option<u32>,
+    index: &mut TypeScriptIndex,
+) -> Option<u32> {
     let kind = match node.kind() {
         "function_declaration" | "generator_function_declaration" => SymbolKind::Function,
         "class_declaration" | "abstract_class_declaration" => SymbolKind::Class,
@@ -1638,7 +1648,12 @@ fn push_typescript_symbol(
         "internal_module" => SymbolKind::Namespace,
         _ => return None,
     };
-    push_typescript_named_symbol(file_id, source, node, node, kind, index)
+    let symbol_id =
+        push_typescript_named_symbol(file_id, source, node, node, kind, parent_symbol_id, index)?;
+    if kind == SymbolKind::Namespace {
+        extract_typescript_namespace_members(file_id, source, node, symbol_id, index);
+    }
+    Some(symbol_id)
 }
 
 fn push_typescript_named_symbol(
@@ -1647,6 +1662,7 @@ fn push_typescript_named_symbol(
     declaration: Node<'_>,
     name_owner: Node<'_>,
     kind: SymbolKind,
+    parent_symbol_id: Option<u32>,
     index: &mut TypeScriptIndex,
 ) -> Option<u32> {
     let Some(name_node) = name_owner.child_by_field_name("name") else {
@@ -1660,8 +1676,8 @@ fn push_typescript_named_symbol(
     index.symbols.push(SymbolRecord {
         id: symbol_id,
         file_id,
-        parent_symbol_id: None,
-        is_top_level: true,
+        parent_symbol_id,
+        is_top_level: parent_symbol_id.is_none(),
         name,
         kind,
         range: declaration.range().into(),
@@ -1674,6 +1690,16 @@ fn push_typescript_variable_symbols(
     file_id: u32,
     source: &str,
     declaration: Node<'_>,
+    index: &mut TypeScriptIndex,
+) -> Vec<u32> {
+    push_typescript_variable_symbols_with_parent(file_id, source, declaration, None, index)
+}
+
+fn push_typescript_variable_symbols_with_parent(
+    file_id: u32,
+    source: &str,
+    declaration: Node<'_>,
+    parent_symbol_id: Option<u32>,
     index: &mut TypeScriptIndex,
 ) -> Vec<u32> {
     let mut symbol_ids = Vec::new();
@@ -1696,8 +1722,8 @@ fn push_typescript_variable_symbols(
                     index.symbols.push(SymbolRecord {
                         id: symbol_id,
                         file_id,
-                        parent_symbol_id: None,
-                        is_top_level: true,
+                        parent_symbol_id,
+                        is_top_level: parent_symbol_id.is_none(),
                         name,
                         kind,
                         range: declaration.range().into(),
@@ -1711,16 +1737,80 @@ fn push_typescript_variable_symbols(
     symbol_ids
 }
 
+fn extract_typescript_namespace_members(
+    file_id: u32,
+    source: &str,
+    namespace: Node<'_>,
+    namespace_symbol_id: u32,
+    index: &mut TypeScriptIndex,
+) {
+    let Some(body) = namespace.child_by_field_name("body") else {
+        return;
+    };
+    let mut cursor = body.walk();
+    for child in body.named_children(&mut cursor) {
+        let declaration = if child.kind() == "export_statement" {
+            child.child_by_field_name("declaration")
+        } else {
+            Some(child)
+        };
+        let Some(declaration) = declaration else {
+            continue;
+        };
+        match declaration.kind() {
+            "function_declaration"
+            | "generator_function_declaration"
+            | "class_declaration"
+            | "abstract_class_declaration"
+            | "interface_declaration"
+            | "type_alias_declaration"
+            | "enum_declaration"
+            | "internal_module" => {
+                push_typescript_symbol_with_parent(
+                    file_id,
+                    source,
+                    declaration,
+                    Some(namespace_symbol_id),
+                    index,
+                );
+            }
+            "lexical_declaration" | "variable_declaration" => {
+                push_typescript_variable_symbols_with_parent(
+                    file_id,
+                    source,
+                    declaration,
+                    Some(namespace_symbol_id),
+                    index,
+                );
+            }
+            _ => {}
+        }
+    }
+}
+
 fn extract_typescript_nested_local_symbols(
     file_id: u32,
     source: &str,
     root: Node<'_>,
     index: &mut TypeScriptIndex,
 ) {
-    let top_level_symbol_ranges = index
+    let owner_symbol_ranges = index
         .symbols
         .iter()
-        .filter(|symbol| symbol.file_id == file_id && symbol.is_top_level)
+        .filter(|symbol| {
+            symbol.file_id == file_id
+                && matches!(
+                    symbol.kind,
+                    SymbolKind::Class
+                        | SymbolKind::Function
+                        | SymbolKind::GlobalVariable
+                        | SymbolKind::Interface
+                        | SymbolKind::TypeAlias
+                        | SymbolKind::Enum
+                        | SymbolKind::Namespace
+                )
+                && (symbol.kind != SymbolKind::GlobalVariable || symbol.is_top_level)
+        })
         .map(|symbol| (symbol.id, symbol.range))
         .collect::<Vec<_>>();
     extract_typescript_nested_local_symbols_from_node(
@@ -1728,7 +1818,7 @@ fn extract_typescript_nested_local_symbols(
         source,
         root,
         index,
-        &top_level_symbol_ranges,
+        &owner_symbol_ranges,
         None,
         0,
     );
@@ -1739,14 +1829,14 @@ fn extract_typescript_nested_local_symbols_from_node(
     source: &str,
     node: Node<'_>,
     index: &mut TypeScriptIndex,
-    top_level_symbol_ranges: &[(u32, SourceRange)],
+    owner_symbol_ranges: &[(u32, SourceRange)],
     current_symbol_id: Option<u32>,
     nested_function_depth: usize,
 ) {
     let node_range = SourceRange::from(node.range());
     let mut current_symbol_id = current_symbol_id;
     let mut nested_function_depth = nested_function_depth;
-    if let Some((symbol_id, _)) = top_level_symbol_ranges
+    if let Some((symbol_id, _)) = owner_symbol_ranges
         .iter()
         .find(|(_, range)| *range == node_range)
     {
@@ -1795,7 +1885,7 @@ fn extract_typescript_nested_local_symbols_from_node(
             source,
             child,
             index,
-            top_level_symbol_ranges,
+            owner_symbol_ranges,
             current_symbol_id,
             nested_function_depth,
         );
@@ -6068,7 +6158,7 @@ const Component = () => <div />;
         assert_eq!(index.summary().files, 1);
         assert_eq!(index.summary().classes, 0);
         assert_eq!(index.summary().functions, 3);
-        assert_eq!(index.summary().global_variables, 4);
+        assert_eq!(index.summary().global_variables, 5);
         assert_eq!(index.files[0].path, "src/app.tsx");
         assert_eq!(index.imports.len(), 10);
         assert_eq!(index.exports.len(), 5);
@@ -6089,10 +6179,23 @@ const Component = () => <div />;
         assert!(symbols.contains(&("Alias", SymbolKind::TypeAlias)));
         assert!(symbols.contains(&("Mode", SymbolKind::Enum)));
         assert!(symbols.contains(&("Inner", SymbolKind::Namespace)));
+        assert!(symbols.contains(&("x", SymbolKind::GlobalVariable)));
         assert!(symbols.contains(&("value", SymbolKind::GlobalVariable)));
         assert!(symbols.contains(&("loader", SymbolKind::GlobalVariable)));
         assert!(symbols.contains(&("parse", SymbolKind::GlobalVariable)));
         assert!(symbols.contains(&("fmt", SymbolKind::GlobalVariable)));
+        let inner = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "Inner")
+            .unwrap();
+        let x = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "x")
+            .unwrap();
+        assert_eq!(x.parent_symbol_id, Some(inner.id));
+        assert!(!x.is_top_level);
 
         assert!(index.imports.iter().any(|import| {
             import.kind == ImportKind::DefaultImport
@@ -6552,6 +6655,85 @@ export function run() {\n\
                 && dependency.target_symbol_id == helper_symbol_id
                 && dependency.reference_count == 1
         }));
+    }
+
+    #[test]
+    fn extracts_typescript_namespace_member_symbols() {
+        let repo = temp_repo_path("extract-typescript-namespace-members");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "export namespace Math {\n\
+  export function add(a: number, b: number) { return a + b; }\n\
+  export interface Shape { area: number }\n\
+  export type Mode = 'simple';\n\
+  export enum Operation { Add }\n\
+  export namespace Advanced { export const pi = 3.14; export function pow() {} }\n\
+}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.ts")
+            .unwrap()
+            .id;
+        let math = index
+            .symbols
+            .iter()
+            .find(|symbol| {
+                symbol.file_id == file_id
+                    && symbol.name == "Math"
+                    && symbol.kind == SymbolKind::Namespace
+                    && symbol.is_top_level
+            })
+            .unwrap();
+        let advanced = index
+            .symbols
+            .iter()
+            .find(|symbol| {
+                symbol.file_id == file_id
+                    && symbol.name == "Advanced"
+                    && symbol.kind == SymbolKind::Namespace
+                    && symbol.parent_symbol_id == Some(math.id)
+                    && !symbol.is_top_level
+            })
+            .unwrap();
+        let child_names = index
+            .symbols
+            .iter()
+            .filter(|symbol| symbol.parent_symbol_id == Some(math.id))
+            .map(|symbol| (symbol.name.to_string(), symbol.kind))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            child_names,
+            vec![
+                ("add".to_owned(), SymbolKind::Function),
+                ("Shape".to_owned(), SymbolKind::Interface),
+                ("Mode".to_owned(), SymbolKind::TypeAlias),
+                ("Operation".to_owned(), SymbolKind::Enum),
+                ("Advanced".to_owned(), SymbolKind::Namespace),
+            ]
+        );
+        assert_eq!(
+            index
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.parent_symbol_id == Some(advanced.id))
+                .map(|symbol| (symbol.name.to_string(), symbol.kind))
+                .collect::<Vec<_>>(),
+            vec![
+                ("pi".to_owned(), SymbolKind::GlobalVariable),
+                ("pow".to_owned(), SymbolKind::Function),
+            ]
+        );
+        assert_eq!(index.summary().symbols, 8);
+        assert_eq!(index.summary().functions, 2);
+        assert_eq!(index.summary().global_variables, 1);
     }
 
     #[test]
