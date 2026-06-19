@@ -121,6 +121,8 @@ Current implemented bridge status:
 - `PythonIndex.summary()` returns `IndexSummary` with file, symbol, class, function, global-variable, import, import-resolution, reference, dependency, byte, line, and error counts.
 - `PythonIndex.to_json()` serializes the compact Rust records for debug and benchmark use.
 - `PythonIndex.files_json()`, `symbols_json()`, `imports_json()`, and `import_resolutions_json()` expose each record family without forcing callers to deserialize the full index payload.
+- `PythonIndex.file_ids()`, `symbol_ids()`, `top_level_symbol_ids()`, `class_ids()`, `function_ids()`, `global_variable_ids()`, and `import_ids()` expose direct compact ID queries without record JSON deserialization.
+- `TypeScriptIndex` exposes the same ID queries plus `interface_ids()`, `type_ids()`, `enum_ids()`, `namespace_ids()`, and `export_ids()`.
 - `PythonIndex.references_json()` exposes compact symbol reference records.
 - `PythonIndex.dependencies_json()` exposes compact dependency edge records.
 - `RustIndexBackend.files`, `.symbols`, `.imports`, `.import_resolutions`, `.exports`, `.references`, and `.dependencies` parse those record-family payloads into typed Python dataclasses for shell/debug/golden-test use.

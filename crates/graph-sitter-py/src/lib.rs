@@ -11,7 +11,7 @@ pub fn enabled_features() -> &'static [&'static str] {
 #[cfg(feature = "pyo3-bindings")]
 mod bindings {
     use graph_sitter_engine::{
-        self, Engine, EngineInfo, IndexSummary, PythonIndex, TypeScriptIndex,
+        self, Engine, EngineInfo, IndexSummary, PythonIndex, SymbolKind, TypeScriptIndex,
     };
     use pyo3::exceptions::{PyRuntimeError, PyValueError};
     use pyo3::prelude::*;
@@ -206,6 +206,39 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn file_ids(&self) -> Vec<u32> {
+            self.inner.files.iter().map(|file| file.id).collect()
+        }
+
+        fn symbol_ids(&self) -> Vec<u32> {
+            self.inner.symbols.iter().map(|symbol| symbol.id).collect()
+        }
+
+        fn top_level_symbol_ids(&self) -> Vec<u32> {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level)
+                .map(|symbol| symbol.id)
+                .collect()
+        }
+
+        fn class_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::Class)
+        }
+
+        fn function_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::Function)
+        }
+
+        fn global_variable_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::GlobalVariable)
+        }
+
+        fn import_ids(&self) -> Vec<u32> {
+            self.inner.imports.iter().map(|import| import.id).collect()
+        }
+
         #[getter]
         fn file_count(&self) -> usize {
             self.inner.files.len()
@@ -252,6 +285,17 @@ mod bindings {
                 summary.references,
                 summary.dependencies
             )
+        }
+    }
+
+    impl PyPythonIndex {
+        fn symbol_ids_by_kind(&self, kind: SymbolKind) -> Vec<u32> {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.kind == kind)
+                .map(|symbol| symbol.id)
+                .collect()
         }
     }
 
@@ -328,6 +372,59 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn file_ids(&self) -> Vec<u32> {
+            self.inner.files.iter().map(|file| file.id).collect()
+        }
+
+        fn symbol_ids(&self) -> Vec<u32> {
+            self.inner.symbols.iter().map(|symbol| symbol.id).collect()
+        }
+
+        fn top_level_symbol_ids(&self) -> Vec<u32> {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level)
+                .map(|symbol| symbol.id)
+                .collect()
+        }
+
+        fn class_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::Class)
+        }
+
+        fn function_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::Function)
+        }
+
+        fn global_variable_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::GlobalVariable)
+        }
+
+        fn interface_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::Interface)
+        }
+
+        fn type_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::TypeAlias)
+        }
+
+        fn enum_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::Enum)
+        }
+
+        fn namespace_ids(&self) -> Vec<u32> {
+            self.symbol_ids_by_kind(SymbolKind::Namespace)
+        }
+
+        fn import_ids(&self) -> Vec<u32> {
+            self.inner.imports.iter().map(|import| import.id).collect()
+        }
+
+        fn export_ids(&self) -> Vec<u32> {
+            self.inner.exports.iter().map(|export| export.id).collect()
+        }
+
         #[getter]
         fn file_count(&self) -> usize {
             self.inner.files.len()
@@ -385,6 +482,17 @@ mod bindings {
                 summary.references,
                 summary.dependencies
             )
+        }
+    }
+
+    impl PyTypeScriptIndex {
+        fn symbol_ids_by_kind(&self, kind: SymbolKind) -> Vec<u32> {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.kind == kind)
+                .map(|symbol| symbol.id)
+                .collect()
         }
     }
 
@@ -642,6 +750,13 @@ mod bindings {
             assert_eq!(index.external_module_count(), 0);
             assert_eq!(index.reference_count(), 1);
             assert_eq!(index.dependency_count(), 1);
+            assert_eq!(index.file_ids(), vec![0, 1, 2]);
+            assert_eq!(index.symbol_ids(), vec![0, 1, 2]);
+            assert_eq!(index.top_level_symbol_ids(), vec![0, 1, 2]);
+            assert_eq!(index.class_ids(), vec![1, 2]);
+            assert_eq!(index.function_ids(), Vec::<u32>::new());
+            assert_eq!(index.global_variable_ids(), vec![0]);
+            assert_eq!(index.import_ids(), vec![0, 1]);
             assert!(index.files_json().unwrap().contains("\"pkg/base.py\""));
             assert!(index.symbols_json().unwrap().contains("\"CONSTANT\""));
             assert!(index.symbols_json().unwrap().contains("\"Base\""));
@@ -695,6 +810,18 @@ mod bindings {
             assert_eq!(index.reference_count(), 1);
             assert_eq!(index.dependency_count(), 1);
             assert_eq!(index.subclass_edge_count(), 0);
+            assert_eq!(index.file_ids(), vec![0, 1]);
+            assert_eq!(index.symbol_ids(), vec![0, 1]);
+            assert_eq!(index.top_level_symbol_ids(), vec![0, 1]);
+            assert_eq!(index.class_ids(), Vec::<u32>::new());
+            assert_eq!(index.function_ids(), vec![0, 1]);
+            assert_eq!(index.global_variable_ids(), Vec::<u32>::new());
+            assert_eq!(index.interface_ids(), Vec::<u32>::new());
+            assert_eq!(index.type_ids(), Vec::<u32>::new());
+            assert_eq!(index.enum_ids(), Vec::<u32>::new());
+            assert_eq!(index.namespace_ids(), Vec::<u32>::new());
+            assert_eq!(index.import_ids(), vec![0, 1]);
+            assert_eq!(index.export_ids(), vec![0, 1]);
             assert!(index.files_json().unwrap().contains("\"src/app.tsx\""));
             assert!(index.symbols_json().unwrap().contains("\"Page\""));
             assert!(index.imports_json().unwrap().contains("\"default_import\""));
