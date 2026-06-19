@@ -1107,7 +1107,12 @@ fn collect_typescript_binding_targets<'tree>(node: Node<'tree>, out: &mut Vec<No
             }
         }
         "assignment_pattern"
+        | "formal_parameters"
         | "lexical_declaration"
+        | "optional_parameter"
+        | "parameters"
+        | "required_parameter"
+        | "rest_pattern"
         | "variable_declaration"
         | "object_assignment_pattern"
         | "object_pattern"
@@ -1642,7 +1647,9 @@ fn collect_typescript_local_bindings_for_symbol(
             }
         }
         "required_parameter" | "optional_parameter" | "rest_pattern" => {
-            if contains_range(symbol_range, node_range) {
+            if contains_range(symbol_range, node_range)
+                && typescript_parameter_is_symbol_wide(node, symbol_range)
+            {
                 let binding_node = node.child_by_field_name("pattern").or_else(|| {
                     node.child_by_field_name("name")
                         .or_else(|| first_named_child(node))
@@ -1665,6 +1672,30 @@ fn collect_typescript_local_bindings_for_symbol(
     for child in node.named_children(&mut cursor) {
         collect_typescript_local_bindings_for_symbol(source, child, symbol_range, out);
     }
+}
+
+fn typescript_parameter_is_symbol_wide(node: Node<'_>, symbol_range: SourceRange) -> bool {
+    let mut current = Some(node);
+    while let Some(parent) = current {
+        if is_typescript_function_like(parent) {
+            return SourceRange::from(parent.range()) == symbol_range;
+        }
+        current = parent.parent();
+    }
+    false
+}
+
+fn is_typescript_function_like(node: Node<'_>) -> bool {
+    matches!(
+        node.kind(),
+        "function_declaration"
+            | "generator_function_declaration"
+            | "method_definition"
+            | "function_signature"
+            | "arrow_function"
+            | "function_expression"
+            | "generator_function"
+    )
 }
 
 fn collect_typescript_scoped_local_bindings_from_node(
@@ -1710,6 +1741,14 @@ fn collect_typescript_scoped_local_bindings_from_node(
                 );
             }
         }
+        "arrow_function" | "function_expression" | "generator_function" => {
+            push_typescript_function_parameter_binding_scope(
+                source,
+                node,
+                symbol_ranges,
+                scoped_bindings,
+            );
+        }
         _ => {}
     }
 
@@ -1722,6 +1761,42 @@ fn collect_typescript_scoped_local_bindings_from_node(
             scoped_bindings,
         );
     }
+}
+
+fn push_typescript_function_parameter_binding_scope(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    scoped_bindings: &mut Vec<LocalBindingScope>,
+) {
+    let Some(parameters) = node
+        .child_by_field_name("parameters")
+        .or_else(|| first_child_of_kind(node, &["formal_parameters"]))
+        .or_else(|| first_named_child(node))
+    else {
+        return;
+    };
+    let Some(body) = typescript_function_body_node(node) else {
+        return;
+    };
+    push_typescript_local_binding_scope(
+        source,
+        parameters,
+        body.range().into(),
+        symbol_ranges,
+        scoped_bindings,
+    );
+}
+
+fn typescript_function_body_node(node: Node<'_>) -> Option<Node<'_>> {
+    node.child_by_field_name("body")
+        .or_else(|| first_child_of_kind(node, &["statement_block"]))
+        .or_else(|| {
+            let mut cursor = node.walk();
+            node.named_children(&mut cursor)
+                .filter(|child| child.kind() != "formal_parameters")
+                .last()
+        })
 }
 
 fn push_typescript_local_binding_scope(
@@ -4652,6 +4727,55 @@ export function run(items: number[]) {\n\
                 .filter(|reference| reference.target_symbol_id == other_symbol_id)
                 .count(),
             1
+        );
+    }
+
+    #[test]
+    fn scopes_typescript_nested_callback_parameter_shadows_to_callback_body() {
+        let repo = temp_repo_path("resolve-typescript-nested-callback-params");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { Imported } from './values';\n\
+\n\
+export function run(items: number[]) {\n\
+  const before = Imported;\n\
+  items.map((Imported) => Imported + 1);\n\
+  return Imported + before;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(repo.join("src/values.ts"), "export const Imported = 1;\n").unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 2);
+        assert_eq!(index.summary().imports, 1);
+        assert_eq!(index.summary().import_resolutions, 1);
+        assert_eq!(index.summary().references, 2);
+        assert_eq!(index.summary().dependencies, 1);
+
+        let values_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/values.ts")
+            .unwrap()
+            .id;
+        let imported_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "Imported")
+            .unwrap()
+            .id;
+
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == imported_symbol_id)
+                .count(),
+            2
         );
     }
 
