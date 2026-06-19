@@ -8,6 +8,7 @@ from graph_sitter.cli.commands.init.main import init_command
 from graph_sitter.cli.commands.list.main import list_command
 from graph_sitter.cli.commands.lsp.lsp import lsp_command
 from graph_sitter.cli.commands.notebook.main import notebook_command
+from graph_sitter.cli.commands.parse.main import parse_command
 from graph_sitter.cli.commands.reset.main import reset_command
 from graph_sitter.cli.commands.run.main import run_command
 from graph_sitter.cli.commands.start.main import start_command
@@ -27,6 +28,7 @@ def main():
 # Wrap commands with error handler
 # Removed reference to non-existent agent_command
 main.add_command(init_command)
+main.add_command(parse_command)
 main.add_command(run_command)
 main.add_command(create_command)
 main.add_command(list_command)

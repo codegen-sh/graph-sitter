@@ -8,20 +8,21 @@ Own the package entry points and user-facing CLI path for:
 - running local transformations
 - exposing the Rust compact backend through distributed wheels when it is available
 
-This plan does not change docs/site content and does not change the current runtime CLI yet.
+This plan does not change docs/site content.
 
 ## Current State
 
 - The package distribution name is already `graph-sitter`.
-- `pyproject.toml` currently exposes only one console script:
+- The current branch exposes both the historical `gs` console script and the canonical `graph-sitter` script:
 
   ```toml
   [project.scripts]
   gs = "graph_sitter.cli.cli:main"
+  graph-sitter = "graph_sitter.cli.cli:main"
   ```
 
-- `uv run gs --help` works and shows the current commands: `init`, `create`, `list`, `run`, `notebook`, `reset`, `update`, `config`, `lsp`, `start`, and `style-debug`.
-- `uv run graph-sitter --help` fails today because no `graph-sitter` console script is installed.
+- `uv run gs --help` and `uv run graph-sitter --help` work.
+- `graph-sitter parse [PATH] --backend python --format json` works without `.codegen` initialization and emits stable summary JSON.
 - `graph_sitter.cli.cli:main` is the public CLI. `graph_sitter.gscli` appears to be an internal generation CLI and should not be used for the `uvx graph-sitter` surface.
 - The current `run` path executes decorated functions found under `.codegen/codemods`:
   - `gs init` creates/persists a session for a git repo.
@@ -104,7 +105,7 @@ Rename user-facing text from "codegen function" to "Graph-sitter codemod/functio
 
 ## Package Entry-Point Changes
 
-Minimal metadata change:
+Implemented metadata change:
 
 ```toml
 [project.scripts]
@@ -142,12 +143,12 @@ Required packaging decision:
 
 ## Implementation Plan
 
-1. Add the `graph-sitter` console script alias and a metadata test proving both `gs` and `graph-sitter` point to `graph_sitter.cli.cli:main`.
-2. Add a `parse` command implemented on top of `parse_codebase(...)`, with no `.codegen` or active-session requirement.
-3. Thread `--backend`, `--language`, and `--subdir` through parse construction:
+1. [x] Add the `graph-sitter` console script alias and a metadata test proving both `gs` and `graph-sitter` point to `graph_sitter.cli.cli:main`.
+2. [x] Add a `parse` command with no `.codegen` or active-session requirement.
+3. [ ] Thread `--subdir` through parse construction:
    - `CodebaseConfig(graph_backend=...)`
    - `ProjectConfig.from_path(...)` or equivalent repo/operator construction
-4. Add machine-readable JSON output from existing Python properties and Rust compact summary properties.
+4. [x] Add machine-readable JSON output from existing Python properties and Rust compact summary properties.
 5. Add an explicit `PATH` argument to `run` while preserving current active-session behavior as fallback.
 6. Fix `--arguments` propagation into decorated functions before advertising it as supported.
 7. Add `--check` and `--write` modes for transformations. Preserve `gs run` compatibility separately if needed.
@@ -160,12 +161,10 @@ Fast tests:
 
 - `uv run python -m py_compile src/graph_sitter/cli/cli.py` and any new command files.
 - Metadata unit test:
-  - `importlib.metadata.entry_points(group="console_scripts")`
-  - assert `gs` and `graph-sitter` both resolve to `graph_sitter.cli.cli:main`.
+  - assert `gs` and `graph-sitter` both resolve to `graph_sitter.cli.cli:main` in `pyproject.toml`.
 - Click runner tests for:
-  - `graph-sitter --help`
-  - `graph-sitter parse <tmp-git-repo> --backend python --format json`
-  - missing Rust extension with `--backend rust` returns a clear error
+  - `graph-sitter parse <tmp-git-repo> --backend python --format json` (`tests/unit/cli/commands/parse/test_parse.py`)
+  - missing Rust extension with `--backend rust` returns a clear error or, when the extension is built locally, returns Rust JSON counts
   - `--backend auto` falls back predictably when Rust is unavailable
 - Tiny repo fixtures:
   - Python repo with one class, one function, one import
@@ -194,7 +193,7 @@ Regression gates:
 
 ## Blockers And Risks
 
-- `graph-sitter` is not currently an installed executable, so `uvx graph-sitter ...` cannot work until `pyproject.toml` adds the script.
+- `graph-sitter` is now declared as a console script, but it is not available to users until the package is released or installed from this branch.
 - The Rust extension is not currently bundled into the Python wheel/source install path, so `--backend rust` cannot be promised to `uvx` users yet.
 - Current `run` is active-session oriented. `uvx` can read persisted session state after `init`, but reproducible CI and agent usage needs `run LABEL PATH`.
 - Current local `run` applies changes to the filesystem. A distributed transformation CLI should have explicit `--check` and `--write` modes before being promoted as the primary UX.

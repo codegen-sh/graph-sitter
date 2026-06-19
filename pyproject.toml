@@ -110,6 +110,7 @@ keywords = [
 ]
 [project.scripts]
 gs = "graph_sitter.cli.cli:main"
+graph-sitter = "graph_sitter.cli.cli:main"
 
 [project.optional-dependencies]
 pink = ["codegen-sdk-pink>=0.1.0"]
