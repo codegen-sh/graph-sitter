@@ -276,7 +276,7 @@ class Codebase(
     @property
     @noapidoc
     def rust_files(self):
-        return self._require_rust_index().files
+        return self._require_rust_index().source_files
 
     @property
     @noapidoc

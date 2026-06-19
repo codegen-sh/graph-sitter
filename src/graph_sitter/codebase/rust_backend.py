@@ -736,6 +736,22 @@ class RustIndexBackend:
         return self._files
 
     @property
+    def source_files(self) -> list[RustFileRecord]:
+        if self._source_file_paths:
+            source_files = [
+                record
+                for filepath in self._source_file_paths
+                if (record := self._file_record_by_path(filepath)) is not None and record.id not in self._removed_file_ids
+            ]
+            source_files.extend(
+                record
+                for record in self._added_file_records_by_id.values()
+                if record.id not in self._removed_file_ids and record.language
+            )
+            return source_files
+        return [record for record in self.files if record.language]
+
+    @property
     def symbols(self) -> list[RustSymbolRecord]:
         if self._symbols is None:
             self._symbols = [RustSymbolRecord.from_dict(record) for record in json.loads(self.index.symbols_json())]

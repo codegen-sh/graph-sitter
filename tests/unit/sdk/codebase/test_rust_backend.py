@@ -2514,6 +2514,7 @@ def test_rust_compact_directory_all_file_queries_include_non_source_files(monkey
         assert sorted(backend._all_file_paths) == ["a/service.py", "docs/guide.md", "pkg/README.md", "pkg/alpha.py", "z/service.py"]
 
         assert {file.filepath for file in codebase.files} == {"a/service.py", "pkg/alpha.py", "z/service.py"}
+        assert {file.path for file in codebase.rust_files} == {"a/service.py", "pkg/alpha.py", "z/service.py"}
         assert backend._files is None
         assert backend._file_handles is None
 
