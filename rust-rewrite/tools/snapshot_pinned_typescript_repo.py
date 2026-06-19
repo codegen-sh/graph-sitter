@@ -34,7 +34,7 @@ from snapshot_pinned_python_repo import (  # noqa: E402
 DEFAULT_EXPECTED_SNAPSHOT = (
     REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
 )
-SNAPSHOT_SCHEMA_VERSION = 5
+SNAPSHOT_SCHEMA_VERSION = 6
 
 
 def range_list(record: dict[str, Any], name: str = "range") -> list[int]:
@@ -115,6 +115,22 @@ def reference_key(
     target_symbol = symbol_key(symbol_by_id[reference["target_symbol_id"]], file_by_id)
     source_file = file_by_id[reference["source_file_id"]]["path"]
     return f"{source_file}:{source_symbol}->{target_symbol}:{import_record}:{reference['name']}@{range_list(reference)[0]}"
+
+
+def external_reference_key(
+    reference: dict[str, Any],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> str:
+    source_symbol = (
+        ""
+        if reference["source_symbol_id"] is None
+        else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
+    )
+    import_record = import_key(import_by_id[reference["import_id"]], file_by_id)
+    source_file = file_by_id[reference["source_file_id"]]["path"]
+    return f"{source_file}:{source_symbol}->{import_record}:{reference['name']}@{range_list(reference)[0]}"
 
 
 def subclass_edge_key(
@@ -360,6 +376,41 @@ def make_reference_rows(
     )
 
 
+def make_external_reference_rows(
+    external_references: list[dict[str, Any]],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = []
+    for reference in external_references:
+        source_symbol = (
+            None
+            if reference["source_symbol_id"] is None
+            else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
+        )
+        rows.append(
+            {
+                "key": external_reference_key(reference, file_by_id, symbol_by_id, import_by_id),
+                "source_file": file_by_id[reference["source_file_id"]]["path"],
+                "source_symbol": source_symbol,
+                "import": import_key(import_by_id[reference["import_id"]], file_by_id),
+                "name": reference["name"],
+                "range": range_list(reference),
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            row["source_file"],
+            row["range"],
+            row["name"],
+            row["source_symbol"] or "",
+            row["import"],
+        ),
+    )
+
+
 def make_dependency_rows(
     dependencies: list[dict[str, Any]],
     file_by_id: dict[int, dict[str, Any]],
@@ -446,6 +497,7 @@ def validate_integrity(
     external_modules: list[dict[str, Any]],
     exports: list[dict[str, Any]],
     references: list[dict[str, Any]],
+    external_references: list[dict[str, Any]],
     dependencies: list[dict[str, Any]],
     subclass_edges: list[dict[str, Any]],
     selected_file_count: int | None,
@@ -516,6 +568,21 @@ def validate_integrity(
         int(reference["import_id"] is not None and reference["import_id"] not in import_ids)
         for reference in references
     )
+    missing_external_reference_source_file_links = sum(
+        int(reference["source_file_id"] not in file_ids)
+        for reference in external_references
+    )
+    missing_external_reference_source_symbol_links = sum(
+        int(
+            reference["source_symbol_id"] is not None
+            and reference["source_symbol_id"] not in symbol_ids
+        )
+        for reference in external_references
+    )
+    missing_external_reference_import_links = sum(
+        int(reference["import_id"] not in import_ids)
+        for reference in external_references
+    )
     missing_dependency_source_symbol_links = sum(
         int(dependency["source_symbol_id"] not in symbol_ids)
         for dependency in dependencies
@@ -585,6 +652,9 @@ def validate_integrity(
         "missing_reference_source_symbol_links": missing_reference_source_symbol_links,
         "missing_reference_target_symbol_links": missing_reference_target_symbol_links,
         "missing_reference_import_links": missing_reference_import_links,
+        "missing_external_reference_source_file_links": missing_external_reference_source_file_links,
+        "missing_external_reference_source_symbol_links": missing_external_reference_source_symbol_links,
+        "missing_external_reference_import_links": missing_external_reference_import_links,
         "missing_dependency_source_symbol_links": missing_dependency_source_symbol_links,
         "missing_dependency_target_symbol_links": missing_dependency_target_symbol_links,
         "missing_dependency_source_file_links": missing_dependency_source_file_links,
@@ -639,6 +709,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     external_modules = json.loads(index.external_modules_json())
     exports = json.loads(index.exports_json())
     references = json.loads(index.references_json())
+    external_references = json.loads(index.external_references_json())
     dependencies = json.loads(index.dependencies_json())
     subclass_edges = json.loads(index.subclass_edges_json())
 
@@ -658,6 +729,9 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     )
     export_rows = make_export_rows(exports, file_by_id, symbol_by_id, import_by_id)
     reference_rows = make_reference_rows(references, file_by_id, symbol_by_id, import_by_id)
+    external_reference_rows = make_external_reference_rows(
+        external_references, file_by_id, symbol_by_id, import_by_id
+    )
     dependency_rows = make_dependency_rows(
         dependencies, file_by_id, symbol_by_id, import_by_id, reference_by_id
     )
@@ -672,6 +746,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
         external_modules=external_modules,
         exports=exports,
         references=references,
+        external_references=external_references,
         dependencies=dependencies,
         subclass_edges=subclass_edges,
         selected_file_count=selected_file_count,
@@ -693,6 +768,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             **summary,
             "external_modules": index.external_module_count,
             "exports": index.export_count,
+            "external_references": len(external_references),
             "subclass_edges": index.subclass_edge_count,
         },
         "graphs": {
@@ -707,6 +783,9 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             ),
             "exports": compact_record_set(export_rows, sample_size=args.sample_size),
             "references": compact_record_set(reference_rows, sample_size=args.sample_size),
+            "external_references": compact_record_set(
+                external_reference_rows, sample_size=args.sample_size
+            ),
             "dependencies": compact_record_set(
                 dependency_rows, sample_size=args.sample_size
             ),
@@ -820,6 +899,7 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         f"import_resolutions={summary['import_resolutions']} "
         f"external_modules={summary['external_modules']} "
         f"exports={summary['exports']} references={summary['references']} "
+        f"external_references={summary['external_references']} "
         f"dependencies={summary['dependencies']} subclass_edges={summary['subclass_edges']} "
         f"files_with_errors={summary['files_with_errors']}"
     )
@@ -832,6 +912,7 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         f"external_modules={snapshot['graphs']['external_modules']['sha256']} "
         f"exports={snapshot['graphs']['exports']['sha256']} "
         f"references={snapshot['graphs']['references']['sha256']} "
+        f"external_references={snapshot['graphs']['external_references']['sha256']} "
         f"dependencies={snapshot['graphs']['dependencies']['sha256']} "
         f"subclass_edges={snapshot['graphs']['subclass_edges']['sha256']}"
     )
