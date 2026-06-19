@@ -117,8 +117,8 @@ Recommended task format:
 - [x] Resolver/dependency algorithms. owner: Gauss. Agent: `019edc37-8c34-7f93-b0ae-746cbd579962`. Branch: `codex/rust-rewrite-resolver`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-resolver`. Result: resolver algorithm inventory and Rust port plan committed.
 - [x] Rust engine skeleton. owner: Beauvoir. Agent: `019edc37-8f2d-7dd3-b3ed-a1f9e1b191a7`. Branch: `codex/rust-rewrite-engine-skeleton`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-engine-skeleton`. Result: standalone Cargo workspace and smoke tests committed.
 - [x] PyO3/Python compatibility. owner: Wegener. Agent: `019edc4e-72b1-7a00-8644-e43503f0cdc3`. Branch: `codex/rust-rewrite-pyo3-compat`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-pyo3-compat`. Result: compatibility plan committed.
-- [ ] Docs/site/Vercel strategy. owner: Nash. Agent: `019ee1a7-70e6-7062-bba8-a80918a7123c`. Branch: sub-agent workspace. Worktree: sub-agent workspace. Notes: define docs architecture, landing page, setup docs, and Vercel deployment path; do not deploy production until integrator review.
-- [ ] `uvx graph-sitter` CLI/distribution strategy. owner: Lovelace. Agent: `019ee1a7-e2cd-7771-a1f0-37c298b91323`. Branch: sub-agent workspace. Worktree: sub-agent workspace. Notes: define parse and transformation command surface, package entry point, tests, and distribution risks.
+- [x] Docs/site/Vercel strategy. owner: Nash. Agent: `019ee1a7-70e6-7062-bba8-a80918a7123c`. Branch: `codex/docs-site-vercel-worktree`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-docs-site-vercel`. Result: added `rust-rewrite/docs-site-vercel-plan.md`; no Vercel deployment performed.
+- [x] `uvx graph-sitter` CLI/distribution strategy. owner: Lovelace. Agent: `019ee1a7-e2cd-7771-a1f0-37c298b91323`. Branch: `codex/uvx-cli-distribution-lovelace`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-uvx-cli-plan`. Result: added `rust-rewrite/uvx-cli-plan.md`; implementation remains open.
 
 ## Phase 0: Baseline, RFC, And Contracts
 
@@ -333,14 +333,14 @@ Recommended task format:
 
 ## Phase 7: Docs, Distribution, And Launch
 
-- [ ] Define the public product positioning for graph-sitter. owner: Nash. Notes: landing page should explain in plain language that graph-sitter parses large codebases into a navigable semantic graph and lets agents/tools query or transform code with much lower memory overhead.
-- [ ] Audit the current documentation setup and choose the docs-site architecture. owner: Nash. Notes: verify whether the existing docs can be hosted directly, whether a Vercel project should target an existing docs app, and what build command/environment variables are required.
+- [x] Define the public product positioning for graph-sitter. owner: Nash. Result: `docs-site-vercel-plan.md` defines the plain-language message: Graph-sitter lets users write Python programs that understand and safely edit whole codebases by graphing files, symbols, imports, calls, and usages.
+- [x] Audit the current documentation setup and choose the docs-site architecture. owner: Nash. Result: keep `docs/` on Mintlify, add a separate Vercel landing app under `site/`, and configure the Vercel Root Directory to `site` after review.
 - [ ] Draft accurate setup docs for local development and Rust-backed operation. owner: Nash. Notes: include Python/uv setup, Rust/PyO3 build prerequisites, `CodebaseConfig(graph_backend=...)`, strict/fallback behavior, and fast versus large-repo validation commands.
-- [ ] Define a Vercel preview and production deployment workflow. owner: Nash. Notes: user has an authenticated Vercel CLI available; document the safest deploy commands and avoid production deployment until the site content is reviewed.
-- [ ] Define the `uvx graph-sitter ...` CLI command surface. owner: Lovelace. Notes: reserve `uvx graph-sitter` for parsing/indexing a codebase and running transformations; include JSON output, backend selection, and codemod execution modes.
-- [ ] Identify package metadata and entry-point changes needed for `uvx graph-sitter`. owner: Lovelace. Notes: determine whether the distribution name, console script, optional Rust extension build, and extras need changes before publishing.
+- [x] Define a Vercel preview and production deployment workflow. owner: Nash. Result: plan keeps current docs production untouched, uses Vercel preview URLs for a future `site/` app, and defers production domain cutover until integrator review.
+- [x] Define the `uvx graph-sitter ...` CLI command surface. owner: Lovelace. Result: `uvx-cli-plan.md` proposes `graph-sitter parse`, `graph-sitter run`, future `graph-sitter transform`, backend flags, JSON output, and check/write modes.
+- [x] Identify package metadata and entry-point changes needed for `uvx graph-sitter`. owner: Lovelace. Result: add `graph-sitter = "graph_sitter.cli.cli:main"` alongside `gs`, then package the Rust extension before promising `--backend rust` through `uvx`.
 - [ ] Add CLI smoke tests for parse and transformation flows. owner: Lovelace. Notes: tests should cover a tiny Python repo and a tiny TypeScript repo, with Rust compact mode where supported and fallback behavior documented.
-- [ ] Define skill distribution plan. owner: codex. Notes: package a reusable agent skill that explains when to use graph-sitter, how to run `uvx graph-sitter ...`, and how to invoke library APIs for codebase parsing and transformations.
+- [x] Define skill distribution plan. owner: codex. Result: added `rust-rewrite/skill-distribution-plan.md` with the proposed skill trigger, folder shape, progressive-disclosure references, `uvx graph-sitter ...` positioning, validation steps, and release gates.
 
 ## Rollout And Feature Flag Criteria
 
@@ -379,7 +379,7 @@ Default-backend promotion criteria:
 - [x] Unsupported Python APIs fail explicitly or fall back to Python backend. owner: codex. Result: supported-subset manifest includes strict unsupported API errors, missing-extension strict failure, and `rust_fallback="python"` promotion tests, all run through `check_fast.sh`.
 - [ ] Docs site accurately explains setup, Rust backend status, and CLI usage.
 - [ ] `uvx graph-sitter ...` is documented and backed by a tested console entry point.
-- [ ] A graph-sitter agent skill distribution plan exists.
+- [x] A graph-sitter agent skill distribution plan exists. owner: codex. Result: see `rust-rewrite/skill-distribution-plan.md`; the actual discoverable skill folder remains pending install-location and CLI finalization.
 
 ## Agent Log
 
@@ -387,6 +387,8 @@ Default-backend promotion criteria:
 - [x] 2026-06-18: Integrator created seven worktrees and spawned six helper agents; PyO3 compatibility was queued due to agent concurrency limit. owner: codex.
 - [x] 2026-06-18: Six completed helper branches reviewed and their artifacts staged for integration. owner: codex. Notes: PyO3 compatibility agent is now running as Wegener.
 - [x] 2026-06-19: Spawned launch/distribution helper agents. owner: codex. Notes: Nash owns docs/site/Vercel strategy, and Lovelace owns the future `uvx graph-sitter ...` CLI/distribution path.
+- [x] 2026-06-19: Added graph-sitter skill distribution plan. owner: codex. Notes: documented the future Codex skill trigger, references, validation workflow, and release gates without creating a discoverable skill folder before install-location confirmation.
+- [x] 2026-06-19: Integrated docs/site/Vercel and `uvx graph-sitter` plans. owner: codex. Notes: merged Nash's `docs-site-vercel-plan.md` and Lovelace's `uvx-cli-plan.md` into `rust-rewrite` and updated Phase 7 status while leaving implementation and smoke-test work open.
 - [x] 2026-06-18: PyO3 compatibility helper completed and its planning artifact was staged for integration. owner: codex.
 - [x] 2026-06-18: Implemented first Rust Python compact-index slice and benchmark comparison; initial measurements show 9x-22x wall-time improvement and 70x-104x RSS improvement on this repo for the implemented slice. owner: codex.
 - [x] 2026-06-18: Exposed the compact Python index through the PyO3 module and verified a Python import smoke against this repo. owner: codex. Notes: extension returned 1127 files, 3117 symbols, and 6414 imports for the current checkout.
