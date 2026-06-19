@@ -846,8 +846,27 @@ class RustCompactReferenceMatch:
         self.file.transaction_manager.add_transaction(transaction, dedupe=dedupe)
 
     def rename_if_matching(self, old_name: str, new_name: str, priority: int = 0) -> None:
-        if self.source == old_name:
-            self.edit(new_name, priority=priority)
+        current_span = self._current_span(old_name)
+        if current_span is None:
+            return
+
+        start_byte, end_byte = current_span
+        transaction = EditTransaction(
+            start_byte,
+            end_byte,
+            self.file,
+            new_name,
+            priority=priority,
+        )
+        self.file.transaction_manager.add_transaction(transaction)
+
+    def _current_span(self, name: str) -> tuple[int, int] | None:
+        content_bytes = self.file.content_bytes
+        start_byte = self.record.range.start_byte
+        end_byte = self.record.range.end_byte
+        if content_bytes[start_byte:end_byte].decode("utf-8", errors="ignore") == name:
+            return start_byte, end_byte
+        return _find_identifier_span_near(self.file.content, name, start_byte)
 
 
 @dataclass(frozen=True)
@@ -961,6 +980,53 @@ def _byte_range_bounds(range_like: Any) -> tuple[int, int]:
         msg = f"Invalid byte range: end_byte {end} is before start_byte {start}"
         raise ValueError(msg)
     return start, end
+
+
+def _is_identifier_char(char: str) -> bool:
+    return char.isalnum() or char in {"_", "$"}
+
+
+def _find_identifier_span_near(content: str, name: str, preferred_start_byte: int) -> tuple[int, int] | None:
+    if not name:
+        return None
+
+    spans: list[tuple[int, int]] = []
+    start_index = 0
+    while True:
+        index = content.find(name, start_index)
+        if index == -1:
+            break
+
+        before = content[index - 1] if index > 0 else ""
+        after_index = index + len(name)
+        after = content[after_index] if after_index < len(content) else ""
+        if not _is_identifier_char(before) and not _is_identifier_char(after):
+            start_byte = len(content[:index].encode("utf-8"))
+            end_byte = start_byte + len(name.encode("utf-8"))
+            spans.append((start_byte, end_byte))
+        start_index = index + len(name)
+
+    if not spans:
+        return None
+    return min(spans, key=lambda span: (abs(span[0] - preferred_start_byte), span[0]))
+
+
+def _find_prefixed_identifier_span(content: str, name: str, prefix: str) -> tuple[int, int] | None:
+    pattern = f"{prefix}{name}"
+    start_index = 0
+    while True:
+        index = content.find(pattern, start_index)
+        if index == -1:
+            return None
+
+        name_index = index + len(prefix)
+        after_index = name_index + len(name)
+        after = content[after_index] if after_index < len(content) else ""
+        if not _is_identifier_char(after):
+            start_byte = len(content[:name_index].encode("utf-8"))
+            end_byte = start_byte + len(name.encode("utf-8"))
+            return start_byte, end_byte
+        start_index = index + len(pattern)
 
 
 def _ranges_overlap(record_range: RustSourceRange, query_start: int, query_end: int) -> bool:
@@ -1505,6 +1571,8 @@ class RustCompactSymbol(RustCompactHandle):
         super().__init__(backend, record.id, record.range)
         self.name = record.name
         self._name_node = RustCompactName(record.name)
+        self._name_start_byte = record.name_range.start_byte
+        self._name_end_byte = record.name_range.end_byte
         self.is_top_level = record.is_top_level
         self._pending_decorators: set[str] = set()
 
@@ -1901,9 +1969,10 @@ class RustCompactSymbol(RustCompactHandle):
         return None
 
     def set_name(self, name: str, priority: int = 0) -> None:
+        start_byte, end_byte = self._current_name_span()
         transaction = EditTransaction(
-            self.record.name_range.start_byte,
-            self.record.name_range.end_byte,
+            start_byte,
+            end_byte,
             self.file,
             name,
             priority=priority,
@@ -1911,12 +1980,48 @@ class RustCompactSymbol(RustCompactHandle):
         self.transaction_manager.add_transaction(transaction)
         self.name = name
         self._name_node = RustCompactName(name)
+        self._name_start_byte = start_byte
+        self._name_end_byte = start_byte + len(name.encode("utf-8"))
 
     def rename(self, new_name: str, priority: int = 0) -> None:
         old_name = self.name
         self.set_name(new_name, priority=priority)
         for usage in self.usages(UsageType.DIRECT | UsageType.CHAINED):
             usage.match.rename_if_matching(old_name, new_name, priority=priority)
+
+    def _current_name_span(self) -> tuple[int, int]:
+        content_bytes = self.file.content_bytes
+        if content_bytes[self._name_start_byte : self._name_end_byte].decode("utf-8", errors="ignore") == self.name:
+            return self._name_start_byte, self._name_end_byte
+
+        if content_bytes[self.record.name_range.start_byte : self.record.name_range.end_byte].decode("utf-8", errors="ignore") == self.name:
+            return self.record.name_range.start_byte, self.record.name_range.end_byte
+
+        if span := self._declaration_name_span():
+            return span
+
+        if span := _find_identifier_span_near(self.file.content, self.name, self.record.name_range.start_byte):
+            return span
+
+        msg = f"Cannot locate compact symbol name {self.name!r} in {self.filepath}"
+        raise RuntimeError(msg)
+
+    def _declaration_name_span(self) -> tuple[int, int] | None:
+        prefixes_by_kind = {
+            "class": ("class ",),
+            "function": ("def ", "function "),
+            "global_variable": ("",),
+            "interface": ("interface ",),
+            "type_alias": ("type ",),
+            "enum": ("enum ",),
+            "namespace": ("namespace ",),
+        }
+        for prefix in prefixes_by_kind.get(self.record.kind, ("",)):
+            if not prefix:
+                continue
+            if span := _find_prefixed_identifier_span(self.file.content, self.name, prefix):
+                return span
+        return None
 
     @property
     def parent_symbol(self) -> RustCompactSymbol:
@@ -2155,13 +2260,15 @@ class RustCompactImport(RustCompactHandle):
         return False
 
     def set_import_module(self, new_module: str) -> None:
-        current_module = self.record.module or (self.record.name if self.record.kind == "import" else None)
+        current_module = self._current_module_source()
         if current_module is None:
             return
 
         if _is_typescript_like_extension(self.file.extension):
             replacement = self._typescript_module_replacement(new_module)
-            candidates = [f"'{current_module}'", f'"{current_module}"', f"`{current_module}`", current_module]
+            unquoted_module = current_module.strip("'\"`")
+            quoted_candidates = [f"'{unquoted_module}'", f'"{unquoted_module}"', f"`{unquoted_module}`"]
+            candidates = [current_module, *quoted_candidates, unquoted_module] if current_module[:1] in {"'", '"', "`"} else [*quoted_candidates, current_module]
         else:
             replacement = new_module
             candidates = [current_module]
@@ -2174,7 +2281,7 @@ class RustCompactImport(RustCompactHandle):
             self.rename(new_alias)
             return
 
-        old_alias = self.record.alias
+        old_alias = self.alias.source if self.alias is not None else self.record.alias
         if old_alias is None:
             self.rename(new_alias)
             return
@@ -2186,7 +2293,7 @@ class RustCompactImport(RustCompactHandle):
         self.alias = RustCompactName(new_alias)
 
     def rename(self, new_name: str, priority: int = 0) -> None:
-        old_name = self.record.name or self.name
+        old_name = self.import_specifier or self.name
         if old_name is None:
             return
 
@@ -2196,6 +2303,11 @@ class RustCompactImport(RustCompactHandle):
                 usage.match.rename_if_matching(old_name, new_name, priority=priority)
             self.alias = RustCompactName(new_name)
         self.symbol_name = RustCompactName(new_name)
+
+    def _current_module_source(self) -> str | None:
+        if self.module is not None:
+            return self.module.source
+        return self.record.module or (self.record.name if self.record.kind == "import" else None)
 
     @property
     def parent_symbol(self) -> RustCompactImport:
@@ -2253,10 +2365,36 @@ class RustCompactImport(RustCompactHandle):
         lines = content.splitlines(keepends=True)
         offsets = _line_byte_offsets(content)
         row = self.record.range.start_row
-        if row >= len(lines) or row >= len(offsets):
-            msg = f"Cannot locate import statement line for compact import {self.record.id}"
-            raise RuntimeError(msg)
-        return lines[row].rstrip("\r\n"), offsets[row]
+        if row < len(lines) and row < len(offsets):
+            line = lines[row].rstrip("\r\n")
+            if self._line_matches_import(line):
+                return line, offsets[row]
+
+        for line, offset in zip(lines, offsets, strict=False):
+            stripped_line = line.rstrip("\r\n")
+            if self._line_matches_import(stripped_line):
+                return stripped_line, offset
+
+        msg = f"Cannot locate import statement line for compact import {self.record.id}"
+        raise RuntimeError(msg)
+
+    def _line_matches_import(self, line: str) -> bool:
+        if "import" not in line:
+            return False
+
+        fragments = {
+            self.record.name,
+            self.record.module,
+            self.import_specifier,
+            self.name,
+            self.module.source if self.module is not None else None,
+        }
+        for fragment in list(fragments):
+            if fragment is None:
+                continue
+            fragments.add(fragment.strip("'\"`"))
+
+        return any(fragment and fragment in line for fragment in fragments)
 
     def _replace_first_line_fragment(self, candidates: list[str], replacement: str, *, priority: int = 0) -> None:
         line, line_start_byte = self._statement_line()
@@ -2281,17 +2419,20 @@ class RustCompactImport(RustCompactHandle):
         self._replace_line_span(line, line_start_byte, start_column, start_column + len(old_name), new_name, priority=priority)
 
     def _find_import_binding_column(self, line: str, name: str, *, imported_name: bool) -> int | None:
-        if imported_name and self.record.alias and self.record.alias != self.record.name:
-            pattern = f"{name} as {self.record.alias}"
+        current_alias = self.alias.source if self.alias is not None else self.record.alias
+        current_symbol = self.symbol_name.source if self.symbol_name is not None else self.record.name
+
+        if imported_name and current_alias and current_alias != current_symbol:
+            pattern = f"{name} as {current_alias}"
             pattern_start = line.find(pattern)
             if pattern_start != -1:
                 return pattern_start
 
-        if not imported_name and self.record.name and self.record.alias and self.record.alias != self.record.name:
-            pattern = f"{self.record.name} as {name}"
+        if not imported_name and current_symbol and current_alias and current_alias != current_symbol:
+            pattern = f"{current_symbol} as {name}"
             pattern_start = line.find(pattern)
             if pattern_start != -1:
-                return pattern_start + len(f"{self.record.name} as ")
+                return pattern_start + len(f"{current_symbol} as ")
 
         if imported_name and self.record.kind == "import":
             pattern = f"import {name}"

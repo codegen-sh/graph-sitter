@@ -1904,8 +1904,68 @@ def test_rust_compact_import_mutators_commit_without_python_graph(monkeypatch, t
         codebase.get_file("pkg/service.py").get_import("pkg.service").set_import_module("pkg.worker")
         codebase.commit(sync_graph=False)
 
-        expected = "import pl\nimport pkg.worker\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        expected = "import pl\nimport pkg.worker\n\nclass Service:\n    def run(self):\n        return pl.getcwd()\n\ndef helper():\n    return Service()\n"
         assert (tmp_path / "pkg/service.py").read_text() == expected
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_repeated_incremental_edits_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service_file = codebase.get_file("pkg/service.py")
+        service = codebase.get_class("Service")
+        os_import = service_file.get_import("os")
+
+        service_file.add_import("from typing import Any")
+        service.rename("Worker")
+        codebase.commit(sync_graph=False)
+        assert "class Worker:" in service_file.content
+        assert "return Worker()" in service_file.content
+
+        service_file.add_import("from typing import Any")
+        service.rename("Runner")
+        codebase.commit(sync_graph=False)
+        assert service_file.content.count("from typing import Any") == 1
+        assert "class Runner:" in service_file.content
+        assert "return Runner()" in service_file.content
+
+        os_import.set_import_symbol_alias("pl")
+        codebase.commit(sync_graph=False)
+        assert "import pl" in service_file.content
+        assert "return pl.getcwd()" in service_file.content
+
+        os_import.set_import_symbol_alias("pathlib")
+        codebase.commit(sync_graph=False)
+
+        expected = (
+            "from typing import Any\n"
+            "import pathlib\n"
+            "import pkg.service\n"
+            "\n"
+            "class Runner:\n"
+            "    def run(self):\n"
+            "        return pathlib.getcwd()\n"
+            "\n"
+            "def helper():\n"
+            "    return Runner()\n"
+        )
+        assert (tmp_path / "pkg/service.py").read_text() == expected
+        assert service_file.content == expected
+        assert service.name == "Runner"
+        assert os_import.name == "pathlib"
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
@@ -2342,6 +2402,58 @@ def test_rust_compact_typescript_import_mutators_commit_without_python_graph(mon
 
         expected = "import { compute } from './helpers';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return compute(props.value);\n}\n"
         assert (tmp_path / "src/app.ts").read_text() == expected
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_repeated_incremental_edits_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files={
+            "src/app.ts": "import { helper } from './util';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return helper(props.value);\n}\n",
+            "src/util.ts": "export function helper(value: number) {\n  return value;\n}\n",
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        app_file = codebase.get_file("src/app.ts")
+        run = codebase.get_function("run")
+        helper_import = app_file.get_import("helper")
+
+        app_file.add_import("import { describe } from 'node:test';")
+        run.rename("executeRun")
+        helper_import.set_import_module("./helpers")
+        helper_import.set_import_symbol_alias("compute")
+        codebase.commit(sync_graph=False)
+
+        app_file.add_import("import { describe } from 'node:test';")
+        run.rename("performRun")
+        helper_import.set_import_module("./shared/helpers")
+        helper_import.set_import_symbol_alias("calculate")
+        codebase.commit(sync_graph=False)
+
+        expected = (
+            "import { describe } from 'node:test';\n"
+            "import { calculate } from './shared/helpers';\n"
+            "\n"
+            "interface Props { value: number }\n"
+            "type Mode = 'a';\n"
+            "export function performRun(props: Props) {\n"
+            "  return calculate(props.value);\n"
+            "}\n"
+        )
+        assert (tmp_path / "src/app.ts").read_text() == expected
+        assert app_file.content == expected
+        assert app_file.content.count("import { describe } from 'node:test';") == 1
+        assert run.name == "performRun"
+        assert helper_import.name == "calculate"
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
