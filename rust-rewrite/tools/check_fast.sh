@@ -58,6 +58,7 @@ uv run python -m py_compile \
   rust-rewrite/tools/check_pinned_codemods.py \
   rust-rewrite/tools/check_pinned_python_codebase.py \
   rust-rewrite/tools/check_rollout_readiness.py \
+  rust-rewrite/tools/check_supported_subset.py \
   rust-rewrite/tools/check_pinned_semantic_parity.py \
   rust-rewrite/tools/check_python_rust_parity_fixture.py \
   rust-rewrite/tools/check_pinned_typescript_codebase.py \
@@ -74,6 +75,8 @@ uv run python -m py_compile \
 uv run python rust-rewrite/tools/check_python_rust_parity_fixture.py \
   --skip-build-extension \
   --extension-dir "$FAST_EXTENSION_DIR"
+
+uv run python rust-rewrite/tools/check_supported_subset.py
 
 uv run pytest \
   tests/unit/sdk/codebase/test_rust_backend.py \

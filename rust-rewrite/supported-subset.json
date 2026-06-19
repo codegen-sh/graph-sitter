@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "pytest_roots": [
+    "tests/unit/sdk/codebase/test_rust_backend.py",
+    "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py"
+  ],
+  "capabilities": [
+    {
+      "name": "cold public query paths without broad materialization",
+      "status": "supported_opt_in",
+      "scope": [
+        "deterministic public query ordering",
+        "global and file-local exact symbol lookup",
+        "case-insensitive file lookup",
+        "file-local byte-range lookup",
+        "file-local name resolution",
+        "module-import attribute resolution",
+        "TypeScript file-local export lookup"
+      ],
+      "tests": [
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_public_queries_preserve_python_sorting",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_ignore_case_file_lookup_does_not_materialize_file_lists",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_name_resolution_does_not_materialize_file_maps",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_module_import_attribute_resolution_does_not_materialize_file_maps",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_export_lookups_do_not_materialize_all_exports"
+      ]
+    },
+    {
+      "name": "Python compact Codebase shell",
+      "status": "supported_opt_in",
+      "scope": [
+        "strict Rust compact Codebase construction",
+        "compact files, symbols, classes, functions, globals, imports",
+        "import resolution, dependencies, usages, external modules",
+        "blocked eager Python graph"
+      ],
+      "tests": [
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_codebase_context_builds_opt_in_rust_index",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_external_modules"
+      ]
+    },
+    {
+      "name": "TypeScript compact Codebase shell",
+      "status": "supported_opt_in",
+      "scope": [
+        "strict Rust compact TypeScript Codebase construction",
+        "compact files, symbols, functions, interfaces, types, imports, exports",
+        "relative and alias import resolution",
+        "external import dependencies",
+        "subclass and implementation traversal"
+      ],
+      "tests": [
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_codebase_context_builds_opt_in_typescript_rust_index",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_usages_include_import_export_wrappers_without_materializing_indexes",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_external_import_dependencies",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal"
+      ]
+    },
+    {
+      "name": "fallback and unsupported API behavior",
+      "status": "supported_opt_in",
+      "scope": [
+        "missing extension fallback under rust_fallback=python",
+        "explicit strict-mode unsupported API errors",
+        "intentional promotion to Python graph under rust_fallback=python",
+        "strict failure when extension is missing and fallback is disabled"
+      ],
+      "tests": [
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_missing_rust_extension_falls_back_to_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_unsupported_api_fails_explicitly_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_unsupported_file_method_falls_back_to_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_missing_rust_extension_can_fail_strictly"
+      ]
+    },
+    {
+      "name": "Python compact edit and codemod flows",
+      "status": "supported_opt_in",
+      "scope": [
+        "file edit, create, remove",
+        "symbol rename",
+        "add/remove/retarget imports",
+        "decorator read/write/remove",
+        "move-to-file and import update",
+        "Codemod.execute flows without Python graph materialization"
+      ],
+      "tests": [
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_file_mutations_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_create_file_does_not_materialize_record_lists",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_remove_existing_file_does_not_materialize_record_lists",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_rename_and_add_import_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_add_import_from_symbol_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_and_import_remove_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_import_mutators_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_repeated_incremental_edits_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_add_decorator_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_decorator_read_and_remove_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_move_function_to_created_file_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_move_class_adds_back_edge_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_move_updates_imported_usages_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_codemod_symbol_import_edits_match_python_backend",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_codemod_execute_symbol_import_edits_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_codemod_execute_move_updates_imports_without_python_graph"
+      ]
+    },
+    {
+      "name": "TypeScript compact edit and codemod flows",
+      "status": "supported_opt_in",
+      "scope": [
+        "TypeScript add-import and rename parity",
+        "TypeScript import mutation",
+        "TypeScript repeated incremental edits",
+        "TypeScript move-to-file import updates",
+        "Codemod.execute flows without Python graph materialization"
+      ],
+      "tests": [
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_codemod_import_edits_match_python_backend",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_codemod_move_updates_imports_matches_python_backend",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_codemod_edits_imports_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_import_mutators_commit_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_repeated_incremental_edits_without_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_codemod_move_updates_imports_matches_python_backend",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_codemod_move_updates_imports_without_python_graph"
+      ]
+    },
+    {
+      "name": "rollout readiness contract",
+      "status": "supported_opt_in",
+      "scope": [
+        "aggregate pinned report acceptance",
+        "aggregate pinned report stale-count rejection"
+      ],
+      "tests": [
+        "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_accepts_complete_pinned_contract_reports",
+        "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_rejects_stale_codebase_counts"
+      ]
+    }
+  ]
+}
