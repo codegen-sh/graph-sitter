@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -371,6 +371,8 @@ class RustIndexBackend:
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
     _subclass_edges_by_target_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
     _symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] | None = None
+    _removed_file_ids: set[int] = field(default_factory=set)
+    _removed_file_paths: set[str] = field(default_factory=set)
     _ctx: CodebaseContext | None = None
 
     @classmethod
@@ -553,7 +555,11 @@ class RustIndexBackend:
     @property
     def files(self) -> list[RustFileRecord]:
         if self._files is None:
-            self._files = [RustFileRecord.from_dict(record) for record in json.loads(self.index.files_json())]
+            self._files = [
+                RustFileRecord.from_dict(record)
+                for record in json.loads(self.index.files_json())
+                if int(record["id"]) not in self._removed_file_ids
+            ]
         return self._files
 
     @property
@@ -701,6 +707,8 @@ class RustIndexBackend:
         self.files.append(record)
         file = self._file_handle_from_record(record)
         self.file_handles.append(file)
+        self._removed_file_ids.discard(record.id)
+        self._removed_file_paths.discard(record.path)
         self._file_handles_by_id = None
         self._file_handles_by_path = None
         self._symbols_by_file_id = None
@@ -710,15 +718,40 @@ class RustIndexBackend:
         self._exports_by_file_id_and_byte_range = None
         return file
 
-    def unregister_file(self, file_id: int) -> None:
-        self._files = [file for file in self.files if file.id != file_id]
-        self._file_handles = [file for file in self.file_handles if file.record.id != file_id]
-        self._symbols = [symbol for symbol in self.symbols if symbol.file_id != file_id]
-        self._imports = [import_record for import_record in self.imports if import_record.file_id != file_id]
-        self._external_modules = [external_module for external_module in self.external_modules if external_module.file_id != file_id]
-        self._exports = [export for export in self.exports if export.file_id != file_id]
-        self._external_references = [reference for reference in self.external_references if reference.source_file_id != file_id]
-        self._subclass_edges = [edge for edge in self.subclass_edges if edge.source_file_id != file_id and edge.target_file_id != file_id]
+    def unregister_file(self, file_id: int, filepath: str | None = None) -> None:
+        if filepath is None:
+            if self._file_handles_by_id is not None and file_id in self._file_handles_by_id:
+                filepath = self._file_handles_by_id[file_id].record.path
+            elif self._files is not None:
+                filepath = next((file.path for file in self._files if file.id == file_id), None)
+            elif record := self._file_record_by_id(file_id):
+                filepath = record.path
+        self._removed_file_ids.add(file_id)
+        if filepath is not None:
+            self._removed_file_paths.add(filepath)
+
+        if self._files is not None:
+            self._files = [file for file in self._files if file.id != file_id]
+        if self._file_handles is not None:
+            self._file_handles = [file for file in self._file_handles if file.record.id != file_id]
+        if self._symbols is not None:
+            self._symbols = [symbol for symbol in self._symbols if symbol.file_id != file_id]
+        if self._imports is not None:
+            self._imports = [import_record for import_record in self._imports if import_record.file_id != file_id]
+        if self._import_resolutions is not None:
+            self._import_resolutions = [resolution for resolution in self._import_resolutions if resolution.source_file_id != file_id and resolution.target_file_id != file_id]
+        if self._external_modules is not None:
+            self._external_modules = [external_module for external_module in self._external_modules if external_module.file_id != file_id]
+        if self._exports is not None:
+            self._exports = [export for export in self._exports if export.file_id != file_id]
+        if self._references is not None:
+            self._references = [reference for reference in self._references if reference.source_file_id != file_id]
+        if self._external_references is not None:
+            self._external_references = [reference for reference in self._external_references if reference.source_file_id != file_id]
+        if self._dependencies is not None:
+            self._dependencies = [dependency for dependency in self._dependencies if dependency.source_file_id != file_id and dependency.target_file_id != file_id]
+        if self._subclass_edges is not None:
+            self._subclass_edges = [edge for edge in self._subclass_edges if edge.source_file_id != file_id and edge.target_file_id != file_id]
         self._file_handles_by_id = None
         self._file_handles_by_path = None
         self._symbol_handles = None
@@ -769,11 +802,15 @@ class RustIndexBackend:
         normalized = path.as_posix()
         if normalized.startswith("./"):
             normalized = normalized[2:]
+        if normalized in self._removed_file_paths:
+            return None
         if not ignore_case and self._file_handles is None and hasattr(self.index, "file_by_path_json"):
             if self._file_handles_by_path is not None and normalized in self._file_handles_by_path:
                 return self._file_handles_by_path[normalized]
             record = self._file_record_by_path(normalized)
             if record is not None:
+                if record.id in self._removed_file_ids:
+                    return None
                 return self._file_handle_from_record(record)
         if ignore_case:
             normalized = normalized.lower()
@@ -964,6 +1001,8 @@ class RustIndexBackend:
         return sorted(nodes, key=lambda node: (node.start_byte, node.end_byte, int(node.node_type), node.node_id))
 
     def file_handle_by_id(self, file_id: int) -> RustCompactFile | None:
+        if file_id in self._removed_file_ids:
+            return None
         if self._file_handles is None and hasattr(self.index, "file_by_id_json"):
             if self._file_handles_by_id is None:
                 self._file_handles_by_id = {}
@@ -1837,7 +1876,7 @@ class RustCompactFile(RustCompactHandle):
 
     def remove(self) -> None:
         self.transaction_manager.add_file_remove_transaction(self)
-        self.backend.unregister_file(self.record.id)
+        self.backend.unregister_file(self.record.id, self.record.path)
 
     def add_import(self, imp: RustCompactSymbol | str, *, alias: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> RustCompactImport | None:
         if isinstance(imp, RustCompactSymbol):

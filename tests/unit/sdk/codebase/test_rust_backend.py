@@ -101,6 +101,12 @@ class FakeIndex:
             ]
         )
 
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
+
     def symbols_json(self):
         return json.dumps(
             [
@@ -400,6 +406,12 @@ class FakeOrderingIndex:
             ]
         )
 
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
+
     def symbols_json(self):
         return json.dumps(
             [
@@ -525,6 +537,12 @@ class FakeExternalIndex:
                 }
             ]
         )
+
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
 
     def symbols_json(self):
         return json.dumps(
@@ -809,6 +827,12 @@ class FakeTypeScriptIndex:
                 },
             ]
         )
+
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
 
     def symbols_json(self):
         return json.dumps(
@@ -2270,6 +2294,47 @@ def test_rust_compact_file_mutations_commit_without_python_graph(monkeypatch, tm
         codebase.commit(sync_graph=False)
         assert not (tmp_path / "pkg/generated.py").exists()
         assert codebase.get_file("pkg/generated.py", optional=True) is None
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_remove_existing_file_does_not_materialize_record_lists(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n"},
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        service_file = codebase.get_file("pkg/service.py")
+        service_file.remove()
+        codebase.commit(sync_graph=False)
+
+        assert not (tmp_path / "pkg/service.py").exists()
+        assert codebase.get_file("pkg/service.py", optional=True) is None
+        assert backend._files is None
+        assert backend._file_handles is None
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._symbols_by_file_id is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._imports_by_file_id is None
+        assert backend._import_resolutions is None
+        assert backend._references is None
+        assert backend._dependencies is None
+        assert backend._external_references is None
+        assert backend._exports is None
+        assert backend._export_handles is None
+        assert backend._exports_by_file_id is None
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
