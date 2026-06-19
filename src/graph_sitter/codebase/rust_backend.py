@@ -373,6 +373,9 @@ class RustIndexBackend:
     _symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] | None = None
     _removed_file_ids: set[int] = field(default_factory=set)
     _removed_file_paths: set[str] = field(default_factory=set)
+    _added_file_records_by_id: dict[int, RustFileRecord] = field(default_factory=dict)
+    _added_file_records_by_path: dict[str, RustFileRecord] = field(default_factory=dict)
+    _next_added_file_id: int | None = None
     _ctx: CodebaseContext | None = None
 
     @classmethod
@@ -430,9 +433,13 @@ class RustIndexBackend:
         return handle
 
     def _file_record_by_id(self, file_id: int) -> RustFileRecord | None:
+        if file_id in self._added_file_records_by_id:
+            return self._added_file_records_by_id[file_id]
         return self._record_from_json_method("file_by_id_json", RustFileRecord.from_dict, file_id)
 
     def _file_record_by_path(self, filepath: str) -> RustFileRecord | None:
+        if filepath in self._added_file_records_by_path:
+            return self._added_file_records_by_path[filepath]
         return self._record_from_json_method("file_by_path_json", RustFileRecord.from_dict, filepath)
 
     def _symbol_record_by_id(self, symbol_id: int) -> RustSymbolRecord | None:
@@ -560,6 +567,7 @@ class RustIndexBackend:
                 for record in json.loads(self.index.files_json())
                 if int(record["id"]) not in self._removed_file_ids
             ]
+            self._files.extend(record for record in self._added_file_records_by_id.values() if record.id not in self._removed_file_ids)
         return self._files
 
     @property
@@ -682,6 +690,18 @@ class RustIndexBackend:
             for handle in handles_by_key.values():
                 handle.ctx = ctx
 
+    def _allocate_added_file_id(self) -> int:
+        if self._next_added_file_id is None:
+            next_id = self.summary.files
+            if self._files is not None:
+                next_id = max((file.id for file in self._files), default=-1) + 1
+            elif self._file_handles is not None:
+                next_id = max((file.record.id for file in self._file_handles), default=-1) + 1
+            self._next_added_file_id = max(next_id, self.summary.files)
+        file_id = self._next_added_file_id
+        self._next_added_file_id += 1
+        return file_id
+
     def register_added_file(self, filepath: str, content: str = "") -> RustCompactFile:
         relative_path = self._normalize_relative_path(filepath)
         if existing := self.get_file_handle(relative_path):
@@ -694,7 +714,7 @@ class RustIndexBackend:
         elif _is_typescript_like_extension(Path(relative_path).suffix):
             module_name = _typescript_import_module_name_for_filepath(relative_path)
         record = RustFileRecord(
-            id=max((file.id for file in self.files), default=-1) + 1,
+            id=self._allocate_added_file_id(),
             path=relative_path,
             module_name=module_name,
             language=_rust_file_language_for_path(relative_path),
@@ -704,18 +724,21 @@ class RustIndexBackend:
             has_error=False,
             root_range=_source_range_for_content(content),
         )
-        self.files.append(record)
+        self._added_file_records_by_id[record.id] = record
+        self._added_file_records_by_path[record.path] = record
+        if self._files is not None:
+            self._files.append(record)
         file = self._file_handle_from_record(record)
-        self.file_handles.append(file)
+        if self._file_handles is not None:
+            self._file_handles.append(file)
         self._removed_file_ids.discard(record.id)
         self._removed_file_paths.discard(record.path)
-        self._file_handles_by_id = None
-        self._file_handles_by_path = None
-        self._symbols_by_file_id = None
-        self._symbols_by_file_id_and_byte_range = None
-        self._imports_by_file_id = None
-        self._imports_by_file_id_and_byte_range = None
-        self._exports_by_file_id_and_byte_range = None
+        if self._symbols_by_file_id is not None:
+            self._symbols_by_file_id[record.id] = []
+        if self._imports_by_file_id is not None:
+            self._imports_by_file_id[record.id] = []
+        if self._exports_by_file_id is not None:
+            self._exports_by_file_id[record.id] = []
         return file
 
     def unregister_file(self, file_id: int, filepath: str | None = None) -> None:
@@ -729,6 +752,9 @@ class RustIndexBackend:
         self._removed_file_ids.add(file_id)
         if filepath is not None:
             self._removed_file_paths.add(filepath)
+        self._added_file_records_by_id.pop(file_id, None)
+        if filepath is not None:
+            self._added_file_records_by_path.pop(filepath, None)
 
         if self._files is not None:
             self._files = [file for file in self._files if file.id != file_id]
@@ -812,6 +838,7 @@ class RustIndexBackend:
                 if record.id in self._removed_file_ids:
                     return None
                 return self._file_handle_from_record(record)
+            return None
         if ignore_case:
             normalized = normalized.lower()
             return next((file for file in self.file_handles if file.filepath.lower() == normalized), None)
@@ -1010,6 +1037,7 @@ class RustIndexBackend:
                 record = self._file_record_by_id(file_id)
                 if record is not None:
                     return self._file_handle_from_record(record)
+                return None
             if file_id in self._file_handles_by_id:
                 return self._file_handles_by_id[file_id]
         if self._file_handles_by_id is None or file_id not in self._file_handles_by_id:

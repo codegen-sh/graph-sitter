@@ -2299,6 +2299,48 @@ def test_rust_compact_file_mutations_commit_without_python_graph(monkeypatch, tm
             len(codebase.ctx.nodes)
 
 
+def test_rust_compact_create_file_does_not_materialize_record_lists(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n"},
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        generated_file = codebase.create_file("pkg/generated.py", "CREATED = True\n", sync=False)
+        other_file = codebase.create_file("pkg/other.py", "", sync=False)
+
+        assert generated_file.filepath == "pkg/generated.py"
+        assert other_file.record.id == generated_file.record.id + 1
+        assert (tmp_path / "pkg/generated.py").read_text() == "CREATED = True\n"
+        assert codebase.has_file("pkg/generated.py")
+        assert codebase.get_file("pkg/generated.py") == generated_file
+        assert backend.file_handle_by_id(generated_file.record.id) == generated_file
+        assert backend._files is None
+        assert backend._file_handles is None
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._symbols_by_file_id is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._imports_by_file_id is None
+        assert backend._exports is None
+        assert backend._export_handles is None
+        assert backend._exports_by_file_id is None
+
+        assert "pkg/generated.py" in {file.filepath for file in codebase.files}
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
 def test_rust_compact_remove_existing_file_does_not_materialize_record_lists(monkeypatch, tmp_path):
     install_fake_rust_extension(monkeypatch)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST)
