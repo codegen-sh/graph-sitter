@@ -69,6 +69,7 @@
         "import identity/predicates/resolution/imported_exports",
         "export identity/predicates/resolution/import string helpers",
         "external import dependency handles",
+        "TypeScript import type/default/namespace predicates",
         "TypeScript named namespace re-export member dependencies",
         "TypeScript file.get_namespace and namespace member lookups",
         "TypeScript subclass and implementation traversal"
@@ -77,6 +78,7 @@
         "pytest": [
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_external_modules",
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_usages_include_import_export_wrappers_without_materializing_indexes",
+          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_import_predicates_do_not_materialize_python_graph",
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_external_import_dependencies",
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal"
         ],

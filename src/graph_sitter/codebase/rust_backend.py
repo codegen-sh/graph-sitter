@@ -3878,6 +3878,8 @@ class RustCompactImport(RustCompactHandle):
         if not self.is_module_import():
             return [imported]
         if isinstance(imported, RustCompactFile):
+            if _is_typescript_like_extension(self.file.extension) and self.is_default_import():
+                return [export.resolved_symbol for export in imported.default_exports if export.resolved_symbol is not None]
             return [*imported.symbols, *imported.imports]
         return [imported]
 
@@ -3965,9 +3967,55 @@ class RustCompactImport(RustCompactHandle):
 
     @property
     def namespace(self) -> str | None:
+        if _is_typescript_like_extension(self.file.extension):
+            resolved = self.resolved_symbol
+            if isinstance(resolved, RustCompactFile):
+                return self.alias.source if self.alias is not None else None
+            return None
         if not self.is_module_import():
             return None
         return self.name
+
+    def is_type_import(self) -> bool:
+        if not _is_typescript_like_extension(self.file.extension):
+            return False
+        source = self.source.lstrip()
+        if source.startswith(("import type ", "export type ")):
+            return True
+        if self.record.kind == "dynamic_import":
+            call_start = source.find("import(")
+            close_paren = source.find(")", call_start)
+            return call_start != -1 and close_paren != -1 and source[close_paren + 1 :].lstrip().startswith(".")
+
+        imported_name = self.record.name
+        if imported_name is None:
+            return False
+        separators = str.maketrans({"{": " ", "}": " ", ",": " ", ";": " ", "\n": " ", "\t": " "})
+        tokens = source.translate(separators).split()
+        return any(token == "type" and next_token == imported_name for token, next_token in zip(tokens, tokens[1:], strict=False))
+
+    def is_default_import(self) -> bool:
+        return self.import_type == ImportType.DEFAULT_EXPORT
+
+    @property
+    def is_namespace_import(self) -> bool:
+        if not _is_typescript_like_extension(self.file.extension):
+            return False
+        if self.import_type == ImportType.WILDCARD and self.namespace:
+            return True
+        if self.import_type == ImportType.NAMED_EXPORT:
+            symbol = self.resolved_symbol
+            return isinstance(symbol, RustCompactSymbol) and symbol.symbol_type == SymbolType.Namespace
+        return False
+
+    @property
+    def namespace_imports(self) -> list[RustCompactSymbol]:
+        if not self.is_namespace_import:
+            return []
+        symbol = self.resolved_symbol
+        if isinstance(symbol, RustCompactSymbol) and symbol.symbol_type == SymbolType.Namespace:
+            return [symbol]
+        return []
 
     @property
     def is_dynamic(self) -> bool:
@@ -4060,6 +4108,10 @@ class RustCompactImport(RustCompactHandle):
         return self.record.alias is not None and self.record.alias != self.record.name
 
     def is_module_import(self) -> bool:
+        if _is_typescript_like_extension(self.file.extension):
+            if self.import_type in {ImportType.MODULE, ImportType.WILDCARD, ImportType.DEFAULT_EXPORT}:
+                return True
+            return self.import_type == ImportType.SIDE_EFFECT and not self.is_type_import()
         return self.import_type in {ImportType.MODULE, ImportType.WILDCARD}
 
     def is_symbol_import(self) -> bool:

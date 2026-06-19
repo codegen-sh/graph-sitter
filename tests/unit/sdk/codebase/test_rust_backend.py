@@ -1319,6 +1319,249 @@ class FakeTypeScriptIndex:
         )
 
 
+FAKE_TYPESCRIPT_IMPORT_PREDICATE_CONTENT = (
+    "import DefaultThing from './util';\n"
+    "import type { Props } from './types';\n"
+    "import { Math } from './math';\n"
+    "import * as Utils from './util';\n"
+    "import './setup';\n"
+    "export function run() { return DefaultThing; }\n"
+)
+
+
+class FakeTypeScriptImportPredicateSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 5,
+                "symbols": 3,
+                "classes": 0,
+                "functions": 1,
+                "global_variables": 0,
+                "imports": 5,
+                "import_resolutions": 5,
+                "external_modules": 0,
+                "exports": 0,
+                "references": 0,
+                "external_references": 0,
+                "dependencies": 0,
+                "subclass_edges": 0,
+                "bytes": len(FAKE_TYPESCRIPT_IMPORT_PREDICATE_CONTENT),
+                "lines": 6,
+                "files_with_errors": 0,
+            }
+        )
+        return data
+
+
+class FakeTypeScriptImportPredicateIndex:
+    def summary(self):
+        return FakeTypeScriptImportPredicateSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[]}'
+
+    def _files(self):
+        return [
+            {
+                "id": 0,
+                "path": "src/app.ts",
+                "module_name": "src/app",
+                "byte_len": len(FAKE_TYPESCRIPT_IMPORT_PREDICATE_CONTENT),
+                "line_count": 6,
+                "has_error": False,
+                "root_range": fake_range(0, len(FAKE_TYPESCRIPT_IMPORT_PREDICATE_CONTENT), 0, 0, 6, 0),
+            },
+            {
+                "id": 1,
+                "path": "src/util.ts",
+                "module_name": "src/util",
+                "byte_len": 0,
+                "line_count": 0,
+                "has_error": False,
+                "root_range": fake_range(0, 0),
+            },
+            {
+                "id": 2,
+                "path": "src/types.ts",
+                "module_name": "src/types",
+                "byte_len": 0,
+                "line_count": 0,
+                "has_error": False,
+                "root_range": fake_range(0, 0),
+            },
+            {
+                "id": 3,
+                "path": "src/math.ts",
+                "module_name": "src/math",
+                "byte_len": 0,
+                "line_count": 0,
+                "has_error": False,
+                "root_range": fake_range(0, 0),
+            },
+            {
+                "id": 4,
+                "path": "src/setup.ts",
+                "module_name": "src/setup",
+                "byte_len": 0,
+                "line_count": 0,
+                "has_error": False,
+                "root_range": fake_range(0, 0),
+            },
+        ]
+
+    def files_json(self):
+        return json.dumps(self._files())
+
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in self._files() if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in self._files() if file["path"] == path), None))
+
+    def _symbols(self):
+        return [
+            {
+                "id": 0,
+                "file_id": 2,
+                "parent_symbol_id": None,
+                "is_top_level": True,
+                "name": "Props",
+                "kind": "interface",
+                "range": fake_range(0, 0),
+                "name_range": fake_range(0, 0),
+            },
+            {
+                "id": 1,
+                "file_id": 3,
+                "parent_symbol_id": None,
+                "is_top_level": True,
+                "name": "Math",
+                "kind": "namespace",
+                "range": fake_range(0, 0),
+                "name_range": fake_range(0, 0),
+            },
+            {
+                "id": 2,
+                "file_id": 0,
+                "parent_symbol_id": None,
+                "is_top_level": True,
+                "name": "run",
+                "kind": "function",
+                "range": fake_range(144, 190, 5, 0, 5, 46),
+                "name_range": fake_range(160, 163, 5, 16, 5, 19),
+            },
+        ]
+
+    def symbols_json(self):
+        return json.dumps(self._symbols())
+
+    def symbol_by_id_json(self, symbol_id: int):
+        return json.dumps(next((symbol for symbol in self._symbols() if symbol["id"] == symbol_id), None))
+
+    def _imports(self):
+        return [
+            {
+                "id": 0,
+                "file_id": 0,
+                "kind": "default_import",
+                "module": "./util",
+                "name": "DefaultThing",
+                "alias": "DefaultThing",
+                "range": fake_range(7, 19, 0, 7, 0, 19),
+            },
+            {
+                "id": 1,
+                "file_id": 0,
+                "kind": "named_import",
+                "module": "./types",
+                "name": "Props",
+                "alias": "Props",
+                "range": fake_range(50, 55, 1, 14, 1, 19),
+            },
+            {
+                "id": 2,
+                "file_id": 0,
+                "kind": "named_import",
+                "module": "./math",
+                "name": "Math",
+                "alias": "Math",
+                "range": fake_range(82, 86, 2, 9, 2, 13),
+            },
+            {
+                "id": 3,
+                "file_id": 0,
+                "kind": "namespace_import",
+                "module": "./util",
+                "name": "*",
+                "alias": "Utils",
+                "range": fake_range(111, 126, 3, 7, 3, 22),
+            },
+            {
+                "id": 4,
+                "file_id": 0,
+                "kind": "side_effect",
+                "module": "./setup",
+                "name": None,
+                "alias": None,
+                "range": fake_range(144, 160, 4, 0, 4, 16),
+            },
+        ]
+
+    def imports_json(self):
+        return json.dumps(self._imports())
+
+    def import_by_id_json(self, import_id: int):
+        return json.dumps(next((import_record for import_record in self._imports() if import_record["id"] == import_id), None))
+
+    def imports_for_file_by_lookup_json(self, file_id: int, lookup: str):
+        rows = []
+        for import_record in self._imports():
+            if import_record["file_id"] != file_id:
+                continue
+            candidates = {
+                import_record["module"],
+                import_record["name"],
+                import_record["alias"],
+            }
+            if any(candidate and (lookup == candidate or candidate in lookup) for candidate in candidates):
+                rows.append(import_record)
+        return json.dumps(rows)
+
+    def import_resolutions_json(self):
+        return json.dumps(
+            [
+                {"id": 0, "import_id": 0, "source_file_id": 0, "target_file_id": 1, "target_symbol_id": None},
+                {"id": 1, "import_id": 1, "source_file_id": 0, "target_file_id": 2, "target_symbol_id": 0},
+                {"id": 2, "import_id": 2, "source_file_id": 0, "target_file_id": 3, "target_symbol_id": 1},
+                {"id": 3, "import_id": 3, "source_file_id": 0, "target_file_id": 1, "target_symbol_id": None},
+                {"id": 4, "import_id": 4, "source_file_id": 0, "target_file_id": 4, "target_symbol_id": None},
+            ]
+        )
+
+    def import_resolution_for_import_json(self, import_id: int):
+        return json.dumps(next((resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["import_id"] == import_id), None))
+
+    def external_modules_json(self):
+        return json.dumps([])
+
+    def exports_json(self):
+        return json.dumps([])
+
+    def references_json(self):
+        return json.dumps([])
+
+    def external_references_json(self):
+        return json.dumps([])
+
+    def dependencies_json(self):
+        return json.dumps([])
+
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
 FAKE_TYPESCRIPT_PROMISE_CONTENT = (
     "export function first() {\n"
     "  return Promise.resolve(1).then(value => value + 1);\n"
@@ -3096,6 +3339,83 @@ def test_rust_compact_typescript_namespace_lookups_do_not_materialize_python_gra
         assert backend._symbols_by_parent_symbol_id is not None
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["src/app.ts"]]
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_import_predicates_do_not_materialize_python_graph(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptImportPredicateIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "src/app.ts": FAKE_TYPESCRIPT_IMPORT_PREDICATE_CONTENT,
+        "src/util.ts": "",
+        "src/types.ts": "export interface Props {}\n",
+        "src/math.ts": "export namespace Math { export const PI = 3.14 }\n",
+        "src/setup.ts": "",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        app_file = codebase.get_file("src/app.ts")
+        default_import = app_file.get_import("DefaultThing")
+        type_import = app_file.get_import("Props")
+        named_namespace_import = app_file.get_import("Math")
+        wildcard_import = app_file.get_import("Utils")
+        side_effect_import = app_file.get_import("./setup")
+
+        assert default_import is not None
+        assert type_import is not None
+        assert named_namespace_import is not None
+        assert wildcard_import is not None
+        assert side_effect_import is not None
+
+        assert default_import.is_default_import()
+        assert not default_import.is_type_import()
+        assert default_import.is_module_import()
+        assert not default_import.is_symbol_import()
+        assert default_import.namespace == "DefaultThing"
+
+        assert not type_import.is_default_import()
+        assert type_import.is_type_import()
+        assert not type_import.is_module_import()
+        assert type_import.is_symbol_import()
+        assert type_import.imported_symbol.name == "Props"
+
+        assert not named_namespace_import.is_type_import()
+        assert named_namespace_import.is_namespace_import
+        assert named_namespace_import.namespace is None
+        assert [namespace.name for namespace in named_namespace_import.namespace_imports] == ["Math"]
+
+        assert wildcard_import.is_module_import()
+        assert wildcard_import.is_namespace_import
+        assert wildcard_import.namespace == "Utils"
+        assert wildcard_import.namespace_imports == []
+
+        assert side_effect_import.is_module_import()
+        assert not side_effect_import.is_symbol_import()
+        assert not side_effect_import.is_type_import()
+        assert not side_effect_import.is_namespace_import
+        assert side_effect_import.namespace is None
+
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+        assert backend._files is None
+        assert backend._symbols is None
+        assert backend._imports is None
+        assert backend._import_resolutions is None
+        assert backend._file_handles is None
+        assert backend._symbol_handles is None
+        assert backend._import_handles is None
+        assert backend._imports_by_file_id_and_lookup is not None
+        assert backend._symbol_handles_by_id is not None
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["src/app.ts", "src/math.ts", "src/setup.ts", "src/types.ts", "src/util.ts"]]
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
 
