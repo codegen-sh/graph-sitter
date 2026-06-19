@@ -252,6 +252,151 @@ class FakeIndex:
         return json.dumps([])
 
 
+class FakeOrderingSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 3,
+                "symbols": 6,
+                "classes": 3,
+                "functions": 3,
+                "imports": 0,
+                "import_resolutions": 0,
+                "references": 0,
+                "dependencies": 0,
+                "bytes": 192,
+                "lines": 12,
+            }
+        )
+        return data
+
+
+class FakeOrderingIndex:
+    def summary(self):
+        return FakeOrderingSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "z/service.py",
+                    "module_name": "z.service",
+                    "byte_len": 64,
+                    "line_count": 4,
+                    "has_error": False,
+                    "root_range": fake_range(0, 64, 0, 0, 4, 0),
+                },
+                {
+                    "id": 1,
+                    "path": "a/service.py",
+                    "module_name": "a.service",
+                    "byte_len": 64,
+                    "line_count": 4,
+                    "has_error": False,
+                    "root_range": fake_range(0, 64, 0, 0, 4, 0),
+                },
+                {
+                    "id": 2,
+                    "path": "pkg/alpha.py",
+                    "module_name": "pkg.alpha",
+                    "byte_len": 64,
+                    "line_count": 4,
+                    "has_error": False,
+                    "root_range": fake_range(0, 64, 0, 0, 4, 0),
+                },
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 1,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Alpha",
+                    "kind": "class",
+                    "range": fake_range(30, 42),
+                    "name_range": fake_range(36, 41),
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "z_func",
+                    "kind": "function",
+                    "range": fake_range(5, 12),
+                    "name_range": fake_range(9, 15),
+                },
+                {
+                    "id": 2,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Zed",
+                    "kind": "class",
+                    "range": fake_range(10, 20),
+                    "name_range": fake_range(16, 19),
+                },
+                {
+                    "id": 3,
+                    "file_id": 2,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "b_func",
+                    "kind": "function",
+                    "range": fake_range(25, 32),
+                    "name_range": fake_range(29, 35),
+                },
+                {
+                    "id": 4,
+                    "file_id": 2,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Beta",
+                    "kind": "class",
+                    "range": fake_range(20, 30),
+                    "name_range": fake_range(26, 30),
+                },
+                {
+                    "id": 5,
+                    "file_id": 1,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "a_func",
+                    "kind": "function",
+                    "range": fake_range(40, 47),
+                    "name_range": fake_range(44, 50),
+                },
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps([])
+
+    def import_resolutions_json(self):
+        return json.dumps([])
+
+    def external_modules_json(self):
+        return json.dumps([])
+
+    def references_json(self):
+        return json.dumps([])
+
+    def dependencies_json(self):
+        return json.dumps([])
+
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
 class FakeExternalSummary(FakeSummary):
     def as_dict(self):
         data = super().as_dict()
@@ -1375,6 +1520,32 @@ def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeI
 
 def _read_outputs(root: Path, paths: list[str]) -> dict[str, str]:
     return {path: (root / path).read_text() for path in paths}
+
+
+def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch, index_cls=FakeOrderingIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "z/service.py": "class Zed:\n    pass\n\ndef z_func():\n    pass\n",
+        "a/service.py": "class Alpha:\n    pass\n\ndef a_func():\n    pass\n",
+        "pkg/alpha.py": "class Beta:\n    pass\n\ndef b_func():\n    pass\n",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        assert codebase.ctx.rust_compact_mode is True
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["a/service.py", "pkg/alpha.py", "z/service.py"]]
+
+        assert [file.filepath for file in codebase.files] == ["pkg/alpha.py", "a/service.py", "z/service.py"]
+        assert [file.filepath for file in codebase.files(extensions=[".py"])] == ["pkg/alpha.py", "a/service.py", "z/service.py"]
+        assert [symbol.name for symbol in codebase.classes] == ["Zed", "Beta", "Alpha"]
+        assert [symbol.name for symbol in codebase.functions] == ["z_func", "b_func", "a_func"]
 
 
 def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):

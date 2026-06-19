@@ -353,7 +353,7 @@ class Codebase(
         if isinstance(extensions, list):
             allowed = set(extensions)
             files = [file for file in files if file.extension in allowed]
-        return sorted(files, key=lambda file: file.name)
+        return sorted(files, key=lambda file: (file.name, file.filepath))
 
     ####################################################################################################################
     # NODES
