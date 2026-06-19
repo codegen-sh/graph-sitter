@@ -35,17 +35,24 @@ This avoids trying to make Mintlify run inside Vercel. The current `docs/` tree 
 
 ## Vercel path
 
-When the landing app is introduced:
+The first landing scaffold now lives under:
 
 ```text
 site/
   package.json
-  next.config.js
+  package-lock.json
+  next.config.mjs
+  tsconfig.json
   app/
     page.tsx
     layout.tsx
-  public/
+    globals.css
+  README.md
 ```
+
+It is a small Next.js app with local instructions in `site/README.md`. It keeps
+Vercel configuration in project settings rather than adding root-level routing
+or build metadata.
 
 Recommended Vercel project settings:
 

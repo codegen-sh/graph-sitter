@@ -123,6 +123,14 @@ Recommended adjacent cleanup:
 
 `uvx graph-sitter --backend rust` needs the Rust extension in the installed environment. Today that is not true for a source install unless the developer runs the Rust build and injects the extension directory manually.
 
+Current packaging audit:
+
+- `pyproject.toml` uses `hatchling.build` and does not currently configure `maturin`, `setuptools-rust`, or a custom Rust build hook.
+- Existing Hatch wheel hooks cover Cython and package initialization, not the PyO3 crate.
+- The PyO3 crate currently builds a top-level `graph_sitter_py` module, and `src/graph_sitter/codebase/rust_backend.py` imports that module directly.
+- `rust-rewrite/tools/check_extension_build.sh` proves the extension can compile and import when manually copied onto `PYTHONPATH`, but it does not prove that a built wheel contains the extension.
+- Release CI builds wheels through cibuildwheel, but it does not yet install the produced wheel and run `uvx --from dist/<wheel>.whl graph-sitter ...`.
+
 Required packaging decision:
 
 1. Choose a wheel build path for the PyO3 extension:
