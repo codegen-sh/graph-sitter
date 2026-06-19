@@ -793,6 +793,12 @@ class RustIndexBackend:
             self._symbols_by_parent_symbol_id = symbols_by_parent_symbol_id
         return self._symbols_by_parent_symbol_id.get(parent_symbol_id, [])
 
+    def top_level_symbols_by_name(self, name: str) -> list[RustCompactSymbol]:
+        records = self._records_from_json_method("top_level_symbols_by_name_json", RustSymbolRecord.from_dict, name)
+        if records is None:
+            return [symbol for symbol in self.symbol_handles if symbol.is_top_level and symbol.name == name]
+        return [self._symbol_handle_from_record(record) for record in records]
+
     def imports_for_file(self, file_id: int) -> list[RustCompactImport]:
         if self._import_handles is None and hasattr(self.index, "imports_for_file_json"):
             if self._imports_by_file_id is None:
@@ -841,7 +847,7 @@ class RustIndexBackend:
                     return self._file_handle_from_record(record)
             if file_id in self._file_handles_by_id:
                 return self._file_handles_by_id[file_id]
-        if self._file_handles_by_id is None:
+        if self._file_handles_by_id is None or file_id not in self._file_handles_by_id:
             self._file_handles_by_id = {file.record.id: file for file in self.file_handles}
         return self._file_handles_by_id.get(file_id)
 
@@ -855,7 +861,7 @@ class RustIndexBackend:
                     return self._symbol_handle_from_record(record)
             if symbol_id in self._symbol_handles_by_id:
                 return self._symbol_handles_by_id[symbol_id]
-        if self._symbol_handles_by_id is None:
+        if self._symbol_handles_by_id is None or symbol_id not in self._symbol_handles_by_id:
             self._symbol_handles_by_id = {symbol.record.id: symbol for symbol in self.symbol_handles}
         return self._symbol_handles_by_id.get(symbol_id)
 
@@ -869,7 +875,7 @@ class RustIndexBackend:
                     return self._import_handle_from_record(record)
             if import_id in self._import_handles_by_id:
                 return self._import_handles_by_id[import_id]
-        if self._import_handles_by_id is None:
+        if self._import_handles_by_id is None or import_id not in self._import_handles_by_id:
             self._import_handles_by_id = {import_handle.record.id: import_handle for import_handle in self.import_handles}
         return self._import_handles_by_id.get(import_id)
 
@@ -883,7 +889,7 @@ class RustIndexBackend:
                     return self._external_module_handle_from_record(record)
             if import_id in self._external_module_handles_by_import_id:
                 return self._external_module_handles_by_import_id[import_id]
-        if self._external_module_handles_by_import_id is None:
+        if self._external_module_handles_by_import_id is None or import_id not in self._external_module_handles_by_import_id:
             self._external_module_handles_by_import_id = {external_module.record.import_id: external_module for external_module in self.external_module_handles}
         return self._external_module_handles_by_import_id.get(import_id)
 
@@ -897,7 +903,7 @@ class RustIndexBackend:
                     return self._export_handle_from_record(record)
             if export_id in self._export_handles_by_id:
                 return self._export_handles_by_id[export_id]
-        if self._export_handles_by_id is None:
+        if self._export_handles_by_id is None or export_id not in self._export_handles_by_id:
             self._export_handles_by_id = {export_handle.record.id: export_handle for export_handle in self.export_handles}
         return self._export_handles_by_id.get(export_id)
 

@@ -270,6 +270,17 @@ mod bindings {
             .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn top_level_symbols_by_name_json(&self, name: &str) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level && symbol.name.as_ref() == name)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {
             let records: Vec<_> = self
                 .inner
@@ -668,6 +679,17 @@ mod bindings {
                     .find(|symbol| symbol.id == symbol_id),
             )
             .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn top_level_symbols_by_name_json(&self, name: &str) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level && symbol.name.as_ref() == name)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
         fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {

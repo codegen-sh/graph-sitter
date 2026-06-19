@@ -762,6 +762,8 @@ class Codebase(
         Returns:
             bool: True if a symbol with the given name exists in the codebase, False otherwise.
         """
+        if self.ctx.rust_compact_mode:
+            return bool(self._require_rust_index().top_level_symbols_by_name(symbol_name))
         return any([x.name == symbol_name for x in self.symbols])
 
     def get_symbol(self, symbol_name: str, optional: bool = False) -> TSymbol | None:
@@ -805,6 +807,8 @@ class Codebase(
         Note:
             When a unique symbol is required, use get_symbol() instead. It will raise ValueError if multiple symbols are found.
         """
+        if self.ctx.rust_compact_mode:
+            return sort_editables(self._require_rust_index().top_level_symbols_by_name(symbol_name))
         return sort_editables(x for x in self.symbols if x.name == symbol_name)
 
     def get_class(self, class_name: str, optional: bool = False) -> TClass | None:
@@ -820,7 +824,10 @@ class Codebase(
         Raises:
             ValueError: If the class is not found and optional=False, or if multiple classes with the same name exist.
         """
-        matches = [c for c in self.classes if c.name == class_name]
+        if self.ctx.rust_compact_mode:
+            matches = [symbol for symbol in self._require_rust_index().top_level_symbols_by_name(class_name) if symbol.symbol_type == SymbolType.Class]
+        else:
+            matches = [c for c in self.classes if c.name == class_name]
         if len(matches) == 0:
             if not optional:
                 msg = f"Class {class_name} not found in codebase. Use optional=True to return None instead."
@@ -849,7 +856,10 @@ class Codebase(
         Raises:
             ValueError: If function is not found and optional=False, or if multiple matching functions exist.
         """
-        matches = [f for f in self.functions if f.name == function_name]
+        if self.ctx.rust_compact_mode:
+            matches = [symbol for symbol in self._require_rust_index().top_level_symbols_by_name(function_name) if symbol.symbol_type == SymbolType.Function]
+        else:
+            matches = [f for f in self.functions if f.name == function_name]
         if len(matches) == 0:
             if not optional:
                 msg = f"Function {function_name} not found in codebase. Use optional=True to return None instead."

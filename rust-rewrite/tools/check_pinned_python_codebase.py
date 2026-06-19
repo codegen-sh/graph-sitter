@@ -100,6 +100,15 @@ EXPECTED_KNOWN_LOOKUPS = {
     ],
 }
 
+EXPECTED_KNOWN_GLOBAL_LOOKUPS = {
+    "provider_info_schema_validator": {
+        "filepath": "airflow/providers_manager.py",
+        "handle": "RustCompactSymbol",
+        "kind": "function",
+        "name": "_create_provider_info_schema_validator",
+    }
+}
+
 EXPECTED_KNOWN_DEPENDENCIES = {
     "airflow_init_getattr_dependencies": [
         {
@@ -199,6 +208,15 @@ def known_lookup_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
     }
 
 
+def known_global_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    function = codebase.get_function("_create_provider_info_schema_validator")
+    signature = handle_signature(function)
+    signature["filepath"] = function.filepath
+    return {
+        "provider_info_schema_validator": signature,
+    }
+
+
 def dependency_signature(handle: Any) -> dict[str, Any]:
     node_type = getattr(handle, "node_type", None)
     signature = {
@@ -281,6 +299,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_record_counts"))
     compat_counts = backend.compact_compat_counts()
     memory_samples.append(memory_sample("after_compat_handles"))
+    known_global_lookups = known_global_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_global_lookups"))
     known_lookups = known_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_lookups"))
     known_dependencies = known_dependency_report(codebase)
@@ -317,6 +337,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "summary": summary_counts,
         "records": record_counts,
         "compat_handles": compat_counts,
+        "known_global_lookups": known_global_lookups,
         "known_lookups": known_lookups,
         "known_dependencies": known_dependencies,
         "large_cache_materialization": large_cache_materialization,
@@ -341,6 +362,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
         compare_counts("summary", report["summary"], EXPECTED_SUMMARY, failures)
         compare_counts("records", report["records"], EXPECTED_RECORDS, failures)
         compare_counts("compat_handles", report["compat_handles"], EXPECTED_COMPAT_HANDLES, failures)
+        if report["known_global_lookups"] != EXPECTED_KNOWN_GLOBAL_LOOKUPS:
+            failures.append("known global lookup results drifted")
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:
             failures.append("known byte-range lookup results drifted")
         if report["known_dependencies"] != EXPECTED_KNOWN_DEPENDENCIES:

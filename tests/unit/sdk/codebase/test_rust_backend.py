@@ -173,6 +173,15 @@ class FakeIndex:
             ]
         )
 
+    def top_level_symbols_by_name_json(self, name: str):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["is_top_level"] and symbol["name"] == name
+            ]
+        )
+
     def imports_json(self):
         return json.dumps(
             [
@@ -1569,6 +1578,33 @@ def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_pa
         assert [file.filepath for file in codebase.files(extensions=[".py"])] == ["pkg/alpha.py", "a/service.py", "z/service.py"]
         assert [symbol.name for symbol in codebase.classes] == ["Zed", "Beta", "Alpha"]
         assert [symbol.name for symbol in codebase.functions] == ["z_func", "b_func", "a_func"]
+
+
+def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        assert codebase.has_symbol("helper")
+        assert [symbol.name for symbol in codebase.get_symbols("helper")] == ["helper"]
+        assert codebase.get_symbol("Service").name == "Service"
+        assert codebase.get_class("Service").name == "Service"
+        assert codebase.get_function("helper").name == "helper"
+        assert codebase.get_symbol("missing", optional=True) is None
+        assert codebase.get_function("missing", optional=True) is None
+
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert sorted(backend._symbol_handles_by_id) == [0, 2]
 
 
 def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
