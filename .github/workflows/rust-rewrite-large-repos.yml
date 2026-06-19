@@ -1,0 +1,84 @@
+name: Rust Rewrite Large Repo Checks
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * *"
+  push:
+    branches:
+      - "rust-rewrite"
+    paths:
+      - ".github/workflows/rust-rewrite-large-repos.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "crates/**"
+      - "rust-rewrite/golden/**"
+      - "rust-rewrite/tools/benchmark_pinned_python_repo.py"
+      - "rust-rewrite/tools/benchmark_pinned_typescript_repo.py"
+      - "rust-rewrite/tools/check_pinned_large_repos.sh"
+      - "rust-rewrite/tools/check_pinned_python_codebase.py"
+      - "rust-rewrite/tools/check_pinned_typescript_codebase.py"
+      - "rust-rewrite/tools/snapshot_pinned_python_repo.py"
+      - "rust-rewrite/tools/snapshot_pinned_typescript_repo.py"
+      - "src/graph_sitter/codebase/**"
+      - "src/graph_sitter/configs/models/codebase.py"
+      - "src/graph_sitter/core/codebase.py"
+      - "src/graph_sitter/core/file.py"
+      - "src/graph_sitter/core/import_resolution.py"
+      - "src/graph_sitter/core/symbol.py"
+      - "src/graph_sitter/python/**"
+      - "src/graph_sitter/typescript/**"
+      - "tests/integration/rust_rewrite/**"
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-large-repos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GRAPH_SITTER_PINNED_CACHE_DIR: ${{ runner.temp }}/graph-sitter-pinned-repos
+      GRAPH_SITTER_PINNED_EXTENSION_DIR: ${{ runner.temp }}/graph_sitter_py_large_repo_checks
+      GRAPH_SITTER_PINNED_OUTPUT_DIR: ${{ github.workspace }}/rust-rewrite/reports
+      GRAPH_SITTER_PINNED_TIMEOUT: "900"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5.4
+        with:
+          enable-cache: true
+          prune-cache: false
+          python-version: "3.13"
+          version: "0.9.1"
+          cache-suffix: rust-rewrite-large-repos
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-rewrite-large-repos
+
+      - name: Cache pinned repository checkouts
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/graph-sitter-pinned-repos
+          key: rust-rewrite-pinned-repos-v1
+
+      - name: Run pinned large-repo checks
+        run: rust-rewrite/tools/check_pinned_large_repos.sh
+
+      - name: Upload large-repo reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-rewrite-large-repo-reports
+          path: rust-rewrite/reports/*.json
+          if-no-files-found: ignore
