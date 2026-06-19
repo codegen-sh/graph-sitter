@@ -1052,6 +1052,7 @@ class RustIndexBackend:
                 record = self._symbol_record_by_id(symbol_id)
                 if record is not None:
                     return self._symbol_handle_from_record(record)
+                return None
             if symbol_id in self._symbol_handles_by_id:
                 return self._symbol_handles_by_id[symbol_id]
         if self._symbol_handles_by_id is None or symbol_id not in self._symbol_handles_by_id:
@@ -1066,6 +1067,7 @@ class RustIndexBackend:
                 record = self._import_record_by_id(import_id)
                 if record is not None:
                     return self._import_handle_from_record(record)
+                return None
             if import_id in self._import_handles_by_id:
                 return self._import_handles_by_id[import_id]
         if self._import_handles_by_id is None or import_id not in self._import_handles_by_id:
@@ -1080,6 +1082,7 @@ class RustIndexBackend:
                 record = self._record_from_json_method("external_module_for_import_json", RustExternalModuleRecord.from_dict, import_id)
                 if record is not None:
                     return self._external_module_handle_from_record(record)
+                return None
             if import_id in self._external_module_handles_by_import_id:
                 return self._external_module_handles_by_import_id[import_id]
         if self._external_module_handles_by_import_id is None or import_id not in self._external_module_handles_by_import_id:
@@ -1094,6 +1097,7 @@ class RustIndexBackend:
                 record = self._export_record_by_id(export_id)
                 if record is not None:
                     return self._export_handle_from_record(record)
+                return None
             if export_id in self._export_handles_by_id:
                 return self._export_handles_by_id[export_id]
         if self._export_handles_by_id is None or export_id not in self._export_handles_by_id:

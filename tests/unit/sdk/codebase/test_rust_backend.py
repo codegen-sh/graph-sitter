@@ -185,6 +185,9 @@ class FakeIndex:
             ]
         )
 
+    def symbol_by_id_json(self, symbol_id: int):
+        return json.dumps(next((symbol for symbol in json.loads(self.symbols_json()) if symbol["id"] == symbol_id), None))
+
     def top_level_symbols_by_name_json(self, name: str):
         return json.dumps(
             [
@@ -259,6 +262,9 @@ class FakeIndex:
             ]
         )
 
+    def import_by_id_json(self, import_id: int):
+        return json.dumps(next((import_record for import_record in json.loads(self.imports_json()) if import_record["id"] == import_id), None))
+
     def imports_for_file_by_lookup_json(self, file_id: int, lookup: str):
         rows = []
         for import_record in json.loads(self.imports_json()):
@@ -304,6 +310,9 @@ class FakeIndex:
 
     def external_modules_json(self):
         return json.dumps([])
+
+    def external_module_for_import_json(self, import_id: int):
+        return json.dumps(next((external_module for external_module in json.loads(self.external_modules_json()) if external_module["import_id"] == import_id), None))
 
     def references_json(self):
         return json.dumps(
@@ -880,6 +889,18 @@ class FakeTypeScriptIndex:
             ]
         )
 
+    def symbol_by_id_json(self, symbol_id: int):
+        return json.dumps(next((symbol for symbol in json.loads(self.symbols_json()) if symbol["id"] == symbol_id), None))
+
+    def top_level_symbols_by_name_json(self, name: str):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["is_top_level"] and symbol["name"] == name
+            ]
+        )
+
     def symbols_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
         return json.dumps(
             [
@@ -903,6 +924,9 @@ class FakeTypeScriptIndex:
                 }
             ]
         )
+
+    def import_by_id_json(self, import_id: int):
+        return json.dumps(next((import_record for import_record in json.loads(self.imports_json()) if import_record["id"] == import_id), None))
 
     def imports_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
         return json.dumps(
@@ -956,6 +980,9 @@ class FakeTypeScriptIndex:
                 },
             ]
         )
+
+    def export_by_id_json(self, export_id: int):
+        return json.dumps(next((export for export in json.loads(self.exports_json()) if export["id"] == export_id), None))
 
     def exports_for_file_by_name_json(self, file_id: int, name: str):
         return json.dumps(
@@ -1725,6 +1752,9 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert codebase.get_file("pkg/service.py").has_import("os")
         assert codebase.get_file("pkg/service.py").get_import("import os").name == "os"
         assert codebase.get_file("pkg/service.py").get_import("missing") is None
+        assert backend.symbol_handle_by_id(999) is None
+        assert backend.import_handle_by_id(999) is None
+        assert backend.external_module_for_import(999) is None
 
         assert backend._symbols is None
         assert backend._symbol_handles is None
@@ -1732,6 +1762,8 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert backend._imports is None
         assert backend._import_handles is None
         assert backend._imports_by_file_id is None
+        assert backend._external_modules is None
+        assert backend._external_module_handles is None
         assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
 
 
@@ -1860,10 +1892,14 @@ def test_rust_compact_exact_export_lookups_do_not_materialize_all_exports(monkey
         assert export.name == "run"
         assert export.declared_symbol == codebase.get_function("run")
         assert app_file.get_export("missing") is None
+        assert backend.export_handle_by_id(999) is None
 
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
         assert backend._exports is None
         assert backend._export_handles is None
         assert backend._exports_by_file_id is None
+        assert sorted(backend._symbol_handles_by_id) == [2]
         assert sorted(backend._export_handles_by_id) == [0]
 
 
