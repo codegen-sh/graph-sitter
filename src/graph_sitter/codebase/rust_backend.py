@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
 
 from graph_sitter._proxy import proxy_property
-from graph_sitter.codebase.transactions import EditTransaction
+from graph_sitter.codebase.transactions import EditTransaction, InsertTransaction
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
 
@@ -583,6 +583,20 @@ class RustCompactReferenceMatch:
     def end_point(self) -> tuple[int, int]:
         return (self.record.range.end_row, self.record.range.end_column)
 
+    def edit(self, new_src: str, priority: int = 0, dedupe: bool = True) -> None:
+        transaction = EditTransaction(
+            self.record.range.start_byte,
+            self.record.range.end_byte,
+            self.file,
+            new_src,
+            priority=priority,
+        )
+        self.file.transaction_manager.add_transaction(transaction, dedupe=dedupe)
+
+    def rename_if_matching(self, old_name: str, new_name: str, priority: int = 0) -> None:
+        if self.source == old_name:
+            self.edit(new_name, priority=priority)
+
 
 @dataclass(frozen=True)
 class RustCompactUsage:
@@ -761,6 +775,7 @@ class RustCompactFile(RustCompactHandle):
         self.path = backend.repo_path / record.path
         self.name = self.path.stem
         self._binary = False
+        self._pending_imports: set[str] = set()
 
     def __repr__(self) -> str:
         return f"RustCompactFile(filepath={self.filepath!r})"
@@ -841,6 +856,10 @@ class RustCompactFile(RustCompactHandle):
         transaction = EditTransaction(0, len(self.content_bytes), self, new_src, priority=priority)
         self.transaction_manager.add_transaction(transaction, dedupe=dedupe)
 
+    def insert_at(self, insert_byte: int, new_src: str, priority: int | tuple = 0, dedupe: bool = True) -> None:
+        transaction = InsertTransaction(insert_byte, self, new_src, priority=priority)
+        self.transaction_manager.add_transaction(transaction, dedupe=dedupe)
+
     def replace(self, old: str, new: str, count: int = -1, is_regex: bool = False, priority: int = 0) -> int:
         if self.is_binary:
             msg = "Cannot replace content in binary files"
@@ -857,6 +876,39 @@ class RustCompactFile(RustCompactHandle):
     def remove(self) -> None:
         self.transaction_manager.add_file_remove_transaction(self)
         self.backend.unregister_file(self.record.id)
+
+    def add_import(self, imp: RustCompactSymbol | str, *, alias: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> RustCompactImport | None:
+        if isinstance(imp, RustCompactSymbol):
+            existing = next((import_handle for import_handle in self.imports if import_handle.imported_symbol == imp), None)
+            if existing is not None:
+                return existing
+            import_string = imp.get_import_string(alias, import_type=import_type, is_type_import=is_type_import)
+        else:
+            import_string = str(imp)
+
+        normalized = import_string.strip()
+        if any(normalized in str(import_handle.source) for import_handle in self.imports):
+            return None
+        if normalized in self._pending_imports:
+            return None
+
+        self._pending_imports.add(normalized)
+        self.transaction_manager.pending_undos.add(lambda: self._pending_imports.clear())
+
+        insert_byte, content = self._import_insertion(normalized)
+        self.insert_at(insert_byte, content, priority=1)
+        return None
+
+    def _import_insertion(self, import_string: str) -> tuple[int, str]:
+        import_line = import_string.rstrip("\n")
+        if not self.imports or "__future__" in import_line:
+            return 0, f"{import_line}\n"
+
+        future_imports = [import_handle for import_handle in self.imports if "__future__" in import_handle.source]
+        if future_imports:
+            return future_imports[-1].end_byte, f"\n{import_line}"
+
+        return self.imports[0].start_byte, f"{import_line}\n"
 
     @property
     def imports(self) -> list[RustCompactImport]:
@@ -1159,6 +1211,34 @@ class RustCompactSymbol(RustCompactHandle):
     @property
     def is_exported(self) -> bool:
         return True
+
+    def edit(self, new_src: str, fix_indentation: bool = False, priority: int = 0, dedupe: bool = True) -> None:
+        transaction = EditTransaction(
+            self.start_byte,
+            self.end_byte,
+            self.file,
+            new_src,
+            priority=priority,
+        )
+        self.transaction_manager.add_transaction(transaction, dedupe=dedupe)
+
+    def set_name(self, name: str, priority: int = 0) -> None:
+        transaction = EditTransaction(
+            self.record.name_range.start_byte,
+            self.record.name_range.end_byte,
+            self.file,
+            name,
+            priority=priority,
+        )
+        self.transaction_manager.add_transaction(transaction)
+        self.name = name
+        self._name_node = RustCompactName(name)
+
+    def rename(self, new_name: str, priority: int = 0) -> None:
+        old_name = self.name
+        self.set_name(new_name, priority=priority)
+        for usage in self.usages(UsageType.DIRECT | UsageType.CHAINED):
+            usage.match.rename_if_matching(old_name, new_name, priority=priority)
 
     @property
     def parent_symbol(self) -> RustCompactSymbol:
