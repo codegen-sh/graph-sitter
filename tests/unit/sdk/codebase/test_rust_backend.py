@@ -4,6 +4,7 @@ from types import ModuleType
 
 import pytest
 
+from codemods.codemod import Codemod
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
@@ -1302,6 +1303,73 @@ def test_rust_compact_move_updates_imported_usages_commit_without_python_graph(m
         models_file = codebase.create_file("pkg/models.py", "", sync=False)
 
         service.move_to_file(models_file, include_dependencies=False, strategy="update_all_imports")
+        codebase.commit(sync_graph=False)
+
+        expected_consumer = "from pkg.models import Service\n\ndef use():\n    return Service()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == ""
+        assert (tmp_path / "pkg/models.py").read_text() == "class Service:\n    pass\n"
+        assert (tmp_path / "pkg/consumer.py").read_text() == expected_consumer
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_codemod_execute_symbol_import_edits_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    def execute(codebase):
+        service_file = codebase.get_file("pkg/service.py")
+        service_file.add_import("from typing import Any")
+        codebase.imports[0].remove()
+        codebase.get_class("Service").rename("Worker")
+
+    codemod = Codemod(name="rust-symbol-import-smoke", execute=execute)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+
+        expected = "from typing import Any\nimport pkg.service\n\nclass Worker:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Worker()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == expected
+        assert codebase.get_file("pkg/service.py").content == expected
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_codemod_execute_move_updates_imports_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, index_cls=FakeMoveUpdateIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    def execute(codebase):
+        service = codebase.get_class("Service")
+        models_file = codebase.create_file("pkg/models.py", "", sync=False)
+        service.move_to_file(models_file, include_dependencies=False, strategy="update_all_imports")
+
+    codemod = Codemod(name="rust-move-update-imports-smoke", execute=execute)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "class Service:\n    pass\n",
+            "pkg/consumer.py": "from pkg.service import Service\n\ndef use():\n    return Service()\n",
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
         codebase.commit(sync_graph=False)
 
         expected_consumer = "from pkg.models import Service\n\ndef use():\n    return Service()\n"
