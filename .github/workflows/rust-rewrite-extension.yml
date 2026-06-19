@@ -1,0 +1,65 @@
+name: Rust Rewrite Extension Builds
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+    paths:
+      - ".github/workflows/rust-rewrite-extension.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "crates/**"
+      - "rust-rewrite/tools/check_extension_build.sh"
+      - "pyproject.toml"
+  push:
+    branches:
+      - "develop"
+      - "rust-rewrite"
+    paths:
+      - ".github/workflows/rust-rewrite-extension.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "crates/**"
+      - "rust-rewrite/tools/check_extension_build.sh"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extension-build:
+    name: Python ${{ matrix.python-version }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.12", "3.13"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5.4
+        with:
+          enable-cache: true
+          prune-cache: false
+          python-version: ${{ matrix.python-version }}
+          version: "0.9.1"
+          cache-suffix: rust-rewrite-extension-${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-rewrite-extension-${{ matrix.os }}-${{ matrix.python-version }}
+
+      - name: Build and smoke test PyO3 extension
+        run: rust-rewrite/tools/check_extension_build.sh

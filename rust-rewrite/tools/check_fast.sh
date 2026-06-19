@@ -7,6 +7,7 @@ cd "$ROOT"
 uv run ruff check
 
 bash -n rust-rewrite/tools/check_fast.sh
+bash -n rust-rewrite/tools/check_extension_build.sh
 bash -n rust-rewrite/tools/check_pinned_large_repos.sh
 
 cargo fmt --all --check
