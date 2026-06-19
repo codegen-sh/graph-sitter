@@ -259,6 +259,17 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn symbols_for_parent_json(&self, parent_symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.parent_symbol_id == Some(parent_symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn symbol_by_id_json(&self, symbol_id: u32) -> PyResult<String> {
             serde_json::to_string(
                 &self
@@ -665,6 +676,17 @@ mod bindings {
                 .symbols
                 .iter()
                 .filter(|symbol| symbol.file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn symbols_for_parent_json(&self, parent_symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.parent_symbol_id == Some(parent_symbol_id))
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))

@@ -182,6 +182,15 @@ class FakeIndex:
             ]
         )
 
+    def symbols_for_parent_json(self, parent_symbol_id: int):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["parent_symbol_id"] == parent_symbol_id
+            ]
+        )
+
     def imports_json(self):
         return json.dumps(
             [
@@ -1601,10 +1610,12 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert codebase.get_function("helper").name == "helper"
         assert codebase.get_symbol("missing", optional=True) is None
         assert codebase.get_function("missing", optional=True) is None
+        assert [symbol.name for symbol in codebase.get_class("Service").child_symbols] == ["run"]
+        assert [symbol.name for symbol in codebase.get_class("Service").descendant_symbols] == ["Service", "run"]
 
         assert backend._symbols is None
         assert backend._symbol_handles is None
-        assert sorted(backend._symbol_handles_by_id) == [0, 2]
+        assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
 
 
 def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):

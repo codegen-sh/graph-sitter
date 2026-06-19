@@ -785,6 +785,17 @@ class RustIndexBackend:
         return self._symbols_by_file_id.get(file_id, [])
 
     def symbols_for_parent(self, parent_symbol_id: int) -> list[RustCompactSymbol]:
+        if self._symbol_handles is None and hasattr(self.index, "symbols_for_parent_json"):
+            if self._symbols_by_parent_symbol_id is None:
+                self._symbols_by_parent_symbol_id = {}
+            if parent_symbol_id not in self._symbols_by_parent_symbol_id:
+                records = self._records_from_json_method("symbols_for_parent_json", RustSymbolRecord.from_dict, parent_symbol_id)
+                if records is not None:
+                    self._symbols_by_parent_symbol_id[parent_symbol_id] = [self._symbol_handle_from_record(record) for record in records]
+                else:
+                    self._symbol_handles = [self._symbol_handle_from_record(record) for record in self.symbols]
+            if parent_symbol_id in self._symbols_by_parent_symbol_id:
+                return self._symbols_by_parent_symbol_id[parent_symbol_id]
         if self._symbols_by_parent_symbol_id is None:
             symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] = {}
             for symbol in self.symbol_handles:

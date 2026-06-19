@@ -109,6 +109,17 @@ EXPECTED_KNOWN_GLOBAL_LOOKUPS = {
     }
 }
 
+EXPECTED_KNOWN_CHILD_LOOKUPS = {
+    "kerberos_service_children": [
+        {
+            "filepath": "airflow/api/auth/backend/kerberos_auth.py",
+            "handle": "RustCompactSymbol",
+            "kind": "function",
+            "name": "__init__",
+        }
+    ]
+}
+
 EXPECTED_KNOWN_DEPENDENCIES = {
     "airflow_init_getattr_dependencies": [
         {
@@ -144,6 +155,10 @@ EXPECTED_LARGE_CACHE_MATERIALIZATION = {
     "references": False,
     "external_references": False,
     "dependencies": False,
+    "file_handles": False,
+    "symbol_handles": False,
+    "import_handles": False,
+    "external_module_handles": False,
 }
 
 RECORDED_PYTHON_BASELINE = {
@@ -217,6 +232,19 @@ def known_global_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
     }
 
 
+def known_child_lookup_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
+    service = codebase.get_class("KerberosService")
+    return {
+        "kerberos_service_children": [
+            {
+                **handle_signature(child),
+                "filepath": child.filepath,
+            }
+            for child in service.child_symbols
+        ],
+    }
+
+
 def dependency_signature(handle: Any) -> dict[str, Any]:
     node_type = getattr(handle, "node_type", None)
     signature = {
@@ -247,6 +275,10 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "references": backend._references is not None,
         "external_references": backend._external_references is not None,
         "dependencies": backend._dependencies is not None,
+        "file_handles": backend._file_handles is not None,
+        "symbol_handles": backend._symbol_handles is not None,
+        "import_handles": backend._import_handles is not None,
+        "external_module_handles": backend._external_module_handles is not None,
     }
 
 
@@ -301,6 +333,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_compat_handles"))
     known_global_lookups = known_global_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_global_lookups"))
+    known_child_lookups = known_child_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_child_lookups"))
     known_lookups = known_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_lookups"))
     known_dependencies = known_dependency_report(codebase)
@@ -338,6 +372,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "records": record_counts,
         "compat_handles": compat_counts,
         "known_global_lookups": known_global_lookups,
+        "known_child_lookups": known_child_lookups,
         "known_lookups": known_lookups,
         "known_dependencies": known_dependencies,
         "large_cache_materialization": large_cache_materialization,
@@ -364,6 +399,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
         compare_counts("compat_handles", report["compat_handles"], EXPECTED_COMPAT_HANDLES, failures)
         if report["known_global_lookups"] != EXPECTED_KNOWN_GLOBAL_LOOKUPS:
             failures.append("known global lookup results drifted")
+        if report["known_child_lookups"] != EXPECTED_KNOWN_CHILD_LOOKUPS:
+            failures.append("known child lookup results drifted")
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:
             failures.append("known byte-range lookup results drifted")
         if report["known_dependencies"] != EXPECTED_KNOWN_DEPENDENCIES:
