@@ -32,15 +32,15 @@ from benchmark_pinned_typescript_repo import (  # noqa: E402
 
 EXPECTED_SUMMARY = {
     "files": 13688,
-    "symbols": 23980,
+    "symbols": 44855,
     "classes": 502,
     "functions": 13497,
-    "global_variables": 7866,
+    "global_variables": 28741,
     "imports": 28210,
     "import_resolutions": 13462,
     "external_modules": 13525,
-    "references": 62309,
-    "dependencies": 21639,
+    "references": 114462,
+    "dependencies": 49287,
     "bytes": 25421217,
     "lines": 634891,
     "files_with_errors": 114,
@@ -48,18 +48,18 @@ EXPECTED_SUMMARY = {
 
 EXPECTED_RECORDS = {
     "rust_files": 13688,
-    "rust_symbols": 23980,
+    "rust_symbols": 44855,
     "rust_classes": 502,
     "rust_functions": 13497,
-    "rust_global_vars": 7866,
+    "rust_global_vars": 28741,
     "rust_imports": 28210,
     "rust_import_resolutions": 13462,
     "rust_external_modules": 13525,
     "rust_exports": 16026,
-    "rust_references": 62309,
-    "rust_external_references": 25323,
-    "rust_dependencies": 21639,
-    "rust_subclass_edges": 151,
+    "rust_references": 114462,
+    "rust_external_references": 25318,
+    "rust_dependencies": 49287,
+    "rust_subclass_edges": 160,
 }
 
 EXPECTED_COMPAT_HANDLES = {

@@ -973,6 +973,43 @@ struct LocalBindingScope {
     names: HashSet<String>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct IndexedLocalSymbol {
+    id: u32,
+    name_range: SourceRange,
+}
+
+#[derive(Debug, Clone, Default)]
+struct IndexedLocalSymbols {
+    parent_symbol_by_id: HashMap<u32, u32>,
+    symbols_by_parent_and_name: HashMap<(u32, String), Vec<IndexedLocalSymbol>>,
+}
+
+impl IndexedLocalSymbols {
+    fn from_symbols<'a>(symbols: impl IntoIterator<Item = &'a SymbolRecord>) -> Self {
+        let mut index = Self::default();
+        for symbol in symbols {
+            if let Some(parent_symbol_id) = symbol.parent_symbol_id {
+                index
+                    .parent_symbol_by_id
+                    .insert(symbol.id, parent_symbol_id);
+                index
+                    .symbols_by_parent_and_name
+                    .entry((parent_symbol_id, symbol.name.to_string()))
+                    .or_default()
+                    .push(IndexedLocalSymbol {
+                        id: symbol.id,
+                        name_range: symbol.name_range,
+                    });
+            }
+        }
+        for symbols in index.symbols_by_parent_and_name.values_mut() {
+            symbols.sort_by_key(|symbol| symbol.name_range.start_byte);
+        }
+        index
+    }
+}
+
 type ExportedSymbolsByFile = HashMap<u32, BTreeMap<String, u32>>;
 
 impl PythonIndexer {
@@ -1550,6 +1587,7 @@ fn extract_typescript_file(
     for child in root.named_children(&mut cursor) {
         extract_typescript_top_level_node(file_id, source, child, index);
     }
+    extract_typescript_nested_local_symbols(file_id, source, root, index);
     collect_typescript_reference_candidates(file_id, source, root, index, reference_candidates);
 }
 
@@ -1669,6 +1707,145 @@ fn push_typescript_variable_symbols(
                 }
             }
         }
+    }
+    symbol_ids
+}
+
+fn extract_typescript_nested_local_symbols(
+    file_id: u32,
+    source: &str,
+    root: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    let top_level_symbol_ranges = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id && symbol.is_top_level)
+        .map(|symbol| (symbol.id, symbol.range))
+        .collect::<Vec<_>>();
+    extract_typescript_nested_local_symbols_from_node(
+        file_id,
+        source,
+        root,
+        index,
+        &top_level_symbol_ranges,
+        None,
+        0,
+    );
+}
+
+fn extract_typescript_nested_local_symbols_from_node(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut TypeScriptIndex,
+    top_level_symbol_ranges: &[(u32, SourceRange)],
+    current_symbol_id: Option<u32>,
+    nested_function_depth: usize,
+) {
+    let node_range = SourceRange::from(node.range());
+    let mut current_symbol_id = current_symbol_id;
+    let mut nested_function_depth = nested_function_depth;
+    if let Some((symbol_id, _)) = top_level_symbol_ranges
+        .iter()
+        .find(|(_, range)| *range == node_range)
+    {
+        current_symbol_id = Some(*symbol_id);
+        nested_function_depth = 0;
+    } else if current_symbol_id.is_some() && is_typescript_function_like(node) {
+        nested_function_depth += 1;
+    }
+
+    if let Some(parent_symbol_id) = current_symbol_id {
+        if nested_function_depth > 0 {
+            match node.kind() {
+                "variable_declarator" => {
+                    push_typescript_local_variable_symbol_targets(
+                        file_id,
+                        source,
+                        parent_symbol_id,
+                        node,
+                        node.child_by_field_name("name"),
+                        index,
+                    );
+                }
+                "assignment_expression" | "augmented_assignment_expression" => {
+                    if let Some(left) = node.child_by_field_name("left") {
+                        if typescript_assignment_left_can_bind(left) {
+                            push_typescript_local_variable_symbol_targets(
+                                file_id,
+                                source,
+                                parent_symbol_id,
+                                node,
+                                Some(left),
+                                index,
+                            );
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        extract_typescript_nested_local_symbols_from_node(
+            file_id,
+            source,
+            child,
+            index,
+            top_level_symbol_ranges,
+            current_symbol_id,
+            nested_function_depth,
+        );
+    }
+}
+
+fn typescript_assignment_left_can_bind(node: Node<'_>) -> bool {
+    matches!(
+        node.kind(),
+        "identifier"
+            | "shorthand_property_identifier_pattern"
+            | "object_pattern"
+            | "array_pattern"
+            | "pair_pattern"
+            | "assignment_pattern"
+            | "object_assignment_pattern"
+    )
+}
+
+fn push_typescript_local_variable_symbol_targets(
+    file_id: u32,
+    source: &str,
+    parent_symbol_id: u32,
+    declaration: Node<'_>,
+    binding_root: Option<Node<'_>>,
+    index: &mut TypeScriptIndex,
+) -> Vec<u32> {
+    let mut symbol_ids = Vec::new();
+    let Some(binding_root) = binding_root else {
+        return symbol_ids;
+    };
+    let mut targets = Vec::new();
+    collect_typescript_binding_targets(binding_root, &mut targets);
+    for target in targets {
+        let Ok(name) = target.utf8_text(source.as_bytes()) else {
+            continue;
+        };
+        let symbol_id = index.symbols.len() as u32;
+        let name = index.intern(name);
+        index.symbols.push(SymbolRecord {
+            id: symbol_id,
+            file_id,
+            parent_symbol_id: Some(parent_symbol_id),
+            is_top_level: false,
+            name,
+            kind: SymbolKind::GlobalVariable,
+            range: declaration.range().into(),
+            name_range: target.range().into(),
+        });
+        symbol_ids.push(symbol_id);
     }
     symbol_ids
 }
@@ -2173,6 +2350,12 @@ fn collect_typescript_reference_candidates(
         .filter(|symbol| symbol.file_id == file_id)
         .map(|symbol| symbol.name_range)
         .collect::<Vec<_>>();
+    let indexed_local_symbols = IndexedLocalSymbols::from_symbols(
+        index
+            .symbols
+            .iter()
+            .filter(|symbol| symbol.file_id == file_id),
+    );
     let (local_bindings_by_symbol_id, local_binding_scopes) =
         collect_typescript_local_bindings(file_id, source, root, index, &symbol_ranges);
 
@@ -2184,6 +2367,7 @@ fn collect_typescript_reference_candidates(
         &local_bindings_by_symbol_id,
         &local_binding_scopes,
         &excluded_ranges,
+        &indexed_local_symbols,
         out,
     );
     collect_typescript_type_reference_candidates(
@@ -2194,6 +2378,7 @@ fn collect_typescript_reference_candidates(
         &local_bindings_by_symbol_id,
         &local_binding_scopes,
         &excluded_ranges,
+        &indexed_local_symbols,
         out,
     );
     collect_typescript_heritage_reference_candidates(
@@ -2204,6 +2389,7 @@ fn collect_typescript_reference_candidates(
         &local_bindings_by_symbol_id,
         &local_binding_scopes,
         &excluded_ranges,
+        &indexed_local_symbols,
         out,
     );
 }
@@ -2582,6 +2768,7 @@ fn collect_typescript_identifier_candidates(
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
     out: &mut Vec<ReferenceCandidate>,
 ) {
     match node.kind() {
@@ -2611,6 +2798,7 @@ fn collect_typescript_identifier_candidates(
                             range,
                             local_bindings_by_symbol_id,
                             local_binding_scopes,
+                            indexed_local_symbols,
                         ) {
                             out.push(ReferenceCandidate {
                                 source_file_id: file_id,
@@ -2633,6 +2821,7 @@ fn collect_typescript_identifier_candidates(
                     local_bindings_by_symbol_id,
                     local_binding_scopes,
                     excluded_ranges,
+                    indexed_local_symbols,
                     out,
                 );
             }
@@ -2651,6 +2840,7 @@ fn collect_typescript_identifier_candidates(
                 range,
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
+                indexed_local_symbols,
             ) {
                 out.push(ReferenceCandidate {
                     source_file_id: file_id,
@@ -2674,6 +2864,7 @@ fn collect_typescript_identifier_candidates(
             local_bindings_by_symbol_id,
             local_binding_scopes,
             excluded_ranges,
+            indexed_local_symbols,
             out,
         );
     }
@@ -2687,6 +2878,7 @@ fn collect_typescript_type_reference_candidates(
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
     out: &mut Vec<ReferenceCandidate>,
 ) {
     match node.kind() {
@@ -2705,6 +2897,7 @@ fn collect_typescript_type_reference_candidates(
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
                 excluded_ranges,
+                indexed_local_symbols,
                 out,
             );
             return;
@@ -2718,6 +2911,7 @@ fn collect_typescript_type_reference_candidates(
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
                 excluded_ranges,
+                indexed_local_symbols,
                 out,
                 false,
             );
@@ -2740,6 +2934,7 @@ fn collect_typescript_type_reference_candidates(
                     local_bindings_by_symbol_id,
                     local_binding_scopes,
                     excluded_ranges,
+                    indexed_local_symbols,
                     out,
                 );
             }
@@ -2758,6 +2953,7 @@ fn collect_typescript_type_reference_candidates(
             local_bindings_by_symbol_id,
             local_binding_scopes,
             excluded_ranges,
+            indexed_local_symbols,
             out,
         );
     }
@@ -2771,6 +2967,7 @@ fn push_typescript_type_reference_candidate(
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
     out: &mut Vec<ReferenceCandidate>,
 ) {
     let range = SourceRange::from(node.range());
@@ -2787,6 +2984,7 @@ fn push_typescript_type_reference_candidate(
         range,
         local_bindings_by_symbol_id,
         local_binding_scopes,
+        indexed_local_symbols,
     ) {
         out.push(ReferenceCandidate {
             source_file_id: file_id,
@@ -2807,6 +3005,7 @@ fn push_typescript_nested_type_reference_candidate(
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
     out: &mut Vec<ReferenceCandidate>,
     is_subclass: bool,
 ) {
@@ -2834,6 +3033,7 @@ fn push_typescript_nested_type_reference_candidate(
         range,
         local_bindings_by_symbol_id,
         local_binding_scopes,
+        indexed_local_symbols,
     ) {
         out.push(ReferenceCandidate {
             source_file_id: file_id,
@@ -2854,6 +3054,7 @@ fn collect_typescript_heritage_reference_candidates(
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
     out: &mut Vec<ReferenceCandidate>,
 ) {
     if node.kind() == "extends_clause" {
@@ -2870,6 +3071,7 @@ fn collect_typescript_heritage_reference_candidates(
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
                 excluded_ranges,
+                indexed_local_symbols,
                 out,
             );
             break;
@@ -2888,6 +3090,7 @@ fn collect_typescript_heritage_reference_candidates(
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
                 excluded_ranges,
+                indexed_local_symbols,
                 out,
             );
         }
@@ -2904,6 +3107,7 @@ fn collect_typescript_heritage_reference_candidates(
             local_bindings_by_symbol_id,
             local_binding_scopes,
             excluded_ranges,
+            indexed_local_symbols,
             out,
         );
     }
@@ -2917,6 +3121,7 @@ fn push_typescript_heritage_expression_reference_candidate(
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
     out: &mut Vec<ReferenceCandidate>,
 ) {
     match node.kind() {
@@ -2935,6 +3140,7 @@ fn push_typescript_heritage_expression_reference_candidate(
                 range,
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
+                indexed_local_symbols,
             ) {
                 out.push(ReferenceCandidate {
                     source_file_id: file_id,
@@ -2971,6 +3177,7 @@ fn push_typescript_heritage_expression_reference_candidate(
                 range,
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
+                indexed_local_symbols,
             ) {
                 out.push(ReferenceCandidate {
                     source_file_id: file_id,
@@ -2994,6 +3201,7 @@ fn push_typescript_heritage_type_reference_candidate(
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
     out: &mut Vec<ReferenceCandidate>,
 ) {
     match node.kind() {
@@ -3012,6 +3220,7 @@ fn push_typescript_heritage_type_reference_candidate(
                 range,
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
+                indexed_local_symbols,
             ) {
                 out.push(ReferenceCandidate {
                     source_file_id: file_id,
@@ -3033,6 +3242,7 @@ fn push_typescript_heritage_type_reference_candidate(
                     local_bindings_by_symbol_id,
                     local_binding_scopes,
                     excluded_ranges,
+                    indexed_local_symbols,
                     out,
                 );
             }
@@ -3062,6 +3272,7 @@ fn push_typescript_heritage_type_reference_candidate(
                 range,
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
+                indexed_local_symbols,
             ) {
                 out.push(ReferenceCandidate {
                     source_file_id: file_id,
@@ -3087,7 +3298,18 @@ fn typescript_reference_is_shadowed(
     range: SourceRange,
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
     local_binding_scopes: &[LocalBindingScope],
+    indexed_local_symbols: &IndexedLocalSymbols,
 ) -> bool {
+    if typescript_indexed_local_symbol_for_reference(
+        source_symbol_id,
+        name,
+        range,
+        indexed_local_symbols,
+    )
+    .is_some()
+    {
+        return false;
+    }
     is_shadowed_local_binding(
         source_symbol_id,
         name,
@@ -3095,6 +3317,38 @@ fn typescript_reference_is_shadowed(
         local_bindings_by_symbol_id,
         local_binding_scopes,
     )
+}
+
+fn typescript_indexed_local_symbol_for_reference(
+    source_symbol_id: Option<u32>,
+    name: &str,
+    range: SourceRange,
+    indexed_local_symbols: &IndexedLocalSymbols,
+) -> Option<u32> {
+    let owner_symbol_id =
+        typescript_local_scope_owner_symbol_id(source_symbol_id, indexed_local_symbols)?;
+    indexed_local_symbols
+        .symbols_by_parent_and_name
+        .get(&(owner_symbol_id, name.to_owned()))?
+        .iter()
+        .rev()
+        .find(|symbol| {
+            symbol.name_range.start_byte < range.start_byte
+                && !range_matches_any(range, &[symbol.name_range])
+        })
+        .map(|symbol| symbol.id)
+}
+
+fn typescript_local_scope_owner_symbol_id(
+    source_symbol_id: Option<u32>,
+    indexed_local_symbols: &IndexedLocalSymbols,
+) -> Option<u32> {
+    let source_symbol_id = source_symbol_id?;
+    indexed_local_symbols
+        .parent_symbol_by_id
+        .get(&source_symbol_id)
+        .copied()
+        .or(Some(source_symbol_id))
 }
 
 fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScriptConfig]) {
@@ -3519,6 +3773,7 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         .iter()
         .map(|symbol| (symbol.id, symbol.file_id))
         .collect();
+    let indexed_local_symbols = IndexedLocalSymbols::from_symbols(index.symbols.iter());
     let mut references = Vec::new();
     let mut external_references = Vec::new();
     let mut subclass_edges = Vec::new();
@@ -3537,6 +3792,13 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
                         .map(|symbol_id| (symbol_id, Some(*import_id)))
                 })
         } else {
+            let local_target = typescript_indexed_local_symbol_for_reference(
+                candidate.source_symbol_id,
+                &candidate.name,
+                candidate.range,
+                &indexed_local_symbols,
+            )
+            .map(|symbol_id| (symbol_id, None));
             let imported_target = imported_symbol_by_binding
                 .get(&(candidate.source_file_id, candidate.name.clone()))
                 .copied();
@@ -3544,9 +3806,9 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
                 .get(&(candidate.source_file_id, candidate.name.clone()))
                 .copied()
                 .map(|symbol_id| (symbol_id, None));
-            imported_target
+            local_target.or(imported_target
                 .map(|(symbol_id, import_id)| (symbol_id, Some(import_id)))
-                .or(same_file_target)
+                .or(same_file_target))
         };
         let Some((target_symbol_id, import_id)) = resolved_target else {
             if candidate.qualifier.is_none() {
@@ -6517,6 +6779,111 @@ export function AppRouterAnnouncer({ tree }: { tree: FlightRouterState }) {\n\
             dependency.source_symbol_id == announcer_symbol_id
                 && dependency.target_symbol_id == runtime_value_symbol_id
         }));
+    }
+
+    #[test]
+    fn resolves_typescript_nested_local_assignment_dependencies() {
+        let repo = temp_repo_path("resolve-typescript-nested-local-assignment-dependencies");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.tsx"),
+            "import { useEffect, useState } from 'react';\n\
+\n\
+const ANNOUNCER_TYPE = 'next-route-announcer';\n\
+\n\
+function getAnnouncerNode() {\n\
+  return document.createElement(ANNOUNCER_TYPE);\n\
+}\n\
+\n\
+export function AppRouterAnnouncer() {\n\
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);\n\
+\n\
+  useEffect(() => {\n\
+    const announcer = getAnnouncerNode();\n\
+    setPortalNode(announcer);\n\
+    return () => {\n\
+      const container = document.getElementsByTagName(ANNOUNCER_TYPE)[0];\n\
+      if (container?.isConnected) {\n\
+        document.body.removeChild(container);\n\
+      }\n\
+    };\n\
+  }, []);\n\
+\n\
+  useEffect(() => {\n\
+    let currentTitle = '';\n\
+    const pageHeader = document.querySelector('h1');\n\
+    if (pageHeader) {\n\
+      currentTitle = pageHeader.textContent || '';\n\
+    }\n\
+    if (currentTitle) {\n\
+      setPortalNode(currentTitle as unknown as HTMLElement);\n\
+    }\n\
+  }, []);\n\
+\n\
+  return portalNode;\n\
+}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let symbol_id = |name: &str, top_level: Option<bool>| {
+            index
+                .symbols
+                .iter()
+                .find(|symbol| {
+                    symbol.name == name
+                        && top_level.is_none_or(|expected| symbol.is_top_level == expected)
+                })
+                .unwrap_or_else(|| panic!("missing symbol {name}"))
+                .id
+        };
+        let dependency_exists = |source_symbol_id: u32, target_symbol_id: u32| {
+            index.dependencies.iter().any(|dependency| {
+                dependency.source_symbol_id == source_symbol_id
+                    && dependency.target_symbol_id == target_symbol_id
+            })
+        };
+        let dependency_exists_by_name = |source_symbol_id: u32, target_name: &str| {
+            index.dependencies.iter().any(|dependency| {
+                dependency.source_symbol_id == source_symbol_id
+                    && index.symbols.iter().any(|symbol| {
+                        symbol.id == dependency.target_symbol_id
+                            && !symbol.is_top_level
+                            && symbol.name == target_name
+                    })
+            })
+        };
+
+        let app_router_announcer = symbol_id("AppRouterAnnouncer", Some(true));
+        let announcer_type = symbol_id("ANNOUNCER_TYPE", Some(true));
+        let get_announcer_node = symbol_id("getAnnouncerNode", Some(true));
+        let announcer = symbol_id("announcer", Some(false));
+        let container = symbol_id("container", Some(false));
+        let current_title = symbol_id("currentTitle", Some(false));
+        let page_header = symbol_id("pageHeader", Some(false));
+
+        for local_symbol_id in [announcer, container, current_title, page_header] {
+            let symbol = index
+                .symbols
+                .iter()
+                .find(|symbol| symbol.id == local_symbol_id)
+                .unwrap();
+            assert_eq!(symbol.parent_symbol_id, Some(app_router_announcer));
+            assert!(!symbol.is_top_level);
+            assert_eq!(symbol.kind, SymbolKind::GlobalVariable);
+            assert!(
+                dependency_exists_by_name(app_router_announcer, symbol.name.as_ref()),
+                "missing AppRouterAnnouncer dependency on {}",
+                symbol.name
+            );
+        }
+
+        assert!(!dependency_exists(app_router_announcer, announcer_type));
+        assert!(!dependency_exists(app_router_announcer, get_announcer_node));
+        assert!(dependency_exists(announcer, get_announcer_node));
+        assert!(dependency_exists(container, announcer_type));
     }
 
     #[test]

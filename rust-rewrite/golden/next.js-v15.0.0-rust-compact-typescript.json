@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 21639,
+      "count": 49287,
       "samples": [
         {
           "reference_count": 2,
@@ -45,6 +45,16 @@
           "source_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301",
           "target_file": ".github/actions/needs-triage/src/index.ts",
           "target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87"
+        },
+        {
+          "reference_count": 1,
+          "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107->.github/actions/next-integration-stat/src/index.ts:global_variable:result@22409::result@22574"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:result@22409"
         },
         {
           "reference_count": 1,
@@ -171,48 +181,36 @@
         {
           "reference_count": 1,
           "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:index@9171::index@9683"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:index@9171"
+        },
+        {
+          "reference_count": 2,
+          "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:splittedLogs@9336::splittedLogs@9455",
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:splittedLogs@9336::splittedLogs@9504"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:splittedLogs@9336"
+        },
+        {
+          "reference_count": 1,
+          "references": [
             ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@6683"
           ],
           "source_file": ".github/actions/next-integration-stat/src/index.ts",
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
           "target_file": ".github/actions/next-integration-stat/src/index.ts",
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:path@185::path@12511"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:path@185"
-        },
-        {
-          "reference_count": 3,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:semver@214::semver@12895",
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:semver@214::semver@12954",
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:semver@214::semver@13078"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:semver@214"
-        },
-        {
-          "reference_count": 2,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@10649",
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@11613"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
         }
       ],
-      "sha256": "6e24380897eab123b0cb234b8abf60ac8a37c8c3f2258e74f70d5ef230f16dae"
+      "sha256": "2c60114876194da543e392fac606bef6c02800a1c6723df30519079ce7c669c5"
     },
     "exports": {
       "count": 16026,
@@ -907,7 +905,7 @@
       "sha256": "75176bcfeb2ad12c09a7dfddc5de0f357b3f760e0b16b6cd05c9cf8260113b33"
     },
     "external_references": {
-      "count": 25323,
+      "count": 25318,
       "samples": [
         {
           "import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
@@ -1210,7 +1208,7 @@
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615"
         }
       ],
-      "sha256": "5999f25ed89d5cc695eeda2c7288f3a9cdb39ae0d04588f4b4b9d7c943455d93"
+      "sha256": "48622e2fc0e25018d8cd1cbf20b7fd48a4bfc66e0105d4243014ca5934ff7074"
     },
     "files": {
       "count": 13688,
@@ -1971,7 +1969,7 @@
       "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
     },
     "references": {
-      "count": 62309,
+      "count": 114462,
       "samples": [
         {
           "import": null,
@@ -2294,11 +2292,75 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
         }
       ],
-      "sha256": "46d60b0bb503893b2a7939bc1d3114ca060e82abf851d0ea9e590451ac311cda"
+      "sha256": "63b502b6e59daec914e4a90cb24e8a4a3b1e78d1531c0b8a273f942d83bd799e"
     },
     "subclass_edges": {
-      "count": 151,
+      "count": 160,
       "samples": [
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261187:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261187::a@261235",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261187::a@261235",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@261187"
+        },
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261741:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261741::a@261839",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261741::a@261839",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@261741"
+        },
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262615:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262615::a@262703",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262615::a@262703",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@262615"
+        },
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262980:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262980::a@263065",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262980::a@263065",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@262980"
+        },
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263224:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263224::a@263282",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263224::a@263282",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@263224"
+        },
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263668:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263668::a@263800",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263668::a@263800",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@263668"
+        },
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@267323:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@267323::a@267406",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@267323::a@267406",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@267323"
+        },
+        {
+          "key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@269883:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@269883::a@269941",
+          "reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@269883::a@269941",
+          "source_file": ".github/actions/validate-docs-links/dist/index.js",
+          "source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+          "target_file": ".github/actions/validate-docs-links/dist/index.js",
+          "target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@269883"
+        },
         {
           "key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@246",
           "reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@246",
@@ -2394,76 +2456,12 @@
           "source_symbol": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558",
           "target_file": "packages/next/src/build/swc/types.ts",
           "target_symbol": "packages/next/src/build/swc/types.ts:interface:Endpoint@5583"
-        },
-        {
-          "key": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Project@4420:packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Project@4420:packages/next/src/build/swc/index.ts:named_import:./types:Project:Project@1208:Project@17659",
-          "reference": "packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Project@4420:packages/next/src/build/swc/index.ts:named_import:./types:Project:Project@1208:Project@17659",
-          "source_file": "packages/next/src/build/swc/index.ts",
-          "source_symbol": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558",
-          "target_file": "packages/next/src/build/swc/types.ts",
-          "target_symbol": "packages/next/src/build/swc/types.ts:interface:Project@4420"
-        },
-        {
-          "key": "packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533->packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468:packages/next/src/build/swc/jest-transformer.ts:packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533->packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468::TransformerConfig@1563",
-          "reference": "packages/next/src/build/swc/jest-transformer.ts:packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533->packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468::TransformerConfig@1563",
-          "source_file": "packages/next/src/build/swc/jest-transformer.ts",
-          "source_symbol": "packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533",
-          "target_file": "packages/next/src/build/swc/jest-transformer.ts",
-          "target_symbol": "packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468"
-        },
-        {
-          "key": "packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144:packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3290",
-          "reference": "packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3290",
-          "source_file": "packages/next/src/build/swc/types.ts",
-          "source_symbol": "packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269",
-          "target_file": "packages/next/src/build/swc/types.ts",
-          "target_symbol": "packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144"
-        },
-        {
-          "key": "packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144:packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3562",
-          "reference": "packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3562",
-          "source_file": "packages/next/src/build/swc/types.ts",
-          "source_symbol": "packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540",
-          "target_file": "packages/next/src/build/swc/types.ts",
-          "target_symbol": "packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144"
-        },
-        {
-          "key": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550->packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258:packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550->packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258::WebpackPluginInstance@591",
-          "reference": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550->packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258::WebpackPluginInstance@591",
-          "source_file": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts",
-          "source_symbol": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550",
-          "target_file": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts",
-          "target_symbol": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258"
-        },
-        {
-          "key": "packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138->packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941:packages/next/src/client/components/error-boundary.tsx:packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138->packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941::ErrorBoundaryProps@1172",
-          "reference": "packages/next/src/client/components/error-boundary.tsx:packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138->packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941::ErrorBoundaryProps@1172",
-          "source_file": "packages/next/src/client/components/error-boundary.tsx",
-          "source_symbol": "packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138",
-          "target_file": "packages/next/src/client/components/error-boundary.tsx",
-          "target_symbol": "packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941"
-        },
-        {
-          "key": "packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504->packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323:packages/next/src/client/components/not-found-boundary.tsx:packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504->packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323::NotFoundBoundaryProps@539",
-          "reference": "packages/next/src/client/components/not-found-boundary.tsx:packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504->packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323::NotFoundBoundaryProps@539",
-          "source_file": "packages/next/src/client/components/not-found-boundary.tsx",
-          "source_symbol": "packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504",
-          "target_file": "packages/next/src/client/components/not-found-boundary.tsx",
-          "target_symbol": "packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323"
-        },
-        {
-          "key": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159->packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159->packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:named_import:../../server/shared:OriginalStackFrameResponse:OriginalStackFrameResponse@85:OriginalStackFrameResponse@186",
-          "reference": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159->packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:named_import:../../server/shared:OriginalStackFrameResponse:OriginalStackFrameResponse@85:OriginalStackFrameResponse@186",
-          "source_file": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts",
-          "source_symbol": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159",
-          "target_file": "packages/next/src/client/components/react-dev-overlay/server/shared.ts",
-          "target_symbol": "packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355"
         }
       ],
-      "sha256": "37e5e5b00d68c263830ee3b22186b38495bdf5de0341a7dfc5cb2e7c470d4676"
+      "sha256": "b55a1570991c33ad18f55ba9f3e56595d759091893a685e8ada69598b45ac8a7"
     },
     "symbols": {
-      "count": 23980,
+      "count": 44855,
       "samples": [
         {
           "file": ".github/actions/needs-triage/src/index.ts",
@@ -2827,6 +2825,102 @@
         },
         {
           "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": false,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:accVersion@12941",
+          "kind": "global_variable",
+          "name": "accVersion",
+          "name_range": [
+            12941,
+            12951,
+            423,
+            14,
+            423,
+            24
+          ],
+          "parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
+          "range": [
+            12941,
+            12983,
+            423,
+            14,
+            423,
+            56
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": false,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:ancestorKey@24045",
+          "kind": "global_variable",
+          "name": "ancestorKey",
+          "name_range": [
+            24045,
+            24056,
+            781,
+            14,
+            781,
+            25
+          ],
+          "parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
+          "range": [
+            24045,
+            24093,
+            781,
+            14,
+            781,
+            62
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": false,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:base@12504",
+          "kind": "global_variable",
+          "name": "base",
+          "name_range": [
+            12504,
+            12508,
+            406,
+            14,
+            406,
+            18
+          ],
+          "parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
+          "range": [
+            12504,
+            12541,
+            406,
+            14,
+            406,
+            51
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
+          "is_top_level": false,
+          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentIdxToUpdate@26113",
+          "kind": "global_variable",
+          "name": "commentIdxToUpdate",
+          "name_range": [
+            26113,
+            26131,
+            840,
+            10,
+            840,
+            28
+          ],
+          "parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
+          "range": [
+            26113,
+            26148,
+            840,
+            10,
+            840,
+            45
+          ]
+        },
+        {
+          "file": ".github/actions/next-integration-stat/src/index.ts",
           "is_top_level": true,
           "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630",
           "kind": "global_variable",
@@ -2848,105 +2942,9 @@
             18,
             68
           ]
-        },
-        {
-          "file": ".github/actions/next-integration-stat/src/index.ts",
-          "is_top_level": true,
-          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:fs@160",
-          "kind": "global_variable",
-          "name": "fs",
-          "name_range": [
-            160,
-            162,
-            3,
-            6,
-            3,
-            8
-          ],
-          "parent_symbol": null,
-          "range": [
-            154,
-            178,
-            3,
-            0,
-            3,
-            24
-          ]
-        },
-        {
-          "file": ".github/actions/next-integration-stat/src/index.ts",
-          "is_top_level": true,
-          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:path@185",
-          "kind": "global_variable",
-          "name": "path",
-          "name_range": [
-            185,
-            189,
-            4,
-            6,
-            4,
-            10
-          ],
-          "parent_symbol": null,
-          "range": [
-            179,
-            207,
-            4,
-            0,
-            4,
-            28
-          ]
-        },
-        {
-          "file": ".github/actions/next-integration-stat/src/index.ts",
-          "is_top_level": true,
-          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:semver@214",
-          "kind": "global_variable",
-          "name": "semver",
-          "name_range": [
-            214,
-            220,
-            5,
-            6,
-            5,
-            12
-          ],
-          "parent_symbol": null,
-          "range": [
-            208,
-            240,
-            5,
-            0,
-            5,
-            32
-          ]
-        },
-        {
-          "file": ".github/actions/next-integration-stat/src/index.ts",
-          "is_top_level": true,
-          "key": ".github/actions/next-integration-stat/src/index.ts:global_variable:stripAnsi@118",
-          "kind": "global_variable",
-          "name": "stripAnsi",
-          "name_range": [
-            118,
-            127,
-            2,
-            17,
-            2,
-            26
-          ],
-          "parent_symbol": null,
-          "range": [
-            101,
-            153,
-            2,
-            0,
-            2,
-            52
-          ]
         }
       ],
-      "sha256": "8422d0e26f08c595b0367f46825cf48752430815f386527be90e77a0199a1a75"
+      "sha256": "8c444f5681fa89cce136a7804561b7494ad1cf270d57e202514e8739bdfd1011"
     }
   },
   "integrity": {
@@ -2993,19 +2991,19 @@
   "summary": {
     "bytes": 25421217,
     "classes": 502,
-    "dependencies": 21639,
+    "dependencies": 49287,
     "exports": 16026,
     "external_modules": 13525,
-    "external_references": 25323,
+    "external_references": 25318,
     "files": 13688,
     "files_with_errors": 114,
     "functions": 13497,
-    "global_variables": 7866,
+    "global_variables": 28741,
     "import_resolutions": 13462,
     "imports": 28210,
     "lines": 634891,
-    "references": 62309,
-    "subclass_edges": 151,
-    "symbols": 23980
+    "references": 114462,
+    "subclass_edges": 160,
+    "symbols": 44855
   }
 }

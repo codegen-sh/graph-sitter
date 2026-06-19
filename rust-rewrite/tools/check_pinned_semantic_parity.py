@@ -375,10 +375,11 @@ def compare_suite(python_report: dict[str, Any], rust_report: dict[str, Any], *,
             "announcer_function",
             "announcer_export",
             "announcer_imports",
+            "announcer_dependencies",
             "announcer_import_dependencies",
             "announcer_symbol_usages",
         ]
-        known_delta_keys = ["announcer_dependencies"]
+        known_delta_keys = []
     mismatches = [key for key in exact_keys if python_report.get(key) != rust_report.get(key)]
     known_deltas = {
         key: {
