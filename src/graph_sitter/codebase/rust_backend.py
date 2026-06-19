@@ -26,6 +26,20 @@ class RustIndexBuildError(RuntimeError):
     """Raised when the Rust backend extension loads but cannot index the repo."""
 
 
+class RustBackendUnsupportedError(NotImplementedError):
+    """Raised when a compact Rust handle does not implement a Python API yet."""
+
+    def __init__(self, method: str, handle: str, reason: str | None = None) -> None:
+        self.method = method
+        self.handle = handle
+        self.reason = reason
+        details = f"{method} is not supported by compact Rust handle {handle} yet"
+        if reason:
+            details = f"{details}: {reason}"
+        guidance = "Use CodebaseConfig(graph_backend='python') for this API, or choose a compact Rust API that is implemented without materializing the Python graph."
+        super().__init__(f"{details}. {guidance}")
+
+
 @dataclass(frozen=True)
 class RustSourceRange:
     start_byte: int
@@ -1169,7 +1183,7 @@ class RustCompactHandle:
         return self.ts_node.range
 
     def _unsupported(self, method: str) -> RuntimeError:
-        return RuntimeError(f"{method} is not supported by the compact Rust handle yet")
+        return RustBackendUnsupportedError(method=method, handle=type(self).__name__)
 
     @property
     def transaction_manager(self):

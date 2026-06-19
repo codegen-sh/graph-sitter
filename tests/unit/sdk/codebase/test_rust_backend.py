@@ -7,6 +7,7 @@ import pytest
 
 from codemods.codemod import Codemod
 from graph_sitter.codebase.factory.get_session import get_codebase_session
+from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType
@@ -1525,8 +1526,9 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert import_handle.usages[0].usage_symbol == helper
         assert import_handle.usages[0].imported_by == import_handle
         assert import_handle.usages[0].match.source == "Service"
-        with pytest.raises(RuntimeError, match="Python graph is not built"):
+        with pytest.raises(RustBackendUnsupportedError, match="Python graph is not built") as graph_error:
             len(codebase.ctx.nodes)
+        assert graph_error.value.method == "CodebaseContext._graph"
 
 
 def test_rust_compact_external_modules(monkeypatch, tmp_path):
@@ -1569,8 +1571,9 @@ def test_rust_compact_external_modules(monkeypatch, tmp_path):
 
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["pkg/service.py"]]
-        with pytest.raises(RuntimeError, match="Python graph is not built"):
+        with pytest.raises(RustBackendUnsupportedError, match="Python graph is not built") as graph_error:
             len(codebase.ctx.nodes)
+        assert graph_error.value.method == "CodebaseContext._graph"
 
 
 def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_path):
@@ -1797,6 +1800,33 @@ def test_rust_compact_file_mutations_commit_without_python_graph(monkeypatch, tm
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
+
+
+def test_rust_compact_unsupported_api_fails_explicitly_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n"},
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service_file = codebase.get_file("pkg/service.py")
+
+        with pytest.raises(RustBackendUnsupportedError) as error:
+            service_file.replace(r"Service\\b", "Worker", is_regex=True)
+
+        assert error.value.method == "RustCompactFile.replace(is_regex=True)"
+        assert error.value.handle == "RustCompactFile"
+        assert "CodebaseConfig(graph_backend='python')" in str(error.value)
+        assert (tmp_path / "pkg/service.py").read_text() == "import os\nimport pkg.service\n\nclass Service:\n    pass\n"
+
+        with pytest.raises(RustBackendUnsupportedError, match="Python graph is not built") as graph_error:
+            len(codebase.ctx.nodes)
+        assert graph_error.value.method == "CodebaseContext._graph"
 
 
 def test_rust_compact_symbol_rename_and_add_import_commit_without_python_graph(monkeypatch, tmp_path):

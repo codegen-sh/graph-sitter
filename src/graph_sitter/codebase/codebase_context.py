@@ -273,8 +273,10 @@ class CodebaseContext:
     def _graph(self) -> PyDiGraph[Importable, Edge]:
         if not self.__graph_ready:
             if self.rust_compact_mode:
-                msg = "Python graph is not built when CodebaseConfig(graph_backend='rust') uses the compact Rust backend; use rust_* record APIs or select graph_backend='python'"
-                raise RuntimeError(msg)
+                from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError
+
+                msg = "Python graph is not built when CodebaseConfig(graph_backend='rust') uses the compact Rust backend"
+                raise RustBackendUnsupportedError(method="CodebaseContext._graph", handle="CodebaseContext", reason=msg)
             logger.info("Lazily Computing Graph")
             self.build_graph(self.projects[0].repo_operator)
         return self.__graph

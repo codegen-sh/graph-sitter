@@ -222,6 +222,7 @@ Cold fallback:
 
 Method fallback:
 
+- Current runtime state: unsupported compact-handle methods raise `RustBackendUnsupportedError` with the method, handle type, reason when available, and guidance to use `CodebaseConfig(graph_backend="python")`; compact mode does not silently materialize the full Python graph.
 - Read-only, file-local unsupported behavior can materialize one file through the current parser, locate the matching Python object by `(kind, range, name)`, and delegate the method.
 - Graph-wide unsupported behavior, dependency recomputation, and resolver operations that require a populated `PyDiGraph` should promote the whole context to the Python backend unless strict mode is enabled.
 - Mutations should initially prefer Python promotion. Direct Rust-handle range edits can come later as patch intents, but structural helpers such as `move_to_file`, `add_import`, `remove_unused_exports`, or usage-based `rename` need Python graph semantics until Rust owns those flows.
@@ -229,7 +230,7 @@ Method fallback:
 
 Strict behavior:
 
-- In `rust_fallback == "error"`, unsupported method access raises `RustBackendUnsupportedError(method=..., handle=..., reason=...)`.
+- Unsupported method access raises `RustBackendUnsupportedError(method=..., handle=..., reason=...)`; `rust_fallback == "error"` additionally makes cold fallback failures raise instead of building the Python backend.
 - Tests should run some parity slices in strict mode to catch accidental Python promotion.
 
 ## Packaging Impact
