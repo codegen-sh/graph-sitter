@@ -1096,12 +1096,22 @@ fn collect_typescript_binding_targets<'tree>(node: Node<'tree>, out: &mut Vec<No
         | "type_identifier"
         | "shorthand_property_identifier_pattern"
         | "property_identifier" => out.push(node),
+        "variable_declarator" => {
+            if let Some(name) = node.child_by_field_name("name") {
+                collect_typescript_binding_targets(name, out);
+            }
+        }
         "pair_pattern" => {
             if let Some(value) = node.child_by_field_name("value") {
                 collect_typescript_binding_targets(value, out);
             }
         }
-        "object_pattern" | "array_pattern" => {
+        "assignment_pattern"
+        | "lexical_declaration"
+        | "variable_declaration"
+        | "object_assignment_pattern"
+        | "object_pattern"
+        | "array_pattern" => {
             let mut cursor = node.walk();
             for child in node.named_children(&mut cursor) {
                 collect_typescript_binding_targets(child, out);
@@ -1555,7 +1565,7 @@ fn collect_typescript_reference_candidates(
         .filter(|symbol| symbol.file_id == file_id)
         .map(|symbol| symbol.name_range)
         .collect::<Vec<_>>();
-    let local_bindings_by_symbol_id =
+    let (local_bindings_by_symbol_id, local_binding_scopes) =
         collect_typescript_local_bindings(file_id, source, root, index, &symbol_ranges);
 
     collect_typescript_identifier_candidates(
@@ -1564,6 +1574,7 @@ fn collect_typescript_reference_candidates(
         root,
         &symbol_ranges,
         &local_bindings_by_symbol_id,
+        &local_binding_scopes,
         &excluded_ranges,
         out,
     );
@@ -1575,8 +1586,9 @@ fn collect_typescript_local_bindings(
     root: Node<'_>,
     index: &TypeScriptIndex,
     symbol_ranges: &[(u32, SourceRange)],
-) -> HashMap<u32, HashSet<String>> {
+) -> (HashMap<u32, HashSet<String>>, Vec<LocalBindingScope>) {
     let mut bindings = HashMap::new();
+    let mut scoped_bindings = Vec::new();
     let file_symbols = index
         .symbols
         .iter()
@@ -1594,7 +1606,13 @@ fn collect_typescript_local_bindings(
     for (symbol_id, _) in symbol_ranges {
         bindings.entry(*symbol_id).or_default();
     }
-    bindings
+    collect_typescript_scoped_local_bindings_from_node(
+        source,
+        root,
+        symbol_ranges,
+        &mut scoped_bindings,
+    );
+    (bindings, scoped_bindings)
 }
 
 fn collect_typescript_local_bindings_for_symbol(
@@ -1649,12 +1667,102 @@ fn collect_typescript_local_bindings_for_symbol(
     }
 }
 
+fn collect_typescript_scoped_local_bindings_from_node(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    scoped_bindings: &mut Vec<LocalBindingScope>,
+) {
+    match node.kind() {
+        "for_in_statement" => {
+            if let Some(left) = node
+                .child_by_field_name("left")
+                .or_else(|| first_named_child(node))
+            {
+                let scope = node
+                    .child_by_field_name("body")
+                    .or_else(|| first_child_of_kind(node, &["statement_block"]))
+                    .unwrap_or(node);
+                push_typescript_local_binding_scope(
+                    source,
+                    left,
+                    scope.range().into(),
+                    symbol_ranges,
+                    scoped_bindings,
+                );
+            }
+        }
+        "catch_clause" => {
+            if let Some(parameter) = node
+                .child_by_field_name("parameter")
+                .or_else(|| first_named_child(node))
+            {
+                let scope = node
+                    .child_by_field_name("body")
+                    .or_else(|| first_child_of_kind(node, &["statement_block"]))
+                    .unwrap_or(node);
+                push_typescript_local_binding_scope(
+                    source,
+                    parameter,
+                    scope.range().into(),
+                    symbol_ranges,
+                    scoped_bindings,
+                );
+            }
+        }
+        _ => {}
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_typescript_scoped_local_bindings_from_node(
+            source,
+            child,
+            symbol_ranges,
+            scoped_bindings,
+        );
+    }
+}
+
+fn push_typescript_local_binding_scope(
+    source: &str,
+    binding_root: Node<'_>,
+    scope_range: SourceRange,
+    symbol_ranges: &[(u32, SourceRange)],
+    scoped_bindings: &mut Vec<LocalBindingScope>,
+) {
+    let Some(source_symbol_id) = innermost_symbol_for_range(symbol_ranges, scope_range) else {
+        return;
+    };
+    let mut targets = Vec::new();
+    collect_typescript_binding_targets(binding_root, &mut targets);
+    let mut names = HashSet::new();
+    for target in targets {
+        if let Ok(name) = target.utf8_text(source.as_bytes()) {
+            names.insert(name.to_owned());
+        }
+    }
+    if !names.is_empty() {
+        scoped_bindings.push(LocalBindingScope {
+            source_symbol_id,
+            range: binding_root.range().into(),
+            names: names.clone(),
+        });
+        scoped_bindings.push(LocalBindingScope {
+            source_symbol_id,
+            range: scope_range,
+            names,
+        });
+    }
+}
+
 fn collect_typescript_identifier_candidates(
     file_id: u32,
     source: &str,
     node: Node<'_>,
     symbol_ranges: &[(u32, SourceRange)],
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
     excluded_ranges: &[SourceRange],
     out: &mut Vec<ReferenceCandidate>,
 ) {
@@ -1677,7 +1785,9 @@ fn collect_typescript_identifier_candidates(
                         if !typescript_reference_is_shadowed(
                             source_symbol_id,
                             qualifier.split('.').next().unwrap_or(qualifier),
+                            range,
                             local_bindings_by_symbol_id,
+                            local_binding_scopes,
                         ) {
                             out.push(ReferenceCandidate {
                                 source_file_id: file_id,
@@ -1697,6 +1807,7 @@ fn collect_typescript_identifier_candidates(
                     object,
                     symbol_ranges,
                     local_bindings_by_symbol_id,
+                    local_binding_scopes,
                     excluded_ranges,
                     out,
                 );
@@ -1713,7 +1824,9 @@ fn collect_typescript_identifier_candidates(
             if !typescript_reference_is_shadowed(
                 source_symbol_id,
                 name,
+                range,
                 local_bindings_by_symbol_id,
+                local_binding_scopes,
             ) {
                 out.push(ReferenceCandidate {
                     source_file_id: file_id,
@@ -1734,6 +1847,7 @@ fn collect_typescript_identifier_candidates(
             child,
             symbol_ranges,
             local_bindings_by_symbol_id,
+            local_binding_scopes,
             excluded_ranges,
             out,
         );
@@ -1747,13 +1861,17 @@ fn ranges_overlap(left: SourceRange, right: SourceRange) -> bool {
 fn typescript_reference_is_shadowed(
     source_symbol_id: Option<u32>,
     name: &str,
+    range: SourceRange,
     local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
 ) -> bool {
-    source_symbol_id.is_some_and(|symbol_id| {
-        local_bindings_by_symbol_id
-            .get(&symbol_id)
-            .is_some_and(|bindings| bindings.contains(name))
-    })
+    is_shadowed_local_binding(
+        source_symbol_id,
+        name,
+        range,
+        local_bindings_by_symbol_id,
+        local_binding_scopes,
+    )
 }
 
 fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScriptConfig]) {
@@ -1768,9 +1886,6 @@ fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScr
         .filter(|symbol| symbol.is_top_level)
         .map(|symbol| ((symbol.file_id, symbol.name.clone()), symbol.id))
         .collect();
-    let exported_symbol_by_file_and_name =
-        typescript_exported_symbol_map(index, &symbol_by_file_and_name);
-
     let mut resolutions = Vec::new();
     for import in &index.imports {
         let Some(module) = import.module.as_deref() else {
@@ -1787,24 +1902,19 @@ fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScr
         let Some(target_file_id) = target_file_id else {
             continue;
         };
-        let target_symbol_id = resolve_typescript_import_symbol(
-            import,
-            target_file_id,
-            &exported_symbol_by_file_and_name,
-            &symbol_by_file_and_name,
-        );
         resolutions.push(ImportResolutionRecord {
             id: resolutions.len() as u32,
             import_id: import.id,
             source_file_id: import.file_id,
             target_file_id,
-            target_symbol_id,
+            target_symbol_id: None,
         });
     }
+    resolve_typescript_import_symbols(index, &symbol_by_file_and_name, &mut resolutions);
     index.import_resolutions = resolutions;
 }
 
-fn typescript_exported_symbol_map(
+fn typescript_local_exported_symbol_map(
     index: &TypeScriptIndex,
     symbol_by_file_and_name: &HashMap<(u32, String), u32>,
 ) -> HashMap<(u32, String), u32> {
@@ -1827,6 +1937,113 @@ fn typescript_exported_symbol_map(
             exported_symbols.insert((export.file_id, name.to_owned()), symbol_id);
         }
     }
+    exported_symbols
+}
+
+fn resolve_typescript_import_symbols(
+    index: &TypeScriptIndex,
+    symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+    resolutions: &mut [ImportResolutionRecord],
+) {
+    let local_exported_symbols =
+        typescript_local_exported_symbol_map(index, symbol_by_file_and_name);
+    let import_by_id: HashMap<u32, &ImportRecord> = index
+        .imports
+        .iter()
+        .map(|import| (import.id, import))
+        .collect();
+    let mut exported_symbol_by_file_and_name = local_exported_symbols.clone();
+
+    for _ in 0..=index.exports.len() {
+        let mut changed = false;
+        for resolution in resolutions.iter_mut() {
+            let Some(import) = import_by_id.get(&resolution.import_id) else {
+                continue;
+            };
+            let target_symbol_id = resolve_typescript_import_symbol(
+                import,
+                resolution.target_file_id,
+                &exported_symbol_by_file_and_name,
+                symbol_by_file_and_name,
+            );
+            if resolution.target_symbol_id != target_symbol_id {
+                resolution.target_symbol_id = target_symbol_id;
+                changed = true;
+            }
+        }
+
+        let next_exported_symbol_by_file_and_name =
+            typescript_resolved_exported_symbol_map(index, &local_exported_symbols, resolutions);
+        if next_exported_symbol_by_file_and_name != exported_symbol_by_file_and_name {
+            exported_symbol_by_file_and_name = next_exported_symbol_by_file_and_name;
+            changed = true;
+        }
+        if !changed {
+            break;
+        }
+    }
+}
+
+fn typescript_resolved_exported_symbol_map(
+    index: &TypeScriptIndex,
+    local_exported_symbols: &HashMap<(u32, String), u32>,
+    resolutions: &[ImportResolutionRecord],
+) -> HashMap<(u32, String), u32> {
+    let mut exported_symbols = local_exported_symbols.clone();
+    for _ in 0..=index.exports.len() {
+        let next_exported_symbols = typescript_exported_symbol_map(
+            index,
+            local_exported_symbols,
+            &exported_symbols,
+            resolutions,
+        );
+        if next_exported_symbols == exported_symbols {
+            break;
+        }
+        exported_symbols = next_exported_symbols;
+    }
+    exported_symbols
+}
+
+fn typescript_exported_symbol_map(
+    index: &TypeScriptIndex,
+    local_exported_symbols: &HashMap<(u32, String), u32>,
+    previous_exported_symbols: &HashMap<(u32, String), u32>,
+    resolutions: &[ImportResolutionRecord],
+) -> HashMap<(u32, String), u32> {
+    let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = resolutions
+        .iter()
+        .map(|resolution| (resolution.import_id, resolution))
+        .collect();
+    let mut exported_symbols = local_exported_symbols.clone();
+
+    for export in &index.exports {
+        let Some(import_id) = export.import_id else {
+            continue;
+        };
+        let Some(resolution) = resolution_by_import_id.get(&import_id) else {
+            continue;
+        };
+        match export.kind {
+            ExportKind::Named | ExportKind::Default | ExportKind::ExportEquals => {
+                let Some(name) = export.name.as_deref() else {
+                    continue;
+                };
+                if let Some(symbol_id) = resolution.target_symbol_id {
+                    exported_symbols.insert((export.file_id, name.to_owned()), symbol_id);
+                }
+            }
+            ExportKind::Wildcard => {
+                for ((file_id, name), symbol_id) in previous_exported_symbols {
+                    if *file_id == resolution.target_file_id && name != "default" {
+                        exported_symbols.insert((export.file_id, name.clone()), *symbol_id);
+                    }
+                }
+            }
+            ExportKind::Namespace => {}
+        }
+    }
+
     exported_symbols
 }
 
@@ -1977,8 +2194,13 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         .filter(|symbol| symbol.is_top_level)
         .map(|symbol| ((symbol.file_id, symbol.name.clone()), symbol.id))
         .collect();
-    let exported_symbol_by_file_and_name =
-        typescript_exported_symbol_map(index, &symbol_by_file_and_name);
+    let local_exported_symbols =
+        typescript_local_exported_symbol_map(index, &symbol_by_file_and_name);
+    let exported_symbol_by_file_and_name = typescript_resolved_exported_symbol_map(
+        index,
+        &local_exported_symbols,
+        &index.import_resolutions,
+    );
     let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
         .import_resolutions
         .iter()
@@ -4219,6 +4441,218 @@ export * from './feature';\n\
             resolution.target_file_id == dotted_file_id
                 && resolution.target_symbol_id == Some(dotted_symbol_id)
         }));
+    }
+
+    #[test]
+    fn resolves_typescript_barrel_reexports_to_symbols() {
+        let repo = temp_repo_path("resolve-typescript-barrel-reexports");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { publicHelper, wildcarded } from './barrel';\n\
+import { nestedHelper } from './nested';\n\
+import * as barrel from './barrel';\n\
+\n\
+export function run() {\n\
+  return publicHelper() + nestedHelper() + wildcarded + barrel.wildcarded;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/barrel.ts"),
+            "export { helper as publicHelper } from './leaf';\n\
+export * from './extra';\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/nested.ts"),
+            "export { publicHelper as nestedHelper } from './barrel';\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/leaf.ts"),
+            "export function helper() { return 1; }\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/extra.ts"),
+            "export const wildcarded = 2;\nexport default function hidden() { return 0; }\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 5);
+        assert_eq!(index.summary().imports, 7);
+        assert_eq!(index.summary().import_resolutions, 7);
+        assert_eq!(index.summary().references, 4);
+        assert_eq!(index.summary().dependencies, 2);
+
+        let leaf_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/leaf.ts")
+            .unwrap()
+            .id;
+        let extra_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/extra.ts")
+            .unwrap()
+            .id;
+        let helper_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == leaf_file_id && symbol.name == "helper")
+            .unwrap()
+            .id;
+        let wildcarded_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == extra_file_id && symbol.name == "wildcarded")
+            .unwrap()
+            .id;
+
+        let public_helper_import_id = index
+            .imports
+            .iter()
+            .find(|import| {
+                import.module.as_deref() == Some("./barrel")
+                    && import.name.as_deref() == Some("publicHelper")
+            })
+            .unwrap()
+            .id;
+        let nested_helper_import_id = index
+            .imports
+            .iter()
+            .find(|import| import.name.as_deref() == Some("nestedHelper"))
+            .unwrap()
+            .id;
+        let wildcarded_import_id = index
+            .imports
+            .iter()
+            .find(|import| {
+                import.module.as_deref() == Some("./barrel")
+                    && import.name.as_deref() == Some("wildcarded")
+            })
+            .unwrap()
+            .id;
+        let barrel_namespace_import_id = index
+            .imports
+            .iter()
+            .find(|import| {
+                import.kind == ImportKind::NamespaceImport
+                    && import.alias.as_deref() == Some("barrel")
+            })
+            .unwrap()
+            .id;
+
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == public_helper_import_id
+                && resolution.target_symbol_id == Some(helper_symbol_id)
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == nested_helper_import_id
+                && resolution.target_symbol_id == Some(helper_symbol_id)
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == wildcarded_import_id
+                && resolution.target_symbol_id == Some(wildcarded_symbol_id)
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == barrel_namespace_import_id
+                && resolution.target_symbol_id.is_none()
+        }));
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == helper_symbol_id)
+                .count(),
+            2
+        );
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == wildcarded_symbol_id)
+                .count(),
+            2
+        );
+    }
+
+    #[test]
+    fn excludes_typescript_references_shadowed_by_scoped_loop_and_catch_bindings() {
+        let repo = temp_repo_path("resolve-typescript-scoped-bindings");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { Imported, Other } from './values';\n\
+\n\
+export function run(items: number[]) {\n\
+  for (const Imported of items) {\n\
+    Imported;\n\
+  }\n\
+  try {\n\
+    throw new Error();\n\
+  } catch (Other) {\n\
+    Other;\n\
+  }\n\
+  return Imported + Other;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/values.ts"),
+            "export const Imported = 1;\nexport const Other = 2;\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 2);
+        assert_eq!(index.summary().imports, 2);
+        assert_eq!(index.summary().import_resolutions, 2);
+        assert_eq!(index.summary().references, 2);
+        assert_eq!(index.summary().dependencies, 2);
+
+        let values_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/values.ts")
+            .unwrap()
+            .id;
+        let imported_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "Imported")
+            .unwrap()
+            .id;
+        let other_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "Other")
+            .unwrap()
+            .id;
+
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == imported_symbol_id)
+                .count(),
+            1
+        );
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == other_symbol_id)
+                .count(),
+            1
+        );
     }
 
     #[test]
