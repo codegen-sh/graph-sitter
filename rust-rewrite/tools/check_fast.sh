@@ -56,6 +56,7 @@ uv run python -m py_compile \
   tests/integration/rust_rewrite/test_python_rust_parity_fixture.py \
   rust-rewrite/tools/check_pinned_codemods.py \
   rust-rewrite/tools/check_pinned_python_codebase.py \
+  rust-rewrite/tools/check_rollout_readiness.py \
   rust-rewrite/tools/check_pinned_semantic_parity.py \
   rust-rewrite/tools/check_python_rust_parity_fixture.py \
   rust-rewrite/tools/check_pinned_typescript_codebase.py \

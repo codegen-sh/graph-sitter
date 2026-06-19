@@ -310,11 +310,39 @@ Recommended task format:
 - [x] Keep compact relation ID misses from materializing broad relation records. owner: codex. Result: targeted `import_resolution_for_import` and `reference_by_id` now return `None` on PyO3 misses instead of loading all import-resolution/reference records. Unit coverage asserts missing relation ID lookups keep `_import_resolutions` and `_references` cold.
 - [x] Keep compact case-insensitive file lookup from materializing file handles. owner: codex. Result: PyO3 now exposes `file_by_path_ignore_case_json` for Python and TypeScript indexes, and `RustIndexBackend.get_file_handle(..., ignore_case=True)` uses it before broad fallback. Unit coverage asserts existing, missing, and newly-created mixed-case path lookups keep `_files` and `_file_handles` cold.
 - [x] Add pinned large-repo proof for compact case-insensitive file lookup. owner: codex. Result: Airflow and Next.js strict Rust `Codebase` proof scripts now validate mixed-case `get_file(..., ignore_case=True)` probes and assert broad file/symbol/import/export/reference/dependency caches remain cold.
-- [ ] Add feature flag documentation.
+- [x] Add aggregate rollout readiness gate. owner: codex. Result: `check_rollout_readiness.py` consumes the pinned large-repo JSON reports and fails unless snapshots are structurally valid, Airflow and Next.js Rust `Codebase` runs are at least 2x faster and 4x lower RSS than recorded Python baselines, semantic parity has only expected deltas, codemods pass, Python graph access stays blocked, and broad Rust caches stay cold.
+- [x] Add feature flag documentation. owner: codex. Result: `Rollout And Feature Flag Criteria` below documents `CodebaseConfig(graph_backend=...)`, `rust_fallback`, strict vs fallback behavior, CI gates, and default-backend promotion requirements.
 - [x] Add migration notes for unsupported APIs. owner: codex. Result: `python-compat.md` now documents current compact-mode unsupported behavior, the typed `RustBackendUnsupportedError` contract, and the distinction between cold fallback to Python and unsupported method access.
-- [ ] Decide default backend criteria.
+- [x] Decide default backend criteria. owner: codex. Result: keep Python as default until the rollout gate, full Python unit suite, supported Rust-backend subset, and graph-wide parity targets pass on protected CI; Rust remains opt-in or `auto` before that point.
 - [ ] Flip default to Rust only after memory, speed, and parity targets are met.
 - [ ] Keep Python backend available for one release after Rust becomes default.
+
+## Rollout And Feature Flag Criteria
+
+Current public control surface:
+
+- `CodebaseConfig(graph_backend=GraphBackend.PYTHON)` remains the default and builds the existing Python graph.
+- `CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR)` is strict compact mode for tests and performance proofs. It must keep `CodebaseContext.nodes` blocked and raise `RustBackendUnsupportedError` for unsupported APIs rather than silently materializing the Python graph.
+- `CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.PYTHON)` is the compatibility escape hatch. Supported compact APIs stay on Rust; unsupported methods may promote the context to the Python graph.
+- `CodebaseConfig(graph_backend=GraphBackend.AUTO)` is reserved for gradual rollout once language coverage and packaging are stable enough to select Rust only for supported repositories and fall back predictably.
+
+Merge gate for the opt-in Rust backend:
+
+- `rust-rewrite/tools/check_fast.sh` must pass locally and in PR CI.
+- `rust-rewrite/tools/check_pinned_large_repos.sh` must pass in nightly/manual CI and write `rollout-readiness.json`.
+- The readiness gate must show Airflow and Next.js Rust `Codebase` construction at least 2x faster and at least 4x lower max RSS than recorded Python baselines.
+- Pinned semantic parity must have no unexpected mismatches. Any known delta must be explicitly listed in `check_pinned_semantic_parity.py`.
+- Pinned codemod proof must pass for Airflow and Next.js while keeping broad Rust record/handle caches cold.
+- Unsupported APIs must either raise `RustBackendUnsupportedError` in strict mode or promote intentionally under `rust_fallback="python"`.
+
+Default-backend promotion criteria:
+
+- Full Python-backend unit suite remains green.
+- Rust-backend supported subset is explicitly enumerated and green.
+- P0 public read APIs, graph queries, and codemod mutation flows have Python-vs-Rust parity coverage for Python and TypeScript.
+- Pinned large-repo graph snapshots cover files, imports, exports, references, external references, dependencies, and subclass edges where applicable.
+- Packaging proves the PyO3 extension on supported Python versions and target OSes.
+- Python backend remains available for at least one release after any default flip.
 
 ## Acceptance Targets
 
@@ -452,3 +480,4 @@ Recommended task format:
 - [x] 2026-06-19: Added compact TypeScript type-reference dependencies. owner: codex. Notes: Rust now emits dependency edges for type annotations and namespace-qualified type references, while preserving type-only import handles for Python-shell parity. The pinned Next.js compact proof now validates 62,309 references, 25,323 external references, and 21,639 dependencies at 7.029s and 317.7 MB max RSS. The selected semantic proof exact-compares `announcer_import_dependencies`; remaining `announcer_dependencies` delta is local-variable symbol modeling versus Rust same-file top-level dependency filtering. `check_fast.sh` passed with 40 focused Rust-backend tests and 7 skipped opt-in integrations.
 - [x] 2026-06-19: Closed selected Next.js TypeScript dependency parity delta. owner: codex. Notes: compact TypeScript indexing now records nested callback local assignments as non-top-level symbols, resolves local usages through indexed owner/name maps, and moves initializer-only top-level dependencies onto the local assignment symbols. The selected semantic proof now exact-compares `announcer_dependencies` with no known deltas: Python 62.853s/4430.1 MB vs Rust 10.405s/343.7 MB. Strict Next.js `Codebase` proof validates 44,855 symbols, 114,462 references, 49,287 dependencies, 25,318 external references, and 160 subclass edges at 9.045s/340.9 MB, a 2.759x wall and 9.093x RSS improvement over the recorded Python baseline. `check_fast.sh` passed with 40 focused Rust-backend tests and 7 skipped opt-in integrations.
 - [x] 2026-06-19: Hardened pinned semantic known-delta proof. owner: codex. Notes: `check_pinned_semantic_parity.py` now fails unless the Airflow module-import attribute delta is exactly Python `null` and Rust `DagModel` from `airflow/models/__init__.py`, so the remaining selected Python semantic difference is a checked Rust enhancement rather than an open-ended tolerated mismatch. Fresh proof measured Airflow Python 54.252s/5375.1 MB vs Rust 6.029s/264.7 MB; the TypeScript suite still has no known deltas. `check_fast.sh` passed with 40 focused Rust-backend tests and 7 skipped opt-in integrations.
+- [x] 2026-06-19: Added aggregate rollout readiness gate and backend-default criteria. owner: codex. Notes: `check_rollout_readiness.py` now validates the full pinned large-repo report set for structural snapshot integrity, Airflow/Next.js speed and RSS ratios, semantic parity, codemod success, blocked Python graph access, and cold broad caches. `check_pinned_large_repos.sh` runs the gate and writes `rollout-readiness.json`; the strategy now documents opt-in/fallback semantics and default-backend promotion requirements.

@@ -60,4 +60,9 @@ uv run python rust-rewrite/tools/check_pinned_semantic_parity.py \
   --skip-build-extension \
   --output "$OUTPUT_DIR/pinned-semantic-parity.json"
 
+echo "Checking aggregate rollout readiness"
+uv run python rust-rewrite/tools/check_rollout_readiness.py \
+  --report-dir "$OUTPUT_DIR" \
+  --output "$OUTPUT_DIR/rollout-readiness.json"
+
 echo "Pinned large-repo checks wrote reports to $OUTPUT_DIR"
