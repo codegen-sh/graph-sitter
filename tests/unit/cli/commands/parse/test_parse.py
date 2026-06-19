@@ -68,6 +68,20 @@ def test_rust_extension_ci_exercises_wheel_uvx_smoke():
     assert "--write" in smoke_script
 
 
+def test_uvx_large_typescript_wheel_gate_is_documented():
+    gate_script = Path("rust-rewrite/tools/check_wheel_pinned_typescript_repo.py").read_text()
+    roadmap = Path("rust-rewrite/uvx-command-roadmap.md").read_text()
+
+    assert "uvx" in gate_script
+    assert "graph-sitter" in gate_script
+    assert "next.js-v15.0.0-rust-compact-typescript.json" in gate_script
+    assert "--backend" in gate_script
+    assert "rust" in gate_script
+    assert "--fallback" in gate_script
+    assert "error" in gate_script
+    assert "check_wheel_pinned_typescript_repo.py" in roadmap
+
+
 def test_graph_sitter_version_uses_canonical_program_name():
     result = CliRunner().invoke(main, ["--version"])
 

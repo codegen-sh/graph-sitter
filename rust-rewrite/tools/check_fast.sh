@@ -67,6 +67,7 @@ uv run python -m py_compile \
   rust-rewrite/tools/check_pinned_codemods.py \
   rust-rewrite/tools/check_p0_parity_coverage.py \
   rust-rewrite/tools/check_pinned_python_codebase.py \
+  rust-rewrite/tools/check_wheel_pinned_typescript_repo.py \
   rust-rewrite/tools/check_rollout_readiness.py \
   rust-rewrite/tools/check_supported_subset.py \
   rust-rewrite/tools/check_pinned_semantic_parity.py \

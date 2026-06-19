@@ -302,6 +302,10 @@ Already proven on the `rust-rewrite` branch:
 - The installed wheel runs a TypeScript import-path transform in strict Rust
   mode with `--check` and `--write`, proving a tiny exported function rename
   from the packaged artifact.
+- `rust-rewrite/tools/check_wheel_pinned_typescript_repo.py` builds or accepts a
+  wheel, installs it through `uvx --from dist/<wheel>.whl`, parses pinned
+  Next.js `v15.0.0` in strict Rust TypeScript mode, and compares the summary
+  counts with the committed compact golden snapshot.
 - `.github/workflows/rust-rewrite-extension.yml` runs this wheel smoke on Linux
   and macOS for Python 3.12 and 3.13.
 
@@ -315,8 +319,6 @@ Not yet proven by the branch-built wheel smokes:
 - `uvx graph-sitter ...` with no `--from` after upload to the package index.
 - `uvx --from graph-sitter==<version> graph-sitter ...` against an uploaded
   release or pre-release artifact.
-- TypeScript strict Rust parse from an installed wheel on a large repo such as
-  Next.js.
 - TypeScript strict Rust transform from an installed wheel on a large repo.
 - Pinned large-repo latency/RSS from an installed wheel.
 - Full codemod diff parity between Python and Rust backends from an installed

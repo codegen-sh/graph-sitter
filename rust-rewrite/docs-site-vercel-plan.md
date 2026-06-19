@@ -15,6 +15,20 @@ This keeps the generated API reference, Mintlify MDX components, CLI docs, and
 codemod tutorials out of the marketing app. The landing page should send people
 to the docs instead of attempting to render the docs tree itself.
 
+## Recommended Stack
+
+Use the stack that already exists in this repo:
+
+- Mintlify in `docs/` for product documentation, tutorials, generated API
+  reference pages, and release-gated setup instructions.
+- Next.js in `site/` for a small Vercel-hosted landing page.
+- Vercel only for the landing project, with project root set to `site`.
+
+This split is the lowest-risk path because the repo already has Mintlify source
+content, generated docs workflow wiring, a separate Next.js landing app, and
+app-local ignore rules for Vercel/build artifacts. It also keeps docs releases
+from being coupled to landing-page deploys.
+
 ## Current Findings
 
 - [x] `docs/` is a Mintlify project configured by `docs/mint.json`.
@@ -27,13 +41,17 @@ to the docs instead of attempting to render the docs tree itself.
 - [x] `site/app/page.tsx` already states the product direction: Python as the
   authoring shell, Rust for the large graph/index backend, and
   `uvx graph-sitter ...` as the future command surface.
+- [x] `site/.gitignore` ignores `.next`, `node_modules`, `out`, `.vercel`,
+  TypeScript build info, and local env files.
 - [x] No repo-level `vercel.json`, `site/vercel.json`, `.vercel/`, or
   `.openai/hosting.json` is checked in.
 - [x] A working Vercel CLI was verified locally through Node 22:
   `PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH" npx vercel --version`
   returns `Vercel CLI 54.7.1`.
-- [ ] Vercel project ownership, team scope, and link state still need to be
-  verified with the authenticated CLI.
+- [x] Authenticated Vercel user was verified with `vercel whoami`:
+  `jayhack`.
+- [ ] Vercel project link state, project ownership, and team scope still need
+  to be verified before any preview deploy.
 - [ ] Mintlify project ownership and custom-domain state still need to be
   verified outside this repo.
 
@@ -63,7 +81,7 @@ The landing page should not include exhaustive setup steps, API reference
 tables, generated docs, or detailed Rust parity claims. Those belong in
 Mintlify and should only ship after the release gates below pass.
 
-## Content Architecture
+## Proposed Information Architecture
 
 Recommended URLs after launch:
 
@@ -74,30 +92,44 @@ https://docs.graph-sitter.com                  -> Mintlify project rooted at doc
 https://docs.graph-sitter.com/api-reference    -> Mintlify generated API pages
 ```
 
+Recommended landing-page shape in `site/`:
+
+- `/`: simple product page explaining that Graph-sitter builds codebase graphs
+  for repository queries and codemods.
+- Hero: name and literal offer, not benchmark claims.
+- Quick example: `Codebase("./")` Python shell usage.
+- Capabilities: parse, graph, transform.
+- Architecture: Python shell, compact Rust backend, explicit fallback status.
+- CLI preview: `uvx graph-sitter parse ...` and `uvx graph-sitter transform ...`
+  only with release-gated wording.
+- CTAs: docs and GitHub.
+
 Recommended Mintlify docs shape:
 
 - `introduction/overview`: short definition, supported languages, and status.
 - `introduction/installation`: current stable install path and Python versions.
-- `introduction/getting-started`: one minimal parse/query/edit walkthrough.
-- `cli/*`: legacy `gs` workspace commands plus the new `uvx graph-sitter`
-  parse/run/transform commands once released.
-- `building-with-graph-sitter/*`: durable API and concept guides.
+- `introduction/getting-started`: quickstart with one parse/query/edit
+  walkthrough.
+- `cli/uvx`: target `uvx graph-sitter ...` commands for parse, run, and
+  transform after published-package validation passes.
+- `cli/*`: existing `gs` workspace commands and compatibility notes.
+- `codemods/overview`: transformation model, check/write modes, and rollback
+  expectations.
+- `codemods/examples`: focused Python and TypeScript codemod examples that
+  match tested behavior.
+- `architecture/python-shell-rust-core`: how the Rust engine, Python handles,
+  strict mode, and fallback mode fit together.
+- `architecture/supported-subset`: current supported Rust-backed APIs and open
+  gaps sourced from `rust-rewrite/supported-subset.json`.
+- `benchmarks/large-repos`: pinned Airflow and Next.js benchmark methodology,
+  latency, and RSS numbers only after artifact-level reports are current.
+- `correctness/parity`: how golden graph snapshots, semantic parity checks,
+  and codemod proofs are validated.
+- `skill/graph-sitter`: Codex skill install/use page once the skill path is
+  finalized and tested.
+- `building-with-graph-sitter/*`: durable API and concept guides that remain
+  accurate for the Python shell.
 - `api-reference/*`: generated pages only, refreshed by the docs workflow.
-- A future `rust-backend` page: backend selection, fallback modes, supported
-  subset, large-repo benchmark claims, and current limitations.
-- A future `codex-skill` page: how to install/use the Graph-sitter Codex skill
-  after the skill distribution path is finalized.
-
-Recommended Vercel landing page sections:
-
-- Hero: "A codebase graph and codemod library."
-- Capability cards: parse repositories, build relationship graphs, run
-  checked codemods.
-- Use cases: dead-code cleanup, symbol moves, API impact analysis, import and
-  reference graph inspection, repo analytics.
-- Architecture direction: Python remains the shell, Rust owns scale-sensitive
-  indexes, `uvx graph-sitter` becomes the command entrypoint.
-- CTA: docs and GitHub.
 
 ## Vercel Project and Deploy Flow
 
@@ -144,6 +176,23 @@ npx vercel deploy --cwd site --prebuilt --yes
 Do not run `npx vercel deploy --cwd site --prod`, promote a deployment, or
 attach `graph-sitter.com` / `www.graph-sitter.com` until the integrator
 explicitly approves production cutover.
+
+## Vercel Files, Env, And Secret Hygiene
+
+- Keep `.vercel/` untracked. `site/.gitignore` already covers `site/.vercel`;
+  if a root-level Vercel command creates `./.vercel`, remove it or add a
+  root-level ignore before committing anything.
+- Do not commit `.env.local`, `.env.*.local`, Vercel tokens, team IDs from
+  shell history, or downloaded runtime env values.
+- Prefer `vercel link --cwd site` and `vercel pull --cwd site ...` so generated
+  project metadata stays under the ignored `site/.vercel/` directory.
+- If runtime env vars are needed later, manage them in the Vercel dashboard or
+  through `vercel env` and document only the variable names and purposes in the
+  repo.
+- The current landing page should need no runtime env vars.
+- A committed `site/vercel.json` is unnecessary today. Add one only if routing,
+  headers, redirects, or enforced framework/build settings cannot be expressed
+  through Vercel project settings.
 
 ## Local Verification Commands
 
@@ -206,6 +255,38 @@ docs owner explicitly approves a config migration.
 - [ ] Attach `graph-sitter.com` and `www.graph-sitter.com` to Vercel only after
   explicit production approval.
 
+## Concrete Next Tasks
+
+- [ ] Link the existing authenticated Vercel account to a dedicated landing
+  project with `vercel link --cwd site`; confirm root directory is `site`.
+- [ ] Run `npx vercel pull --cwd site --environment=preview --yes` and confirm
+  only ignored `site/.vercel/` metadata is created.
+- [ ] Run `npm ci && npm run build` inside `site/` and fix any landing build
+  errors before preview deployment.
+- [ ] Create a Vercel preview deployment with
+  `npx vercel deploy --cwd site --yes`; record the preview URL in the PR or
+  integration thread, not in permanent docs.
+- [ ] Review the landing page at desktop and mobile widths; keep copy
+  conservative around Rust performance, correctness, and `uvx` until release
+  gates pass.
+- [ ] Add or update Mintlify docs pages for quickstart, `uvx` CLI,
+  transformations/codemods, Rust architecture, benchmark methodology,
+  correctness/parity, and skill distribution.
+- [ ] Make docs examples use commands that are backed by current tests:
+  `graph-sitter parse`, `graph-sitter transform --check|--write`, strict
+  backend flags, and fallback behavior.
+- [ ] Generate or refresh API docs through the existing docs workflow instead
+  of hand-editing generated `api-reference` pages.
+- [ ] Validate docs with `npx --yes mintlify@latest validate` and
+  `npx --yes mintlify@latest broken-links`; triage legacy Mintlify config
+  warnings separately from content errors.
+- [ ] Decide whether to keep `docs/mint.json` or migrate to Mintlify's newer
+  `docs.json` format; do not migrate opportunistically during landing work.
+- [ ] Wire final `uvx graph-sitter ...` setup instructions to the published
+  wheel release once `uvx-command-roadmap.md` gates pass.
+- [ ] Publish the Codex skill only after the reviewed skill folder, CLI
+  commands, and setup docs all agree.
+
 ## Known Risks and Open Decisions
 
 - The docs still contain legacy `Codegen` wording, `gs`-first CLI examples, and
@@ -225,3 +306,6 @@ docs owner explicitly approves a config migration.
   to commit project metadata.
 - Mintlify custom-domain settings are not represented in this repo, so the docs
   domain cutover requires account-level verification.
+- The repository already has `site/.next` and `site/node_modules` locally, but
+  they are ignored by `site/.gitignore`; do not treat local build artifacts as
+  source.
