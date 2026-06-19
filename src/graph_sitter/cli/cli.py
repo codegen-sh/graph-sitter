@@ -21,7 +21,7 @@ install(show_locals=True)
 
 
 @click.group()
-@click.version_option(prog_name="codegen", message="%(version)s")
+@click.version_option(prog_name="graph-sitter")
 def main():
     """graph_sitter.cli - Transform your code with AI."""
 

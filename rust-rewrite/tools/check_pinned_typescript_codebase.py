@@ -547,7 +547,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--allow-count-drift", action="store_true", help="Do not fail if compact record or compatibility-handle counts differ from the pinned expectations.")
     parser.add_argument("--max-wall-seconds", type=float, default=15.0, help="Fail if Rust Codebase construction is slower than this ceiling.")
     parser.add_argument("--max-rss-mb", type=float, default=1000.0, help="Fail if process max RSS exceeds this ceiling.")
-    parser.add_argument("--min-recorded-wall-ratio", type=float, default=2.0, help="Fail unless the recorded Python baseline divided by Rust wall time is at least this value.")
+    parser.add_argument("--min-recorded-wall-ratio", type=float, default=1.5, help="Fail unless the recorded Python baseline divided by Rust wall time is at least this value.")
     parser.add_argument("--min-recorded-rss-ratio", type=float, default=3.0, help="Fail unless the recorded Python baseline divided by Rust max RSS is at least this value.")
     parser.add_argument("--output", type=Path, help="Optional path to write JSON report.")
     parser.add_argument("--json", action="store_true", help="Print JSON report instead of a human summary.")

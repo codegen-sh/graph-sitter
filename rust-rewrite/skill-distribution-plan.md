@@ -65,9 +65,10 @@ The skill body should include:
    - large-repo benchmark or parity proof
    - docs/setup troubleshooting
 2. Prefer the CLI for simple command-line workflows once available:
-   - `uvx graph-sitter parse <path> --language auto --backend rust --format json`
-   - `uvx graph-sitter transform <path> --codemod <label-or-file> --apply`
-   - `uvx graph-sitter inspect <path> --symbol <name> --dependencies`
+   - `uvx graph-sitter parse <path> --language auto --backend python --format json`
+   - `uvx graph-sitter parse <path> --language auto --backend rust --format json` only after the distributed wheel includes the Rust extension
+   - `uvx graph-sitter transform MODULE:OBJECT <path> --check`
+   - `uvx graph-sitter transform MODULE:OBJECT <path> --write`
 3. Prefer the Python API for custom analyses:
    - `from graph_sitter import Codebase`
    - `Codebase(path, config=CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR))`
@@ -90,13 +91,13 @@ Purpose: agent-facing command reference after Lovelace finalizes the CLI.
 Must cover:
 
 - existing `gs` command status
-- future `uvx graph-sitter ...` command surface
+- implemented `uvx graph-sitter ...` command surface
 - parse/index command examples
 - transformation command examples
 - JSON output contract and exit-code expectations
 - backend flags and fallback flags
 
-Important product direction: commemorate `uvx graph-sitter ...` as the future primary one-shot interface for parsing a codebase and running transformations. Existing `gs` docs remain relevant until the new entry point is shipped.
+Important product direction: commemorate `uvx graph-sitter ...` as the primary one-shot interface for parsing a codebase and running transformations. Existing `gs` docs remain relevant as the backwards-compatible alias and for initialized workspace workflows.
 
 ### `references/rust-backend.md`
 
@@ -118,8 +119,8 @@ Purpose: give agents a compact codemod workflow.
 
 Must cover:
 
-- `gs init`, `gs create`, and `gs run` while that is the implemented CLI
-- future `uvx graph-sitter transform ...` equivalent
+- `gs init`, `gs create`, and `gs run` for initialized workspace codemods
+- `uvx graph-sitter transform MODULE:OBJECT <path> --check|--write` for ad hoc import-path transforms
 - `Codebase.commit(sync_graph=False)` for compact Rust-backed mutation proofs
 - inspecting changed files with `git diff`
 - running focused tests after transformations
@@ -140,6 +141,6 @@ Before distributing the skill:
 The skill should ship only after:
 
 - docs/site plan confirms where public setup docs live
-- `uvx graph-sitter ...` command surface is either implemented or explicitly labeled future/preview
-- at least one parse workflow and one transform workflow are documented with commands that pass locally
+- `uvx graph-sitter ...` command surface is implemented for Python-backend parse and import-path transforms, with Rust-backend wheel support explicitly labeled blocked until packaged
+- at least one parse workflow and one transform workflow are documented with commands that pass locally through `uvx --from <checkout>` on Python 3.12 and 3.13 for the Python backend
 - `rust-rewrite/tools/check_fast.sh` passes on the release branch

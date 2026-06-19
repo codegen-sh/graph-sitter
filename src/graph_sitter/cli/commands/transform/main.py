@@ -132,7 +132,7 @@ def _build_call_arguments(callable_target: Any, arguments: dict[str, Any] | None
 @click.option("--fallback", type=click.Choice(["python", "error"]), default="python", show_default=True, help="Fallback behavior when the Rust backend is unavailable.")
 @click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")
 @click.option("--check", is_flag=True, help="Run in a temporary sandbox and exit non-zero if changes would be produced.")
-@click.option("--write", is_flag=True, help="Apply changes to the target repo. This remains the default for compatibility.")
+@click.option("--write", is_flag=True, help="Apply changes to the target repo.")
 def transform_command(
     specifier: str,
     path: Path,
@@ -147,6 +147,9 @@ def transform_command(
     """Run an import-path transform against a local codebase."""
     if check and write:
         msg = "--check and --write cannot be used together"
+        raise click.ClickException(msg)
+    if not check and not write:
+        msg = "Choose either --check to preview changes or --write to apply them."
         raise click.ClickException(msg)
 
     transform = ImportPathTransform(name=specifier, target=_load_object(specifier))

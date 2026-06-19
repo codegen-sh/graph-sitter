@@ -22,10 +22,13 @@ This plan does not change docs/site content.
   ```
 
 - `uv run gs --help` and `uv run graph-sitter --help` work.
+- `uvx --from <local checkout> graph-sitter --help` resolves to the packaged console script once the checkout is installable in uv's temporary environment.
+- Local `uvx --from <checkout> graph-sitter parse <repo> --backend python --format json` now works on Python 3.12 and 3.13 after constraining parser/runtime dependencies to the lock-compatible ranges.
 - `graph-sitter parse [PATH] --backend python --format json` works without `.codegen` initialization and emits stable summary JSON.
 - `graph-sitter run LABEL PATH --arguments '{"key":"value"}' --backend python` resolves decorated functions under the target repo's `.codegen/codemods`, validates typed Pydantic arguments, and runs without an active `gs init` session.
 - `graph-sitter run LABEL PATH --check` runs in a temporary copied-repo sandbox, reports the semantic diff, and leaves the target repo unchanged.
-- `graph-sitter transform MODULE:OBJECT PATH --check|--write` loads ad hoc file or module transforms, supports plain functions plus `Codemod.execute` classes/instances, and uses the same backend/language/check/write path as `run`.
+- `graph-sitter transform MODULE:OBJECT PATH --check|--write` loads ad hoc file or module transforms, supports plain functions plus `Codemod.execute` classes/instances, requires explicit `--check` or `--write`, and uses the same backend/language/check/write path as `run`.
+- The Hatch wheel package list now includes both `src/graph_sitter` and `src/codemods` so `codemods.codemod.Codemod` is importable in clean `uvx` environments.
 - `graph_sitter.cli.cli:main` is the public CLI. `graph_sitter.gscli` appears to be an internal generation CLI and should not be used for the `uvx graph-sitter` surface.
 - The current `run` path executes decorated functions found under `.codegen/codemods`:
   - `gs init` creates/persists a session for a git repo.
@@ -81,8 +84,9 @@ Behavior:
 ### Transform By Import Path
 
 ```bash
-uvx graph-sitter transform MODULE:OBJECT [PATH]
-uvx graph-sitter transform ./codemod.py:run [PATH]
+uvx graph-sitter transform MODULE:OBJECT [PATH] --check
+uvx graph-sitter transform MODULE:OBJECT [PATH] --write
+uvx graph-sitter transform ./codemod.py:run [PATH] --check
 uvx graph-sitter transform ./codemod.py:MyCodemod [PATH] --backend rust --write
 ```
 
@@ -91,6 +95,8 @@ Behavior:
 - `MODULE:OBJECT` allows ad hoc transformations without `gs init` or `.codegen/codemods`.
 - If `OBJECT` is a function, call it as `object(codebase)` or `object(codebase, arguments)` when typed arguments are configured.
 - If `OBJECT` is a `Codemod` subclass or instance, call `execute(codebase)`.
+- `--check` runs the transform in a temporary copied repository, prints the produced diff, leaves the target repository untouched, and exits non-zero if changes would be produced.
+- `--write` applies changes to the filesystem. Unlike the backwards-compatible `run` command, `transform` requires an explicit mode because it is a new import-path surface.
 - This now shares the same target-repo parser, typed `--arguments`, and temporary copied-repo `--check` sandbox as `run`.
 
 ### Compatibility Commands
@@ -116,9 +122,11 @@ gs = "graph_sitter.cli.cli:main"
 graph-sitter = "graph_sitter.cli.cli:main"
 ```
 
-Recommended adjacent cleanup:
+Implemented adjacent cleanup:
 
-- Change `@click.version_option(prog_name="codegen", ...)` in `src/graph_sitter/cli/cli.py` to use `graph-sitter` or omit `prog_name` so Click reports the invoked executable name.
+- `@click.version_option(...)` in `src/graph_sitter/cli/cli.py` now uses `prog_name="graph-sitter"` instead of the historical `codegen` name.
+- `hatch.toml` packages `src/codemods` alongside `src/graph_sitter`; without this, `uvx --from <checkout> graph-sitter --help` fails while importing the `transform` command.
+- `pyproject.toml` constrains `tree-sitter`, tree-sitter grammar packages, and `mini-racer` to the versions/ranges exercised by the lockfile so clean `uvx --from` installs do not pick incompatible parser or JavaScript-runtime wheels.
 - Keep `gs` for backwards compatibility for at least one release after `graph-sitter` is published.
 - Do not expose `graph_sitter.gscli.cli:main` as a public script unless it is renamed and documented as an internal developer command.
 
@@ -133,6 +141,7 @@ Current packaging audit:
 - The PyO3 crate currently builds a top-level `graph_sitter_py` module, and `src/graph_sitter/codebase/rust_backend.py` imports that module directly.
 - `rust-rewrite/tools/check_extension_build.sh` proves the extension can compile and import when manually copied onto `PYTHONPATH`, but it does not prove that a built wheel contains the extension.
 - Release CI builds wheels through cibuildwheel, but it does not yet install the produced wheel and run `uvx --from dist/<wheel>.whl graph-sitter ...`.
+- Until the Rust extension is part of the wheel, local `uvx --from <checkout> graph-sitter parse <repo> --backend python --format json` is the meaningful distribution smoke. `--backend rust` from `uvx` should be treated as blocked unless `graph_sitter_py` is present in the temporary uv environment.
 
 Required packaging decision:
 
@@ -164,7 +173,9 @@ Required packaging decision:
 6. [x] Fix `--arguments` propagation into decorated functions before advertising it as supported.
 7. [x] Add `--check` and `--write` modes for transformations. Preserve `gs run` compatibility separately if needed. Result: `--check` uses a temporary copied-repo sandbox so codemods that call `codebase.commit()` internally cannot touch the target repo; `--write` is explicit while default write behavior remains for compatibility.
 8. [x] Add import-path `transform MODULE:OBJECT` after the command and safety model are tested. Result: file/module import paths can run plain functions, `Codemod` subclasses, and `Codemod` instances with `--check`, `--write`, backend/language flags, and typed arguments.
-9. Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install.
+9. [x] Enforce explicit import-path transform mode. Result: `graph-sitter transform MODULE:OBJECT PATH` now fails until the user chooses `--check` or `--write`.
+10. [x] Make the Python-backend `uvx --from <checkout>` path executable. Result: include `codemods` in the wheel package list and constrain clean-install dependency resolution for tree-sitter and `mini-racer`.
+11. [ ] Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install.
 
 ## Test Strategy
 
@@ -173,6 +184,7 @@ Fast tests:
 - `uv run python -m py_compile src/graph_sitter/cli/cli.py` and any new command files.
 - Metadata unit test:
   - assert `gs` and `graph-sitter` both resolve to `graph_sitter.cli.cli:main` in `pyproject.toml`.
+  - assert clean-uvx dependency constraints and Hatch package inclusion for `codemods` stay declared.
 - Click runner tests for:
   - `graph-sitter parse <tmp-git-repo> --backend python --format json` (`tests/unit/cli/commands/parse/test_parse.py`)
   - `graph-sitter parse <tmp-git-repo> --language typescript --backend python --format json`
@@ -189,10 +201,12 @@ Transformation tests:
 - Run the same codemod with `--write` and assert modified file bytes.
 - Add a codemod with typed arguments and assert `--arguments` reaches the function.
 - Add an import-path function and a `Codemod.execute` class fixture (`tests/unit/cli/commands/transform/test_transform.py`).
+- Assert import-path `transform` rejects missing mode and rejects `--check --write` together.
 
 Distribution tests:
 
 - Build a wheel and install it in a clean uv environment.
+- Before wheel packaging is complete, run `uvx --from <local checkout> graph-sitter --help`, a Python-backend parse smoke, and import-path transform `--check`/`--write` smokes to prove the console-script surface resolves through uv's tool runner.
 - Run `uvx --from dist/<wheel>.whl graph-sitter --help`.
 - Run parse smoke tests against the installed wheel.
 - Run `rust-rewrite/tools/check_extension_build.sh` until wheel packaging owns an equivalent check.
@@ -206,10 +220,10 @@ Regression gates:
 
 ## Blockers And Risks
 
-- `graph-sitter` is now declared as a console script, but it is not available to users until the package is released or installed from this branch.
+- `graph-sitter` is now declared as a console script, but it is not available to users until the package is released or installed from this branch. Local proof now passes with `uvx --from <checkout> graph-sitter ...`; release proof should use `uvx --from dist/<wheel>.whl graph-sitter ...`.
 - The Rust extension is not currently bundled into the Python wheel/source install path, so `--backend rust` cannot be promised to `uvx` users yet.
 - `run LABEL PATH` works for local decorated functions, but daemon mode still requires an initialized active session.
-- Current local `run` still applies changes by default for compatibility. The safer explicit mode is `--check`, which runs in a temporary copied-repo sandbox and reports changes without touching the target repo.
+- Current local `run` still applies changes by default for compatibility. The newer import-path `transform` surface requires explicit `--check` or `--write`.
 - Import-path `transform` supports class-based `Codemod.execute(codebase)` entry points, but package-discoverable transform registries are not implemented.
 - User-facing CLI copy still says "codegen" in several places. This is not a packaging blocker, but it will make the `graph-sitter` UX feel inconsistent.
 - Python version support is narrow (`>=3.12, <3.14`), so `uvx` examples should specify a compatible Python when needed, for example `uvx --python 3.13 graph-sitter ...`.

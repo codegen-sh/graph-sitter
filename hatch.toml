@@ -85,7 +85,7 @@ exclude = [
 macos-max-compat = false
 
 [build]
-packages = ["src/graph_sitter"]
+packages = ["src/graph_sitter", "src/codemods"]
 
 [metadata.hooks.vcs.urls]
 Homepage = "https://www.codegen.com/"

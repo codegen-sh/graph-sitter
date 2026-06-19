@@ -142,11 +142,13 @@
       "scope": [
         "aggregate pinned report acceptance",
         "aggregate pinned report stale-count rejection",
+        "Next.js hosted-CI wall-ratio threshold acceptance",
         "semantic parity performance-ratio rejection",
         "Next.js compact call/promise proof rejection"
       ],
       "tests": [
         "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_accepts_complete_pinned_contract_reports",
+        "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_uses_nextjs_hosted_ci_wall_floor_by_default",
         "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_rejects_stale_codebase_counts",
         "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_rejects_slow_semantic_parity",
         "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_rejects_missing_nextjs_call_proof"

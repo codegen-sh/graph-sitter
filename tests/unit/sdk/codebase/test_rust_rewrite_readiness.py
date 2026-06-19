@@ -246,6 +246,32 @@ def test_rollout_readiness_accepts_complete_pinned_contract_reports(tmp_path: Pa
     assert report["semantic_parity"][0]["rss_ratio"] == 5.0
 
 
+def test_rollout_readiness_uses_nextjs_hosted_ci_wall_floor_by_default(tmp_path: Path) -> None:
+    reports = complete_reports()
+    reports["nextjs_codebase"] = copy.deepcopy(reports["nextjs_codebase"])
+    reports["nextjs_codebase"]["comparison"]["recorded_python_to_rust_wall_ratio"] = 1.7
+    write_reports(tmp_path, reports)
+
+    args = argparse.Namespace(
+        report_dir=tmp_path,
+        min_wall_ratio=None,
+        min_airflow_wall_ratio=None,
+        min_nextjs_wall_ratio=None,
+        min_semantic_wall_ratio=None,
+        min_rss_ratio=4.0,
+        output=None,
+        json=False,
+    )
+
+    report = readiness.make_report(args)
+
+    assert report["status"] == "passed"
+    assert report["thresholds"]["min_airflow_wall_ratio"] == 2.0
+    assert report["thresholds"]["min_nextjs_wall_ratio"] == 1.5
+    assert report["thresholds"]["min_semantic_wall_ratio"] == 2.0
+    assert report["codebase"]["nextjs"]["wall_ratio"] == 1.7
+
+
 def test_rollout_readiness_rejects_stale_codebase_counts(tmp_path: Path) -> None:
     reports = complete_reports()
     reports["airflow_codebase"] = copy.deepcopy(reports["airflow_codebase"])

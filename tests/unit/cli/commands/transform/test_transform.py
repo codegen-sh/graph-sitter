@@ -144,8 +144,34 @@ def noop(codebase):
             str(tmp_path),
             "--arguments",
             '{"unused": true}',
+            "--write",
         ],
     )
 
     assert result.exit_code != 0
-    assert "does not accept an arguments parameter" in result.output
+    assert "does not accept an arguments parameter" in strip_ansi(result.output)
+
+
+def test_transform_requires_check_or_write(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def target():\n    return 1\n")
+    transform_file = tmp_path / "noop_transform.py"
+    transform_file.write_text(
+        """
+def noop(codebase):
+    return None
+""".lstrip()
+    )
+    _commit_all(tmp_path)
+
+    result = CliRunner().invoke(main, ["transform", f"{transform_file}:noop", str(tmp_path)])
+
+    assert result.exit_code != 0
+    assert "Choose either --check to preview changes or --write to apply them." in strip_ansi(result.output)
+
+
+def test_transform_rejects_check_and_write_together(tmp_path):
+    result = CliRunner().invoke(main, ["transform", "anything:anything", str(tmp_path), "--check", "--write"])
+
+    assert result.exit_code != 0
+    assert "--check and --write cannot be used together" in strip_ansi(result.output)

@@ -23,6 +23,31 @@ def test_graph_sitter_console_script_alias_is_declared():
     assert scripts["graph-sitter"] == "graph_sitter.cli.cli:main"
 
 
+def test_uvx_dependency_constraints_are_declared():
+    pyproject = tomllib.loads(Path("pyproject.toml").read_text())
+    dependencies = set(pyproject["project"]["dependencies"])
+
+    assert "mini-racer==0.12.4" in dependencies
+    assert "tree-sitter>=0.23.1,<0.25" in dependencies
+    assert "tree-sitter-python>=0.23.4,<0.24" in dependencies
+    assert "tree-sitter-typescript>=0.23.2,<0.24" in dependencies
+    assert "tree-sitter-javascript>=0.23.1,<0.24" in dependencies
+
+
+def test_uvx_wheel_includes_import_path_codemod_base_package():
+    hatch = tomllib.loads(Path("hatch.toml").read_text())
+
+    assert hatch["build"]["packages"] == ["src/graph_sitter", "src/codemods"]
+
+
+def test_graph_sitter_version_uses_canonical_program_name():
+    result = CliRunner().invoke(main, ["--version"])
+
+    assert result.exit_code == 0
+    assert result.output.startswith("graph-sitter, version ")
+    assert "codegen" not in result.output
+
+
 def test_parse_command_summarizes_python_repo_as_json(tmp_path):
     _init_repo(tmp_path)
     (tmp_path / "app.py").write_text("import os\n\nclass Service:\n    pass\n\ndef run():\n    return os.getcwd()\n")

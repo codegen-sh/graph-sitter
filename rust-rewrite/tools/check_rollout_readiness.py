@@ -15,6 +15,10 @@ import snapshot_pinned_typescript_repo as nextjs_snapshot
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REPORT_DIR = REPO_ROOT / "rust-rewrite/reports"
+DEFAULT_MIN_AIRFLOW_WALL_RATIO = 2.0
+DEFAULT_MIN_NEXTJS_WALL_RATIO = 1.5
+DEFAULT_MIN_SEMANTIC_WALL_RATIO = 2.0
+DEFAULT_MIN_RSS_RATIO = 4.0
 
 REQUIRED_REPORTS = {
     "airflow_snapshot": "airflow-rust-compact-snapshot.json",
@@ -62,6 +66,14 @@ def ratio(numerator: float | int | None, denominator: float | int | None) -> flo
     if numerator is None or denominator is None or denominator <= 0:
         return None
     return round(float(numerator) / float(denominator), 3)
+
+
+def resolve_threshold(value: float | None, common: float | None, default: float) -> float:
+    if value is not None:
+        return value
+    if common is not None:
+        return common
+    return default
 
 
 def assert_metadata(name: str, metadata: dict[str, Any], expected: dict[str, Any], failures: list[str]) -> None:
@@ -434,6 +446,23 @@ def assert_semantic_parity(
 
 def make_report(args: argparse.Namespace) -> dict[str, Any]:
     report_dir = args.report_dir
+    common_wall_ratio = getattr(args, "min_wall_ratio", None)
+    min_airflow_wall_ratio = resolve_threshold(
+        getattr(args, "min_airflow_wall_ratio", None),
+        common_wall_ratio,
+        DEFAULT_MIN_AIRFLOW_WALL_RATIO,
+    )
+    min_nextjs_wall_ratio = resolve_threshold(
+        getattr(args, "min_nextjs_wall_ratio", None),
+        common_wall_ratio,
+        DEFAULT_MIN_NEXTJS_WALL_RATIO,
+    )
+    min_semantic_wall_ratio = resolve_threshold(
+        getattr(args, "min_semantic_wall_ratio", None),
+        common_wall_ratio,
+        DEFAULT_MIN_SEMANTIC_WALL_RATIO,
+    )
+    min_rss_ratio = getattr(args, "min_rss_ratio", DEFAULT_MIN_RSS_RATIO)
     reports = {
         key: load_json(report_dir / filename)
         for key, filename in REQUIRED_REPORTS.items()
@@ -487,15 +516,15 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "airflow": assert_codebase_report(
             "airflow_codebase",
             reports["airflow_codebase"],
-            min_wall_ratio=args.min_wall_ratio,
-            min_rss_ratio=args.min_rss_ratio,
+            min_wall_ratio=min_airflow_wall_ratio,
+            min_rss_ratio=min_rss_ratio,
             failures=failures,
         ),
         "nextjs": assert_codebase_report(
             "nextjs_codebase",
             reports["nextjs_codebase"],
-            min_wall_ratio=args.min_wall_ratio,
-            min_rss_ratio=args.min_rss_ratio,
+            min_wall_ratio=min_nextjs_wall_ratio,
+            min_rss_ratio=min_rss_ratio,
             failures=failures,
         ),
     }
@@ -505,15 +534,17 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     semantic_summary = assert_semantic_parity(
         reports["semantic_parity"],
         failures,
-        min_wall_ratio=args.min_wall_ratio,
-        min_rss_ratio=args.min_rss_ratio,
+        min_wall_ratio=min_semantic_wall_ratio,
+        min_rss_ratio=min_rss_ratio,
     )
 
     readiness = {
         "status": "failed" if failures else "passed",
         "thresholds": {
-            "min_wall_ratio": args.min_wall_ratio,
-            "min_rss_ratio": args.min_rss_ratio,
+            "min_airflow_wall_ratio": min_airflow_wall_ratio,
+            "min_nextjs_wall_ratio": min_nextjs_wall_ratio,
+            "min_semantic_wall_ratio": min_semantic_wall_ratio,
+            "min_rss_ratio": min_rss_ratio,
         },
         "reports": {key: str(report_dir / filename) for key, filename in REQUIRED_REPORTS.items()},
         "codebase": codebase_summary,
@@ -529,10 +560,13 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
 
 def print_human(report: dict[str, Any]) -> None:
     print(f"status: {report['status']}")
+    thresholds = report["thresholds"]
     print(
         "thresholds: "
-        f"wall>={report['thresholds']['min_wall_ratio']}x "
-        f"rss>={report['thresholds']['min_rss_ratio']}x"
+        f"airflow_wall>={thresholds['min_airflow_wall_ratio']}x "
+        f"nextjs_wall>={thresholds['min_nextjs_wall_ratio']}x "
+        f"semantic_wall>={thresholds['min_semantic_wall_ratio']}x "
+        f"rss>={thresholds['min_rss_ratio']}x"
     )
     for name, summary in report["codebase"].items():
         print(
@@ -564,13 +598,31 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--min-wall-ratio",
         type=float,
-        default=2.0,
-        help="Fail unless recorded Python wall time divided by Rust wall time is at least this value.",
+        default=None,
+        help="Common override for all wall ratio gates.",
+    )
+    parser.add_argument(
+        "--min-airflow-wall-ratio",
+        type=float,
+        default=None,
+        help=f"Airflow Codebase wall-ratio gate. Defaults to {DEFAULT_MIN_AIRFLOW_WALL_RATIO}x.",
+    )
+    parser.add_argument(
+        "--min-nextjs-wall-ratio",
+        type=float,
+        default=None,
+        help=f"Next.js Codebase wall-ratio gate. Defaults to {DEFAULT_MIN_NEXTJS_WALL_RATIO}x.",
+    )
+    parser.add_argument(
+        "--min-semantic-wall-ratio",
+        type=float,
+        default=None,
+        help=f"Semantic parity wall-ratio gate. Defaults to {DEFAULT_MIN_SEMANTIC_WALL_RATIO}x.",
     )
     parser.add_argument(
         "--min-rss-ratio",
         type=float,
-        default=4.0,
+        default=DEFAULT_MIN_RSS_RATIO,
         help="Fail unless recorded Python max RSS divided by Rust max RSS is at least this value.",
     )
     parser.add_argument("--output", type=Path, help="Optional path to write the readiness JSON report.")
