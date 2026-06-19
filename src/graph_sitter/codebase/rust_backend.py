@@ -1598,9 +1598,19 @@ class RustCompactImport(RustCompactHandle):
         return [self]
 
     def remove(self, priority: int = 0) -> None:
+        start_byte = self.start_byte
+        end_byte = self.end_byte
+        content = self.file.content
+        lines = content.splitlines(keepends=True)
+        line_offsets = _line_byte_offsets(content)
+        row = self.record.range.start_row
+        if row < len(lines) and row < len(line_offsets):
+            start_byte = line_offsets[row]
+            end_byte = line_offsets[row] + len(lines[row].encode("utf-8"))
+
         transaction = RemoveTransaction(
-            self.start_byte,
-            self.end_byte,
+            start_byte,
+            end_byte,
             self.file,
             priority=priority,
         )

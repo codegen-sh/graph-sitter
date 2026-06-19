@@ -365,6 +365,193 @@ class FakeDecoratedSummary(FakeSummary):
         return data
 
 
+class FakeMoveUpdateIndex(FakeIndex):
+    def summary(self):
+        return FakeMoveUpdateSummary()
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "pkg/service.py",
+                    "module_name": "pkg.service",
+                    "byte_len": 24,
+                    "line_count": 2,
+                    "has_error": False,
+                    "root_range": {
+                        "start_byte": 0,
+                        "end_byte": 24,
+                        "start_row": 0,
+                        "start_column": 0,
+                        "end_row": 2,
+                        "end_column": 0,
+                    },
+                },
+                {
+                    "id": 1,
+                    "path": "pkg/consumer.py",
+                    "module_name": "pkg.consumer",
+                    "byte_len": 65,
+                    "line_count": 4,
+                    "has_error": False,
+                    "root_range": {
+                        "start_byte": 0,
+                        "end_byte": 65,
+                        "start_row": 0,
+                        "start_column": 0,
+                        "end_row": 4,
+                        "end_column": 0,
+                    },
+                },
+            ]
+        )
+
+    def symbols_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "Service",
+                    "kind": "class",
+                    "range": {
+                        "start_byte": 0,
+                        "end_byte": 24,
+                        "start_row": 0,
+                        "start_column": 0,
+                        "end_row": 2,
+                        "end_column": 0,
+                    },
+                    "name_range": {
+                        "start_byte": 6,
+                        "end_byte": 13,
+                        "start_row": 0,
+                        "start_column": 6,
+                        "end_row": 0,
+                        "end_column": 13,
+                    },
+                },
+                {
+                    "id": 1,
+                    "file_id": 1,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "use",
+                    "kind": "function",
+                    "range": {
+                        "start_byte": 33,
+                        "end_byte": 65,
+                        "start_row": 2,
+                        "start_column": 0,
+                        "end_row": 4,
+                        "end_column": 0,
+                    },
+                    "name_range": {
+                        "start_byte": 37,
+                        "end_byte": 40,
+                        "start_row": 2,
+                        "start_column": 4,
+                        "end_row": 2,
+                        "end_column": 7,
+                    },
+                },
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 1,
+                    "kind": "from",
+                    "module": "pkg.service",
+                    "name": "Service",
+                    "alias": None,
+                    "range": {
+                        "start_byte": 0,
+                        "end_byte": 31,
+                        "start_row": 0,
+                        "start_column": 0,
+                        "end_row": 0,
+                        "end_column": 31,
+                    },
+                }
+            ]
+        )
+
+    def import_resolutions_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "import_id": 0,
+                    "source_file_id": 1,
+                    "target_file_id": 0,
+                    "target_symbol_id": 0,
+                }
+            ]
+        )
+
+    def references_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 1,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "import_id": 0,
+                    "name": "Service",
+                    "range": {
+                        "start_byte": 55,
+                        "end_byte": 62,
+                        "start_row": 3,
+                        "start_column": 11,
+                        "end_row": 3,
+                        "end_column": 18,
+                    },
+                }
+            ]
+        )
+
+    def dependencies_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_symbol_id": 1,
+                    "target_symbol_id": 0,
+                    "source_file_id": 1,
+                    "target_file_id": 0,
+                    "reference_ids": [0],
+                    "reference_count": 1,
+                }
+            ]
+        )
+
+
+class FakeMoveUpdateSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 2,
+                "symbols": 2,
+                "classes": 1,
+                "functions": 1,
+                "imports": 1,
+                "import_resolutions": 1,
+                "bytes": 89,
+                "lines": 6,
+            }
+        )
+        return data
+
+
 def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeIndex) -> tuple[list[str], list[list[str]]]:
     indexed_paths: list[str] = []
     selected_paths: list[list[str]] = []
@@ -676,7 +863,7 @@ def test_rust_compact_symbol_and_import_remove_commit_without_python_graph(monke
         codebase.get_function("helper").remove()
         codebase.commit(sync_graph=False)
 
-        expected = "\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\n"
+        expected = "import pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\n"
         assert (tmp_path / "pkg/service.py").read_text() == expected
         assert service_file.content == expected
 
@@ -800,6 +987,36 @@ def test_rust_compact_move_class_adds_back_edge_commit_without_python_graph(monk
         expected_target = "class Service:\n    def run(self):\n        return os.getcwd()\n"
         assert (tmp_path / "pkg/service.py").read_text() == expected_source
         assert (tmp_path / "pkg/models.py").read_text() == expected_target
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_move_updates_imported_usages_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, index_cls=FakeMoveUpdateIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "class Service:\n    pass\n",
+            "pkg/consumer.py": "from pkg.service import Service\n\ndef use():\n    return Service()\n",
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service = codebase.get_class("Service")
+        models_file = codebase.create_file("pkg/models.py", "", sync=False)
+
+        service.move_to_file(models_file, include_dependencies=False, strategy="update_all_imports")
+        codebase.commit(sync_graph=False)
+
+        expected_consumer = "from pkg.models import Service\n\ndef use():\n    return Service()\n"
+        assert (tmp_path / "pkg/service.py").read_text() == ""
+        assert (tmp_path / "pkg/models.py").read_text() == "class Service:\n    pass\n"
+        assert (tmp_path / "pkg/consumer.py").read_text() == expected_consumer
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
