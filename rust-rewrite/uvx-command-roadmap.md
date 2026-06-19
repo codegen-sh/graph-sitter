@@ -299,6 +299,9 @@ Already proven on the `rust-rewrite` branch:
   target repo unchanged.
 - The installed wheel runs the same transform in strict Rust mode with
   `--write`, reports applied changes, and mutates the target repo.
+- The installed wheel runs a TypeScript import-path transform in strict Rust
+  mode with `--check` and `--write`, proving a tiny exported function rename
+  from the packaged artifact.
 - `.github/workflows/rust-rewrite-extension.yml` runs this wheel smoke on Linux
   and macOS for Python 3.12 and 3.13.
 
@@ -314,7 +317,7 @@ Not yet proven by the branch-built wheel smokes:
   release or pre-release artifact.
 - TypeScript strict Rust parse from an installed wheel on a large repo such as
   Next.js.
-- TypeScript strict Rust transform from an installed wheel.
+- TypeScript strict Rust transform from an installed wheel on a large repo.
 - Pinned large-repo latency/RSS from an installed wheel.
 - Full codemod diff parity between Python and Rust backends from an installed
   wheel.
@@ -463,8 +466,9 @@ Skill rules:
   according to `--fallback`. owner: parity/test agent.
 - [ ] Add a no-op transform test for `--check` returning exit zero and
   "No changes would be produced". owner: CLI test agent.
-- [ ] Add TypeScript installed-wheel transform smoke. owner: packaging/CI
-  agent.
+- [x] Add TypeScript installed-wheel transform smoke. owner: codex. Result:
+  `check_wheel_rust_backend.sh` now proves a tiny TypeScript function rename
+  through `transform --check` and `transform --write` from the installed wheel.
 - [ ] Decide whether `run` should eventually require explicit `--check` or
   `--write` in a major release. owner: CLI/contracts agent.
 

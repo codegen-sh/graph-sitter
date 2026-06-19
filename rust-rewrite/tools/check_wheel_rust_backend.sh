@@ -99,7 +99,7 @@ def rename(codebase):
 PY
 
 set +e
-CHECK_OUTPUT="$(run_graph_sitter transform "$TRANSFORM:rename" "$REPO" --language python --backend rust --fallback error --check 2>&1)"
+CHECK_OUTPUT="$(run_graph_sitter transform "${TRANSFORM}:rename" "$REPO" --language python --backend rust --fallback error --check 2>&1)"
 CHECK_STATUS=$?
 set -e
 if [[ "$CHECK_STATUS" -ne 1 ]]; then
@@ -117,7 +117,7 @@ if ! grep -q "def run():" "$REPO/pkg/service.py"; then
   exit 1
 fi
 
-WRITE_OUTPUT="$(run_graph_sitter transform "$TRANSFORM:rename" "$REPO" --language python --backend rust --fallback error --write)"
+WRITE_OUTPUT="$(run_graph_sitter transform "${TRANSFORM}:rename" "$REPO" --language python --backend rust --fallback error --write)"
 if [[ "$WRITE_OUTPUT" != *"Changes have been applied"* ]]; then
   echo "Expected transform --write output to mention applied changes" >&2
   echo "$WRITE_OUTPUT" >&2
@@ -167,6 +167,44 @@ assert payload["references"] == 1, payload
 assert payload["dependencies"] == 1, payload
 assert payload["files_with_errors"] == 0, payload
 PY
+
+TS_TRANSFORM="$SCRATCH/rename_ts_transform.py"
+cat > "$TS_TRANSFORM" <<'PY'
+def rename(codebase):
+    function = codebase.get_function("run")
+    function.rename("renamedRun")
+    codebase.commit()
+PY
+
+set +e
+TS_CHECK_OUTPUT="$(run_graph_sitter transform "${TS_TRANSFORM}:rename" "$TS_REPO" --language typescript --backend rust --fallback error --check 2>&1)"
+TS_CHECK_STATUS=$?
+set -e
+if [[ "$TS_CHECK_STATUS" -ne 1 ]]; then
+  echo "Expected TypeScript transform --check to exit 1 when changes would be produced; got $TS_CHECK_STATUS" >&2
+  echo "$TS_CHECK_OUTPUT" >&2
+  exit 1
+fi
+if [[ "$TS_CHECK_OUTPUT" != *"Codemod would produce changes"* ]]; then
+  echo "Expected TypeScript transform --check output to mention produced changes" >&2
+  echo "$TS_CHECK_OUTPUT" >&2
+  exit 1
+fi
+if ! grep -q "export function run()" "$TS_REPO/src/app.ts"; then
+  echo "TypeScript transform --check mutated the target repository" >&2
+  exit 1
+fi
+
+TS_WRITE_OUTPUT="$(run_graph_sitter transform "${TS_TRANSFORM}:rename" "$TS_REPO" --language typescript --backend rust --fallback error --write)"
+if [[ "$TS_WRITE_OUTPUT" != *"Changes have been applied"* ]]; then
+  echo "Expected TypeScript transform --write output to mention applied changes" >&2
+  echo "$TS_WRITE_OUTPUT" >&2
+  exit 1
+fi
+if ! grep -q "export function renamedRun()" "$TS_REPO/src/app.ts"; then
+  echo "TypeScript transform --write did not update the target repository" >&2
+  exit 1
+fi
 
 print_message="wheel Rust backend Python/TypeScript parse and transform smoke passed"
 echo "$print_message"

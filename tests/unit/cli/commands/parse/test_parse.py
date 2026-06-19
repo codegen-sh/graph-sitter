@@ -63,6 +63,7 @@ def test_rust_extension_ci_exercises_wheel_uvx_smoke():
     assert "run_graph_sitter parse" in smoke_script
     assert "--language typescript" in smoke_script
     assert "run_graph_sitter transform" in smoke_script
+    assert "renamedRun" in smoke_script
     assert "--check" in smoke_script
     assert "--write" in smoke_script
 
