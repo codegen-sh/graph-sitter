@@ -12,6 +12,10 @@ cargo test --workspace --all-targets
 PYTHON_BIN="$(uv run python -c 'import sys; print(sys.executable)')"
 PYO3_PYTHON="$PYTHON_BIN" cargo check -p graph-sitter-py --features pyo3-bindings
 PYO3_PYTHON="$PYTHON_BIN" cargo test -p graph-sitter-py --features pyo3-bindings
+if [[ "$(uname)" == "Darwin" ]]; then
+  export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-undefined -C link-arg=dynamic_lookup"
+fi
+PYO3_PYTHON="$PYTHON_BIN" cargo build -p graph-sitter-py --features extension-module
 
 uv run python -m py_compile \
   src/graph_sitter/codebase/rust_backend.py \

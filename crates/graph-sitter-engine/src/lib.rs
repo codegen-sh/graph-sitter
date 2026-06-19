@@ -8,7 +8,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 use tree_sitter::{Node, Parser, Range, Tree};
 
-const ENABLED_FEATURES: &[&str] = &["skeleton", "python-index"];
+const ENABLED_FEATURES: &[&str] = &["skeleton", "python-index", "typescript-index"];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EngineInfo {
@@ -64,6 +64,25 @@ impl Engine {
     {
         PythonIndexer::new()?.index_paths(repo_path, file_paths)
     }
+
+    pub fn index_typescript_path(
+        &self,
+        repo_path: impl AsRef<Path>,
+    ) -> Result<TypeScriptIndex, IndexError> {
+        TypeScriptIndexer::new()?.index_path(repo_path)
+    }
+
+    pub fn index_typescript_paths<I, P>(
+        &self,
+        repo_path: impl AsRef<Path>,
+        file_paths: I,
+    ) -> Result<TypeScriptIndex, IndexError>
+    where
+        I: IntoIterator<Item = P>,
+        P: AsRef<Path>,
+    {
+        TypeScriptIndexer::new()?.index_paths(repo_path, file_paths)
+    }
 }
 
 pub fn engine_version() -> &'static str {
@@ -90,6 +109,21 @@ where
     P: AsRef<Path>,
 {
     Engine::new().index_python_paths(repo_path, file_paths)
+}
+
+pub fn index_typescript_path(repo_path: impl AsRef<Path>) -> Result<TypeScriptIndex, IndexError> {
+    Engine::new().index_typescript_path(repo_path)
+}
+
+pub fn index_typescript_paths<I, P>(
+    repo_path: impl AsRef<Path>,
+    file_paths: I,
+) -> Result<TypeScriptIndex, IndexError>
+where
+    I: IntoIterator<Item = P>,
+    P: AsRef<Path>,
+{
+    Engine::new().index_typescript_paths(repo_path, file_paths)
 }
 
 #[derive(Debug)]
@@ -173,6 +207,45 @@ impl PythonIndex {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct TypeScriptIndex {
+    pub files: Vec<FileRecord>,
+    pub symbols: Vec<SymbolRecord>,
+    pub imports: Vec<ImportRecord>,
+    pub exports: Vec<ExportRecord>,
+}
+
+impl TypeScriptIndex {
+    pub fn summary(&self) -> IndexSummary {
+        IndexSummary {
+            files: self.files.len(),
+            symbols: self.symbols.len(),
+            classes: self
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.kind == SymbolKind::Class)
+                .count(),
+            functions: self
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.kind == SymbolKind::Function)
+                .count(),
+            global_variables: self
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.kind == SymbolKind::GlobalVariable)
+                .count(),
+            imports: self.imports.len(),
+            import_resolutions: 0,
+            references: 0,
+            dependencies: 0,
+            bytes: self.files.iter().map(|file| file.byte_len).sum(),
+            lines: self.files.iter().map(|file| file.line_count).sum(),
+            files_with_errors: self.files.iter().filter(|file| file.has_error).count(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct IndexSummary {
     pub files: usize,
     pub symbols: usize,
@@ -205,6 +278,10 @@ pub enum SymbolKind {
     Class,
     Function,
     GlobalVariable,
+    Interface,
+    TypeAlias,
+    Enum,
+    Namespace,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -225,6 +302,11 @@ pub enum ImportKind {
     Import,
     FromImport,
     FutureImport,
+    SideEffect,
+    DefaultImport,
+    NamedImport,
+    NamespaceImport,
+    DynamicImport,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -235,6 +317,29 @@ pub struct ImportRecord {
     pub module: Option<String>,
     pub name: Option<String>,
     pub alias: Option<String>,
+    pub range: SourceRange,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ExportKind {
+    Named,
+    Default,
+    Wildcard,
+    Namespace,
+    ExportEquals,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ExportRecord {
+    pub id: u32,
+    pub file_id: u32,
+    pub kind: ExportKind,
+    pub name: Option<String>,
+    pub local_name: Option<String>,
+    pub source_module: Option<String>,
+    pub symbol_id: Option<u32>,
+    pub import_id: Option<u32>,
     pub range: SourceRange,
 }
 
@@ -409,6 +514,745 @@ impl PythonIndexer {
         build_python_dependencies(&mut index);
         Ok(index)
     }
+}
+
+struct TypeScriptIndexer {
+    parser: Parser,
+}
+
+impl TypeScriptIndexer {
+    fn new() -> Result<Self, IndexError> {
+        let mut parser = Parser::new();
+        parser.set_language(&tree_sitter_typescript::LANGUAGE_TSX.into())?;
+        Ok(Self { parser })
+    }
+
+    fn index_path(mut self, repo_path: impl AsRef<Path>) -> Result<TypeScriptIndex, IndexError> {
+        let repo_path = repo_path.as_ref();
+        let mut paths = Vec::new();
+        collect_typescript_files(repo_path, &mut paths)?;
+        self.index_absolute_paths(repo_path, paths)
+    }
+
+    fn index_paths<I, P>(
+        mut self,
+        repo_path: impl AsRef<Path>,
+        file_paths: I,
+    ) -> Result<TypeScriptIndex, IndexError>
+    where
+        I: IntoIterator<Item = P>,
+        P: AsRef<Path>,
+    {
+        let repo_path = repo_path.as_ref();
+        let paths = file_paths
+            .into_iter()
+            .filter_map(|path| {
+                let path = path.as_ref();
+                let absolute_path = if path.is_absolute() {
+                    path.to_path_buf()
+                } else {
+                    repo_path.join(path)
+                };
+                is_typescript_like_file(&absolute_path).then_some(absolute_path)
+            })
+            .collect();
+        self.index_absolute_paths(repo_path, paths)
+    }
+
+    fn index_absolute_paths(
+        &mut self,
+        repo_path: &Path,
+        mut paths: Vec<PathBuf>,
+    ) -> Result<TypeScriptIndex, IndexError> {
+        let mut index = TypeScriptIndex {
+            files: Vec::new(),
+            symbols: Vec::new(),
+            imports: Vec::new(),
+            exports: Vec::new(),
+        };
+        paths.sort();
+
+        for path in paths {
+            let file_id = index.files.len() as u32;
+            let content = fs::read_to_string(&path).map_err(|source| IndexError::Io {
+                path: path.clone(),
+                source,
+            })?;
+            let tree = self
+                .parser
+                .parse(&content, None)
+                .ok_or_else(|| IndexError::ParseFailed { path: path.clone() })?;
+            let root = tree.root_node();
+            let relative_path = path
+                .strip_prefix(repo_path)
+                .unwrap_or(path.as_path())
+                .to_string_lossy()
+                .replace('\\', "/");
+
+            index.files.push(FileRecord {
+                id: file_id,
+                module_name: None,
+                path: relative_path,
+                byte_len: content.len(),
+                line_count: line_count(&content),
+                has_error: root.has_error(),
+                root_range: root.range().into(),
+            });
+            extract_typescript_file(file_id, &content, &tree, &mut index);
+        }
+
+        Ok(index)
+    }
+}
+
+fn collect_typescript_files(dir: &Path, out: &mut Vec<PathBuf>) -> Result<(), IndexError> {
+    let entries = fs::read_dir(dir).map_err(|source| IndexError::Io {
+        path: dir.to_path_buf(),
+        source,
+    })?;
+    for entry in entries {
+        let entry = entry.map_err(|source| IndexError::Io {
+            path: dir.to_path_buf(),
+            source,
+        })?;
+        let path = entry.path();
+        let file_type = entry.file_type().map_err(|source| IndexError::Io {
+            path: path.clone(),
+            source,
+        })?;
+        if file_type.is_dir() {
+            if should_skip_dir(&path) {
+                continue;
+            }
+            collect_typescript_files(&path, out)?;
+        } else if file_type.is_file() && is_typescript_like_file(&path) {
+            out.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn is_typescript_like_file(path: &Path) -> bool {
+    matches!(
+        path.extension().and_then(|ext| ext.to_str()),
+        Some("js" | "jsx" | "ts" | "tsx")
+    )
+}
+
+fn extract_typescript_file(file_id: u32, source: &str, tree: &Tree, index: &mut TypeScriptIndex) {
+    let root = tree.root_node();
+    let mut cursor = root.walk();
+    for child in root.named_children(&mut cursor) {
+        extract_typescript_top_level_node(file_id, source, child, index);
+    }
+}
+
+fn extract_typescript_top_level_node(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    match node.kind() {
+        "function_declaration"
+        | "generator_function_declaration"
+        | "class_declaration"
+        | "abstract_class_declaration"
+        | "interface_declaration"
+        | "type_alias_declaration"
+        | "enum_declaration"
+        | "internal_module" => {
+            push_typescript_symbol(file_id, source, node, index);
+        }
+        "lexical_declaration" | "variable_declaration" => {
+            push_typescript_variable_symbols(file_id, source, node, index);
+            push_typescript_dynamic_imports(file_id, source, node, index);
+        }
+        "expression_statement" => {
+            if let Some(module) = first_child_of_kind(node, &["internal_module"]) {
+                push_typescript_symbol(file_id, source, module, index);
+            }
+        }
+        "import_statement" => push_typescript_import_statement(file_id, source, node, index),
+        "export_statement" => push_typescript_export_statement(file_id, source, node, index),
+        _ => {}
+    }
+}
+
+fn push_typescript_symbol(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut TypeScriptIndex,
+) -> Option<u32> {
+    let kind = match node.kind() {
+        "function_declaration" | "generator_function_declaration" => SymbolKind::Function,
+        "class_declaration" | "abstract_class_declaration" => SymbolKind::Class,
+        "interface_declaration" => SymbolKind::Interface,
+        "type_alias_declaration" => SymbolKind::TypeAlias,
+        "enum_declaration" => SymbolKind::Enum,
+        "internal_module" => SymbolKind::Namespace,
+        _ => return None,
+    };
+    push_typescript_named_symbol(file_id, source, node, node, kind, index)
+}
+
+fn push_typescript_named_symbol(
+    file_id: u32,
+    source: &str,
+    declaration: Node<'_>,
+    name_owner: Node<'_>,
+    kind: SymbolKind,
+    index: &mut TypeScriptIndex,
+) -> Option<u32> {
+    let Some(name_node) = name_owner.child_by_field_name("name") else {
+        return None;
+    };
+    let Ok(name) = name_node.utf8_text(source.as_bytes()) else {
+        return None;
+    };
+    let symbol_id = index.symbols.len() as u32;
+    index.symbols.push(SymbolRecord {
+        id: symbol_id,
+        file_id,
+        parent_symbol_id: None,
+        is_top_level: true,
+        name: name.to_owned(),
+        kind,
+        range: declaration.range().into(),
+        name_range: name_node.range().into(),
+    });
+    Some(symbol_id)
+}
+
+fn push_typescript_variable_symbols(
+    file_id: u32,
+    source: &str,
+    declaration: Node<'_>,
+    index: &mut TypeScriptIndex,
+) -> Vec<u32> {
+    let mut symbol_ids = Vec::new();
+    let mut cursor = declaration.walk();
+    for declarator in declaration
+        .named_children(&mut cursor)
+        .filter(|child| child.kind() == "variable_declarator")
+    {
+        let kind = declarator
+            .child_by_field_name("value")
+            .filter(|value| typescript_value_is_function(*value))
+            .map_or(SymbolKind::GlobalVariable, |_| SymbolKind::Function);
+        if let Some(name_node) = declarator.child_by_field_name("name") {
+            let mut targets = Vec::new();
+            collect_typescript_binding_targets(name_node, &mut targets);
+            for target in targets {
+                if let Ok(name) = target.utf8_text(source.as_bytes()) {
+                    let symbol_id = index.symbols.len() as u32;
+                    index.symbols.push(SymbolRecord {
+                        id: symbol_id,
+                        file_id,
+                        parent_symbol_id: None,
+                        is_top_level: true,
+                        name: name.to_owned(),
+                        kind,
+                        range: declaration.range().into(),
+                        name_range: target.range().into(),
+                    });
+                    symbol_ids.push(symbol_id);
+                }
+            }
+        }
+    }
+    symbol_ids
+}
+
+fn typescript_value_is_function(node: Node<'_>) -> bool {
+    match node.kind() {
+        "arrow_function" | "function_expression" | "generator_function" => true,
+        "parenthesized_expression" => {
+            first_named_child(node).is_some_and(typescript_value_is_function)
+        }
+        _ => false,
+    }
+}
+
+fn collect_typescript_binding_targets<'tree>(node: Node<'tree>, out: &mut Vec<Node<'tree>>) {
+    match node.kind() {
+        "identifier"
+        | "type_identifier"
+        | "shorthand_property_identifier_pattern"
+        | "property_identifier" => out.push(node),
+        "pair_pattern" => {
+            if let Some(value) = node.child_by_field_name("value") {
+                collect_typescript_binding_targets(value, out);
+            }
+        }
+        "object_pattern" | "array_pattern" => {
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                collect_typescript_binding_targets(child, out);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn push_typescript_import_statement(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    let module = node
+        .child_by_field_name("source")
+        .and_then(|source_node| typescript_string_literal_value(node_text(source, source_node)));
+    let Some(module) = module else {
+        return;
+    };
+    let Some(import_clause) = first_child_of_kind(node, &["import_clause"]) else {
+        push_typescript_import(
+            file_id,
+            ImportKind::SideEffect,
+            Some(module),
+            None,
+            None,
+            node.range().into(),
+            index,
+        );
+        return;
+    };
+
+    let mut emitted = false;
+    let mut cursor = import_clause.walk();
+    for child in import_clause.named_children(&mut cursor) {
+        match child.kind() {
+            "identifier" => {
+                let name = node_text(source, child).to_owned();
+                push_typescript_import(
+                    file_id,
+                    ImportKind::DefaultImport,
+                    Some(module.clone()),
+                    Some(name.clone()),
+                    Some(name),
+                    child.range().into(),
+                    index,
+                );
+                emitted = true;
+            }
+            "named_imports" => {
+                push_typescript_named_imports(file_id, source, child, &module, index);
+                emitted = true;
+            }
+            "namespace_import" => {
+                if let Some(alias) = first_identifier_child(child) {
+                    let alias = node_text(source, alias).to_owned();
+                    push_typescript_import(
+                        file_id,
+                        ImportKind::NamespaceImport,
+                        Some(module.clone()),
+                        Some("*".to_owned()),
+                        Some(alias),
+                        child.range().into(),
+                        index,
+                    );
+                    emitted = true;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if !emitted {
+        push_typescript_import(
+            file_id,
+            ImportKind::SideEffect,
+            Some(module),
+            None,
+            None,
+            import_clause.range().into(),
+            index,
+        );
+    }
+}
+
+fn push_typescript_named_imports(
+    file_id: u32,
+    source: &str,
+    named_imports: Node<'_>,
+    module: &str,
+    index: &mut TypeScriptIndex,
+) {
+    let mut cursor = named_imports.walk();
+    for specifier in named_imports
+        .named_children(&mut cursor)
+        .filter(|child| child.kind() == "import_specifier")
+    {
+        let Some(name_node) = specifier.child_by_field_name("name") else {
+            continue;
+        };
+        let name = node_text(source, name_node).to_owned();
+        let alias = specifier
+            .child_by_field_name("alias")
+            .map(|alias| node_text(source, alias).to_owned())
+            .unwrap_or_else(|| name.clone());
+        push_typescript_import(
+            file_id,
+            ImportKind::NamedImport,
+            Some(module.to_owned()),
+            Some(name),
+            Some(alias),
+            specifier.range().into(),
+            index,
+        );
+    }
+}
+
+fn push_typescript_dynamic_imports(
+    file_id: u32,
+    source: &str,
+    declaration: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    let mut cursor = declaration.walk();
+    for declarator in declaration
+        .named_children(&mut cursor)
+        .filter(|child| child.kind() == "variable_declarator")
+    {
+        let Some(value) = declarator.child_by_field_name("value") else {
+            continue;
+        };
+        let Some(module) = find_typescript_dynamic_import_module(source, value) else {
+            continue;
+        };
+        if let Some(name_node) = declarator.child_by_field_name("name") {
+            let mut targets = Vec::new();
+            collect_typescript_binding_targets(name_node, &mut targets);
+            for target in targets {
+                let local_name = node_text(source, target).to_owned();
+                push_typescript_import(
+                    file_id,
+                    ImportKind::DynamicImport,
+                    Some(module.clone()),
+                    Some(local_name.clone()),
+                    Some(local_name),
+                    declarator.range().into(),
+                    index,
+                );
+            }
+        }
+    }
+}
+
+fn find_typescript_dynamic_import_module(source: &str, node: Node<'_>) -> Option<String> {
+    if node.kind() == "call_expression" {
+        if let Some(function) = node.child_by_field_name("function") {
+            let function_text = node_text(source, function);
+            if matches!(function_text, "require" | "import") {
+                if let Some(arguments) = node.child_by_field_name("arguments") {
+                    let mut cursor = arguments.walk();
+                    for child in arguments.named_children(&mut cursor) {
+                        if child.kind() == "string" {
+                            return typescript_string_literal_value(node_text(source, child));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        if let Some(module) = find_typescript_dynamic_import_module(source, child) {
+            return Some(module);
+        }
+    }
+    None
+}
+
+fn push_typescript_export_statement(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    let source_module = node
+        .child_by_field_name("source")
+        .and_then(|source_node| typescript_string_literal_value(node_text(source, source_node)));
+
+    if let Some(declaration) = node.child_by_field_name("declaration") {
+        let symbol_ids = push_typescript_export_declaration(file_id, source, declaration, index);
+        let is_default = has_direct_child_kind(node, "default");
+        for symbol_id in symbol_ids {
+            let symbol = &index.symbols[symbol_id as usize];
+            push_typescript_export(
+                file_id,
+                if is_default {
+                    ExportKind::Default
+                } else {
+                    ExportKind::Named
+                },
+                Some(if is_default {
+                    "default".to_owned()
+                } else {
+                    symbol.name.clone()
+                }),
+                Some(symbol.name.clone()),
+                None,
+                Some(symbol_id),
+                None,
+                node.range().into(),
+                index,
+            );
+        }
+        return;
+    }
+
+    if let Some(export_clause) = first_child_of_kind(node, &["export_clause"]) {
+        push_typescript_export_clause(file_id, source, node, export_clause, source_module, index);
+        return;
+    }
+
+    if let Some(namespace_export) = first_child_of_kind(node, &["namespace_export"]) {
+        let name = first_identifier_child(namespace_export)
+            .map(|identifier| node_text(source, identifier).to_owned());
+        let import_id = source_module.as_ref().and_then(|module| {
+            name.as_ref().map(|name| {
+                push_typescript_import(
+                    file_id,
+                    ImportKind::NamespaceImport,
+                    Some(module.clone()),
+                    Some("*".to_owned()),
+                    Some(name.clone()),
+                    namespace_export.range().into(),
+                    index,
+                )
+            })
+        });
+        push_typescript_export(
+            file_id,
+            ExportKind::Namespace,
+            name.clone(),
+            name,
+            source_module,
+            None,
+            import_id,
+            node.range().into(),
+            index,
+        );
+        return;
+    }
+
+    if has_direct_child_kind(node, "*") {
+        let import_id = source_module.as_ref().map(|module| {
+            push_typescript_import(
+                file_id,
+                ImportKind::NamespaceImport,
+                Some(module.clone()),
+                Some("*".to_owned()),
+                None,
+                node.range().into(),
+                index,
+            )
+        });
+        push_typescript_export(
+            file_id,
+            ExportKind::Wildcard,
+            None,
+            None,
+            source_module,
+            None,
+            import_id,
+            node.range().into(),
+            index,
+        );
+        return;
+    }
+
+    if has_direct_child_kind(node, "default") {
+        if let Some(value) = node.child_by_field_name("value") {
+            push_typescript_export(
+                file_id,
+                ExportKind::Default,
+                Some("default".to_owned()),
+                Some(node_text(source, value).to_owned()),
+                None,
+                None,
+                None,
+                node.range().into(),
+                index,
+            );
+        }
+        return;
+    }
+
+    if node_text(source, node).trim_start().starts_with("export =") {
+        let local_name =
+            last_identifier_child(node).map(|identifier| node_text(source, identifier).to_owned());
+        push_typescript_export(
+            file_id,
+            ExportKind::ExportEquals,
+            local_name.clone(),
+            local_name,
+            None,
+            None,
+            None,
+            node.range().into(),
+            index,
+        );
+    }
+}
+
+fn push_typescript_export_declaration(
+    file_id: u32,
+    source: &str,
+    declaration: Node<'_>,
+    index: &mut TypeScriptIndex,
+) -> Vec<u32> {
+    match declaration.kind() {
+        "function_declaration"
+        | "generator_function_declaration"
+        | "class_declaration"
+        | "abstract_class_declaration"
+        | "interface_declaration"
+        | "type_alias_declaration"
+        | "enum_declaration"
+        | "internal_module" => push_typescript_symbol(file_id, source, declaration, index)
+            .into_iter()
+            .collect(),
+        "lexical_declaration" | "variable_declaration" => {
+            push_typescript_variable_symbols(file_id, source, declaration, index)
+        }
+        _ => Vec::new(),
+    }
+}
+
+fn push_typescript_export_clause(
+    file_id: u32,
+    source: &str,
+    export_statement: Node<'_>,
+    export_clause: Node<'_>,
+    source_module: Option<String>,
+    index: &mut TypeScriptIndex,
+) {
+    let mut cursor = export_clause.walk();
+    for specifier in export_clause
+        .named_children(&mut cursor)
+        .filter(|child| child.kind() == "export_specifier")
+    {
+        let Some(name_node) = specifier.child_by_field_name("name") else {
+            continue;
+        };
+        let local_name = node_text(source, name_node).to_owned();
+        let exported_name = specifier
+            .child_by_field_name("alias")
+            .map(|alias| node_text(source, alias).to_owned())
+            .unwrap_or_else(|| local_name.clone());
+        let import_id = source_module.as_ref().map(|module| {
+            push_typescript_import(
+                file_id,
+                ImportKind::NamedImport,
+                Some(module.clone()),
+                Some(local_name.clone()),
+                Some(exported_name.clone()),
+                specifier.range().into(),
+                index,
+            )
+        });
+        push_typescript_export(
+            file_id,
+            if exported_name == "default" {
+                ExportKind::Default
+            } else {
+                ExportKind::Named
+            },
+            Some(exported_name),
+            Some(local_name),
+            source_module.clone(),
+            None,
+            import_id,
+            export_statement.range().into(),
+            index,
+        );
+    }
+}
+
+fn push_typescript_import(
+    file_id: u32,
+    kind: ImportKind,
+    module: Option<String>,
+    name: Option<String>,
+    alias: Option<String>,
+    range: SourceRange,
+    index: &mut TypeScriptIndex,
+) -> u32 {
+    let import_id = index.imports.len() as u32;
+    index.imports.push(ImportRecord {
+        id: import_id,
+        file_id,
+        kind,
+        module,
+        name,
+        alias,
+        range,
+    });
+    import_id
+}
+
+fn push_typescript_export(
+    file_id: u32,
+    kind: ExportKind,
+    name: Option<String>,
+    local_name: Option<String>,
+    source_module: Option<String>,
+    symbol_id: Option<u32>,
+    import_id: Option<u32>,
+    range: SourceRange,
+    index: &mut TypeScriptIndex,
+) {
+    index.exports.push(ExportRecord {
+        id: index.exports.len() as u32,
+        file_id,
+        kind,
+        name,
+        local_name,
+        source_module,
+        symbol_id,
+        import_id,
+        range,
+    });
+}
+
+fn typescript_string_literal_value(text: &str) -> Option<String> {
+    let trimmed = text.trim();
+    for quote in ["'", "\"", "`"] {
+        if let Some(value) = trimmed
+            .strip_prefix(quote)
+            .and_then(|value| value.strip_suffix(quote))
+        {
+            return Some(value.to_owned());
+        }
+    }
+    None
+}
+
+fn first_identifier_child(node: Node<'_>) -> Option<Node<'_>> {
+    let mut cursor = node.walk();
+    let child = node
+        .named_children(&mut cursor)
+        .find(|child| matches!(child.kind(), "identifier" | "type_identifier"));
+    child
+}
+
+fn last_identifier_child(node: Node<'_>) -> Option<Node<'_>> {
+    let mut cursor = node.walk();
+    node.named_children(&mut cursor)
+        .filter(|child| matches!(child.kind(), "identifier" | "type_identifier"))
+        .last()
+}
+
+fn has_direct_child_kind(node: Node<'_>, kind: &str) -> bool {
+    let mut cursor = node.walk();
+    let has_kind = node.children(&mut cursor).any(|child| child.kind() == kind);
+    has_kind
 }
 
 fn collect_python_files(dir: &Path, out: &mut Vec<PathBuf>) -> Result<(), IndexError> {
@@ -1602,6 +2446,11 @@ fn resolve_python_imports(index: &mut PythonIndex) {
                 &symbol_to_id,
                 resolutions.len() as u32,
             ),
+            ImportKind::SideEffect
+            | ImportKind::DefaultImport
+            | ImportKind::NamedImport
+            | ImportKind::NamespaceImport
+            | ImportKind::DynamicImport => None,
         };
         if let Some(resolution) = resolution {
             resolutions.push(resolution);
@@ -1903,6 +2752,11 @@ fn import_module_prefix_bindings(
             }
         }
         ImportKind::FutureImport => {}
+        ImportKind::SideEffect
+        | ImportKind::DefaultImport
+        | ImportKind::NamedImport
+        | ImportKind::NamespaceImport
+        | ImportKind::DynamicImport => {}
     }
     bindings
 }
@@ -1949,6 +2803,11 @@ fn import_module_qualifiers(import: &ImportRecord) -> Vec<String> {
                 }
             }
         }
+        ImportKind::SideEffect
+        | ImportKind::DefaultImport
+        | ImportKind::NamedImport
+        | ImportKind::NamespaceImport
+        | ImportKind::DynamicImport => {}
     }
     qualifiers.sort();
     qualifiers.dedup();
@@ -2013,6 +2872,11 @@ fn import_binding_name(import: &ImportRecord) -> Option<String> {
             .as_ref()
             .filter(|name| name.as_str() != "*")
             .cloned(),
+        ImportKind::SideEffect
+        | ImportKind::DefaultImport
+        | ImportKind::NamedImport
+        | ImportKind::NamespaceImport
+        | ImportKind::DynamicImport => None,
     }
 }
 
@@ -2158,7 +3022,10 @@ mod tests {
         let info = Engine::new().debug_info();
 
         assert_eq!(info.version(), env!("CARGO_PKG_VERSION"));
-        assert_eq!(info.enabled_features(), ["skeleton", "python-index"]);
+        assert_eq!(
+            info.enabled_features(),
+            ["skeleton", "python-index", "typescript-index"]
+        );
     }
 
     #[test]
@@ -2212,6 +3079,146 @@ mod tests {
         assert_eq!(index.files[0].path, "pkg/included.py");
         assert_eq!(index.summary().classes, 1);
         assert_eq!(index.symbols[0].name, "Included");
+    }
+
+    #[test]
+    fn indexes_typescript_syntax_records_without_resolution() {
+        let repo = temp_repo_path("index-typescript");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.tsx"),
+            r#"import React, { useState as useStateAlias, type FC } from "react";
+import * as utils from "./utils";
+import "./setup";
+
+export { helper as publicHelper } from "./utils";
+export * as allUtils from "./utils";
+export const value = 1;
+export function run() {}
+export default function Page() {}
+interface Props {}
+type Alias = string;
+enum Mode { A }
+namespace Inner { export const x = 1 }
+const loader = await import("./loader");
+const { parse, format: fmt } = require("./format");
+const Component = () => <div />;
+"#,
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 1);
+        assert_eq!(index.summary().classes, 0);
+        assert_eq!(index.summary().functions, 3);
+        assert_eq!(index.summary().global_variables, 4);
+        assert_eq!(index.files[0].path, "src/app.tsx");
+        assert_eq!(index.imports.len(), 10);
+        assert_eq!(index.exports.len(), 5);
+        assert_eq!(index.summary().import_resolutions, 0);
+        assert_eq!(index.summary().references, 0);
+        assert_eq!(index.summary().dependencies, 0);
+
+        let symbols = index
+            .symbols
+            .iter()
+            .map(|symbol| (symbol.name.as_str(), symbol.kind))
+            .collect::<Vec<_>>();
+        assert!(symbols.contains(&("run", SymbolKind::Function)));
+        assert!(symbols.contains(&("Page", SymbolKind::Function)));
+        assert!(symbols.contains(&("Component", SymbolKind::Function)));
+        assert!(symbols.contains(&("Props", SymbolKind::Interface)));
+        assert!(symbols.contains(&("Alias", SymbolKind::TypeAlias)));
+        assert!(symbols.contains(&("Mode", SymbolKind::Enum)));
+        assert!(symbols.contains(&("Inner", SymbolKind::Namespace)));
+        assert!(symbols.contains(&("value", SymbolKind::GlobalVariable)));
+        assert!(symbols.contains(&("loader", SymbolKind::GlobalVariable)));
+        assert!(symbols.contains(&("parse", SymbolKind::GlobalVariable)));
+        assert!(symbols.contains(&("fmt", SymbolKind::GlobalVariable)));
+
+        assert!(index.imports.iter().any(|import| {
+            import.kind == ImportKind::DefaultImport
+                && import.module.as_deref() == Some("react")
+                && import.name.as_deref() == Some("React")
+                && import.alias.as_deref() == Some("React")
+        }));
+        assert!(index.imports.iter().any(|import| {
+            import.kind == ImportKind::NamedImport
+                && import.module.as_deref() == Some("react")
+                && import.name.as_deref() == Some("useState")
+                && import.alias.as_deref() == Some("useStateAlias")
+        }));
+        assert!(index.imports.iter().any(|import| {
+            import.kind == ImportKind::NamespaceImport
+                && import.module.as_deref() == Some("./utils")
+                && import.alias.as_deref() == Some("utils")
+        }));
+        assert!(index.imports.iter().any(|import| {
+            import.kind == ImportKind::SideEffect && import.module.as_deref() == Some("./setup")
+        }));
+        assert!(index.imports.iter().any(|import| {
+            import.kind == ImportKind::DynamicImport
+                && import.module.as_deref() == Some("./loader")
+                && import.alias.as_deref() == Some("loader")
+        }));
+        assert!(index.imports.iter().any(|import| {
+            import.kind == ImportKind::DynamicImport
+                && import.module.as_deref() == Some("./format")
+                && import.alias.as_deref() == Some("fmt")
+        }));
+
+        assert!(index.exports.iter().any(|export| {
+            export.kind == ExportKind::Named
+                && export.name.as_deref() == Some("publicHelper")
+                && export.local_name.as_deref() == Some("helper")
+                && export.source_module.as_deref() == Some("./utils")
+                && export.import_id.is_some()
+        }));
+        assert!(index.exports.iter().any(|export| {
+            export.kind == ExportKind::Namespace
+                && export.name.as_deref() == Some("allUtils")
+                && export.source_module.as_deref() == Some("./utils")
+        }));
+        assert!(index.exports.iter().any(|export| {
+            export.kind == ExportKind::Named
+                && export.name.as_deref() == Some("value")
+                && export.symbol_id.is_some()
+        }));
+        assert!(index.exports.iter().any(|export| {
+            export.kind == ExportKind::Named
+                && export.name.as_deref() == Some("run")
+                && export.symbol_id.is_some()
+        }));
+        assert!(index.exports.iter().any(|export| {
+            export.kind == ExportKind::Default
+                && export.name.as_deref() == Some("default")
+                && export.local_name.as_deref() == Some("Page")
+                && export.symbol_id.is_some()
+        }));
+    }
+
+    #[test]
+    fn indexes_only_requested_typescript_like_paths() {
+        let repo = temp_repo_path("index-typescript-paths");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(repo.join("src/included.ts"), "export class Included {}\n").unwrap();
+        fs::write(repo.join("src/skipped.ts"), "export class Skipped {}\n").unwrap();
+        fs::write(
+            repo.join("src/not-ts.py"),
+            "class NotTypeScript:\n    pass\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_paths(&repo, ["src/included.ts", "src/not-ts.py"]).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 1);
+        assert_eq!(index.files[0].path, "src/included.ts");
+        assert_eq!(index.summary().classes, 1);
+        assert_eq!(index.symbols[0].name, "Included");
+        assert_eq!(index.exports[0].name.as_deref(), Some("Included"));
     }
 
     #[test]
