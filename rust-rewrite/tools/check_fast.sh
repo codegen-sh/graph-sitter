@@ -22,6 +22,7 @@ uv run python -m py_compile \
   tests/unit/sdk/codebase/test_rust_backend.py \
   tests/integration/rust_rewrite/test_pinned_airflow_snapshot.py \
   tests/integration/rust_rewrite/test_pinned_nextjs_snapshot.py \
+  rust-rewrite/tools/check_pinned_typescript_codebase.py \
   rust-rewrite/tools/benchmark_pinned_typescript_repo.py \
   rust-rewrite/tools/benchmark_pinned_python_repo.py \
   rust-rewrite/tools/compare_rust_python_index.py \

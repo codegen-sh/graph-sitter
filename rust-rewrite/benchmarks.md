@@ -262,6 +262,16 @@ PYTHONPATH=/tmp/graph_sitter_py_pinned_typescript_benchmark \
 
 Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 5.650x faster and about 9.197x lower max RSS while exposing compact export handles and keeping the eager Python graph unbuilt.
 
+The same proof is now available as an opt-in test gate:
+
+```bash
+uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
+  --skip-build-extension \
+  --skip-fetch
+```
+
+On 2026-06-18, that checker validated exact pinned Next.js `Codebase` handle counts, confirmed the Python graph stayed blocked, and measured 4.498s wall / 477.5 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 5.549x faster wall time and 6.493x lower max RSS with conservative CI-style ceilings.
+
 ## Pinned Compact Snapshot Evidence
 
 The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json`. It was generated from Apache Airflow `2.10.5` at commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`.
