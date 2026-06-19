@@ -75,6 +75,25 @@ EXPECTED_COMPAT_HANDLES = {
     "exports": 16026,
 }
 
+EXPECTED_KNOWN_GLOBAL_LOOKUPS = {
+    "app_router_announcer": {
+        "filepath": "packages/next/src/client/components/app-router-announcer.tsx",
+        "handle": "RustCompactSymbol",
+        "kind": "function",
+        "name": "AppRouterAnnouncer",
+    }
+}
+
+EXPECTED_LARGE_CACHE_MATERIALIZATION = {
+    "files": False,
+    "symbols": False,
+    "imports": False,
+    "exports": False,
+    "references": False,
+    "external_references": False,
+    "dependencies": False,
+}
+
 RECORDED_PYTHON_BASELINE = {
     "wall_seconds": 24.959,
     "max_rss_mb": 3100.1,
@@ -103,6 +122,38 @@ def memory_sample(label: str) -> dict[str, float | str]:
         "label": label,
         "rss_mb": round(bytes_to_mb(current_rss_bytes()), 3),
         "max_rss_mb": round(bytes_to_mb(max_rss_bytes()), 3),
+    }
+
+
+def handle_signature(handle: Any) -> dict[str, Any]:
+    signature = {
+        "handle": type(handle).__name__,
+        "name": handle.name,
+    }
+    record = getattr(handle, "record", None)
+    if record is not None and hasattr(record, "kind"):
+        signature["kind"] = record.kind
+    return signature
+
+
+def known_global_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    function = codebase.get_function("AppRouterAnnouncer")
+    signature = handle_signature(function)
+    signature["filepath"] = function.filepath
+    return {
+        "app_router_announcer": signature,
+    }
+
+
+def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
+    return {
+        "files": backend._files is not None,
+        "symbols": backend._symbols is not None,
+        "imports": backend._imports is not None,
+        "exports": backend._exports is not None,
+        "references": backend._references is not None,
+        "external_references": backend._external_references is not None,
+        "dependencies": backend._dependencies is not None,
     }
 
 
@@ -154,6 +205,9 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_record_counts"))
     compat_counts = backend.compact_compat_counts()
     memory_samples.append(memory_sample("after_compat_handles"))
+    known_global_lookups = known_global_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_global_lookups"))
+    large_cache_materialization = large_cache_materialization_report(backend)
 
     totals = {
         "wall_seconds": round(wall, 6),
@@ -185,6 +239,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "summary": summary_counts,
         "records": record_counts,
         "compat_handles": compat_counts,
+        "known_global_lookups": known_global_lookups,
+        "large_cache_materialization": large_cache_materialization,
         "comparison": comparison,
     }
     validate_report(report, args)
@@ -206,6 +262,10 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
         compare_counts("summary", report["summary"], EXPECTED_SUMMARY, failures)
         compare_counts("records", report["records"], EXPECTED_RECORDS, failures)
         compare_counts("compat_handles", report["compat_handles"], EXPECTED_COMPAT_HANDLES, failures)
+        if report["known_global_lookups"] != EXPECTED_KNOWN_GLOBAL_LOOKUPS:
+            failures.append("known global lookup results drifted")
+        if report["large_cache_materialization"] != EXPECTED_LARGE_CACHE_MATERIALIZATION:
+            failures.append("large Rust backend caches were materialized during known queries")
 
     totals = report["totals"]
     comparison = report["comparison"]
