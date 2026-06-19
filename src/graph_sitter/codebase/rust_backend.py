@@ -2746,7 +2746,7 @@ class RustCompactImport(RustCompactHandle):
     def resolve_attribute(self, attribute: str) -> RustCompactImport | RustCompactSymbol | RustCompactFile | RustCompactExternalModule | None:
         imported = self.imported_symbol
         if isinstance(imported, RustCompactFile):
-            return imported.valid_import_names.get(attribute)
+            return imported.resolve_attribute(attribute)
         if isinstance(imported, RustCompactExternalModule):
             return imported.resolve_attribute(attribute)
         return None

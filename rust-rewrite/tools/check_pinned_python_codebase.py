@@ -164,6 +164,16 @@ EXPECTED_KNOWN_FILE_LOCAL_NAME_RESOLUTION = {
     },
 }
 
+EXPECTED_KNOWN_MODULE_IMPORT_ATTRIBUTE_RESOLUTION = {
+    "dag_processing_manager_airflow_models_dagmodel": {
+        "filepath": "airflow/models/__init__.py",
+        "handle": "RustCompactImport",
+        "kind": "from_import",
+        "name": "DagModel",
+        "source": "from airflow.models.dag import DAG, DagModel, DagTag",
+    }
+}
+
 EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
@@ -350,6 +360,16 @@ def known_file_local_name_resolution_report(codebase: Any) -> dict[str, Any]:
     }
 
 
+def known_module_import_attribute_resolution_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    module_import = codebase.get_file("airflow/dag_processing/manager.py").get_import("airflow.models")
+    resolved = module_import.resolve_attribute("DagModel")
+    signature = handle_signature(resolved)
+    signature["filepath"] = resolved.filepath
+    return {
+        "dag_processing_manager_airflow_models_dagmodel": signature,
+    }
+
+
 def dependency_signature(handle: Any) -> dict[str, Any]:
     node_type = getattr(handle, "node_type", None)
     signature = {
@@ -461,6 +481,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_known_file_local_import_lookups"))
     known_file_local_name_resolution = known_file_local_name_resolution_report(codebase)
     memory_samples.append(memory_sample("after_known_file_local_name_resolution"))
+    known_module_import_attribute_resolution = known_module_import_attribute_resolution_report(codebase)
+    memory_samples.append(memory_sample("after_known_module_import_attribute_resolution"))
     targeted_cache_materialization = targeted_cache_materialization_report(backend)
     known_lookups = known_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_lookups"))
@@ -504,6 +526,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "known_file_local_lookups": known_file_local_lookups,
         "known_file_local_import_lookups": known_file_local_import_lookups,
         "known_file_local_name_resolution": known_file_local_name_resolution,
+        "known_module_import_attribute_resolution": known_module_import_attribute_resolution,
         "targeted_cache_materialization": targeted_cache_materialization,
         "known_lookups": known_lookups,
         "byte_range_cache_materialization": byte_range_cache_materialization,
@@ -540,6 +563,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("known file-local import lookup results drifted")
         if report["known_file_local_name_resolution"] != EXPECTED_KNOWN_FILE_LOCAL_NAME_RESOLUTION:
             failures.append("known file-local name resolution results drifted")
+        if report["known_module_import_attribute_resolution"] != EXPECTED_KNOWN_MODULE_IMPORT_ATTRIBUTE_RESOLUTION:
+            failures.append("known module import attribute resolution results drifted")
         if report["targeted_cache_materialization"] != EXPECTED_TARGETED_CACHE_MATERIALIZATION:
             failures.append("targeted lookup caches were materialized before byte-range queries")
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:
