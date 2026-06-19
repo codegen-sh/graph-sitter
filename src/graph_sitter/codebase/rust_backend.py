@@ -359,6 +359,8 @@ class RustIndexBackend:
     _exports_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactExport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
     _import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] | None = None
+    _import_resolutions_by_target_symbol_id: dict[int, list[RustImportResolutionRecord]] | None = None
+    _exports_by_symbol_id: dict[int, list[RustCompactExport]] | None = None
     _symbols_by_file_id_and_name: dict[tuple[int, str], list[RustCompactSymbol]] | None = None
     _references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
@@ -803,6 +805,8 @@ class RustIndexBackend:
         self._exports_by_file_id_and_byte_range = None
         self._import_resolutions_by_import_id = None
         self._import_resolutions_by_target_file_id = None
+        self._import_resolutions_by_target_symbol_id = None
+        self._exports_by_symbol_id = None
         self._symbols_by_file_id_and_name = None
         self._references_by_target_symbol_id = None
         self._references_by_source_symbol_id = None
@@ -1039,6 +1043,28 @@ class RustIndexBackend:
                 return self._exports_by_file_id_and_byte_range[key]
         return [export_handle for export_handle in self.exports_for_file(file_id) if _ranges_overlap(export_handle.range, start_byte, end_byte)]
 
+    def exports_for_symbol(self, symbol_id: int) -> list[RustCompactExport]:
+        if self.summary.exports == 0:
+            return []
+        if self._export_handles is None and hasattr(self.index, "exports_for_symbol_json"):
+            if self._exports_by_symbol_id is None:
+                self._exports_by_symbol_id = {}
+            if symbol_id not in self._exports_by_symbol_id:
+                records = self._records_from_json_method("exports_for_symbol_json", RustExportRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._exports_by_symbol_id[symbol_id] = [self._export_handle_from_record(record) for record in records]
+                else:
+                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+            if symbol_id in self._exports_by_symbol_id:
+                return self._exports_by_symbol_id[symbol_id]
+        if self._exports_by_symbol_id is None:
+            exports_by_symbol_id: dict[int, list[RustCompactExport]] = {}
+            for export_handle in self.export_handles:
+                if export_handle.record.symbol_id is not None:
+                    exports_by_symbol_id.setdefault(export_handle.record.symbol_id, []).append(export_handle)
+            self._exports_by_symbol_id = exports_by_symbol_id
+        return self._exports_by_symbol_id.get(symbol_id, [])
+
     def nodes_for_file_by_byte_range(self, file_id: int, start_byte: int, end_byte: int) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
         nodes: list[RustCompactImport | RustCompactExport | RustCompactSymbol] = [
             *self.imports_for_file_by_byte_range(file_id, start_byte, end_byte),
@@ -1156,6 +1182,24 @@ class RustIndexBackend:
                 import_resolutions_by_target_file_id.setdefault(resolution.target_file_id, []).append(resolution)
             self._import_resolutions_by_target_file_id = import_resolutions_by_target_file_id
         return self._import_resolutions_by_target_file_id.get(file_id, [])
+
+    def import_resolutions_to_symbol(self, symbol_id: int) -> list[RustImportResolutionRecord]:
+        if self._import_resolutions is None and hasattr(self.index, "import_resolutions_to_symbol_json"):
+            if self._import_resolutions_by_target_symbol_id is None:
+                self._import_resolutions_by_target_symbol_id = {}
+            if symbol_id not in self._import_resolutions_by_target_symbol_id:
+                records = self._records_from_json_method("import_resolutions_to_symbol_json", RustImportResolutionRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._import_resolutions_by_target_symbol_id[symbol_id] = records
+            if symbol_id in self._import_resolutions_by_target_symbol_id:
+                return self._import_resolutions_by_target_symbol_id[symbol_id]
+        if self._import_resolutions_by_target_symbol_id is None:
+            import_resolutions_by_target_symbol_id: dict[int, list[RustImportResolutionRecord]] = {}
+            for resolution in self.import_resolutions:
+                if resolution.target_symbol_id is not None:
+                    import_resolutions_by_target_symbol_id.setdefault(resolution.target_symbol_id, []).append(resolution)
+            self._import_resolutions_by_target_symbol_id = import_resolutions_by_target_symbol_id
+        return self._import_resolutions_by_target_symbol_id.get(symbol_id, [])
 
     def references_to_symbol(self, symbol_id: int) -> list[RustReferenceRecord]:
         if self._references is None and hasattr(self.index, "references_to_symbol_json"):
@@ -2479,12 +2523,22 @@ class RustCompactSymbol(RustCompactHandle):
 
         symbol_usages: list[object] = []
         seen: set[object] = set()
+
+        def add_usage(handle: object | None) -> None:
+            if handle is None or handle in seen:
+                return
+            seen.add(handle)
+            symbol_usages.append(handle)
+
+        if _is_typescript_like_extension(Path(self.filepath).suffix):
+            for export_handle in self.backend.exports_for_symbol(self.record.id):
+                add_usage(export_handle)
+
+            for resolution in self.backend.import_resolutions_to_symbol(self.record.id):
+                add_usage(self.backend.import_handle_by_id(resolution.import_id))
+
         for usage in self.usages(usage_types=usage_types):
-            usage_symbol = usage.usage_symbol.parent_symbol
-            if usage_symbol in seen:
-                continue
-            seen.add(usage_symbol)
-            symbol_usages.append(usage_symbol)
+            add_usage(usage.usage_symbol.parent_symbol)
         return symbol_usages
 
     @property

@@ -10,7 +10,7 @@ from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
-from graph_sitter.enums import ImportType
+from graph_sitter.enums import ImportType, NodeType
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
@@ -314,6 +314,15 @@ class FakeIndex:
 
     def import_resolution_for_import_json(self, import_id: int):
         return json.dumps(next((resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["import_id"] == import_id), None))
+
+    def import_resolutions_to_symbol_json(self, symbol_id: int):
+        return json.dumps(
+            [
+                resolution
+                for resolution in json.loads(self.import_resolutions_json())
+                if resolution["target_symbol_id"] == symbol_id
+            ]
+        )
 
     def external_modules_json(self):
         return json.dumps([])
@@ -807,8 +816,12 @@ class FakeTypeScriptSummary(FakeSummary):
                 "global_variables": 0,
                 "imports": 1,
                 "import_resolutions": 1,
+                "external_modules": 0,
+                "exports": 2,
                 "references": 1,
+                "external_references": 0,
                 "dependencies": 1,
+                "subclass_edges": 0,
                 "bytes": 211,
                 "lines": 10,
             }
@@ -960,6 +973,18 @@ class FakeTypeScriptIndex:
             ]
         )
 
+    def import_resolution_for_import_json(self, import_id: int):
+        return json.dumps(next((resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["import_id"] == import_id), None))
+
+    def import_resolutions_to_symbol_json(self, symbol_id: int):
+        return json.dumps(
+            [
+                resolution
+                for resolution in json.loads(self.import_resolutions_json())
+                if resolution["target_symbol_id"] == symbol_id
+            ]
+        )
+
     def external_modules_json(self):
         return json.dumps([])
 
@@ -1012,6 +1037,15 @@ class FakeTypeScriptIndex:
             ]
         )
 
+    def exports_for_symbol_json(self, symbol_id: int):
+        return json.dumps(
+            [
+                export
+                for export in json.loads(self.exports_json())
+                if export["symbol_id"] == symbol_id
+            ]
+        )
+
     def references_json(self):
         return json.dumps(
             [
@@ -1024,6 +1058,15 @@ class FakeTypeScriptIndex:
                     "name": "helper",
                     "range": fake_range(130, 136, 5, 9, 5, 15),
                 }
+            ]
+        )
+
+    def references_to_symbol_json(self, symbol_id: int):
+        return json.dumps(
+            [
+                reference
+                for reference in json.loads(self.references_json())
+                if reference["target_symbol_id"] == symbol_id
             ]
         )
 
@@ -2240,6 +2283,53 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
         assert selected_paths == [["src/app.ts", "src/util.ts"]]
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
+
+
+def test_rust_compact_symbol_usages_include_import_export_wrappers_without_materializing_indexes(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "src/app.ts": "import { helper } from './util';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return helper(props.value);\n}\n",
+        "src/util.ts": "export function helper(value: number) {\n  return value;\n}\n",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        helper = codebase.get_function("helper")
+        assert helper is not None
+
+        usages = helper.symbol_usages
+        assert [(usage.node_type, usage.name) for usage in usages] == [
+            (NodeType.EXPORT, "helper"),
+            (NodeType.IMPORT, "helper"),
+            (NodeType.SYMBOL, "run"),
+        ]
+        assert usages[0].resolved_symbol == helper
+        assert usages[1].resolved_symbol == helper
+
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._import_resolutions is None
+        assert backend._exports is None
+        assert backend._export_handles is None
+        assert backend._references is None
+        assert backend._symbol_handles_by_id is not None
+        assert sorted(backend._symbol_handles_by_id) == [2, 3]
+        assert backend._import_handles_by_id is not None
+        assert sorted(backend._import_handles_by_id) == [0]
+        assert backend._export_handles_by_id is not None
+        assert sorted(backend._export_handles_by_id) == [1]
 
 
 def test_rust_compact_typescript_external_import_dependencies(monkeypatch, tmp_path):

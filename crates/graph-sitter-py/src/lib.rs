@@ -426,6 +426,17 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn import_resolutions_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .import_resolutions
+                .iter()
+                .filter(|resolution| resolution.target_symbol_id == Some(symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn external_module_for_import_json(&self, import_id: u32) -> PyResult<String> {
             serde_json::to_string(
                 &self
@@ -962,6 +973,17 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn exports_for_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .exports
+                .iter()
+                .filter(|export| export.symbol_id == Some(symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn export_by_id_json(&self, export_id: u32) -> PyResult<String> {
             serde_json::to_string(
                 &self
@@ -990,6 +1012,17 @@ mod bindings {
                 .import_resolutions
                 .iter()
                 .filter(|resolution| resolution.target_file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_resolutions_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .import_resolutions
+                .iter()
+                .filter(|resolution| resolution.target_symbol_id == Some(symbol_id))
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
