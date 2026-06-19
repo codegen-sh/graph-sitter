@@ -152,6 +152,7 @@ Recommended task format:
 - [x] Add a minimal debug API returning engine version and enabled features. owner: Beauvoir. Result: added Rust `Engine::debug_info` and feature-gated PyO3 bindings.
 - [x] Add CI job that builds the Rust extension on supported Python versions. owner: codex. Result: `.github/workflows/rust-rewrite-extension.yml` builds/tests the PyO3 extension on Python 3.12 and 3.13 across Linux/macOS, then imports `graph_sitter_py` and runs a compact Python indexing smoke.
 - [x] Add fast Rust rewrite PR CI lane. owner: codex. Result: `.github/workflows/rust-rewrite-fast.yml` runs `rust-rewrite/tools/check_fast.sh` for full ruff, Rust fmt/tests, PyO3 binding checks, live Python/Rust fixture parity, focused py_compile, and focused Rust-backend pytest without running large pinned repo benchmarks.
+- [x] Add tiny CLI smoke CI lane for the `uvx graph-sitter` surface. owner: codex. Result: `.github/workflows/rust-rewrite-cli-smoke.yml` runs `rust-rewrite/tools/check_cli_smoke.sh` for focused ruff/py_compile, command help, and parse/run/transform unit tests when CLI files change.
 - [x] Add benchmark command comparing Python backend with Rust compact indexer. owner: codex. Result: added `rust-rewrite/tools/compare_rust_python_index.py`.
 - [x] Add benchmark command for the Python-facing Rust facade. owner: codex. Result: added `rust-rewrite/tools/measure_rust_facade.py`.
 - [x] Add benchmark command for real `Codebase` construction with the Rust compact backend. owner: codex. Result: added `rust-rewrite/tools/measure_codebase_rust_backend.py`.

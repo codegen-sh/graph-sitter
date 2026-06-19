@@ -1,0 +1,49 @@
+name: Rust Rewrite CLI Smoke
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+    paths:
+      - ".github/workflows/rust-rewrite-cli-smoke.yml"
+      - "pyproject.toml"
+      - "rust-rewrite/tools/check_cli_smoke.sh"
+      - "src/graph_sitter/cli/**"
+      - "tests/unit/cli/**"
+  push:
+    branches:
+      - "develop"
+      - "rust-rewrite"
+    paths:
+      - ".github/workflows/rust-rewrite-cli-smoke.yml"
+      - "pyproject.toml"
+      - "rust-rewrite/tools/check_cli_smoke.sh"
+      - "src/graph_sitter/cli/**"
+      - "tests/unit/cli/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cli-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5.4
+        with:
+          enable-cache: true
+          prune-cache: false
+          python-version: "3.13"
+          version: "0.9.1"
+          cache-suffix: rust-rewrite-cli-smoke
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      - name: Run CLI smoke checks
+        run: rust-rewrite/tools/check_cli_smoke.sh
