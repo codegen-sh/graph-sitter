@@ -281,7 +281,7 @@ Recommended task format:
 
 ## Phase 6: Hardening And Rollout
 
-- [ ] Run full unit suite with Python backend.
+- [x] Run full unit suite with Python backend. owner: codex. Result: `uv run pytest -n auto --timeout 15 tests/unit` passed locally on 2026-06-19 with 2,158 passed, 58 skipped, 12 xfailed in 77.88s.
 - [ ] Run full unit suite with Rust backend where supported.
 - [x] Add large-repo memory regression benchmark to CI or nightly. owner: codex. Result: `.github/workflows/rust-rewrite-large-repos.yml` runs pinned Airflow and Next.js compact snapshot plus strict Rust `Codebase` performance/RSS checks on schedule, manual dispatch, and relevant `rust-rewrite` pushes, uploading JSON reports.
 - [x] Add pinned large-repo latency/RSS benchmark harness. owner: codex. Result: Airflow `2.10.5` benchmark command emits backend, wall time, max RSS, file count, node/edge counts, compact Rust record counts, mismatch summaries, and pass/fail gates.
@@ -350,7 +350,7 @@ Default-backend promotion criteria:
 - [ ] Cold parse memory on a representative huge repo is less than 25% of current Python backend.
 - [ ] Cold parse wall time is no slower than current Python backend, with a target of at least 2x faster.
 - [ ] P0 query APIs have parity with current behavior.
-- [ ] Existing unit tests pass for Python backend throughout the rewrite.
+- [x] Existing unit tests pass for Python backend throughout the rewrite. owner: codex. Result: full local `tests/unit` suite passed with 2,158 passed, 58 skipped, 12 xfailed in 77.88s.
 - [ ] Rust backend has golden snapshots for graph IR and dependency edges.
 - [ ] Unsupported Python APIs fail explicitly or fall back to Python backend.
 
@@ -483,3 +483,4 @@ Default-backend promotion criteria:
 - [x] 2026-06-19: Hardened pinned semantic known-delta proof. owner: codex. Notes: `check_pinned_semantic_parity.py` now fails unless the Airflow module-import attribute delta is exactly Python `null` and Rust `DagModel` from `airflow/models/__init__.py`, so the remaining selected Python semantic difference is a checked Rust enhancement rather than an open-ended tolerated mismatch. Fresh proof measured Airflow Python 54.252s/5375.1 MB vs Rust 6.029s/264.7 MB; the TypeScript suite still has no known deltas. `check_fast.sh` passed with 40 focused Rust-backend tests and 7 skipped opt-in integrations.
 - [x] 2026-06-19: Added aggregate rollout readiness gate and backend-default criteria. owner: codex. Notes: `check_rollout_readiness.py` now validates the full pinned large-repo report set for structural snapshot integrity, Airflow/Next.js speed and RSS ratios, semantic parity, codemod success, blocked Python graph access, and cold broad caches. `check_pinned_large_repos.sh` runs the gate and writes `rollout-readiness.json`; the strategy now documents opt-in/fallback semantics and default-backend promotion requirements.
 - [x] 2026-06-19: Expanded fast-lane fixture graph parity. owner: codex. Notes: compact Python and TypeScript shell APIs now preserve import/export wrapper semantics for incoming usages and imported dependencies, including Python re-export chains and TypeScript export-from imports. The live parity checker exact-compares fixture-wide import rows, symbol dependency rows, symbol usage rows, import usage rows, selected API probes, and mutation outputs with zero known deltas.
+- [x] 2026-06-19: Proved the full Python-backend unit suite remains green. owner: codex. Notes: `uv run pytest -n auto --timeout 15 tests/unit` passed locally with 2,158 passed, 58 skipped, 12 xfailed in 77.88s, closing the Python-backend broad-suite merge criterion for this branch state.
