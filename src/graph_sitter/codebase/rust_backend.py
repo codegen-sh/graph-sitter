@@ -311,6 +311,7 @@ class RustIndexBackend:
     _references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
     _references_by_import_id: dict[int, list[RustReferenceRecord]] | None = None
+    _references_by_id: dict[int, RustReferenceRecord] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
@@ -518,6 +519,7 @@ class RustIndexBackend:
         self._references_by_target_symbol_id = None
         self._references_by_source_symbol_id = None
         self._references_by_import_id = None
+        self._references_by_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
         self._subclass_edges_by_source_symbol_id = None
@@ -644,6 +646,11 @@ class RustIndexBackend:
                     references_by_import_id.setdefault(reference.import_id, []).append(reference)
             self._references_by_import_id = references_by_import_id
         return self._references_by_import_id.get(import_id, [])
+
+    def reference_by_id(self, reference_id: int) -> RustReferenceRecord | None:
+        if self._references_by_id is None:
+            self._references_by_id = {reference.id: reference for reference in self.references}
+        return self._references_by_id.get(reference_id)
 
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies_by_source_symbol_id is None:
@@ -1509,16 +1516,33 @@ class RustCompactSymbol(RustCompactHandle):
             frontier = next_frontier
         return dependencies
 
-    def _direct_dependencies(self) -> list[RustCompactSymbol]:
-        dependencies: list[RustCompactSymbol] = []
-        seen: set[RustCompactSymbol] = set()
+    def _direct_dependencies(self) -> list[RustCompactSymbol | RustCompactImport]:
+        dependencies: list[RustCompactSymbol | RustCompactImport] = []
+        seen: set[RustCompactSymbol | RustCompactImport] = set()
         for dependency in self.backend.dependencies_from_symbol(self.record.id):
             target = self.backend.symbol_handle_by_id(dependency.target_symbol_id)
-            if target is None or target in seen:
+            if target is None:
                 continue
-            seen.add(target)
-            dependencies.append(target)
+            should_include_target = True
+            if self._preserve_import_dependencies():
+                should_include_target = False
+                for reference_id in dependency.reference_ids:
+                    reference = self.backend.reference_by_id(reference_id)
+                    if reference is None or reference.import_id is None:
+                        should_include_target = True
+                        continue
+                    import_handle = self.backend.import_handle_by_id(reference.import_id)
+                    if import_handle is None or import_handle in seen:
+                        continue
+                    seen.add(import_handle)
+                    dependencies.append(import_handle)
+            if should_include_target and target not in seen:
+                seen.add(target)
+                dependencies.append(target)
         return dependencies
+
+    def _preserve_import_dependencies(self) -> bool:
+        return self.file.extension == ".py"
 
     def _direct_superclasses(self) -> list[RustCompactSymbol]:
         superclasses: list[RustCompactSymbol] = []
@@ -1703,7 +1727,7 @@ class RustCompactSymbol(RustCompactHandle):
             elif isinstance(dependency, RustCompactImport):
                 imported_symbol = dependency.imported_symbol
                 if isinstance(imported_symbol, RustCompactSymbol):
-                    file.add_import(imported_symbol, alias=dependency.name)
+                    file.add_import(imported_symbol, alias=self._alias_for_import_dependency(dependency, imported_symbol))
                 else:
                     file.add_import(dependency.source)
 
@@ -1732,6 +1756,19 @@ class RustCompactSymbol(RustCompactHandle):
         if is_used_in_source_file:
             self.file.add_import(import_line)
         self.remove()
+
+    def _alias_for_import_dependency(self, dependency: RustCompactImport, imported_symbol: RustCompactSymbol) -> str | None:
+        dependency_name = dependency.name
+        if dependency_name is None:
+            return None
+        for symbol_dependency in self.backend.dependencies_from_symbol(self.record.id):
+            if symbol_dependency.target_symbol_id != imported_symbol.record.id:
+                continue
+            for reference_id in symbol_dependency.reference_ids:
+                reference = self.backend.reference_by_id(reference_id)
+                if reference is not None and reference.import_id == dependency.record.id and reference.name == dependency_name:
+                    return dependency_name
+        return None
 
     def set_name(self, name: str, priority: int = 0) -> None:
         transaction = EditTransaction(

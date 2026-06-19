@@ -76,6 +76,11 @@ def import_signature(imp: Any) -> dict[str, Any]:
     }
 
 
+def import_resolves_to_external(imp: Any) -> bool:
+    resolved = imp.resolved_symbol
+    return node_type_name(getattr(resolved, "node_type", None)) == "EXTERNAL"
+
+
 def get_symbol(codebase: Any, name: str) -> Any | None:
     return codebase.get_symbol(name, optional=True)
 
@@ -106,6 +111,15 @@ def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, An
         for usage in helper.symbol_usages
         if node_type_name(getattr(usage, "node_type", None)) == "SYMBOL"
     ]
+    run_dependencies = list(run.dependencies)
+    run_internal_dependencies = [
+        dependency
+        for dependency in run_dependencies
+        if not (
+            node_type_name(getattr(dependency, "node_type", None)) == "IMPORT"
+            and import_resolves_to_external(dependency)
+        )
+    ]
 
     report = {
         "python_graph_blocked": python_graph_blocked,
@@ -129,7 +143,8 @@ def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, An
         "build_dependencies": sorted_signatures(build.dependencies),
         "build_symbol_usages": sorted_signatures(build.symbol_usages),
         "helper_symbol_usages_symbols_only": sorted_signatures(helper_symbol_usages),
-        "run_dependencies": sorted_signatures(run.dependencies),
+        "run_internal_dependencies": sorted_signatures(run_internal_dependencies),
+        "run_dependencies": sorted_signatures(run_dependencies),
     }
     if expect_blocked_graph and not python_graph_blocked:
         msg = "expected compact Rust backend to block Python graph materialization"
@@ -173,6 +188,7 @@ def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) 
         "build_dependencies",
         "build_symbol_usages",
         "helper_symbol_usages_symbols_only",
+        "run_internal_dependencies",
     ]
     mismatches = [
         key for key in exact_keys if python_report.get(key) != rust_report.get(key)
@@ -181,7 +197,7 @@ def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) 
         "run_dependencies": {
             "python": python_report["run_dependencies"],
             "rust": rust_report["run_dependencies"],
-            "reason": "Python dependencies currently preserve import nodes while compact Rust dependencies store resolved internal target symbols.",
+            "reason": "Python dependencies include external import nodes while compact Rust does not yet emit external dependency references.",
         }
     }
     return {

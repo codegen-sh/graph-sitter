@@ -1166,9 +1166,9 @@ def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
         assert service.get_name().name == "Service"
         assert service.get_name().full_name == "Service"
         assert run.get_name().source == "run"
-        assert helper.dependencies == [service]
+        assert helper.dependencies == [import_handle]
         assert helper.dependencies(usage_types=UsageType.CHAINED) == []
-        assert helper.dependencies(max_depth=2) == [service]
+        assert helper.dependencies(max_depth=2) == [import_handle]
         assert helper.symbol_usages == []
         assert service.symbol_usages == [helper]
         assert service.symbol_usages(UsageType.DIRECT | UsageType.CHAINED) == [helper]
