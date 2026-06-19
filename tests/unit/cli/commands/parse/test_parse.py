@@ -237,7 +237,8 @@ def test_parse_command_rejects_missing_subdirectory(tmp_path):
     )
 
     assert result.exit_code != 0
-    assert "--subdir path does not exist: missing" in result.output
+    assert "--subdir" in result.output
+    assert "path does not exist: missing" in result.output
 
 
 def test_parse_command_summarizes_typescript_repo_as_json(tmp_path):
