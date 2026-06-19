@@ -993,6 +993,40 @@ def _typescript_import_module_name_for_filepath(filepath: str) -> str:
     return module
 
 
+def _is_typescript_like_extension(extension: str) -> bool:
+    return extension in {".ts", ".tsx", ".js", ".jsx"}
+
+
+def _typescript_module_literal(module: str) -> str:
+    stripped = module.strip("\"'")
+    return f"'{stripped}'"
+
+
+def _typescript_import_string(
+    *,
+    name: str | None,
+    file_name: str,
+    module: str,
+    alias: str | None = None,
+    import_type: ImportType = ImportType.UNKNOWN,
+    is_type_import: bool = False,
+) -> str:
+    module_literal = _typescript_module_literal(module)
+    type_prefix = "type " if is_type_import else ""
+
+    if import_type == ImportType.WILDCARD:
+        namespace = alias or file_name
+        return f"import {type_prefix}* as {namespace} from {module_literal};"
+    if import_type == ImportType.DEFAULT_EXPORT:
+        import_name = alias or name or file_name
+        return f"import {type_prefix}{import_name} from {module_literal};"
+
+    import_name = name or file_name
+    if alias is not None and alias != import_name:
+        return f"import {type_prefix}{{ {import_name} as {alias} }} from {module_literal};"
+    return f"import {type_prefix}{{ {import_name} }} from {module_literal};"
+
+
 def _line_count(source: str) -> int:
     if source == "":
         return 0
@@ -1117,6 +1151,16 @@ class RustCompactFile(RustCompactHandle):
     def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
         symbol_name = self.name
         import_module = module if module is not None else self.import_module_name
+        if _is_typescript_like_extension(self.extension):
+            return _typescript_import_string(
+                name=symbol_name,
+                file_name=symbol_name,
+                module=import_module,
+                alias=alias,
+                import_type=ImportType.WILDCARD,
+                is_type_import=is_type_import,
+            )
+
         if f".{symbol_name}" in import_module:
             import_module = import_module.replace(f".{symbol_name}", "")
         if symbol_name == import_module:
@@ -1220,7 +1264,15 @@ class RustCompactFile(RustCompactHandle):
         if future_imports:
             return future_imports[-1].end_byte, f"\n{import_line}"
 
-        return self.imports[0].start_byte, f"{import_line}\n"
+        return self._line_start_byte(self.imports[0].record.range.start_row), f"{import_line}\n"
+
+    def _line_start_byte(self, row: int) -> int:
+        offsets = _line_byte_offsets(self.content)
+        if not offsets:
+            return 0
+        if row >= len(offsets):
+            return len(self.content_bytes)
+        return offsets[row]
 
     def add_symbol_from_source(self, source: str) -> None:
         symbol_source = source.rstrip("\n")
@@ -1861,6 +1913,16 @@ class RustCompactSymbol(RustCompactHandle):
 
     def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
         import_module = module if module is not None else self.file.import_module_name
+        if _is_typescript_like_extension(self.file.extension):
+            return _typescript_import_string(
+                name=self.name,
+                file_name=self.file.name,
+                module=import_module,
+                alias=alias,
+                import_type=import_type,
+                is_type_import=is_type_import,
+            )
+
         if import_type == ImportType.WILDCARD:
             file_as_module = self.file.name
             return f"from {import_module} import * as {file_as_module}"
@@ -2017,6 +2079,17 @@ class RustCompactImport(RustCompactHandle):
 
     def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
         import_module = module if module is not None else self.file.import_module_name
+        if _is_typescript_like_extension(self.file.extension):
+            effective_import_type = self.import_type if import_type == ImportType.UNKNOWN else import_type
+            return _typescript_import_string(
+                name=self.name or self.import_specifier,
+                file_name=self.file.name,
+                module=import_module,
+                alias=alias,
+                import_type=effective_import_type,
+                is_type_import=is_type_import,
+            )
+
         if import_type == ImportType.WILDCARD:
             file_as_module = self.file.name
             return f"from {import_module} import * as {file_as_module}"
@@ -2058,7 +2131,7 @@ class RustCompactImport(RustCompactHandle):
 
     @property
     def is_dynamic(self) -> bool:
-        return False
+        return self.record.kind == "dynamic_import"
 
     @property
     def is_reexport(self) -> bool:
@@ -2131,6 +2204,14 @@ class RustCompactImport(RustCompactHandle):
         return self.record.module
 
     def _import_type(self) -> ImportType:
+        if _is_typescript_like_extension(self.file.extension):
+            return {
+                "default_import": ImportType.DEFAULT_EXPORT,
+                "dynamic_import": ImportType.DEFAULT_EXPORT,
+                "named_import": ImportType.NAMED_EXPORT,
+                "namespace_import": ImportType.WILDCARD,
+                "side_effect": ImportType.SIDE_EFFECT,
+            }.get(self.record.kind, ImportType.UNKNOWN)
         if self.record.name == "*":
             return ImportType.WILDCARD
         if self.record.kind == "import":

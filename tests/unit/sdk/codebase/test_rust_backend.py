@@ -537,7 +537,7 @@ class FakeTypeScriptSummary(FakeSummary):
                 "import_resolutions": 1,
                 "references": 1,
                 "dependencies": 1,
-                "bytes": 198,
+                "bytes": 211,
                 "lines": 10,
             }
         )
@@ -558,19 +558,19 @@ class FakeTypeScriptIndex:
                     "id": 0,
                     "path": "src/app.ts",
                     "module_name": None,
-                    "byte_len": 141,
+                    "byte_len": 153,
                     "line_count": 7,
                     "has_error": False,
-                    "root_range": fake_range(0, 141, 0, 0, 7, 0),
+                    "root_range": fake_range(0, 153, 0, 0, 7, 0),
                 },
                 {
                     "id": 1,
                     "path": "src/util.ts",
                     "module_name": None,
-                    "byte_len": 57,
+                    "byte_len": 58,
                     "line_count": 3,
                     "has_error": False,
-                    "root_range": fake_range(0, 57, 0, 0, 3, 0),
+                    "root_range": fake_range(0, 58, 0, 0, 3, 0),
                 },
             ]
         )
@@ -585,8 +585,8 @@ class FakeTypeScriptIndex:
                     "is_top_level": True,
                     "name": "Props",
                     "kind": "interface",
-                    "range": fake_range(35, 68, 2, 0, 2, 33),
-                    "name_range": fake_range(45, 50, 2, 10, 2, 15),
+                    "range": fake_range(34, 67, 2, 0, 2, 33),
+                    "name_range": fake_range(44, 49, 2, 10, 2, 15),
                 },
                 {
                     "id": 1,
@@ -595,8 +595,8 @@ class FakeTypeScriptIndex:
                     "is_top_level": True,
                     "name": "Mode",
                     "kind": "type_alias",
-                    "range": fake_range(69, 86, 3, 0, 3, 17),
-                    "name_range": fake_range(74, 78, 3, 5, 3, 9),
+                    "range": fake_range(68, 84, 3, 0, 3, 16),
+                    "name_range": fake_range(73, 77, 3, 5, 3, 9),
                 },
                 {
                     "id": 2,
@@ -605,8 +605,8 @@ class FakeTypeScriptIndex:
                     "is_top_level": True,
                     "name": "run",
                     "kind": "function",
-                    "range": fake_range(87, 141, 4, 0, 6, 1),
-                    "name_range": fake_range(103, 106, 4, 16, 4, 19),
+                    "range": fake_range(85, 153, 4, 0, 6, 1),
+                    "name_range": fake_range(101, 104, 4, 16, 4, 19),
                 },
                 {
                     "id": 3,
@@ -615,7 +615,7 @@ class FakeTypeScriptIndex:
                     "is_top_level": True,
                     "name": "helper",
                     "kind": "function",
-                    "range": fake_range(0, 57, 0, 0, 2, 1),
+                    "range": fake_range(0, 58, 0, 0, 2, 1),
                     "name_range": fake_range(16, 22, 0, 16, 0, 22),
                 },
             ]
@@ -664,7 +664,7 @@ class FakeTypeScriptIndex:
                     "source_module": None,
                     "symbol_id": 2,
                     "import_id": None,
-                    "range": fake_range(87, 141, 4, 0, 6, 1),
+                    "range": fake_range(85, 153, 4, 0, 6, 1),
                 },
                 {
                     "id": 1,
@@ -675,7 +675,7 @@ class FakeTypeScriptIndex:
                     "source_module": None,
                     "symbol_id": 3,
                     "import_id": None,
-                    "range": fake_range(0, 57, 0, 0, 2, 1),
+                    "range": fake_range(0, 58, 0, 0, 2, 1),
                 },
             ]
         )
@@ -690,7 +690,7 @@ class FakeTypeScriptIndex:
                     "target_symbol_id": 3,
                     "import_id": 0,
                     "name": "helper",
-                    "range": fake_range(119, 125, 5, 9, 5, 15),
+                    "range": fake_range(130, 136, 5, 9, 5, 15),
                 }
             ]
         )
@@ -1432,17 +1432,23 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
         assert [interface.name for interface in codebase.interfaces] == ["Props"]
         assert [type_alias.name for type_alias in codebase.types] == ["Mode"]
         assert codebase.imports[0].name == "helper"
+        assert codebase.imports[0].import_type == ImportType.NAMED_EXPORT
+        assert not codebase.imports[0].is_module_import()
+        assert codebase.imports[0].is_symbol_import()
         assert [export.name for export in codebase.exports] == ["run", "helper"]
 
         run = codebase.get_function("run")
         helper = codebase.get_function("helper")
         assert run is not None
         assert helper is not None
+        assert run.get_import_string(alias="execute") == "import { run as execute } from 'src/app';"
+        assert helper.get_import_string(alias="assist") == "import { helper as assist } from 'src/util';"
         assert run.dependencies == [helper]
         assert helper.usages[0].match.source == "helper"
 
         app_file = codebase.get_file("src/app.ts")
         util_file = codebase.get_file("src/util.ts")
+        assert util_file.get_import_string() == "import * as util from 'src/util';"
         run_export = app_file.get_export("run")
         helper_export = util_file.get_export("helper")
         assert run_export is not None
@@ -1913,6 +1919,55 @@ def test_rust_compact_codemod_execute_move_updates_imports_without_python_graph(
         assert (tmp_path / "pkg/service.py").read_text() == ""
         assert (tmp_path / "pkg/models.py").read_text() == "class Service:\n    pass\n"
         assert (tmp_path / "pkg/consumer.py").read_text() == expected_consumer
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
+def test_rust_compact_typescript_codemod_edits_imports_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    def execute(codebase):
+        app_file = codebase.get_file("src/app.ts")
+        consumer_file = codebase.create_file("src/consumer.ts", "export const value = compute(1);\n", sync=False)
+        helper = codebase.get_function("helper")
+
+        app_file.add_import("import { describe } from 'node:test';")
+        consumer_file.add_import(helper, alias="compute")
+        codebase.get_function("run").rename("executeRun")
+
+    codemod = Codemod(name="rust-typescript-import-smoke", execute=execute)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        files={
+            "src/app.ts": "import { helper } from './util';\n\ninterface Props { value: number }\ntype Mode = 'a';\nexport function run(props: Props) {\n  return helper(props.value);\n}\n",
+            "src/util.ts": "export function helper(value: number) {\n  return value;\n}\n",
+        },
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        codemod.execute(codebase)
+        codebase.commit(sync_graph=False)
+
+        expected_app = (
+            "import { describe } from 'node:test';\n"
+            "import { helper } from './util';\n"
+            "\n"
+            "interface Props { value: number }\n"
+            "type Mode = 'a';\n"
+            "export function executeRun(props: Props) {\n"
+            "  return helper(props.value);\n"
+            "}\n"
+        )
+        expected_consumer = "import { helper as compute } from 'src/util';\nexport const value = compute(1);\n"
+        assert (tmp_path / "src/app.ts").read_text() == expected_app
+        assert (tmp_path / "src/consumer.ts").read_text() == expected_consumer
+        assert codebase.get_file("src/app.ts").content == expected_app
 
         with pytest.raises(RuntimeError, match="Python graph is not built"):
             len(codebase.ctx.nodes)
