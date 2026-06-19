@@ -36,7 +36,7 @@ This plan does not change docs/site content.
   - `gs create <name>` scaffolds a `@graph_sitter.function("<name>")` function.
   - `gs run <label>` resolves the function by label, parses the repo, runs the function, and applies changes to the local filesystem.
 - `src/graph_sitter/cli/commands/run/run_local.py` already has a reusable `parse_codebase(repo_path, subdirectories=None, language=None)` helper.
-- `src/codemods/codemod.py` defines a minimal `Codemod` class with an `execute` callback, and integration tests instantiate `Codemod.execute(codebase)`, but the public CLI does not expose this class-based codemod path.
+- `src/codemods/codemod.py` defines a minimal `Codemod` class with an `execute` callback, and the public `graph-sitter transform MODULE:OBJECT` path now supports `Codemod` subclasses and instances.
 - The Rust rewrite currently has a separate PyO3 module named `graph_sitter_py`. Built wheels now include that top-level module; source/editable development can still use the manual extension build helpers when bypassing wheel builds.
 
 ## Proposed Command Surface

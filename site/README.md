@@ -16,6 +16,13 @@ the Mintlify docs tree.
 - Vercel CLI for preview deploys: `npm i -g vercel`, or an existing global
   `vercel` binary.
 
+If the active Node install fails locally, prefer a Node 22 runtime from `nvm`
+or another version manager before running build or Vercel commands:
+
+```bash
+export PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH"
+```
+
 ## Local Development
 
 ```bash
@@ -31,6 +38,14 @@ Open the printed localhost URL.
 ```bash
 cd site
 npm run build
+```
+
+For a Vercel-shaped local build without deploying:
+
+```bash
+export PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH"
+npx vercel pull --cwd site --environment=preview --yes
+npx vercel build --cwd site
 ```
 
 ## Vercel Preview Deploy
@@ -52,9 +67,11 @@ Production Branch: the integrator-approved trunk branch
 From an authenticated Vercel CLI session:
 
 ```bash
-vercel whoami
-cd site
-vercel deploy --yes
+export PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH"
+npx vercel whoami
+npx vercel link --cwd site
+npx vercel pull --cwd site --environment=preview --yes
+npx vercel deploy --cwd site --yes
 ```
 
 This creates a preview deployment. Do not pass `--prod`, attach
@@ -65,15 +82,16 @@ If the Vercel project is already linked and you are running from the repository
 root, this equivalent command keeps the deployment scoped to the landing app:
 
 ```bash
-vercel deploy --cwd site --yes
+npx vercel pull --cwd site --environment=preview --yes
+npx vercel deploy --cwd site --yes
 ```
 
-If the project is not linked yet, link from the repository root while keeping
-the working directory scoped to the site app:
+For a prebuilt preview deployment:
 
 ```bash
-vercel link --cwd site
-vercel deploy --cwd site --yes
+npx vercel pull --cwd site --environment=preview --yes
+npx vercel build --cwd site
+npx vercel deploy --cwd site --prebuilt --yes
 ```
 
 Vercel should use Node.js 22.x. No runtime environment variables are required
