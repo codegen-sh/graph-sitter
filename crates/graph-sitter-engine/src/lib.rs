@@ -1106,15 +1106,18 @@ fn collect_typescript_binding_targets<'tree>(node: Node<'tree>, out: &mut Vec<No
                 collect_typescript_binding_targets(value, out);
             }
         }
-        "assignment_pattern"
-        | "formal_parameters"
+        "assignment_pattern" | "object_assignment_pattern" => {
+            if let Some(left) = node.child_by_field_name("left") {
+                collect_typescript_binding_targets(left, out);
+            }
+        }
+        "formal_parameters"
         | "lexical_declaration"
         | "optional_parameter"
         | "parameters"
         | "required_parameter"
         | "rest_pattern"
         | "variable_declaration"
-        | "object_assignment_pattern"
         | "object_pattern"
         | "array_pattern" => {
             let mut cursor = node.walk();
@@ -1634,7 +1637,9 @@ fn collect_typescript_local_bindings_for_symbol(
     match node.kind() {
         "import_statement" => return,
         "variable_declarator" => {
-            if contains_range(symbol_range, node_range) {
+            if contains_range(symbol_range, node_range)
+                && !typescript_variable_declarator_is_lexical(node)
+            {
                 if let Some(name_node) = node.child_by_field_name("name") {
                     let mut targets = Vec::new();
                     collect_typescript_binding_targets(name_node, &mut targets);
@@ -1674,6 +1679,11 @@ fn collect_typescript_local_bindings_for_symbol(
     }
 }
 
+fn typescript_variable_declarator_is_lexical(node: Node<'_>) -> bool {
+    node.parent()
+        .is_some_and(|parent| parent.kind() == "lexical_declaration")
+}
+
 fn typescript_parameter_is_symbol_wide(node: Node<'_>, symbol_range: SourceRange) -> bool {
     let mut current = Some(node);
     while let Some(parent) = current {
@@ -1710,6 +1720,14 @@ fn collect_typescript_scoped_local_bindings_from_node(
         | "class_declaration"
         | "abstract_class_declaration" => {
             push_typescript_nested_declaration_binding_scope(
+                source,
+                node,
+                symbol_ranges,
+                scoped_bindings,
+            );
+        }
+        "lexical_declaration" => {
+            push_typescript_lexical_declaration_binding_scope(
                 source,
                 node,
                 symbol_ranges,
@@ -1772,6 +1790,61 @@ fn collect_typescript_scoped_local_bindings_from_node(
             scoped_bindings,
         );
     }
+}
+
+fn push_typescript_lexical_declaration_binding_scope(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    scoped_bindings: &mut Vec<LocalBindingScope>,
+) {
+    let node_range = SourceRange::from(node.range());
+    let Some((source_symbol_id, symbol_range)) =
+        innermost_symbol_range_for_range(symbol_ranges, node_range)
+    else {
+        return;
+    };
+    let mut targets = Vec::new();
+    collect_typescript_binding_targets(node, &mut targets);
+    let Some(first_target) = targets.iter().min_by_key(|target| target.start_byte()) else {
+        return;
+    };
+    let scope_end = typescript_lexical_declaration_scope_end(node).unwrap_or(symbol_range);
+    let scope_range = SourceRange {
+        start_byte: first_target.start_byte(),
+        end_byte: scope_end.end_byte,
+        start_row: first_target.start_position().row,
+        start_column: first_target.start_position().column,
+        end_row: scope_end.end_row,
+        end_column: scope_end.end_column,
+    };
+    let mut names = HashSet::new();
+    for target in targets {
+        if let Ok(name) = target.utf8_text(source.as_bytes()) {
+            names.insert(name.to_owned());
+        }
+    }
+    if !names.is_empty() {
+        scoped_bindings.push(LocalBindingScope {
+            source_symbol_id,
+            range: scope_range,
+            names,
+        });
+    }
+}
+
+fn typescript_lexical_declaration_scope_end(node: Node<'_>) -> Option<SourceRange> {
+    let mut current = node.parent();
+    while let Some(parent) = current {
+        if matches!(
+            parent.kind(),
+            "for_statement" | "for_in_statement" | "statement_block" | "switch_body"
+        ) {
+            return Some(parent.range().into());
+        }
+        current = parent.parent();
+    }
+    None
 }
 
 fn push_typescript_nested_declaration_binding_scope(
@@ -4886,6 +4959,131 @@ export function run() {\n\
                 .filter(|reference| reference.target_symbol_id == still_imported_symbol_id)
                 .count(),
             1
+        );
+    }
+
+    #[test]
+    fn excludes_typescript_references_shadowed_by_destructuring_defaults() {
+        let repo = temp_repo_path("resolve-typescript-destructuring-default-shadows");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { Foo, Bar, Baz, Quux, Inner, StillImported, DefaultValue } from './values';\n\
+\n\
+export function run({ Foo = DefaultValue, alias: Bar = DefaultValue }: any, [Baz = DefaultValue]: any) {\n\
+  const { Quux = DefaultValue, nested: { Inner = DefaultValue } = {} } = {} as any;\n\
+  return Foo + Bar + Baz + Quux + Inner + StillImported + DefaultValue;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/values.ts"),
+            "export const Foo = 1;\nexport const Bar = 2;\nexport const Baz = 3;\nexport const Quux = 4;\nexport const Inner = 5;\nexport const StillImported = 6;\nexport const DefaultValue = 7;\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 2);
+        assert_eq!(index.summary().imports, 7);
+        assert_eq!(index.summary().import_resolutions, 7);
+        assert_eq!(index.summary().references, 7);
+        assert_eq!(index.summary().dependencies, 2);
+
+        let values_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/values.ts")
+            .unwrap()
+            .id;
+        let still_imported_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "StillImported")
+            .unwrap()
+            .id;
+        let default_value_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "DefaultValue")
+            .unwrap()
+            .id;
+
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == still_imported_symbol_id)
+                .count(),
+            1
+        );
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == default_value_symbol_id)
+                .count(),
+            6
+        );
+    }
+
+    #[test]
+    fn scopes_typescript_lexical_declaration_shadows_to_blocks() {
+        let repo = temp_repo_path("resolve-typescript-lexical-block-shadows");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { Imported } from './values';\n\
+\n\
+export function run(flag: boolean) {\n\
+  const before = Imported;\n\
+  if (flag) {\n\
+    const Imported = 1;\n\
+    Imported;\n\
+  }\n\
+  return Imported + before;\n\
+}\n\
+\n\
+export function loop() {\n\
+  for (let Imported = 0; Imported < 1; Imported++) {\n\
+    Imported;\n\
+  }\n\
+  return Imported;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(repo.join("src/values.ts"), "export const Imported = 1;\n").unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 2);
+        assert_eq!(index.summary().imports, 1);
+        assert_eq!(index.summary().import_resolutions, 1);
+        assert_eq!(index.summary().references, 3);
+        assert_eq!(index.summary().dependencies, 2);
+
+        let values_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/values.ts")
+            .unwrap()
+            .id;
+        let imported_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "Imported")
+            .unwrap()
+            .id;
+
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == imported_symbol_id)
+                .count(),
+            3
         );
     }
 
