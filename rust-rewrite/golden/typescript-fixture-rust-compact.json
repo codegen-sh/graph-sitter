@@ -6,6 +6,17 @@
       "reference_ids": [
         0
       ],
+      "source_file_id": 0,
+      "source_symbol_id": 7,
+      "target_file_id": 0,
+      "target_symbol_id": 2
+    },
+    {
+      "id": 1,
+      "reference_count": 1,
+      "reference_ids": [
+        1
+      ],
       "source_file_id": 1,
       "source_symbol_id": 10,
       "target_file_id": 1,
@@ -450,6 +461,22 @@
     {
       "id": 0,
       "import_id": null,
+      "name": "Props",
+      "range": [
+        457,
+        462,
+        12,
+        28,
+        12,
+        33
+      ],
+      "source_file_id": 0,
+      "source_symbol_id": 7,
+      "target_symbol_id": 2
+    },
+    {
+      "id": 1,
+      "import_id": null,
       "name": "sharedValue",
       "range": [
         66,
@@ -468,7 +495,7 @@
   "summary": {
     "bytes": 720,
     "classes": 1,
-    "dependencies": 1,
+    "dependencies": 2,
     "exports": 13,
     "files": 2,
     "files_with_errors": 0,
@@ -477,7 +504,7 @@
     "import_resolutions": 2,
     "imports": 9,
     "lines": 19,
-    "references": 1,
+    "references": 2,
     "symbols": 11
   },
   "symbols": [

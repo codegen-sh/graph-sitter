@@ -275,6 +275,13 @@ def collect_nextjs_report(repo: Path, *, backend: str, extension_dir: Path) -> d
         "announcer_dependencies": unique_sorted_signatures(
             [dependency_signature(handle) for handle in announcer.dependencies]
         ),
+        "announcer_import_dependencies": unique_sorted_signatures(
+            [
+                dependency_signature(handle)
+                for handle in announcer.dependencies
+                if node_type_name(getattr(handle, "node_type", None)) == "IMPORT"
+            ]
+        ),
         "announcer_symbol_usages": unique_sorted_signatures(
             [node_signature(handle) for handle in announcer.symbol_usages]
         ),
@@ -368,6 +375,7 @@ def compare_suite(python_report: dict[str, Any], rust_report: dict[str, Any], *,
             "announcer_function",
             "announcer_export",
             "announcer_imports",
+            "announcer_import_dependencies",
             "announcer_symbol_usages",
         ]
         known_delta_keys = ["announcer_dependencies"]

@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 16260,
+      "count": 21639,
       "samples": [
         {
           "reference_count": 2,
@@ -49,6 +49,16 @@
         {
           "reference_count": 1,
           "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@22144"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
+          "reference_count": 1,
+          "references": [
             ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764->.github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513::BOT_COMMENT_MARKER@21904"
           ],
           "source_file": ".github/actions/next-integration-stat/src/index.ts",
@@ -67,6 +77,47 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630"
         },
         {
+          "reference_count": 2,
+          "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2522",
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2558"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+        },
+        {
+          "reference_count": 1,
+          "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@2489"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
+          "reference_count": 1,
+          "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@785"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+        },
+        {
+          "reference_count": 1,
+          "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@752"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
           "reference_count": 1,
           "references": [
             ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513::BOT_COMMENT_MARKER@5798"
@@ -75,6 +126,16 @@
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
           "target_file": ".github/actions/next-integration-stat/src/index.ts",
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513"
+        },
+        {
+          "reference_count": 1,
+          "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@4042"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
         },
         {
           "reference_count": 2,
@@ -110,6 +171,16 @@
         {
           "reference_count": 1,
           "references": [
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@6683"
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+          "target_file": ".github/actions/next-integration-stat/src/index.ts",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
+          "reference_count": 1,
+          "references": [
             ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:path@185::path@12511"
           ],
           "source_file": ".github/actions/next-integration-stat/src/index.ts",
@@ -132,86 +203,16 @@
         {
           "reference_count": 2,
           "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558->.github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127::withoutRetries@15968",
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558->.github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127::withoutRetries@17874"
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@10649",
+            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@11613"
           ],
           "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
           "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:run@22681->.github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107::createCommentPostAsync@23136"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:run@22681->.github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764::createFormattedComment@28086"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:run@22681->.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962::getInputs@22836"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:run@22681->.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657::getJobResults@22922"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:run@22681->.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615::getTestResultDiffBase@23057"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:run@22681->.github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558::getTestSummary@26647"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558"
-        },
-        {
-          "reference_count": 1,
-          "references": [
-            ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:run@22681->.github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513::BOT_COMMENT_MARKER@27446"
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
-          "target_file": ".github/actions/next-integration-stat/src/index.ts",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513"
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
         }
       ],
-      "sha256": "6ce565a311380b71464e4b05ebb563599e48c50525ec224a9d5d395401707215"
+      "sha256": "6e24380897eab123b0cb234b8abf60ac8a37c8c3f2258e74f70d5ef230f16dae"
     },
     "exports": {
       "count": 16026,
@@ -906,7 +907,7 @@
       "sha256": "75176bcfeb2ad12c09a7dfddc5de0f357b3f760e0b16b6cd05c9cf8260113b33"
     },
     "external_references": {
-      "count": 23282,
+      "count": 25323,
       "samples": [
         {
           "import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
@@ -1209,7 +1210,7 @@
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615"
         }
       ],
-      "sha256": "a95b5501c80d548018eef61cd64bb3a25c411c9a2270ca4dc2dc230c3edb12d5"
+      "sha256": "5999f25ed89d5cc695eeda2c7288f3a9cdb39ae0d04588f4b4b9d7c943455d93"
     },
     "files": {
       "count": 13688,
@@ -1970,7 +1971,7 @@
       "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
     },
     "references": {
-      "count": 48157,
+      "count": 62309,
       "samples": [
         {
           "import": null,
@@ -2102,6 +2103,118 @@
         },
         {
           "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@358",
+          "name": "Octokit",
+          "range": [
+            358,
+            365,
+            12,
+            13,
+            12,
+            20
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
+          "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@752",
+          "name": "Octokit",
+          "range": [
+            752,
+            759,
+            21,
+            11,
+            21,
+            18
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
+          "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@785",
+          "name": "Job",
+          "range": [
+            785,
+            788,
+            23,
+            7,
+            23,
+            10
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+        },
+        {
+          "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@2489",
+          "name": "Octokit",
+          "range": [
+            2489,
+            2496,
+            79,
+            11,
+            79,
+            18
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
+          "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2522",
+          "name": "Job",
+          "range": [
+            2522,
+            2525,
+            81,
+            7,
+            81,
+            10
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+        },
+        {
+          "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2558",
+          "name": "Job",
+          "range": [
+            2558,
+            2561,
+            82,
+            32,
+            82,
+            35
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+        },
+        {
+          "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@4042",
+          "name": "Octokit",
+          "range": [
+            4042,
+            4049,
+            133,
+            11,
+            133,
+            18
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+        },
+        {
+          "import": null,
           "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513::BOT_COMMENT_MARKER@5798",
           "name": "BOT_COMMENT_MARKER",
           "range": [
@@ -2115,6 +2228,22 @@
           "source_file": ".github/actions/next-integration-stat/src/index.ts",
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513"
+        },
+        {
+          "import": null,
+          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@6683",
+          "name": "Octokit",
+          "range": [
+            6683,
+            6690,
+            221,
+            11,
+            221,
+            18
+          ],
+          "source_file": ".github/actions/next-integration-stat/src/index.ts",
+          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
         },
         {
           "import": null,
@@ -2163,137 +2292,9 @@
           "source_file": ".github/actions/next-integration-stat/src/index.ts",
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:fs@160::fs@10385",
-          "name": "fs",
-          "range": [
-            10385,
-            10387,
-            340,
-            2,
-            340,
-            4
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:fs@160"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:path@185::path@12511",
-          "name": "path",
-          "range": [
-            12511,
-            12515,
-            406,
-            21,
-            406,
-            25
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:path@185"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:semver@214::semver@12895",
-          "name": "semver",
-          "range": [
-            12895,
-            12901,
-            422,
-            31,
-            422,
-            37
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:semver@214"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:semver@214::semver@12954",
-          "name": "semver",
-          "range": [
-            12954,
-            12960,
-            423,
-            27,
-            423,
-            33
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:semver@214"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:global_variable:semver@214::semver@13078",
-          "name": "semver",
-          "range": [
-            13078,
-            13084,
-            429,
-            15,
-            429,
-            21
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:semver@214"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558->.github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127::withoutRetries@15968",
-          "name": "withoutRetries",
-          "range": [
-            15968,
-            15982,
-            534,
-            6,
-            534,
-            20
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558->.github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127::withoutRetries@17874",
-          "name": "withoutRetries",
-          "range": [
-            17874,
-            17888,
-            598,
-            6,
-            598,
-            20
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127"
-        },
-        {
-          "import": null,
-          "key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764->.github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630::commentTitlePre@21885",
-          "name": "commentTitlePre",
-          "range": [
-            21885,
-            21900,
-            710,
-            9,
-            710,
-            24
-          ],
-          "source_file": ".github/actions/next-integration-stat/src/index.ts",
-          "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764",
-          "target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630"
         }
       ],
-      "sha256": "21b2844aab783e8856a5d423f21667e007e542064a634fc56f620356dde01d6c"
+      "sha256": "46d60b0bb503893b2a7939bc1d3114ca060e82abf851d0ea9e590451ac311cda"
     },
     "subclass_edges": {
       "count": 151,
@@ -2992,10 +2993,10 @@
   "summary": {
     "bytes": 25421217,
     "classes": 502,
-    "dependencies": 16260,
+    "dependencies": 21639,
     "exports": 16026,
     "external_modules": 13525,
-    "external_references": 23282,
+    "external_references": 25323,
     "files": 13688,
     "files_with_errors": 114,
     "functions": 13497,
@@ -3003,7 +3004,7 @@
     "import_resolutions": 13462,
     "imports": 28210,
     "lines": 634891,
-    "references": 48157,
+    "references": 62309,
     "subclass_edges": 151,
     "symbols": 23980
   }

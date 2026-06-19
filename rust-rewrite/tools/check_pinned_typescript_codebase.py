@@ -39,8 +39,8 @@ EXPECTED_SUMMARY = {
     "imports": 28210,
     "import_resolutions": 13462,
     "external_modules": 13525,
-    "references": 48157,
-    "dependencies": 16260,
+    "references": 62309,
+    "dependencies": 21639,
     "bytes": 25421217,
     "lines": 634891,
     "files_with_errors": 114,
@@ -56,9 +56,9 @@ EXPECTED_RECORDS = {
     "rust_import_resolutions": 13462,
     "rust_external_modules": 13525,
     "rust_exports": 16026,
-    "rust_references": 48157,
-    "rust_external_references": 23282,
-    "rust_dependencies": 16260,
+    "rust_references": 62309,
+    "rust_external_references": 25323,
+    "rust_dependencies": 21639,
     "rust_subclass_edges": 151,
 }
 

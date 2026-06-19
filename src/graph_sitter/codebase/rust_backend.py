@@ -2396,7 +2396,7 @@ class RustCompactSymbol(RustCompactHandle):
             if target is None:
                 continue
             should_include_target = True
-            if self._preserve_import_dependencies():
+            if self._preserve_import_dependencies(target):
                 should_include_target = False
                 for reference_id in dependency.reference_ids:
                     reference = self.backend.reference_by_id(reference_id)
@@ -2419,8 +2419,10 @@ class RustCompactSymbol(RustCompactHandle):
             dependencies.append(import_handle)
         return dependencies
 
-    def _preserve_import_dependencies(self) -> bool:
-        return self.file.extension == ".py"
+    def _preserve_import_dependencies(self, target: RustCompactSymbol) -> bool:
+        if self.file.extension == ".py":
+            return True
+        return _is_typescript_like_extension(Path(self.filepath).suffix) and target.record.kind in {"interface", "type_alias"}
 
     def _direct_superclasses(self) -> list[RustCompactSymbol]:
         superclasses: list[RustCompactSymbol] = []

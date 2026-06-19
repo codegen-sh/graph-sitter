@@ -2186,6 +2186,16 @@ fn collect_typescript_reference_candidates(
         &excluded_ranges,
         out,
     );
+    collect_typescript_type_reference_candidates(
+        file_id,
+        source,
+        root,
+        &symbol_ranges,
+        &local_bindings_by_symbol_id,
+        &local_binding_scopes,
+        &excluded_ranges,
+        out,
+    );
     collect_typescript_heritage_reference_candidates(
         file_id,
         source,
@@ -2666,6 +2676,173 @@ fn collect_typescript_identifier_candidates(
             excluded_ranges,
             out,
         );
+    }
+}
+
+fn collect_typescript_type_reference_candidates(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    match node.kind() {
+        "import_statement"
+        | "export_clause"
+        | "namespace_export"
+        | "extends_clause"
+        | "implements_clause"
+        | "extends_type_clause" => return,
+        "type_identifier" => {
+            push_typescript_type_reference_candidate(
+                file_id,
+                source,
+                node,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                out,
+            );
+            return;
+        }
+        "nested_type_identifier" => {
+            push_typescript_nested_type_reference_candidate(
+                file_id,
+                source,
+                node,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                out,
+                false,
+            );
+            return;
+        }
+        "type_parameter" => {
+            let name_range = node
+                .child_by_field_name("name")
+                .map(|name| SourceRange::from(name.range()));
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                if name_range.is_some_and(|range| SourceRange::from(child.range()) == range) {
+                    continue;
+                }
+                collect_typescript_type_reference_candidates(
+                    file_id,
+                    source,
+                    child,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    out,
+                );
+            }
+            return;
+        }
+        _ => {}
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_typescript_type_reference_candidates(
+            file_id,
+            source,
+            child,
+            symbol_ranges,
+            local_bindings_by_symbol_id,
+            local_binding_scopes,
+            excluded_ranges,
+            out,
+        );
+    }
+}
+
+fn push_typescript_type_reference_candidate(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    let range = SourceRange::from(node.range());
+    if range_matches_any(range, excluded_ranges) {
+        return;
+    }
+    let Ok(name) = node.utf8_text(source.as_bytes()) else {
+        return;
+    };
+    let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+    if !typescript_reference_is_shadowed(
+        source_symbol_id,
+        name,
+        range,
+        local_bindings_by_symbol_id,
+        local_binding_scopes,
+    ) {
+        out.push(ReferenceCandidate {
+            source_file_id: file_id,
+            source_symbol_id,
+            name: name.to_owned(),
+            qualifier: None,
+            range,
+            is_subclass: false,
+        });
+    }
+}
+
+fn push_typescript_nested_type_reference_candidate(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    out: &mut Vec<ReferenceCandidate>,
+    is_subclass: bool,
+) {
+    let Some(name_node) = node.child_by_field_name("name") else {
+        return;
+    };
+    let Some(module_node) = node.child_by_field_name("module") else {
+        return;
+    };
+    let range = SourceRange::from(name_node.range());
+    if range_matches_any(range, excluded_ranges) {
+        return;
+    }
+    let Ok(name) = name_node.utf8_text(source.as_bytes()) else {
+        return;
+    };
+    let Ok(module) = module_node.utf8_text(source.as_bytes()) else {
+        return;
+    };
+    let qualifier = module.split('.').next().unwrap_or(module);
+    let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+    if !typescript_reference_is_shadowed(
+        source_symbol_id,
+        qualifier,
+        range,
+        local_bindings_by_symbol_id,
+        local_binding_scopes,
+    ) {
+        out.push(ReferenceCandidate {
+            source_file_id: file_id,
+            source_symbol_id,
+            name: name.to_owned(),
+            qualifier: Some(qualifier.to_owned()),
+            range,
+            is_subclass,
+        });
     }
 }
 
@@ -6254,6 +6431,92 @@ export function loop() {\n\
                 .count(),
             3
         );
+    }
+
+    #[test]
+    fn resolves_typescript_type_annotation_references_and_dependencies() {
+        let repo = temp_repo_path("resolve-typescript-type-annotation-references");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.tsx"),
+            "import type { FlightRouterState } from './types';\n\
+import { runtimeValue } from './values';\n\
+\n\
+export function AppRouterAnnouncer({ tree }: { tree: FlightRouterState }) {\n\
+  return runtimeValue + tree.length;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/types.ts"),
+            "export interface FlightRouterState { length: number }\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/values.ts"),
+            "export const runtimeValue = 1;\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 3);
+        assert_eq!(index.summary().imports, 2);
+        assert_eq!(index.summary().import_resolutions, 2);
+        assert_eq!(index.summary().references, 2);
+        assert_eq!(index.summary().dependencies, 2);
+
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.tsx")
+            .unwrap()
+            .id;
+        let types_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/types.ts")
+            .unwrap()
+            .id;
+        let values_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/values.ts")
+            .unwrap()
+            .id;
+        let announcer_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "AppRouterAnnouncer")
+            .unwrap()
+            .id;
+        let flight_router_state_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == types_file_id && symbol.name == "FlightRouterState")
+            .unwrap()
+            .id;
+        let runtime_value_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "runtimeValue")
+            .unwrap()
+            .id;
+
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(announcer_symbol_id)
+                && reference.target_symbol_id == flight_router_state_symbol_id
+                && reference.name == "FlightRouterState"
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == announcer_symbol_id
+                && dependency.target_symbol_id == flight_router_state_symbol_id
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == announcer_symbol_id
+                && dependency.target_symbol_id == runtime_value_symbol_id
+        }));
     }
 
     #[test]
