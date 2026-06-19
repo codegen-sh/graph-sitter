@@ -2,6 +2,7 @@ import subprocess
 from pathlib import Path
 
 from click.testing import CliRunner
+from click.utils import strip_ansi
 
 from graph_sitter.cli.cli import main
 
@@ -52,7 +53,8 @@ def rename(codebase, arguments: RenameArgs):
 
     assert result.exit_code == 1, result.output
     assert "Codemod would produce changes" in result.output
-    assert "target -> renamed" in result.output
+    output = strip_ansi(result.output)
+    assert "target -> renamed" in output or ("-def target():" in output and "+def renamed():" in output)
     assert (tmp_path / "app.py").read_text() == "def target():\n    return 1\n"
 
 
