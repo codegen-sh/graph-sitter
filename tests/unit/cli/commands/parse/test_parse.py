@@ -188,6 +188,58 @@ def test_parse_command_summarizes_python_repo_as_json(tmp_path):
     assert payload["dependencies"] >= 1
 
 
+def test_parse_command_limits_python_repo_to_subdirectories(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "src").mkdir()
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "src" / "app.py").write_text("def run():\n    return 1\n")
+    (tmp_path / "tests" / "test_app.py").write_text("def test_run():\n    assert True\n")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "parse",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "python",
+            "--subdir",
+            "src",
+            "--format",
+            "json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["subdirectories"] == ["src/"]
+    assert payload["files"] == 1
+    assert payload["functions"] == 1
+
+
+def test_parse_command_rejects_missing_subdirectory(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def run():\n    return 1\n")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "parse",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--subdir",
+            "missing",
+            "--format",
+            "json",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "--subdir path does not exist: missing" in result.output
+
+
 def test_parse_command_summarizes_typescript_repo_as_json(tmp_path):
     _init_repo(tmp_path)
     (tmp_path / "src").mkdir()

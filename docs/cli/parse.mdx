@@ -1,0 +1,94 @@
+---
+title: "Parse Command"
+sidebarTitle: "parse"
+icon: "diagram-project"
+iconType: "solid"
+---
+
+The `parse` command reads a local repository and prints graph summary counts for
+files, symbols, imports, exports, references, and dependencies.
+
+```bash
+graph-sitter parse .
+```
+
+## Usage
+
+```bash
+graph-sitter parse [PATH] [OPTIONS]
+```
+
+`PATH` defaults to the current directory. The command does not require
+`.codegen` initialization or an active session.
+
+## Options
+
+- `--backend python|rust|auto`: Choose the graph backend. Defaults to `python`.
+- `--fallback python|error`: Choose fallback behavior when the Rust backend is
+  unavailable. Defaults to `error`.
+- `--language auto|python|typescript`: Choose the repository language. Defaults
+  to `auto`.
+- `--format summary|json`: Choose human-readable or machine-readable output.
+  Defaults to `summary`.
+- `--subdir PATH`: Limit parsing to a repository-relative subdirectory or file.
+  Pass this option more than once to include multiple paths.
+
+## JSON Output
+
+Use JSON output in scripts, CI, and agent workflows:
+
+```bash
+graph-sitter parse . --language python --backend python --format json
+```
+
+The JSON payload includes the requested backend, actual backend, language,
+elapsed time, selected subdirectories, and graph count fields.
+
+## Subdirectory Parsing
+
+Use `--subdir` to avoid parsing an entire large repository when the task is
+localized:
+
+```bash
+graph-sitter parse . --language python --subdir src --format json
+graph-sitter parse . --language typescript --subdir packages/app --subdir packages/ui --format json
+```
+
+Subdirectory paths are resolved relative to `PATH`. Absolute paths are accepted
+only when they are inside the repository. Directory filters are passed into the
+same file-discovery path used by the Python and Rust backends.
+
+## Rust Backend
+
+Use strict Rust mode for performance validation:
+
+```bash
+graph-sitter parse . --language python --backend rust --fallback error --format json
+```
+
+Use `doctor` first when validating a new installation:
+
+```bash
+graph-sitter doctor --backend rust --language python --json
+```
+
+<Note>
+  Rust-backed parsing requires a package artifact that includes the
+  `graph_sitter_py` extension. Until a release has passed the wheel and
+  published-package checks, prefer branch-built wheel commands for Rust
+  validation.
+</Note>
+
+## With uvx
+
+Published package form:
+
+```bash
+uvx --python 3.13 graph-sitter parse . --language python --format json
+```
+
+Branch-built wheel validation form:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter parse . --language python --backend rust --fallback error --format json
+```

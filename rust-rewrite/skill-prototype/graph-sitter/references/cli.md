@@ -35,6 +35,7 @@ Local source checkout:
 
 ```bash
 uv run graph-sitter parse [PATH] --backend python --language auto --format json
+uv run graph-sitter parse [PATH] --backend python --language auto --subdir src --format json
 ```
 
 Installed/distributed package path:
@@ -50,6 +51,8 @@ Supported options in this branch:
 - `--fallback python|error`
 - `--language auto|python|typescript`
 - `--format summary|json`
+- `--subdir PATH` repeatable; limits parsing to repository-relative
+  subdirectories or files and works for both Python and Rust backend discovery.
 
 The command does not require `.codegen` initialization. Use `--backend python` for published-package examples until a release ships the new wheels; use `uvx --from dist/<wheel>.whl ... --backend rust --fallback error` for branch-built wheel validation.
 

@@ -9,6 +9,7 @@ from typing import Any
 import rich
 import rich_click as click
 
+from graph_sitter.codebase.config import ProjectConfig
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
@@ -35,6 +36,50 @@ def _parse_language(value: str) -> ProgrammingLanguage | None:
     raise click.ClickException(msg)
 
 
+def _normalize_subdirectories(project: ProjectConfig, raw_subdirectories: tuple[str, ...]) -> list[str] | None:
+    if not raw_subdirectories:
+        return project.subdirectories
+
+    repo_root = Path(project.repo_operator.repo_path).resolve()
+    base_path = Path(project.base_path) if project.base_path else Path()
+    subdirectories: list[str] = []
+    for raw_subdirectory in raw_subdirectories:
+        raw_path = Path(raw_subdirectory).expanduser()
+        if raw_path.is_absolute():
+            try:
+                relative_path = raw_path.resolve().relative_to(repo_root)
+            except ValueError as error:
+                msg = f"--subdir must be inside the git repository: {raw_subdirectory}"
+                raise click.ClickException(msg) from error
+        else:
+            relative_path = base_path / raw_path
+
+        normalized = relative_path.as_posix().removeprefix("./").rstrip("/")
+        if normalized in {"", "."}:
+            if project.base_path:
+                normalized = project.base_path.rstrip("/")
+            else:
+                continue
+
+        full_path = repo_root / normalized
+        if not full_path.exists():
+            msg = f"--subdir path does not exist: {normalized}"
+            raise click.ClickException(msg)
+        if full_path.is_dir():
+            normalized = f"{normalized}/"
+        subdirectories.append(normalized)
+
+    return subdirectories or project.subdirectories
+
+
+def _project_for_parse(path: Path, language: ProgrammingLanguage | None, subdirectories: tuple[str, ...]) -> ProjectConfig:
+    project = ProjectConfig.from_path(str(path), programming_language=language)
+    normalized_subdirectories = _normalize_subdirectories(project, subdirectories)
+    if normalized_subdirectories != project.subdirectories:
+        project = project.model_copy(update={"subdirectories": normalized_subdirectories})
+    return project
+
+
 def _base_payload(codebase: Codebase, *, path: Path, backend: str, elapsed_seconds: float) -> dict[str, Any]:
     rust_summary = codebase.rust_index_summary
     actual_backend = "rust" if rust_summary is not None else "python"
@@ -45,6 +90,7 @@ def _base_payload(codebase: Codebase, *, path: Path, backend: str, elapsed_secon
         "backend": actual_backend,
         "language": codebase.language.value.lower(),
         "elapsed_seconds": round(elapsed_seconds, 6),
+        "subdirectories": codebase.ctx.projects[0].subdirectories,
     }
 
     if rust_summary is not None:
@@ -96,6 +142,7 @@ def _safe_export_count(codebase: Codebase) -> int:
 def _print_summary(payload: dict[str, Any]) -> None:
     rich.print(f"[bold]Graph-sitter parse summary[/bold] ({payload['backend']}, {payload['language']})")
     rich.print(f"Path: {payload['path']}")
+    rich.print(f"Subdirectories: {payload['subdirectories'] or 'ALL'}")
     rich.print(f"Elapsed: {payload['elapsed_seconds']:.3f}s")
     rich.print(
         "Files: {files}  Symbols: {symbols}  Imports: {imports}  Exports: {exports}  Dependencies: {dependencies}".format(
@@ -112,19 +159,21 @@ def _print_summary(payload: dict[str, Any]) -> None:
 @click.option("--fallback", type=click.Choice(["python", "error"]), default="error", show_default=True, help="Fallback behavior when the Rust backend is unavailable.")
 @click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")
 @click.option("--format", "output_format", type=click.Choice(["summary", "json"]), default="summary", show_default=True, help="Output format.")
-def parse_command(path: Path, backend: str, fallback: str, language: str, output_format: str) -> None:
+@click.option("--subdir", "subdirectories", multiple=True, help="Limit parsing to a repository-relative subdirectory or file. Can be passed more than once.")
+def parse_command(path: Path, backend: str, fallback: str, language: str, output_format: str, subdirectories: tuple[str, ...]) -> None:
     """Parse a local codebase and print graph summary counts."""
     config = CodebaseConfig(
         graph_backend=GraphBackend(backend),
         rust_fallback=RustFallbackMode(fallback),
     )
     parsed_language = _parse_language(language)
+    project = _project_for_parse(path, parsed_language, subdirectories)
 
     start = time.perf_counter()
     try:
         disabled_level = logging.WARNING if output_format == "json" else logging.INFO
         with _suppress_parse_logs(disabled_level):
-            codebase = Codebase(str(path), language=parsed_language, config=config)
+            codebase = Codebase(projects=[project], config=config)
     except RuntimeError as error:
         raise click.ClickException(str(error)) from error
     elapsed_seconds = time.perf_counter() - start

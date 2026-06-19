@@ -169,9 +169,7 @@ Required packaging decision:
 
 1. [x] Add the `graph-sitter` console script alias and a metadata test proving both `gs` and `graph-sitter` point to `graph_sitter.cli.cli:main`.
 2. [x] Add a `parse` command with no `.codegen` or active-session requirement.
-3. [ ] Thread `--subdir` through parse construction:
-   - `CodebaseConfig(graph_backend=...)`
-   - `ProjectConfig.from_path(...)` or equivalent repo/operator construction
+3. [x] Thread `--subdir` through parse construction. Result: `graph-sitter parse` accepts repeated `--subdir` filters, normalizes them through `ProjectConfig`, applies them to both Python and Rust selected-file discovery, and includes `subdirectories` in JSON output.
 4. [x] Add machine-readable JSON output from existing Python properties and Rust compact summary properties.
 5. [x] Add an explicit `PATH` argument to `run` while preserving current active-session behavior as fallback.
 6. [x] Fix `--arguments` propagation into decorated functions before advertising it as supported.

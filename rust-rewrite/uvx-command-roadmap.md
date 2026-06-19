@@ -122,6 +122,7 @@ uvx graph-sitter parse [PATH] --language auto|python|typescript
 uvx graph-sitter parse [PATH] --backend python|rust|auto
 uvx graph-sitter parse [PATH] --fallback error|python
 uvx graph-sitter parse [PATH] --format summary|json
+uvx graph-sitter parse [PATH] --subdir src --subdir packages/app
 ```
 
 Python repo examples:
@@ -141,7 +142,6 @@ uvx --python 3.13 graph-sitter parse ./next.js --language typescript --backend r
 Planned parse extensions:
 
 ```bash
-uvx graph-sitter parse [PATH] --subdir src --subdir packages/app
 uvx graph-sitter parse [PATH] --output graph-sitter-index.json
 uvx graph-sitter parse [PATH] --format jsonl
 ```
@@ -155,10 +155,14 @@ Contract:
 - `--format json` is machine-readable and should remain stable within a major
   version.
 - JSON output must include at least `path`, `backend_requested`, `backend`,
-  `language`, `elapsed_seconds`, `files`, `symbols`, `classes`, `functions`,
-  `global_variables`, `imports`, `exports`, `references`,
+  `language`, `elapsed_seconds`, `subdirectories`, `files`, `symbols`,
+  `classes`, `functions`, `global_variables`, `imports`, `exports`, `references`,
   `external_references`, `dependencies`, `subclass_edges`, `files_with_errors`,
   and `rust_backend_error`.
+- `--subdir` may be passed more than once. Paths are resolved relative to
+  `PATH`; absolute paths are accepted only when they are inside the repository.
+  Directory filters feed the same file-discovery path used by both Python and
+  Rust backends.
 - `--backend python` always uses the Python object graph.
 - `--backend rust --fallback error` must either use the Rust backend or exit
   non-zero with a clear error.
@@ -492,8 +496,10 @@ Skill rules:
 
 ### Parse Implementation
 
-- [ ] Add repeatable `--subdir` support to `graph-sitter parse`. owner: CLI
-  implementation agent.
+- [x] Add repeatable `--subdir` support to `graph-sitter parse`. owner: codex.
+  Result: parse accepts repeated repository-relative or in-repo absolute
+  subdirectory/file filters, threads them through `ProjectConfig`, reports the
+  selected `subdirectories` in JSON, and has focused Python-backend CLI tests.
 - [ ] Add `--output` for JSON output files once the JSON schema is stable.
   owner: CLI implementation agent.
 - [ ] Decide whether `jsonl` belongs in v1 or should wait for a richer graph

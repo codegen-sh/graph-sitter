@@ -43,6 +43,7 @@ uvx graph-sitter parse [PATH] --language auto|python|typescript
 uvx graph-sitter parse [PATH] --backend auto|rust|python
 uvx graph-sitter parse [PATH] --fallback error|python
 uvx graph-sitter parse [PATH] --format summary|json
+uvx graph-sitter parse [PATH] --subdir src --subdir packages/app
 uvx graph-sitter parse [PATH] --output graph-sitter-index.json
 ```
 
@@ -54,8 +55,11 @@ Target behavior:
   historical session.
 - `--format summary` is optimized for humans and may change copy over time.
 - `--format json` is the stable agent/CI contract and includes the requested
-  backend, actual backend, language, elapsed time, file/symbol/import/export/
-  reference/dependency counts, parse errors, and Rust fallback/error reason.
+  backend, actual backend, language, elapsed time, selected subdirectories,
+  file/symbol/import/export/reference/dependency counts, parse errors, and Rust
+  fallback/error reason.
+- Repeatable `--subdir` should be preferred by skills when the requested task is
+  scoped to known folders in a large repo.
 - `--backend rust --fallback error` is strict: use the Rust extension or fail
   with a clear message.
 - `--backend auto --fallback python` is the eventual default: prefer Rust for
