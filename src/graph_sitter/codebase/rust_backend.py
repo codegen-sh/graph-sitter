@@ -205,6 +205,35 @@ class RustDependencyRecord:
         )
 
 
+@dataclass(frozen=True)
+class RustExportRecord:
+    id: int
+    file_id: int
+    kind: str
+    name: str | None
+    local_name: str | None
+    source_module: str | None
+    symbol_id: int | None
+    import_id: int | None
+    range: RustSourceRange
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustExportRecord:
+        symbol_id = data["symbol_id"]
+        import_id = data["import_id"]
+        return cls(
+            id=int(data["id"]),
+            file_id=int(data["file_id"]),
+            kind=str(data["kind"]),
+            name=data["name"],
+            local_name=data["local_name"],
+            source_module=data["source_module"],
+            symbol_id=None if symbol_id is None else int(symbol_id),
+            import_id=None if import_id is None else int(import_id),
+            range=RustSourceRange.from_dict(data["range"]),
+        )
+
+
 @dataclass
 class RustIndexBackend:
     repo_path: Path
@@ -215,16 +244,20 @@ class RustIndexBackend:
     _symbols: list[RustSymbolRecord] | None = None
     _imports: list[RustImportRecord] | None = None
     _import_resolutions: list[RustImportResolutionRecord] | None = None
+    _exports: list[RustExportRecord] | None = None
     _references: list[RustReferenceRecord] | None = None
     _dependencies: list[RustDependencyRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
     _symbol_handles: list[RustCompactSymbol] | None = None
     _import_handles: list[RustCompactImport] | None = None
+    _export_handles: list[RustCompactExport] | None = None
     _file_handles_by_id: dict[int, RustCompactFile] | None = None
     _symbol_handles_by_id: dict[int, RustCompactSymbol] | None = None
     _import_handles_by_id: dict[int, RustCompactImport] | None = None
+    _export_handles_by_id: dict[int, RustCompactExport] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
     _imports_by_file_id: dict[int, list[RustCompactImport]] | None = None
+    _exports_by_file_id: dict[int, list[RustCompactExport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
     _import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] | None = None
     _references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] | None = None
@@ -294,6 +327,16 @@ class RustIndexBackend:
         return self._import_resolutions
 
     @property
+    def exports(self) -> list[RustExportRecord]:
+        if self._exports is None:
+            exports_json = getattr(self.index, "exports_json", None)
+            if exports_json is None:
+                self._exports = []
+            else:
+                self._exports = [RustExportRecord.from_dict(record) for record in json.loads(exports_json())]
+        return self._exports
+
+    @property
     def references(self) -> list[RustReferenceRecord]:
         if self._references is None:
             self._references = [RustReferenceRecord.from_dict(record) for record in json.loads(self.index.references_json())]
@@ -332,9 +375,18 @@ class RustIndexBackend:
                     import_handle.ctx = self._ctx
         return self._import_handles
 
+    @property
+    def export_handles(self) -> list[RustCompactExport]:
+        if self._export_handles is None:
+            self._export_handles = [RustCompactExport(self, record) for record in self.exports]
+            if self._ctx is not None:
+                for export_handle in self._export_handles:
+                    export_handle.ctx = self._ctx
+        return self._export_handles
+
     def bind_context(self, ctx: CodebaseContext) -> None:
         self._ctx = ctx
-        for handles in (self._file_handles, self._symbol_handles, self._import_handles):
+        for handles in (self._file_handles, self._symbol_handles, self._import_handles, self._export_handles):
             if handles is None:
                 continue
             for handle in handles:
@@ -369,11 +421,15 @@ class RustIndexBackend:
         self._file_handles = [file for file in self.file_handles if file.record.id != file_id]
         self._symbols = [symbol for symbol in self.symbols if symbol.file_id != file_id]
         self._imports = [import_record for import_record in self.imports if import_record.file_id != file_id]
+        self._exports = [export for export in self.exports if export.file_id != file_id]
         self._file_handles_by_id = None
         self._symbol_handles = None
         self._import_handles = None
+        self._export_handles = None
+        self._export_handles_by_id = None
         self._symbols_by_file_id = None
         self._imports_by_file_id = None
+        self._exports_by_file_id = None
         self._import_resolutions_by_import_id = None
         self._import_resolutions_by_target_file_id = None
         self._references_by_target_symbol_id = None
@@ -432,6 +488,14 @@ class RustIndexBackend:
             self._imports_by_file_id = imports_by_file_id
         return self._imports_by_file_id.get(file_id, [])
 
+    def exports_for_file(self, file_id: int) -> list[RustCompactExport]:
+        if self._exports_by_file_id is None:
+            exports_by_file_id: dict[int, list[RustCompactExport]] = {}
+            for export_handle in self.export_handles:
+                exports_by_file_id.setdefault(export_handle.record.file_id, []).append(export_handle)
+            self._exports_by_file_id = exports_by_file_id
+        return self._exports_by_file_id.get(file_id, [])
+
     def file_handle_by_id(self, file_id: int) -> RustCompactFile | None:
         if self._file_handles_by_id is None:
             self._file_handles_by_id = {file.record.id: file for file in self.file_handles}
@@ -446,6 +510,11 @@ class RustIndexBackend:
         if self._import_handles_by_id is None:
             self._import_handles_by_id = {import_handle.record.id: import_handle for import_handle in self.import_handles}
         return self._import_handles_by_id.get(import_id)
+
+    def export_handle_by_id(self, export_id: int) -> RustCompactExport | None:
+        if self._export_handles_by_id is None:
+            self._export_handles_by_id = {export_handle.record.id: export_handle for export_handle in self.export_handles}
+        return self._export_handles_by_id.get(export_id)
 
     def import_resolution_for_import(self, import_id: int) -> RustImportResolutionRecord | None:
         if self._import_resolutions_by_import_id is None:
@@ -745,6 +814,17 @@ def _python_import_module_name_for_filepath(filepath: str, base_path: str | None
     return module
 
 
+def _typescript_import_module_name_for_filepath(filepath: str) -> str:
+    module = filepath.replace("\\", "/")
+    for suffix in (".tsx", ".ts", ".jsx", ".js"):
+        if module.endswith(suffix):
+            module = module[: -len(suffix)]
+            break
+    if module.endswith("/index"):
+        module = module[: -len("/index")]
+    return module
+
+
 def _line_count(source: str) -> int:
     if source == "":
         return 0
@@ -856,6 +936,8 @@ class RustCompactFile(RustCompactHandle):
 
     @property
     def import_module_name(self) -> str:
+        if self.extension in {".ts", ".tsx", ".js", ".jsx"}:
+            return self.record.module_name or _typescript_import_module_name_for_filepath(self.filepath)
         return self.record.module_name or self.get_import_module_name_for_file(self.filepath, self.ctx)
 
     def get_import_module_name_for_file(self, filepath: str, ctx: CodebaseContext | None = None) -> str:
@@ -996,6 +1078,10 @@ class RustCompactFile(RustCompactHandle):
         return self.backend.imports_for_file(self.record.id)
 
     @property
+    def exports(self) -> list[RustCompactExport]:
+        return self.backend.exports_for_file(self.record.id)
+
+    @property
     def import_statements(self) -> list[RustCompactImport]:
         import_statements: list[RustCompactImport] = []
         seen: set[tuple[int, int, str]] = set()
@@ -1007,8 +1093,31 @@ class RustCompactFile(RustCompactHandle):
             import_statements.append(import_handle.import_statement)
         return import_statements
 
-    def get_nodes(self, *, sort_by_id: bool = False, sort: bool = True) -> list[RustCompactImport | RustCompactSymbol]:
-        nodes: list[RustCompactImport | RustCompactSymbol] = [*self.imports, *self.backend.symbols_for_file(self.record.id)]
+    @property
+    def export_statements(self) -> list[RustCompactExport]:
+        export_statements: list[RustCompactExport] = []
+        seen: set[tuple[int, int, str]] = set()
+        for export_handle in self.exports:
+            key = (export_handle.start_byte, export_handle.end_byte, export_handle.source)
+            if key in seen:
+                continue
+            seen.add(key)
+            export_statements.append(export_handle.export_statement)
+        return export_statements
+
+    @property
+    def default_exports(self) -> list[RustCompactExport]:
+        return [export_handle for export_handle in self.exports if export_handle.is_default_export()]
+
+    @property
+    def named_exports(self) -> list[RustCompactExport]:
+        return [export_handle for export_handle in self.exports if not export_handle.is_default_export()]
+
+    def get_export(self, export_name: str) -> RustCompactExport | None:
+        return next((export_handle for export_handle in self.exports if export_handle.name == export_name), None)
+
+    def get_nodes(self, *, sort_by_id: bool = False, sort: bool = True) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
+        nodes: list[RustCompactImport | RustCompactExport | RustCompactSymbol] = [*self.imports, *self.exports, *self.backend.symbols_for_file(self.record.id)]
         if not sort:
             return nodes
 
@@ -1016,12 +1125,12 @@ class RustCompactFile(RustCompactHandle):
             return sorted(nodes, key=lambda node: (node.node_id, int(node.node_type), node.start_byte, node.end_byte))
         return sorted(nodes, key=lambda node: (node.start_byte, node.end_byte, int(node.node_type), node.node_id))
 
-    def find_by_byte_range(self, range: Any) -> list[RustCompactImport | RustCompactSymbol]:
+    def find_by_byte_range(self, range: Any) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
         start_byte, end_byte = _byte_range_bounds(range)
         return [node for node in self.get_nodes() if _ranges_overlap(node.range, start_byte, end_byte)]
 
     @property
-    def descendant_symbols(self) -> list[RustCompactImport | RustCompactSymbol]:
+    def descendant_symbols(self) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
         return self.get_nodes()
 
     @property
@@ -1677,3 +1786,178 @@ class RustCompactImport(RustCompactHandle):
         if self.record.kind in {"from_import", "future_import"}:
             return ImportType.NAMED_EXPORT
         return ImportType.UNKNOWN
+
+
+class RustCompactExport(RustCompactHandle):
+    node_type = NodeType.EXPORT
+
+    def __init__(self, backend: RustIndexBackend, record: RustExportRecord) -> None:
+        self.record = record
+        super().__init__(backend, record.id, record.range)
+        self.name = record.name
+        self._name_node = RustCompactName(record.name) if record.name is not None else None
+        self.export_statement = self
+
+    def __repr__(self) -> str:
+        return f"RustCompactExport(name={self.name!r}, filepath={self.filepath!r})"
+
+    @property
+    def file(self) -> RustCompactFile:
+        file = self.backend.file_handle_by_id(self.record.file_id)
+        if file is None:
+            msg = f"Rust compact export {self.record.id} references missing file {self.record.file_id}"
+            raise RuntimeError(msg)
+        return file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def source(self) -> str:
+        return self.file.content_bytes[self.start_byte : self.end_byte].decode("utf-8")
+
+    @property
+    def full_name(self) -> str | None:
+        return self.name
+
+    @property
+    def exported_name(self) -> str | None:
+        return self.name
+
+    @property
+    def local_name(self) -> str | None:
+        return self.record.local_name
+
+    @property
+    def module(self) -> RustCompactName | None:
+        if self.record.source_module is None:
+            return None
+        return RustCompactName(self.record.source_module)
+
+    @property
+    def symbol_name(self) -> RustCompactName | None:
+        if self.record.local_name is None:
+            return None
+        return RustCompactName(self.record.local_name)
+
+    @property
+    def alias(self) -> RustCompactName | None:
+        if self.record.name is None or self.record.name == self.record.local_name:
+            return None
+        return RustCompactName(self.record.name)
+
+    @property
+    def declared_symbol(self) -> RustCompactSymbol | RustCompactImport | None:
+        if self.record.symbol_id is not None:
+            return self.backend.symbol_handle_by_id(self.record.symbol_id)
+        if self.record.import_id is not None:
+            return self.backend.import_handle_by_id(self.record.import_id)
+        return None
+
+    @property
+    def exported_symbol(self) -> RustCompactSymbol | RustCompactImport | RustCompactFile | None:
+        declared = self.declared_symbol
+        if declared is not None:
+            return declared
+        if self.is_wildcard_export():
+            return self.file
+        return None
+
+    @property
+    def resolved_symbol(self) -> RustCompactSymbol | RustCompactFile | None:
+        exported = self.exported_symbol
+        seen: set[object] = set()
+        while exported is not None and getattr(exported, "node_type", None) in {NodeType.IMPORT, NodeType.EXPORT}:
+            if exported in seen:
+                return exported
+            seen.add(exported)
+            exported = exported.resolved_symbol if exported.node_type == NodeType.IMPORT else exported.exported_symbol
+        return exported
+
+    @property
+    def parent_symbol(self) -> RustCompactExport:
+        return self
+
+    @property
+    def descendant_symbols(self) -> list[RustCompactExport | RustCompactSymbol]:
+        declared = self.declared_symbol
+        if isinstance(declared, RustCompactSymbol):
+            return [self, *declared.descendant_symbols]
+        return [self]
+
+    @property
+    def names(self):
+        if self.name is not None:
+            yield self.name, self
+
+    @property
+    def is_external_export(self) -> bool:
+        return self.record.source_module is not None and not self.record.source_module.startswith(".")
+
+    def get_name(self) -> RustCompactName | None:
+        return self._name_node
+
+    def is_named_export(self) -> bool:
+        return not self.is_default_export()
+
+    def is_default_export(self) -> bool:
+        return self.record.kind in {"default", "export_equals"} or self.name == "default"
+
+    def is_default_symbol_export(self) -> bool:
+        return self.is_default_export() and self.record.local_name is not None
+
+    def is_type_export(self) -> bool:
+        return self.source.lstrip().startswith("export type ")
+
+    def is_reexport(self) -> bool:
+        exported = self.exported_symbol
+        return self.record.source_module is not None or (exported is not None and getattr(exported, "node_type", None) == NodeType.IMPORT)
+
+    def is_wildcard_export(self) -> bool:
+        return self.record.kind in {"wildcard", "namespace"}
+
+    def is_module_export(self) -> bool:
+        return self.is_wildcard_export() or (self.is_default_export() and not self.is_default_symbol_export())
+
+    def is_aliased(self) -> bool:
+        return self.record.name != self.record.local_name
+
+    def reexport_symbol(self) -> RustCompactImport | None:
+        declared = self.declared_symbol
+        return declared if isinstance(declared, RustCompactImport) else None
+
+    def to_import_string(self) -> str:
+        module_path = self.record.source_module or ""
+        type_prefix = "type " if self.is_type_export() else ""
+
+        if self.is_wildcard_export():
+            namespace = self.name or module_path.split("/")[-1].split(".")[0]
+            return f"import * as {namespace} from '{module_path}';"
+
+        local_name = self.record.local_name or self.name
+        if self.is_default_export() and self.record.local_name == "default":
+            return f"import {self.name} from '{module_path}';"
+        if local_name != self.name:
+            return f"import {type_prefix}{{ {local_name} as {self.name} }} from '{module_path}';"
+        return f"import {type_prefix}{{ {self.name} }} from '{module_path}';"
+
+    def get_import_string(self, alias: str | None = None, module: str | None = None, import_type: ImportType = ImportType.UNKNOWN, is_type_import: bool = False) -> str:
+        if self.is_reexport():
+            return self.to_import_string()
+
+        module_path = module if module is not None else self.file.import_module_name.strip("'\"")
+        type_prefix = "type " if is_type_import else ""
+
+        if import_type == ImportType.WILDCARD:
+            namespace = alias or module_path.split("/")[-1].split(".")[0]
+            return f"import * as {namespace} from '{module_path}';"
+
+        if self.is_default_export():
+            name = alias or self.record.local_name or self.name
+            return f"import {name} from '{module_path}';"
+
+        original_name = self.name
+        if alias and alias != original_name:
+            return f"import {type_prefix}{{ {original_name} as {alias} }} from '{module_path}';"
+        return f"import {type_prefix}{{ {original_name} }} from '{module_path}';"

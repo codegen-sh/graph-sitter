@@ -369,6 +369,34 @@ class FakeTypeScriptIndex:
             ]
         )
 
+    def exports_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "kind": "named",
+                    "name": "run",
+                    "local_name": "run",
+                    "source_module": None,
+                    "symbol_id": 2,
+                    "import_id": None,
+                    "range": fake_range(87, 141, 4, 0, 6, 1),
+                },
+                {
+                    "id": 1,
+                    "file_id": 1,
+                    "kind": "named",
+                    "name": "helper",
+                    "local_name": "helper",
+                    "source_module": None,
+                    "symbol_id": 3,
+                    "import_id": None,
+                    "range": fake_range(0, 57, 0, 0, 2, 1),
+                },
+            ]
+        )
+
     def references_json(self):
         return json.dumps(
             [
@@ -930,6 +958,7 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
         assert codebase.ctx.rust_index.summary.import_resolutions == 1
         assert codebase.ctx.rust_index.summary.references == 1
         assert codebase.ctx.rust_index.summary.dependencies == 1
+        assert [export.name for export in codebase.rust_exports] == ["run", "helper"]
         assert [file.path for file in codebase.rust_files] == ["src/app.ts", "src/util.ts"]
         assert [symbol.name for symbol in codebase.rust_symbols] == ["Props", "Mode", "run", "helper"]
         assert codebase.rust_imports[0].module == "./util"
@@ -943,6 +972,7 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
         assert [interface.name for interface in codebase.interfaces] == ["Props"]
         assert [type_alias.name for type_alias in codebase.types] == ["Mode"]
         assert codebase.imports[0].name == "helper"
+        assert [export.name for export in codebase.exports] == ["run", "helper"]
 
         run = codebase.get_function("run")
         helper = codebase.get_function("helper")
@@ -950,6 +980,36 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
         assert helper is not None
         assert run.dependencies == [helper]
         assert helper.usages[0].match.source == "helper"
+
+        app_file = codebase.get_file("src/app.ts")
+        util_file = codebase.get_file("src/util.ts")
+        run_export = app_file.get_export("run")
+        helper_export = util_file.get_export("helper")
+        assert run_export is not None
+        assert helper_export is not None
+        assert app_file.exports == [run_export]
+        assert util_file.exports == [helper_export]
+        assert app_file.named_exports == [run_export]
+        assert app_file.default_exports == []
+        assert app_file.export_statements == [run_export]
+        assert run_export.exported_symbol == run
+        assert run_export.resolved_symbol == run
+        assert run_export.declared_symbol == run
+        assert run_export.exported_name == "run"
+        assert run_export.local_name == "run"
+        assert run_export.is_named_export()
+        assert not run_export.is_default_export()
+        assert not run_export.is_reexport()
+        assert not run_export.is_wildcard_export()
+        assert not run_export.is_module_export()
+        assert not run_export.is_external_export
+        assert run_export.get_name().source == "run"
+        assert list(run_export.names) == [("run", run_export)]
+        assert run_export.descendant_symbols == [run_export, run]
+        assert run_export.get_import_string() == "import { run } from 'src/app';"
+        assert run_export.get_import_string(alias="execute") == "import { run as execute } from 'src/app';"
+        assert helper_export.exported_symbol == helper
+        assert helper_export.resolved_symbol == helper
 
         assert indexed_paths == [str(tmp_path.resolve())]
         assert selected_paths == [["src/app.ts", "src/util.ts"]]

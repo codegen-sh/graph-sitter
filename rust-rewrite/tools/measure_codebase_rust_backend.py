@@ -41,6 +41,7 @@ def make_report(repo: Path, *, language: str) -> dict:
         python_graph_blocked = True
 
     summary = codebase.rust_index_summary
+    exports = codebase.exports if language == "typescript" else []
     return {
         "metadata": {
             "repo_path": str(repo),
@@ -75,6 +76,7 @@ def make_report(repo: Path, *, language: str) -> dict:
             "rust_global_vars": len(codebase.rust_global_vars),
             "rust_imports": len(codebase.rust_imports),
             "rust_import_resolutions": len(codebase.rust_import_resolutions),
+            "rust_exports": len(codebase.rust_exports),
             "rust_references": len(codebase.rust_references),
             "rust_dependencies": len(codebase.rust_dependencies),
         },
@@ -87,6 +89,7 @@ def make_report(repo: Path, *, language: str) -> dict:
             "interfaces": len(codebase.interfaces),
             "types": len(codebase.types),
             "imports": len(codebase.imports),
+            "exports": len(exports),
         },
     }
 
@@ -125,6 +128,7 @@ def print_human(report: dict) -> None:
         f"symbols={records['rust_symbols']} "
         f"imports={records['rust_imports']} "
         f"import_resolutions={records['rust_import_resolutions']} "
+        f"exports={records['rust_exports']} "
         f"references={records['rust_references']} "
         f"dependencies={records['rust_dependencies']}"
     )
@@ -134,7 +138,8 @@ def print_human(report: dict) -> None:
         f"symbols={compat_handles['symbols']} "
         f"interfaces={compat_handles['interfaces']} "
         f"types={compat_handles['types']} "
-        f"imports={compat_handles['imports']}"
+        f"imports={compat_handles['imports']} "
+        f"exports={compat_handles['exports']}"
     )
 
 

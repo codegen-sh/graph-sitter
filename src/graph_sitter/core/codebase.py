@@ -310,6 +310,11 @@ class Codebase(
 
     @property
     @noapidoc
+    def rust_exports(self):
+        return self._require_rust_index().exports
+
+    @property
+    @noapidoc
     def rust_references(self):
         return self._require_rust_index().references
 
@@ -458,6 +463,9 @@ class Codebase(
         if self.language == ProgrammingLanguage.PYTHON:
             msg = "Exports are not supported for Python codebases since Python does not have an export mechanism."
             raise NotImplementedError(msg)
+
+        if self.ctx.rust_compact_mode:
+            return self._require_rust_index().export_handles
 
         return self.ctx.get_nodes(NodeType.EXPORT)
 
