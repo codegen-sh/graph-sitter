@@ -269,6 +269,27 @@ class CodebaseContext:
             raise RuntimeError(reason)
         logger.warning("Rust graph backend unavailable; using Python graph backend. Reason: %s", reason)
 
+    def promote_rust_compact_to_python(self, *, method: str, handle: str, reason: str | None = None) -> None:
+        if not self.rust_compact_mode:
+            return
+        if self.config.rust_fallback == RustFallbackMode.ERROR:
+            from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError
+
+            raise RustBackendUnsupportedError(method=method, handle=handle, reason=reason)
+
+        fallback_reason = reason or f"{method} is not implemented by compact Rust handle {handle}"
+        self.rust_backend_error = fallback_reason
+        logger.warning(
+            "Rust compact backend does not support %s on %s; using Python graph backend. Reason: %s",
+            method,
+            handle,
+            fallback_reason,
+        )
+        self.rust_index = None
+        uncache_all()
+        if not self.__graph_ready and self.config.use_pink != PinkMode.ALL_FILES:
+            self.build_graph(self.projects[0].repo_operator)
+
     @cached_property
     def _graph(self) -> PyDiGraph[Importable, Edge]:
         if not self.__graph_ready:

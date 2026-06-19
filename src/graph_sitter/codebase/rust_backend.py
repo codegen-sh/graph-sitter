@@ -1185,6 +1185,11 @@ class RustCompactHandle:
     def _unsupported(self, method: str) -> RuntimeError:
         return RustBackendUnsupportedError(method=method, handle=type(self).__name__)
 
+    def _fallback_to_python(self, method: str, reason: str | None = None) -> None:
+        if self.ctx is None:
+            raise self._unsupported(method)
+        self.ctx.promote_rust_compact_to_python(method=method, handle=type(self).__name__, reason=reason)
+
     @property
     def transaction_manager(self):
         if self.ctx is None:
@@ -1307,12 +1312,23 @@ class RustCompactFile(RustCompactHandle):
             raise ValueError(msg)
         if is_regex:
             method = "RustCompactFile.replace(is_regex=True)"
-            raise self._unsupported(method)
+            python_file = self._python_file_after_fallback(method)
+            return python_file.replace(old, new, count=count, is_regex=is_regex, priority=priority)
         if old not in self.content:
             return 0
         replacement_count = self.content.count(old) if count == -1 else min(self.content.count(old), count)
         self.edit(self.content.replace(old, new, count), priority=priority)
         return replacement_count
+
+    def _python_file_after_fallback(self, method: str) -> Any:
+        self._fallback_to_python(method)
+        if self.ctx is None:
+            raise self._unsupported(method)
+        file = self.ctx.get_file(self.filepath)
+        if file is None:
+            msg = f"File {self.filepath} was not found after falling back to the Python graph backend"
+            raise RuntimeError(msg)
+        return file
 
     def remove(self) -> None:
         self.transaction_manager.add_file_remove_transaction(self)

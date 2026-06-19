@@ -222,7 +222,8 @@ Cold fallback:
 
 Method fallback:
 
-- Current runtime state: unsupported compact-handle methods raise `RustBackendUnsupportedError` with the method, handle type, reason when available, and guidance to use `CodebaseConfig(graph_backend="python")`; compact mode does not silently materialize the full Python graph.
+- Current runtime state: strict unsupported compact-handle methods raise `RustBackendUnsupportedError` with the method, handle type, reason when available, and guidance to use `CodebaseConfig(graph_backend="python")`.
+- Non-strict compact-handle fallback can promote the context to the Python graph backend, clear cached proxy results, and delegate the method to the matching Python object. The first implemented method fallback is `RustCompactFile.replace(is_regex=True)`.
 - Read-only, file-local unsupported behavior can materialize one file through the current parser, locate the matching Python object by `(kind, range, name)`, and delegate the method.
 - Graph-wide unsupported behavior, dependency recomputation, and resolver operations that require a populated `PyDiGraph` should promote the whole context to the Python backend unless strict mode is enabled.
 - Mutations should initially prefer Python promotion. Direct Rust-handle range edits can come later as patch intents, but structural helpers such as `move_to_file`, `add_import`, `remove_unused_exports`, or usage-based `rename` need Python graph semantics until Rust owns those flows.
@@ -278,7 +279,7 @@ Lazy behavior:
 
 Fallback:
 
-- Accessing an unsupported file-local property materializes only the containing file in non-strict fallback mode.
+- Accessing an unsupported file-local method can promote the context to the Python graph backend in non-strict fallback mode. Current runtime coverage includes regex file replacement.
 - Accessing an unsupported graph-wide mutation promotes to Python backend in non-strict fallback mode.
 - The same unsupported accesses raise `RustBackendUnsupportedError` in strict mode.
 - Old handles become outdated after promotion or `apply_diffs`.

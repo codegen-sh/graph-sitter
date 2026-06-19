@@ -1975,7 +1975,7 @@ def test_rust_compact_file_mutations_commit_without_python_graph(monkeypatch, tm
 
 def test_rust_compact_unsupported_api_fails_explicitly_without_python_graph(monkeypatch, tmp_path):
     install_fake_rust_extension(monkeypatch)
-    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR)
 
     with get_codebase_session(
         tmpdir=tmp_path,
@@ -1998,6 +1998,31 @@ def test_rust_compact_unsupported_api_fails_explicitly_without_python_graph(monk
         with pytest.raises(RustBackendUnsupportedError, match="Python graph is not built") as graph_error:
             len(codebase.ctx.nodes)
         assert graph_error.value.method == "CodebaseContext._graph"
+
+
+def test_rust_compact_unsupported_file_method_falls_back_to_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.PYTHON)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n"},
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service_file = codebase.get_file("pkg/service.py")
+
+        replacement_count = service_file.replace(r"Service\b", "Worker", count=1, is_regex=True)
+        assert replacement_count == 1
+        assert codebase.ctx.rust_compact_mode is False
+        assert codebase.ctx.rust_index is None
+        assert codebase.ctx.rust_backend_error == "RustCompactFile.replace(is_regex=True) is not implemented by compact Rust handle RustCompactFile"
+
+        codebase.commit(sync_graph=False)
+        assert (tmp_path / "pkg/service.py").read_text() == "import os\nimport pkg.service\n\nclass Worker:\n    pass\n"
+        assert len(codebase.ctx.nodes) > 0
 
 
 def test_rust_compact_symbol_rename_and_add_import_commit_without_python_graph(monkeypatch, tmp_path):
