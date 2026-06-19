@@ -891,6 +891,15 @@ class FakeTypeScriptIndex:
             ]
         )
 
+    def exports_for_file_by_name_json(self, file_id: int, name: str):
+        return json.dumps(
+            [
+                export
+                for export in json.loads(self.exports_json())
+                if export["file_id"] == file_id and export["name"] == name
+            ]
+        )
+
     def references_json(self):
         return json.dumps(
             [
@@ -1649,6 +1658,37 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert backend._import_handles is None
         assert backend._imports_by_file_id is None
         assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
+
+
+def test_rust_compact_exact_export_lookups_do_not_materialize_all_exports(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "src/app.ts": "import { helper } from './util';\nexport interface Props {}\nexport type Mode = 'on';\nexport function run(): string {\n  return helper();\n}\n",
+            "src/util.ts": "export function helper(): string {\n  return 'ok';\n}\n",
+        },
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        app_file = codebase.get_file("src/app.ts")
+        export = app_file.get_export("run")
+        assert export is not None
+        assert export.name == "run"
+        assert export.declared_symbol == codebase.get_function("run")
+        assert app_file.get_export("missing") is None
+
+        assert backend._exports is None
+        assert backend._export_handles is None
+        assert backend._exports_by_file_id is None
+        assert sorted(backend._export_handles_by_id) == [0]
 
 
 def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):

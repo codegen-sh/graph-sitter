@@ -353,6 +353,7 @@ class RustIndexBackend:
     _imports_by_file_id_and_lookup: dict[tuple[int, str], list[RustCompactImport]] | None = None
     _imports_by_file_id: dict[int, list[RustCompactImport]] | None = None
     _exports_by_file_id: dict[int, list[RustCompactExport]] | None = None
+    _exports_by_file_id_and_name: dict[tuple[int, str], list[RustCompactExport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
     _import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] | None = None
     _symbols_by_file_id_and_name: dict[tuple[int, str], list[RustCompactSymbol]] | None = None
@@ -724,6 +725,7 @@ class RustIndexBackend:
         self._imports_by_file_id_and_lookup = None
         self._imports_by_file_id = None
         self._exports_by_file_id = None
+        self._exports_by_file_id_and_name = None
         self._import_resolutions_by_import_id = None
         self._import_resolutions_by_target_file_id = None
         self._symbols_by_file_id_and_name = None
@@ -881,6 +883,21 @@ class RustIndexBackend:
                 exports_by_file_id.setdefault(export_handle.record.file_id, []).append(export_handle)
             self._exports_by_file_id = exports_by_file_id
         return self._exports_by_file_id.get(file_id, [])
+
+    def exports_for_file_by_name(self, file_id: int, name: str) -> list[RustCompactExport]:
+        if self._export_handles is None and hasattr(self.index, "exports_for_file_by_name_json"):
+            if self._exports_by_file_id_and_name is None:
+                self._exports_by_file_id_and_name = {}
+            key = (file_id, name)
+            if key not in self._exports_by_file_id_and_name:
+                records = self._records_from_json_method("exports_for_file_by_name_json", RustExportRecord.from_dict, file_id, name)
+                if records is not None:
+                    self._exports_by_file_id_and_name[key] = [self._export_handle_from_record(record) for record in records]
+                else:
+                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+            if key in self._exports_by_file_id_and_name:
+                return self._exports_by_file_id_and_name[key]
+        return [export_handle for export_handle in self.exports_for_file(file_id) if export_handle.name == name]
 
     def file_handle_by_id(self, file_id: int) -> RustCompactFile | None:
         if self._file_handles is None and hasattr(self.index, "file_by_id_json"):
@@ -1862,7 +1879,7 @@ class RustCompactFile(RustCompactHandle):
         return [export_handle for export_handle in self.exports if not export_handle.is_default_export()]
 
     def get_export(self, export_name: str) -> RustCompactExport | None:
-        return next((export_handle for export_handle in self.exports if export_handle.name == export_name), None)
+        return next(iter(self.backend.exports_for_file_by_name(self.record.id, export_name)), None)
 
     def get_nodes(self, *, sort_by_id: bool = False, sort: bool = True) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
         nodes: list[RustCompactImport | RustCompactExport | RustCompactSymbol] = [*self.imports, *self.exports, *self.backend.symbols_for_file(self.record.id)]

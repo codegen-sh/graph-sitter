@@ -84,6 +84,30 @@ EXPECTED_KNOWN_GLOBAL_LOOKUPS = {
     }
 }
 
+EXPECTED_KNOWN_FILE_LOCAL_EXPORT_LOOKUPS = {
+    "app_router_announcer_export": {
+        "filepath": "packages/next/src/client/components/app-router-announcer.tsx",
+        "handle": "RustCompactExport",
+        "kind": "named",
+        "name": "AppRouterAnnouncer",
+    }
+}
+
+EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
+    "files": False,
+    "symbols": False,
+    "imports": False,
+    "exports": False,
+    "references": False,
+    "external_references": False,
+    "dependencies": False,
+    "file_handles": False,
+    "symbol_handles": False,
+    "import_handles": False,
+    "export_handles": False,
+    "exports_by_file": False,
+}
+
 EXPECTED_LARGE_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
@@ -145,6 +169,17 @@ def known_global_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
     }
 
 
+def known_file_local_export_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
+    export = codebase.get_file(
+        "packages/next/src/client/components/app-router-announcer.tsx"
+    ).get_export("AppRouterAnnouncer")
+    signature = handle_signature(export)
+    signature["filepath"] = export.filepath
+    return {
+        "app_router_announcer_export": signature,
+    }
+
+
 def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
     return {
         "files": backend._files is not None,
@@ -155,6 +190,16 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "external_references": backend._external_references is not None,
         "dependencies": backend._dependencies is not None,
     }
+
+
+def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
+    report = large_cache_materialization_report(backend)
+    report["file_handles"] = backend._file_handles is not None
+    report["symbol_handles"] = backend._symbol_handles is not None
+    report["import_handles"] = backend._import_handles is not None
+    report["export_handles"] = backend._export_handles is not None
+    report["exports_by_file"] = backend._exports_by_file_id is not None
+    return report
 
 
 def make_report(args: argparse.Namespace) -> dict[str, Any]:
@@ -207,6 +252,9 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples.append(memory_sample("after_compat_handles"))
     known_global_lookups = known_global_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_global_lookups"))
+    known_file_local_export_lookups = known_file_local_export_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_file_local_export_lookups"))
+    targeted_cache_materialization = targeted_cache_materialization_report(backend)
     large_cache_materialization = large_cache_materialization_report(backend)
 
     totals = {
@@ -240,6 +288,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "records": record_counts,
         "compat_handles": compat_counts,
         "known_global_lookups": known_global_lookups,
+        "known_file_local_export_lookups": known_file_local_export_lookups,
+        "targeted_cache_materialization": targeted_cache_materialization,
         "large_cache_materialization": large_cache_materialization,
         "comparison": comparison,
     }
@@ -264,6 +314,10 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
         compare_counts("compat_handles", report["compat_handles"], EXPECTED_COMPAT_HANDLES, failures)
         if report["known_global_lookups"] != EXPECTED_KNOWN_GLOBAL_LOOKUPS:
             failures.append("known global lookup results drifted")
+        if report["known_file_local_export_lookups"] != EXPECTED_KNOWN_FILE_LOCAL_EXPORT_LOOKUPS:
+            failures.append("known file-local export lookup results drifted")
+        if report["targeted_cache_materialization"] != EXPECTED_TARGETED_CACHE_MATERIALIZATION:
+            failures.append("targeted lookup caches were materialized during known queries")
         if report["large_cache_materialization"] != EXPECTED_LARGE_CACHE_MATERIALIZATION:
             failures.append("large Rust backend caches were materialized during known queries")
 

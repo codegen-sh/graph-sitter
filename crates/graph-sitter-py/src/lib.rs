@@ -807,6 +807,17 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn exports_for_file_by_name_json(&self, file_id: u32, name: &str) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .exports
+                .iter()
+                .filter(|export| export.file_id == file_id && export.name.as_deref() == Some(name))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn export_by_id_json(&self, export_id: u32) -> PyResult<String> {
             serde_json::to_string(
                 &self
