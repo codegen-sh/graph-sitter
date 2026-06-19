@@ -185,6 +185,7 @@ Required packaging decision:
 14. [x] Add artifact-level TypeScript strict Rust transform smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves a TypeScript function rename with `transform --check` and `transform --write` from the built wheel.
 15. [x] Add artifact-level large TypeScript parse proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py` builds or accepts a wheel, runs `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Next.js `v15.0.0` in strict Rust mode, compares summary counts with the committed compact TypeScript golden snapshot, and optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`.
 16. [x] Add artifact-level large TypeScript transform proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py --run-transform-proof` clones pinned Next.js, runs strict Rust `graph-sitter transform` through `uvx --from dist/<wheel>.whl`, renames `AppRouterAnnouncer`, rewrites the importing usage, and asserts only the two expected files changed.
+17. [x] Add artifact-level large Python parse and transform proof from a built wheel. Result: `check_wheel_pinned_python_repo.py` builds or accepts a wheel, runs strict Rust `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Airflow `2.10.5`, compares summary counts with the committed compact Python golden snapshot, optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`, and proves an installed-wheel strict Rust transform can rename `__getattr__` in `airflow/__init__.py` while touching only that file.
 
 ## Test Strategy
 
@@ -222,6 +223,15 @@ Distribution tests:
 - Run `rust-rewrite/tools/check_wheel_pinned_typescript_repo.py` before release
   candidates to prove the installed wheel can strict-parse pinned Next.js and
   match the committed compact TypeScript golden summary.
+- Run `rust-rewrite/tools/check_wheel_pinned_python_repo.py` before release
+  candidates to prove the installed wheel can strict-parse pinned Airflow and
+  match the committed compact Python golden summary.
+- Run the Airflow wheel gate with `--compare-python-backend` before public
+  Python performance claims to prove installed-wheel Rust improvement over
+  installed-wheel Python on the pinned checkout.
+- Run the Airflow wheel gate with `--run-transform-proof` before large Python
+  codemod claims to prove the installed wheel can mutate pinned Airflow through
+  strict Rust `graph-sitter transform`.
 - Run the same script with `--compare-python-backend` before public performance
   claims to prove installed-wheel Rust improvement over installed-wheel Python
   on the pinned Next.js checkout.

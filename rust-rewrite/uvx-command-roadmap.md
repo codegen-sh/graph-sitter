@@ -302,6 +302,18 @@ Already proven on the `rust-rewrite` branch:
 - The installed wheel runs a TypeScript import-path transform in strict Rust
   mode with `--check` and `--write`, proving a tiny exported function rename
   from the packaged artifact.
+- `rust-rewrite/tools/check_wheel_pinned_python_repo.py` builds or accepts a
+  wheel, installs it through `uvx --from dist/<wheel>.whl`, parses pinned
+  Airflow `2.10.5` in strict Rust Python mode, and compares the summary counts
+  with the committed compact golden snapshot. It can also run
+  `--compare-python-backend` and `--run-transform-proof` for installed-wheel
+  Python-vs-Rust performance and real Airflow transform validation.
+- On 2026-06-19, the Airflow wheel gate measured strict Rust parse at 4.913s
+  and 487.0 MB sampled process-tree RSS versus installed-wheel Python at
+  48.242s and 5429.3 MB, a 9.818x parse-elapsed and 11.148x sampled-RSS
+  improvement. Its transform proof renamed `__getattr__` to
+  `__getattr_wheel_proof__` in `airflow/__init__.py`, touched only that file,
+  and measured 5.920s with 500.1 MB sampled process-tree RSS.
 - `rust-rewrite/tools/check_wheel_pinned_typescript_repo.py` builds or accepts a
   wheel, installs it through `uvx --from dist/<wheel>.whl`, parses pinned
   Next.js `v15.0.0` in strict Rust TypeScript mode, and compares the summary
@@ -539,8 +551,9 @@ Skill rules:
   explicit `uvx --from` source/artifact usage.
 - Published-package validation is still required before docs should imply that
   `uvx graph-sitter ...` works from the package index.
-- TypeScript has branch-level Rust backend progress, but installed-wheel
-  TypeScript parse and transform smokes still need to be added.
+- Branch-built wheel smokes now cover Python and TypeScript parse/transform,
+  plus pinned Airflow/Next.js large-repo gates; published-package validation is
+  still open.
 - Rust-backed transformations are only fully ready when the transform APIs used
   by codemods either work through Rust handles or fall back according to
   `--fallback`.

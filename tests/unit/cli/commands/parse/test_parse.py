@@ -70,6 +70,7 @@ def test_rust_extension_ci_exercises_wheel_uvx_smoke():
 
 def test_uvx_large_typescript_wheel_gate_is_documented():
     gate_script = Path("rust-rewrite/tools/check_wheel_pinned_typescript_repo.py").read_text()
+    python_gate_script = Path("rust-rewrite/tools/check_wheel_pinned_python_repo.py").read_text()
     roadmap = Path("rust-rewrite/uvx-command-roadmap.md").read_text()
 
     assert "uvx" in gate_script
@@ -83,7 +84,12 @@ def test_uvx_large_typescript_wheel_gate_is_documented():
     assert "python_to_rust_sampled_rss_ratio" in gate_script
     assert "--run-transform-proof" in gate_script
     assert "AppRouterAnnouncerWheelProof" in gate_script
+    assert "apache-airflow-2.10.5-rust-compact.json" in python_gate_script
+    assert "__getattr_wheel_proof__" in python_gate_script
+    assert "--compare-python-backend" in python_gate_script
+    assert "--run-transform-proof" in python_gate_script
     assert "check_wheel_pinned_typescript_repo.py" in roadmap
+    assert "check_wheel_pinned_python_repo.py" in roadmap
 
 
 def test_graph_sitter_version_uses_canonical_program_name():

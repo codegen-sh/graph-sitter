@@ -271,6 +271,58 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
 
 On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.465s wall / 435.9 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.385x faster wall time and 7.112x lower max RSS with conservative CI-style ceilings.
 
+## Installed-Wheel `uvx` Airflow Evidence
+
+The branch-built wheel path now has an artifact-level large Python proof that
+runs through `uvx --from dist/<wheel>.whl graph-sitter`, not through an
+editable checkout or manually copied extension.
+
+Command run on 2026-06-19:
+
+```bash
+uv run python rust-rewrite/tools/check_wheel_pinned_python_repo.py \
+  --wheel dist/graph_sitter-0.56.15.dev166+g2f790c9f7.d20260619-cp313-cp313-macosx_26_0_arm64.whl \
+  --skip-fetch \
+  --compare-python-backend \
+  --min-parse-elapsed-ratio 1.5 \
+  --min-sampled-rss-ratio 3.0 \
+  --output /tmp/graph-sitter-airflow-wheel-rust-vs-python.json
+```
+
+| Input | Installed backend | Parse elapsed | `uvx` outer wall | Sampled process-tree RSS | Files | Symbols | Imports | References | External references | Dependencies |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | Rust strict | 4.913s | 6.064s | 487.0 MB | 4789 | 52339 | 45404 | 117799 | 78784 | 77570 |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | Python | 48.242s | 77.649s | 5429.3 MB | 4789 | 27728 | 44100 | n/a | n/a | 1099202 |
+
+The installed-wheel strict Rust path matched the committed compact Python golden
+summary exactly, including 4,789 files, 52,339 symbols, 45,404 imports,
+117,799 references, 78,784 external references, 77,570 dependencies, and zero
+files with parse errors. Compared with the installed-wheel Python backend on the
+same checkout and wheel, the Rust path was 9.818x faster by CLI parse elapsed
+and 11.148x lower by sampled process-tree RSS.
+
+The same branch-built wheel gate also proves a real pinned Airflow transform
+through the distributed CLI:
+
+```bash
+uv run python rust-rewrite/tools/check_wheel_pinned_python_repo.py \
+  --wheel dist/graph_sitter-0.56.15.dev166+g2f790c9f7.d20260619-cp313-cp313-macosx_26_0_arm64.whl \
+  --skip-fetch \
+  --run-transform-proof \
+  --output /tmp/graph-sitter-airflow-wheel-transform.json
+```
+
+That run parsed pinned Airflow in strict Rust mode, cloned a temporary mutable
+checkout, ran `graph-sitter transform ... --language python --backend rust
+--fallback error --write` through `uvx --from`, added `from typing import Any`
+to `airflow/__init__.py`, renamed `__getattr__` to
+`__getattr_wheel_proof__`, and asserted only `airflow/__init__.py` changed.
+
+| Operation | Wall | Sampled process-tree RSS | Validation |
+| --- | ---: | ---: | --- |
+| Installed-wheel strict Rust parse | 5.052s | 503.5 MB | matched compact golden summary |
+| Installed-wheel strict Rust transform | 5.920s | 500.1 MB | only `airflow/__init__.py` changed |
+
 ## Installed-Wheel `uvx` Next.js Evidence
 
 The branch-built wheel path now has an artifact-level large TypeScript proof
