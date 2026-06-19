@@ -105,6 +105,8 @@ Recommended task format:
 - [ ] Incremental agent: design file add/reparse/delete invalidation and stable ID behavior.
 - [ ] Parity/test agent: run existing tests against both backends and build golden graph snapshots.
 - [ ] Packaging/CI agent: integrate Rust builds with the current hatch/Cython packaging and CI.
+- [ ] Docs/site agent: define accurate setup docs, landing-page messaging, and Vercel deployment path.
+- [ ] CLI/distribution agent: define the `uvx graph-sitter ...` command surface and packaging path.
 
 ## Active Worktrees
 
@@ -115,6 +117,8 @@ Recommended task format:
 - [x] Resolver/dependency algorithms. owner: Gauss. Agent: `019edc37-8c34-7f93-b0ae-746cbd579962`. Branch: `codex/rust-rewrite-resolver`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-resolver`. Result: resolver algorithm inventory and Rust port plan committed.
 - [x] Rust engine skeleton. owner: Beauvoir. Agent: `019edc37-8f2d-7dd3-b3ed-a1f9e1b191a7`. Branch: `codex/rust-rewrite-engine-skeleton`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-engine-skeleton`. Result: standalone Cargo workspace and smoke tests committed.
 - [x] PyO3/Python compatibility. owner: Wegener. Agent: `019edc4e-72b1-7a00-8644-e43503f0cdc3`. Branch: `codex/rust-rewrite-pyo3-compat`. Worktree: `/Users/jayhack/CS/CODEGEN/graph-sitter-rust-pyo3-compat`. Result: compatibility plan committed.
+- [ ] Docs/site/Vercel strategy. owner: Nash. Agent: `019ee1a7-70e6-7062-bba8-a80918a7123c`. Branch: sub-agent workspace. Worktree: sub-agent workspace. Notes: define docs architecture, landing page, setup docs, and Vercel deployment path; do not deploy production until integrator review.
+- [ ] `uvx graph-sitter` CLI/distribution strategy. owner: Lovelace. Agent: `019ee1a7-e2cd-7771-a1f0-37c298b91323`. Branch: sub-agent workspace. Worktree: sub-agent workspace. Notes: define parse and transformation command surface, package entry point, tests, and distribution risks.
 
 ## Phase 0: Baseline, RFC, And Contracts
 
@@ -327,6 +331,17 @@ Recommended task format:
 - [ ] Flip default to Rust only after memory, speed, and parity targets are met.
 - [ ] Keep Python backend available for one release after Rust becomes default.
 
+## Phase 7: Docs, Distribution, And Launch
+
+- [ ] Define the public product positioning for graph-sitter. owner: Nash. Notes: landing page should explain in plain language that graph-sitter parses large codebases into a navigable semantic graph and lets agents/tools query or transform code with much lower memory overhead.
+- [ ] Audit the current documentation setup and choose the docs-site architecture. owner: Nash. Notes: verify whether the existing docs can be hosted directly, whether a Vercel project should target an existing docs app, and what build command/environment variables are required.
+- [ ] Draft accurate setup docs for local development and Rust-backed operation. owner: Nash. Notes: include Python/uv setup, Rust/PyO3 build prerequisites, `CodebaseConfig(graph_backend=...)`, strict/fallback behavior, and fast versus large-repo validation commands.
+- [ ] Define a Vercel preview and production deployment workflow. owner: Nash. Notes: user has an authenticated Vercel CLI available; document the safest deploy commands and avoid production deployment until the site content is reviewed.
+- [ ] Define the `uvx graph-sitter ...` CLI command surface. owner: Lovelace. Notes: reserve `uvx graph-sitter` for parsing/indexing a codebase and running transformations; include JSON output, backend selection, and codemod execution modes.
+- [ ] Identify package metadata and entry-point changes needed for `uvx graph-sitter`. owner: Lovelace. Notes: determine whether the distribution name, console script, optional Rust extension build, and extras need changes before publishing.
+- [ ] Add CLI smoke tests for parse and transformation flows. owner: Lovelace. Notes: tests should cover a tiny Python repo and a tiny TypeScript repo, with Rust compact mode where supported and fallback behavior documented.
+- [ ] Define skill distribution plan. owner: codex. Notes: package a reusable agent skill that explains when to use graph-sitter, how to run `uvx graph-sitter ...`, and how to invoke library APIs for codebase parsing and transformations.
+
 ## Rollout And Feature Flag Criteria
 
 Current public control surface:
@@ -362,12 +377,16 @@ Default-backend promotion criteria:
 - [x] Existing unit tests pass for Python backend throughout the rewrite. owner: codex. Result: full local `tests/unit` suite passed with 2,158 passed, 58 skipped, 12 xfailed in 77.88s.
 - [x] Rust backend has golden snapshots for graph IR and dependency edges. owner: codex. Result: committed Airflow and Next.js compact golden snapshots cover files, symbols, imports, import resolutions, external modules, references, external references, dependencies, plus TypeScript exports/subclass edges; fresh pinned readiness replay verified them.
 - [x] Unsupported Python APIs fail explicitly or fall back to Python backend. owner: codex. Result: supported-subset manifest includes strict unsupported API errors, missing-extension strict failure, and `rust_fallback="python"` promotion tests, all run through `check_fast.sh`.
+- [ ] Docs site accurately explains setup, Rust backend status, and CLI usage.
+- [ ] `uvx graph-sitter ...` is documented and backed by a tested console entry point.
+- [ ] A graph-sitter agent skill distribution plan exists.
 
 ## Agent Log
 
 - [x] 2026-06-18: Initial strategy file created on `rust-rewrite` branch. owner: codex. Notes: ready for helper agents to claim phase tasks.
 - [x] 2026-06-18: Integrator created seven worktrees and spawned six helper agents; PyO3 compatibility was queued due to agent concurrency limit. owner: codex.
 - [x] 2026-06-18: Six completed helper branches reviewed and their artifacts staged for integration. owner: codex. Notes: PyO3 compatibility agent is now running as Wegener.
+- [x] 2026-06-19: Spawned launch/distribution helper agents. owner: codex. Notes: Nash owns docs/site/Vercel strategy, and Lovelace owns the future `uvx graph-sitter ...` CLI/distribution path.
 - [x] 2026-06-18: PyO3 compatibility helper completed and its planning artifact was staged for integration. owner: codex.
 - [x] 2026-06-18: Implemented first Rust Python compact-index slice and benchmark comparison; initial measurements show 9x-22x wall-time improvement and 70x-104x RSS improvement on this repo for the implemented slice. owner: codex.
 - [x] 2026-06-18: Exposed the compact Python index through the PyO3 module and verified a Python import smoke against this repo. owner: codex. Notes: extension returned 1127 files, 3117 symbols, and 6414 imports for the current checkout.
