@@ -133,11 +133,13 @@
       "status": "supported_opt_in",
       "scope": [
         "aggregate pinned report acceptance",
-        "aggregate pinned report stale-count rejection"
+        "aggregate pinned report stale-count rejection",
+        "semantic parity performance-ratio rejection"
       ],
       "tests": [
         "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_accepts_complete_pinned_contract_reports",
-        "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_rejects_stale_codebase_counts"
+        "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_rejects_stale_codebase_counts",
+        "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py::test_rollout_readiness_rejects_slow_semantic_parity"
       ]
     }
   ]

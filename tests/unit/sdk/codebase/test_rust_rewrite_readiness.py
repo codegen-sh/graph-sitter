@@ -141,7 +141,7 @@ def semantic_parity_report() -> dict[str, Any]:
     suite_template = {
         "python": {
             "timings": {"codebase_construct_wall_seconds": 2.0},
-            "rss_samples": [{"max_rss_mb": 200.0}],
+            "rss_samples": [{"max_rss_mb": 500.0}],
         },
         "rust": {
             "python_graph_blocked": True,
@@ -153,6 +153,10 @@ def semantic_parity_report() -> dict[str, Any]:
             "expected_known_deltas": {},
             "known_deltas": {},
             "mismatches": [],
+            "performance": {
+                "wall_ratio": 2.0,
+                "rss_ratio": 5.0,
+            },
         },
     }
     return {
@@ -235,6 +239,8 @@ def test_rollout_readiness_accepts_complete_pinned_contract_reports(tmp_path: Pa
     assert report["status"] == "passed"
     assert report["codebase"]["airflow"]["wall_ratio"] == 10.0
     assert report["codebase"]["nextjs"]["rss_ratio"] == 10.0
+    assert report["semantic_parity"][0]["wall_ratio"] == 2.0
+    assert report["semantic_parity"][0]["rss_ratio"] == 5.0
 
 
 def test_rollout_readiness_rejects_stale_codebase_counts(tmp_path: Path) -> None:
@@ -244,4 +250,14 @@ def test_rollout_readiness_rejects_stale_codebase_counts(tmp_path: Path) -> None
     write_reports(tmp_path, reports)
 
     with pytest.raises(RuntimeError, match=r"airflow_codebase\.summary: files"):
+        readiness.make_report(readiness_args(tmp_path))
+
+
+def test_rollout_readiness_rejects_slow_semantic_parity(tmp_path: Path) -> None:
+    reports = complete_reports()
+    reports["semantic_parity"] = copy.deepcopy(reports["semantic_parity"])
+    reports["semantic_parity"]["suites"][0]["comparison"]["performance"]["wall_ratio"] = 1.5
+    write_reports(tmp_path, reports)
+
+    with pytest.raises(RuntimeError, match=r"semantic_parity\.python: wall ratio 1\.5x"):
         readiness.make_report(readiness_args(tmp_path))

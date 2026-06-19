@@ -58,6 +58,12 @@ def ratio_at_least(value: Any, minimum: float) -> bool:
     return isinstance(value, int | float) and value >= minimum
 
 
+def ratio(numerator: float | int | None, denominator: float | int | None) -> float | None:
+    if numerator is None or denominator is None or denominator <= 0:
+        return None
+    return round(float(numerator) / float(denominator), 3)
+
+
 def assert_metadata(name: str, metadata: dict[str, Any], expected: dict[str, Any], failures: list[str]) -> None:
     for key, expected_value in expected.items():
         observed_value = metadata.get(key)
@@ -359,7 +365,13 @@ def assert_codemods(report: dict[str, Any], failures: list[str]) -> list[dict[st
     return summaries
 
 
-def assert_semantic_parity(report: dict[str, Any], failures: list[str]) -> list[dict[str, Any]]:
+def assert_semantic_parity(
+    report: dict[str, Any],
+    failures: list[str],
+    *,
+    min_wall_ratio: float,
+    min_rss_ratio: float,
+) -> list[dict[str, Any]]:
     summaries = []
     for suite in report.get("suites", []):
         suite_name = suite.get("suite", "<unknown>")
@@ -383,6 +395,19 @@ def assert_semantic_parity(report: dict[str, Any], failures: list[str]) -> list[
             (float(sample["max_rss_mb"]) for sample in rust_report.get("rss_samples", [])),
             default=None,
         )
+        performance = comparison.get("performance", {})
+        wall_ratio = performance.get("wall_ratio") if isinstance(performance, dict) else None
+        rss_ratio = performance.get("rss_ratio") if isinstance(performance, dict) else None
+        wall_ratio = wall_ratio if wall_ratio is not None else ratio(python_timing, rust_timing)
+        rss_ratio = rss_ratio if rss_ratio is not None else ratio(python_rss, rust_rss)
+        if not ratio_at_least(wall_ratio, min_wall_ratio):
+            failures.append(
+                f"semantic_parity.{suite_name}: wall ratio {wall_ratio}x is below {min_wall_ratio}x"
+            )
+        if not ratio_at_least(rss_ratio, min_rss_ratio):
+            failures.append(
+                f"semantic_parity.{suite_name}: RSS ratio {rss_ratio}x is below {min_rss_ratio}x"
+            )
         summaries.append(
             {
                 "suite": suite_name,
@@ -392,6 +417,8 @@ def assert_semantic_parity(report: dict[str, Any], failures: list[str]) -> list[
                 "rust_wall_seconds": rust_timing,
                 "python_max_rss_mb": python_rss,
                 "rust_max_rss_mb": rust_rss,
+                "wall_ratio": wall_ratio,
+                "rss_ratio": rss_ratio,
             }
         )
     if not summaries:
@@ -469,7 +496,12 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     assert_airflow_codebase_contract(reports["airflow_codebase"], failures)
     assert_nextjs_codebase_contract(reports["nextjs_codebase"], failures)
     codemod_summary = assert_codemods(reports["codemods"], failures)
-    semantic_summary = assert_semantic_parity(reports["semantic_parity"], failures)
+    semantic_summary = assert_semantic_parity(
+        reports["semantic_parity"],
+        failures,
+        min_wall_ratio=args.min_wall_ratio,
+        min_rss_ratio=args.min_rss_ratio,
+    )
 
     readiness = {
         "status": "failed" if failures else "passed",
@@ -513,7 +545,8 @@ def print_human(report: dict[str, Any]) -> None:
             f"semantic {summary['suite']}: exact={len(summary['exact_keys'])} "
             f"known_deltas={summary['known_delta_count']} "
             f"python={summary['python_wall_seconds']:.3f}s/{summary['python_max_rss_mb']:.1f} MB "
-            f"rust={summary['rust_wall_seconds']:.3f}s/{summary['rust_max_rss_mb']:.1f} MB"
+            f"rust={summary['rust_wall_seconds']:.3f}s/{summary['rust_max_rss_mb']:.1f} MB "
+            f"ratios={summary['wall_ratio']}x/{summary['rss_ratio']}x"
         )
 
 

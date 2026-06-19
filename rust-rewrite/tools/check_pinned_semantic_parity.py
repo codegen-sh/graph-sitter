@@ -62,6 +62,16 @@ def bytes_to_mb(value: float) -> float:
     return value / (1024 * 1024)
 
 
+def ratio(numerator: float | int | None, denominator: float | int | None) -> float | None:
+    if numerator is None or denominator is None or denominator <= 0:
+        return None
+    return round(float(numerator) / float(denominator), 3)
+
+
+def ratio_at_least(value: Any, minimum: float) -> bool:
+    return isinstance(value, int | float) and value >= minimum
+
+
 def max_rss_bytes() -> int:
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     if sys.platform == "darwin":
@@ -179,6 +189,18 @@ def unique_sorted_signatures(items: list[dict[str, Any] | None]) -> list[dict[st
         seen.add(key)
         unique.append(item)
     return sorted_signatures(unique)
+
+
+def max_sample_rss_mb(report: dict[str, Any]) -> float | None:
+    samples = report.get("rss_samples", [])
+    if not isinstance(samples, list) or not samples:
+        return None
+    values = [
+        float(sample["max_rss_mb"])
+        for sample in samples
+        if isinstance(sample, dict) and "max_rss_mb" in sample
+    ]
+    return max(values) if values else None
 
 
 def graph_is_blocked(codebase: Any) -> bool:
@@ -403,11 +425,18 @@ def compare_suite(python_report: dict[str, Any], rust_report: dict[str, Any], *,
     }
     if known_deltas != expected_known_deltas:
         mismatches.append("known_deltas")
+    python_timing = python_report.get("timings", {}).get("codebase_construct_wall_seconds")
+    rust_timing = rust_report.get("timings", {}).get("codebase_construct_wall_seconds")
+    performance = {
+        "wall_ratio": ratio(python_timing, rust_timing),
+        "rss_ratio": ratio(max_sample_rss_mb(python_report), max_sample_rss_mb(rust_report)),
+    }
     return {
         "exact_keys": exact_keys,
         "expected_known_deltas": expected_known_deltas,
         "known_deltas": known_deltas,
         "mismatches": mismatches,
+        "performance": performance,
     }
 
 
@@ -418,6 +447,17 @@ def run_suite(args: argparse.Namespace, suite: str) -> dict[str, Any]:
     comparison = compare_suite(python_report, rust_report, suite=suite)
     if comparison["mismatches"]:
         msg = f"{suite} pinned semantic parity mismatches: " + ", ".join(comparison["mismatches"])
+        raise RuntimeError(msg)
+    performance = comparison["performance"]
+    failures = []
+    if not ratio_at_least(performance["wall_ratio"], args.min_wall_ratio):
+        failures.append(
+            f"wall ratio {performance['wall_ratio']}x is below {args.min_wall_ratio}x"
+        )
+    if not ratio_at_least(performance["rss_ratio"], args.min_rss_ratio):
+        failures.append(f"RSS ratio {performance['rss_ratio']}x is below {args.min_rss_ratio}x")
+    if failures:
+        msg = f"{suite} pinned semantic parity performance failed: " + "; ".join(failures)
         raise RuntimeError(msg)
     return {
         "suite": suite,
@@ -467,7 +507,9 @@ def print_human(report: dict[str, Any]) -> None:
             f"{suite['suite']}: exact={', '.join(suite['comparison']['exact_keys'])} "
             f"known_deltas={len(suite['comparison']['known_deltas'])} "
             f"python={python_timing:.3f}s/{python_max_rss:.1f} MB "
-            f"rust={rust_timing:.3f}s/{rust_max_rss:.1f} MB"
+            f"rust={rust_timing:.3f}s/{rust_max_rss:.1f} MB "
+            f"ratios={suite['comparison']['performance']['wall_ratio']}x/"
+            f"{suite['comparison']['performance']['rss_ratio']}x"
         )
 
 
@@ -481,6 +523,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--reset-checkout", action="store_true", help="Delete and recreate cached pinned checkouts before running.")
     parser.add_argument("--skip-fetch", action="store_true", help="Do not fetch before checkout; useful for offline reruns with FETCH_HEAD present.")
     parser.add_argument("--skip-build-extension", action="store_true", help="Reuse an existing graph_sitter_py extension in --extension-dir.")
+    parser.add_argument("--min-wall-ratio", type=float, default=1.0, help="Fail unless Python wall time divided by Rust wall time is at least this value.")
+    parser.add_argument("--min-rss-ratio", type=float, default=1.0, help="Fail unless Python max RSS divided by Rust max RSS is at least this value.")
     parser.add_argument("--timeout", type=int, default=900, help="Timeout in seconds for clone/build/check child commands.")
     parser.add_argument("--output", type=Path, help="Optional path to write JSON report.")
     parser.add_argument("--json", action="store_true", help="Print JSON report instead of a human summary.")
