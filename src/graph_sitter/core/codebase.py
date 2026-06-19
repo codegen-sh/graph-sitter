@@ -322,6 +322,7 @@ class Codebase(
         if self.ctx.rust_index is None:
             msg = "Rust compact index is unavailable; construct Codebase with CodebaseConfig(graph_backend='rust')"
             raise RuntimeError(msg)
+        self.ctx.rust_index.bind_context(self.ctx)
         return self.ctx.rust_index
 
     def _rust_compact_files(self, extensions: list[str] | Literal["*"] | None = None):
@@ -570,6 +571,14 @@ class Codebase(
         # NOTE: This check is also important to ensure the filepath is valid within the repo!
         if self.has_file(filepath):
             logger.warning(f"File {filepath} already exists in codebase. Overwriting...")
+
+        if self.ctx.rust_compact_mode:
+            path = self.ctx.to_absolute(filepath)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self.ctx.io.write_file(path, content)
+            self.ctx.io.save_files({path})
+            self.ctx.transaction_manager.add_file_add_transaction(path)
+            return self._require_rust_index().register_added_file(filepath, content)
 
         file_exts = self.ctx.extensions
         # Create file as source file if it has a registered extension

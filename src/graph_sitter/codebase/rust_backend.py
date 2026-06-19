@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
 
 from graph_sitter._proxy import proxy_property
+from graph_sitter.codebase.transactions import EditTransaction
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
 
@@ -231,6 +232,7 @@ class RustIndexBackend:
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] | None = None
+    _ctx: CodebaseContext | None = None
 
     @classmethod
     def build(cls, repo_path: str | Path, file_paths: Sequence[str] | None = None) -> RustIndexBackend:
@@ -297,19 +299,88 @@ class RustIndexBackend:
     def file_handles(self) -> list[RustCompactFile]:
         if self._file_handles is None:
             self._file_handles = [RustCompactFile(self, record) for record in self.files]
+            if self._ctx is not None:
+                for file in self._file_handles:
+                    file.ctx = self._ctx
         return self._file_handles
 
     @property
     def symbol_handles(self) -> list[RustCompactSymbol]:
         if self._symbol_handles is None:
             self._symbol_handles = [RustCompactSymbol(self, record) for record in self.symbols]
+            if self._ctx is not None:
+                for symbol in self._symbol_handles:
+                    symbol.ctx = self._ctx
         return self._symbol_handles
 
     @property
     def import_handles(self) -> list[RustCompactImport]:
         if self._import_handles is None:
             self._import_handles = [RustCompactImport(self, record) for record in self.imports]
+            if self._ctx is not None:
+                for import_handle in self._import_handles:
+                    import_handle.ctx = self._ctx
         return self._import_handles
+
+    def bind_context(self, ctx: CodebaseContext) -> None:
+        self._ctx = ctx
+        for handles in (self._file_handles, self._symbol_handles, self._import_handles):
+            if handles is None:
+                continue
+            for handle in handles:
+                handle.ctx = ctx
+
+    def register_added_file(self, filepath: str, content: str = "") -> RustCompactFile:
+        relative_path = self._normalize_relative_path(filepath)
+        if existing := self.get_file_handle(relative_path):
+            return existing
+
+        content_bytes = content.encode("utf-8")
+        record = RustFileRecord(
+            id=max((file.id for file in self.files), default=-1) + 1,
+            path=relative_path,
+            module_name=_python_import_module_name_for_filepath(relative_path) if relative_path.endswith(".py") else None,
+            byte_len=len(content_bytes),
+            line_count=_line_count(content),
+            has_error=False,
+            root_range=_source_range_for_content(content),
+        )
+        self.files.append(record)
+        file = RustCompactFile(self, record)
+        file.ctx = self._ctx
+        self.file_handles.append(file)
+        self._file_handles_by_id = None
+        self._symbols_by_file_id = None
+        self._imports_by_file_id = None
+        return file
+
+    def unregister_file(self, file_id: int) -> None:
+        self._files = [file for file in self.files if file.id != file_id]
+        self._file_handles = [file for file in self.file_handles if file.record.id != file_id]
+        self._symbols = [symbol for symbol in self.symbols if symbol.file_id != file_id]
+        self._imports = [import_record for import_record in self.imports if import_record.file_id != file_id]
+        self._file_handles_by_id = None
+        self._symbol_handles = None
+        self._import_handles = None
+        self._symbols_by_file_id = None
+        self._imports_by_file_id = None
+        self._import_resolutions_by_import_id = None
+        self._import_resolutions_by_target_file_id = None
+        self._references_by_target_symbol_id = None
+        self._references_by_source_symbol_id = None
+        self._references_by_import_id = None
+        self._dependencies_by_source_symbol_id = None
+        self._dependencies_by_target_symbol_id = None
+        self._symbols_by_parent_symbol_id = None
+
+    def _normalize_relative_path(self, filepath: str) -> str:
+        path = Path(filepath.replace("\\", "/"))
+        if path.is_absolute():
+            path = path.resolve().relative_to(self.repo_path)
+        normalized = path.as_posix()
+        if normalized.startswith("./"):
+            normalized = normalized[2:]
+        return normalized
 
     def get_file_handle(self, filepath: str, *, ignore_case: bool = False) -> RustCompactFile | None:
         path = Path(filepath.replace("\\", "/"))
@@ -609,6 +680,33 @@ def _python_import_module_name_for_filepath(filepath: str, base_path: str | None
     return module
 
 
+def _line_count(source: str) -> int:
+    if source == "":
+        return 0
+    return source.count("\n") + int(not source.endswith("\n"))
+
+
+def _source_range_for_content(source: str) -> RustSourceRange:
+    lines = source.splitlines()
+    if source.endswith("\n"):
+        end_row = len(lines)
+        end_column = 0
+    elif lines:
+        end_row = len(lines) - 1
+        end_column = len(lines[-1])
+    else:
+        end_row = 0
+        end_column = 0
+    return RustSourceRange(
+        start_byte=0,
+        end_byte=len(source.encode("utf-8")),
+        start_row=0,
+        start_column=0,
+        end_row=end_row,
+        end_column=end_column,
+    )
+
+
 class RustCompactHandle:
     node_type: NodeType
 
@@ -643,6 +741,13 @@ class RustCompactHandle:
 
     def _unsupported(self, method: str) -> RuntimeError:
         return RuntimeError(f"{method} is not supported by the compact Rust handle yet")
+
+    @property
+    def transaction_manager(self):
+        if self.ctx is None:
+            msg = "Compact Rust handle is not bound to a CodebaseContext"
+            raise RuntimeError(msg)
+        return self.ctx.transaction_manager
 
 
 class RustCompactFile(RustCompactHandle):
@@ -706,6 +811,8 @@ class RustCompactFile(RustCompactHandle):
 
     @property
     def content_bytes(self) -> bytes:
+        if self.ctx is not None:
+            return self.ctx.io.read_bytes(self.path)
         return self.path.read_bytes()
 
     @property
@@ -715,6 +822,41 @@ class RustCompactFile(RustCompactHandle):
     @property
     def source(self) -> str:
         return self.content
+
+    def write(self, content: str | bytes, to_disk: bool = False) -> None:
+        if self.ctx is None:
+            msg = "Cannot write compact Rust file without a CodebaseContext"
+            raise RuntimeError(msg)
+        self.ctx.io.write_file(self.path, content)
+        if to_disk:
+            self.ctx.io.save_files({self.path})
+
+    def write_bytes(self, content_bytes: bytes, to_disk: bool = False) -> None:
+        self.write(content_bytes, to_disk=to_disk)
+
+    def edit(self, new_src: str, fix_indentation: bool = False, priority: int = 0, dedupe: bool = True) -> None:
+        if self.is_binary:
+            msg = "Cannot replace content in binary files"
+            raise ValueError(msg)
+        transaction = EditTransaction(0, len(self.content_bytes), self, new_src, priority=priority)
+        self.transaction_manager.add_transaction(transaction, dedupe=dedupe)
+
+    def replace(self, old: str, new: str, count: int = -1, is_regex: bool = False, priority: int = 0) -> int:
+        if self.is_binary:
+            msg = "Cannot replace content in binary files"
+            raise ValueError(msg)
+        if is_regex:
+            method = "RustCompactFile.replace(is_regex=True)"
+            raise self._unsupported(method)
+        if old not in self.content:
+            return 0
+        replacement_count = self.content.count(old) if count == -1 else min(self.content.count(old), count)
+        self.edit(self.content.replace(old, new, count), priority=priority)
+        return replacement_count
+
+    def remove(self) -> None:
+        self.transaction_manager.add_file_remove_transaction(self)
+        self.backend.unregister_file(self.record.id)
 
     @property
     def imports(self) -> list[RustCompactImport]:

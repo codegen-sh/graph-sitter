@@ -423,6 +423,47 @@ def test_missing_rust_extension_falls_back_to_python_graph(monkeypatch, tmp_path
         assert len(codebase.functions) == 1
 
 
+def test_rust_compact_file_mutations_commit_without_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n"},
+        config=config,
+        sync_graph=False,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        service_file = codebase.get_file("pkg/service.py")
+        service_file.edit("VALUE = 1\n")
+        codebase.commit(sync_graph=False)
+        assert service_file.content == "VALUE = 1\n"
+        assert (tmp_path / "pkg/service.py").read_text() == "VALUE = 1\n"
+
+        assert service_file.replace("VALUE", "UPDATED") == 1
+        codebase.commit(sync_graph=False)
+        assert service_file.content == "UPDATED = 1\n"
+
+        created_file = codebase.create_file("pkg/generated.py", "CREATED = True\n", sync=False)
+        assert created_file.filepath == "pkg/generated.py"
+        assert codebase.has_file("pkg/generated.py")
+        assert codebase.get_file("pkg/generated.py") == created_file
+        assert (tmp_path / "pkg/generated.py").read_text() == "CREATED = True\n"
+
+        created_file.edit("CREATED = False\n")
+        codebase.commit(sync_graph=False)
+        assert (tmp_path / "pkg/generated.py").read_text() == "CREATED = False\n"
+
+        created_file.remove()
+        codebase.commit(sync_graph=False)
+        assert not (tmp_path / "pkg/generated.py").exists()
+        assert codebase.get_file("pkg/generated.py", optional=True) is None
+
+        with pytest.raises(RuntimeError, match="Python graph is not built"):
+            len(codebase.ctx.nodes)
+
+
 def test_missing_rust_extension_can_fail_strictly(monkeypatch, tmp_path):
     monkeypatch.setitem(sys.modules, "graph_sitter_py", None)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR)
