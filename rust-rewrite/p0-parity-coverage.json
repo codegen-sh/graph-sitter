@@ -67,6 +67,7 @@
         "import identity/predicates/resolution/imported_exports",
         "export identity/predicates/resolution/import string helpers",
         "external import dependency handles",
+        "TypeScript named namespace re-export member dependencies",
         "TypeScript subclass and implementation traversal"
       ],
       "evidence": {
@@ -158,7 +159,7 @@
         "full TypeScript lexical/type/interface/reference coverage",
         "complete namespace and expression dependency parity"
       ],
-      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, but the broader expression and type-system P0 surface still needs parity tests and targeted Rust data."
+      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs plus named namespace re-export member dependencies, but broader namespace APIs, expression nodes, and type-system P0 surfaces still need parity tests and targeted Rust data."
     },
     {
       "name": "Full graph-wide large-repo semantic parity",

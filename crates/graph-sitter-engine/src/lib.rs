@@ -3573,6 +3573,33 @@ fn typescript_exported_symbol_map(
     exported_symbols
 }
 
+fn typescript_namespace_export_file_map(
+    index: &TypeScriptIndex,
+    resolutions: &[ImportResolutionRecord],
+) -> HashMap<(u32, String), u32> {
+    let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = resolutions
+        .iter()
+        .map(|resolution| (resolution.import_id, resolution))
+        .collect();
+    let mut namespace_exports = HashMap::new();
+    for export in &index.exports {
+        if export.kind != ExportKind::Namespace {
+            continue;
+        }
+        let Some(name) = export.name.as_deref() else {
+            continue;
+        };
+        let Some(import_id) = export.import_id else {
+            continue;
+        };
+        let Some(resolution) = resolution_by_import_id.get(&import_id) else {
+            continue;
+        };
+        namespace_exports.insert((export.file_id, name.to_owned()), resolution.target_file_id);
+    }
+    namespace_exports
+}
+
 fn resolve_typescript_import_symbol(
     import: &ImportRecord,
     target_file_id: u32,
@@ -3728,6 +3755,8 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         &local_exported_symbols,
         &index.import_resolutions,
     );
+    let namespace_export_file_by_file_and_name =
+        typescript_namespace_export_file_map(index, &index.import_resolutions);
     let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
         .import_resolutions
         .iter()
@@ -3757,6 +3786,19 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
                     (import.file_id, alias.to_owned()),
                     (resolution.target_file_id, import.id),
                 );
+            }
+        } else if import.kind == ImportKind::NamedImport {
+            if let (Some(binding), Some(name)) = (
+                typescript_import_binding_name(import),
+                import.name.as_deref(),
+            ) {
+                if let Some(target_file_id) = namespace_export_file_by_file_and_name
+                    .get(&(resolution.target_file_id, name.to_owned()))
+                    .copied()
+                {
+                    imported_module_by_qualifier
+                        .insert((import.file_id, binding), (target_file_id, import.id));
+                }
             }
         }
         let Some(target_symbol_id) = resolution.target_symbol_id else {
@@ -6393,6 +6435,123 @@ export * from './extra';\n",
                 .count(),
             2
         );
+    }
+
+    #[test]
+    fn resolves_typescript_named_namespace_reexport_member_references() {
+        let repo = temp_repo_path("resolve-typescript-named-namespace-reexport");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { utils } from './barrel';\n\
+\n\
+export function run() {\n\
+  return utils.helper();\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/barrel.ts"),
+            "export * as utils from './leaf';\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/leaf.ts"),
+            "export function helper() { return 1; }\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 3);
+        assert_eq!(index.summary().imports, 2);
+        assert_eq!(index.summary().import_resolutions, 2);
+        assert_eq!(index.summary().references, 1);
+        assert_eq!(index.summary().dependencies, 1);
+
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.ts")
+            .unwrap()
+            .id;
+        let barrel_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/barrel.ts")
+            .unwrap()
+            .id;
+        let leaf_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/leaf.ts")
+            .unwrap()
+            .id;
+        let run_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "run")
+            .unwrap()
+            .id;
+        let helper_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == leaf_file_id && symbol.name == "helper")
+            .unwrap()
+            .id;
+        let utils_import_id = index
+            .imports
+            .iter()
+            .find(|import| {
+                import.file_id == app_file_id
+                    && import.kind == ImportKind::NamedImport
+                    && import.module.as_deref() == Some("./barrel")
+                    && import.name.as_deref() == Some("utils")
+                    && import.alias.as_deref() == Some("utils")
+            })
+            .unwrap()
+            .id;
+        let barrel_namespace_import_id = index
+            .imports
+            .iter()
+            .find(|import| {
+                import.file_id == barrel_file_id
+                    && import.kind == ImportKind::NamespaceImport
+                    && import.module.as_deref() == Some("./leaf")
+                    && import.name.as_deref() == Some("*")
+                    && import.alias.as_deref() == Some("utils")
+            })
+            .unwrap()
+            .id;
+
+        assert!(index.exports.iter().any(|export| {
+            export.file_id == barrel_file_id
+                && export.kind == ExportKind::Namespace
+                && export.name.as_deref() == Some("utils")
+                && export.import_id == Some(barrel_namespace_import_id)
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == utils_import_id
+                && resolution.target_file_id == barrel_file_id
+                && resolution.target_symbol_id.is_none()
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == barrel_namespace_import_id
+                && resolution.target_file_id == leaf_file_id
+                && resolution.target_symbol_id.is_none()
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == helper_symbol_id
+                && reference.import_id == Some(utils_import_id)
+                && reference.name == "helper"
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == run_symbol_id
+                && dependency.target_symbol_id == helper_symbol_id
+                && dependency.reference_count == 1
+        }));
     }
 
     #[test]

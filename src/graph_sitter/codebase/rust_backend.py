@@ -3336,11 +3336,26 @@ class RustCompactImport(RustCompactHandle):
             return self.backend.external_module_for_import(self.record.id)
         if resolution.target_symbol_id is not None:
             return self.backend.symbol_handle_by_id(resolution.target_symbol_id)
+        namespace_target = self._namespace_reexport_target_file(resolution)
+        if namespace_target is not None:
+            return namespace_target
         return self.backend.file_handle_by_id(resolution.target_file_id)
 
     @property
     def resolved_symbol(self) -> RustCompactSymbol | RustCompactFile | RustCompactExternalModule | None:
         return self.imported_symbol
+
+    def _namespace_reexport_target_file(self, resolution: RustImportResolutionRecord) -> RustCompactFile | None:
+        if self.record.kind != "named_import" or self.record.name is None:
+            return None
+        for export in self.backend.exports_for_file_by_name(resolution.target_file_id, self.record.name):
+            if export.record.kind != "namespace" or export.record.import_id is None:
+                continue
+            namespace_resolution = self.backend.import_resolution_for_import(export.record.import_id)
+            if namespace_resolution is None:
+                continue
+            return self.backend.file_handle_by_id(namespace_resolution.target_file_id)
+        return None
 
     @property
     def imported_exports(self) -> list[RustCompactSymbol | RustCompactFile | RustCompactExternalModule]:

@@ -52,13 +52,16 @@ MUTATION_OUTPUT_PATHS = ["pkg/service.py"]
 
 TYPESCRIPT_FIXTURE_FILES = {
     "src/util.ts": "export function helper(value: number) { return value; }\n",
-    "src/index.ts": "export { helper as publicHelper } from './util';\n",
+    "src/index.ts": (
+        "export { helper as publicHelper } from './util';\n"
+        "export * as utilNamespace from './util';\n"
+    ),
     "src/app.ts": (
         "import { helper } from './util';\n"
-        "import { publicHelper } from './index';\n"
+        "import { publicHelper, utilNamespace } from './index';\n"
         "\n"
         "export function run() {\n"
-        "  return helper(publicHelper(1));\n"
+        "  return helper(publicHelper(1)) + utilNamespace.helper(2);\n"
         "}\n"
     ),
 }
