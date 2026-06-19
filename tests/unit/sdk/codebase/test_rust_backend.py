@@ -2243,7 +2243,7 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
         assert helper is not None
         assert run.get_import_string(alias="execute") == "import { run as execute } from 'src/app';"
         assert helper.get_import_string(alias="assist") == "import { helper as assist } from 'src/util';"
-        assert run.dependencies == [helper]
+        assert run.dependencies == [codebase.imports[0]]
         assert helper.usages[0].match.source == "helper"
 
         app_file = codebase.get_file("src/app.ts")

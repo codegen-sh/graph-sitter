@@ -2420,9 +2420,7 @@ class RustCompactSymbol(RustCompactHandle):
         return dependencies
 
     def _preserve_import_dependencies(self, target: RustCompactSymbol) -> bool:
-        if self.file.extension == ".py":
-            return True
-        return _is_typescript_like_extension(Path(self.filepath).suffix) and target.record.kind in {"interface", "type_alias"}
+        return self.file.extension == ".py" or _is_typescript_like_extension(Path(self.filepath).suffix)
 
     def _direct_superclasses(self) -> list[RustCompactSymbol]:
         superclasses: list[RustCompactSymbol] = []
@@ -2535,9 +2533,19 @@ class RustCompactSymbol(RustCompactHandle):
         if _is_typescript_like_extension(Path(self.filepath).suffix):
             for export_handle in self.backend.exports_for_symbol(self.record.id):
                 add_usage(export_handle)
+            for export_handle in self.backend.exports_for_file_by_name(self.record.file_id, self.name):
+                if export_handle.record.symbol_id in {None, self.record.id} and export_handle.record.import_id is None:
+                    add_usage(export_handle)
 
-            for resolution in self.backend.import_resolutions_to_symbol(self.record.id):
-                add_usage(self.backend.import_handle_by_id(resolution.import_id))
+        for resolution in self.backend.import_resolutions_to_symbol(self.record.id):
+            import_handle = self.backend.import_handle_by_id(resolution.import_id)
+            if import_handle is not None and import_handle.file != self.file:
+                add_usage(import_handle)
+            if import_handle is not None and _is_typescript_like_extension(Path(self.filepath).suffix):
+                export_name = import_handle.name or import_handle.import_specifier
+                for export_handle in import_handle.backend.exports_for_file_by_name(import_handle.record.file_id, export_name or ""):
+                    if export_handle.record.import_id == import_handle.record.id:
+                        add_usage(export_handle)
 
         for usage in self.usages(usage_types=usage_types):
             add_usage(usage.usage_symbol.parent_symbol)
@@ -2623,7 +2631,12 @@ class RustCompactSymbol(RustCompactHandle):
 
         file.add_symbol(self)
         import_line = self.get_import_string(module=file.import_module_name)
-        is_used_in_source_file = any(usage_symbol != self and getattr(usage_symbol, "file", None) == self.file for usage_symbol in self.symbol_usages)
+        is_used_in_source_file = any(
+            usage_symbol != self
+            and getattr(usage_symbol, "file", None) == self.file
+            and getattr(usage_symbol, "node_type", None) == NodeType.SYMBOL
+            for usage_symbol in self.symbol_usages
+        )
         imported_usages = [usage for usage in self.usages if usage.imported_by is not None and usage.imported_by not in encountered_symbols]
 
         if strategy == "duplicate_dependencies":
@@ -2940,12 +2953,40 @@ class RustCompactImport(RustCompactHandle):
 
         symbol_usages: list[object] = []
         seen: set[object] = set()
+
+        def add_usage(handle: object | None) -> None:
+            if handle is None or handle in seen:
+                return
+            seen.add(handle)
+            symbol_usages.append(handle)
+
+        visited_import_ids: set[int] = set()
+
+        def add_downstream_import_usages(import_handle: RustCompactImport) -> None:
+            if import_handle.record.id in visited_import_ids:
+                return
+            visited_import_ids.add(import_handle.record.id)
+            if _is_typescript_like_extension(import_handle.file.extension):
+                export_name = import_handle.name or import_handle.import_specifier
+                for export_handle in import_handle.backend.exports_for_file_by_name(import_handle.record.file_id, export_name or ""):
+                    if export_handle.record.import_id == import_handle.record.id:
+                        add_usage(export_handle)
+            importable_name = import_handle.name or import_handle.import_specifier
+            if importable_name is None:
+                return
+            for resolution in import_handle.backend.import_resolutions_to_file(import_handle.record.file_id):
+                downstream_import = import_handle.backend.import_handle_by_id(resolution.import_id)
+                if downstream_import is None or downstream_import.record.id == import_handle.record.id:
+                    continue
+                if downstream_import.import_specifier != importable_name:
+                    continue
+                add_usage(downstream_import)
+                for downstream_usage in downstream_import.symbol_usages:
+                    add_usage(downstream_usage)
+
+        add_downstream_import_usages(self)
         for usage in self.usages(usage_types=usage_types):
-            usage_symbol = usage.usage_symbol.parent_symbol
-            if usage_symbol in seen:
-                continue
-            seen.add(usage_symbol)
-            symbol_usages.append(usage_symbol)
+            add_usage(usage.usage_symbol.parent_symbol)
         return symbol_usages
 
     @property
@@ -3082,7 +3123,8 @@ class RustCompactImport(RustCompactHandle):
         raise RuntimeError(msg)
 
     def _line_matches_import(self, line: str) -> bool:
-        if "import" not in line:
+        stripped = line.strip()
+        if "import" not in line and not (stripped.startswith("export") and " from " in line):
             return False
 
         fragments = {

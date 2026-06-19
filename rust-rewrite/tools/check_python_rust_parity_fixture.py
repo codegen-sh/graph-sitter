@@ -98,8 +98,13 @@ def sorted_signatures(nodes: list[Any]) -> list[dict[str, Any]]:
     )
 
 
+def sorted_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sorted(rows, key=lambda row: json.dumps(row, sort_keys=True))
+
+
 def import_signature(imp: Any) -> dict[str, Any]:
     return {
+        "filepath": imp.filepath,
         "source": imp.source,
         "name": imp.name,
         "from_file": None if imp.from_file is None else imp.from_file.filepath,
@@ -109,6 +114,7 @@ def import_signature(imp: Any) -> dict[str, Any]:
 
 def import_target_signature(imp: Any) -> dict[str, Any]:
     return {
+        "filepath": imp.filepath,
         "source": imp.source,
         "name": imp.name,
         "from_file": None if imp.from_file is None else imp.from_file.filepath,
@@ -162,6 +168,48 @@ def import_resolves_to_external(imp: Any) -> bool:
 
 def get_symbol(codebase: Any, name: str) -> Any | None:
     return codebase.get_symbol(name, optional=True)
+
+
+def symbol_dependency_graph(symbols: list[Any]) -> list[dict[str, Any]]:
+    return sorted_rows(
+        [
+            {
+                "symbol": node_signature(symbol),
+                "dependencies": unique_sorted_signatures(
+                    [node_signature(dependency) for dependency in symbol.dependencies]
+                ),
+            }
+            for symbol in symbols
+        ]
+    )
+
+
+def symbol_usage_graph(symbols: list[Any]) -> list[dict[str, Any]]:
+    return sorted_rows(
+        [
+            {
+                "symbol": node_signature(symbol),
+                "symbol_usages": unique_sorted_signatures(
+                    [node_signature(usage) for usage in symbol.symbol_usages]
+                ),
+            }
+            for symbol in symbols
+        ]
+    )
+
+
+def import_usage_graph(imports: list[Any]) -> list[dict[str, Any]]:
+    return sorted_rows(
+        [
+            {
+                "import": import_signature(imp),
+                "symbol_usages": unique_sorted_signatures(
+                    [node_signature(usage) for usage in imp.symbol_usages]
+                ),
+            }
+            for imp in imports
+        ]
+    )
 
 
 def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, Any]:
@@ -220,11 +268,15 @@ def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, An
             ),
             key=lambda item: (item["filepath"], item["node_type"], item["name"]),
         ),
+        "imports": sorted_rows([import_signature(imp) for imp in codebase.imports]),
         "service_imports": sorted(
             (import_signature(imp) for imp in service.imports),
             key=lambda item: item["source"],
         ),
         "external_modules": sorted_signatures(codebase.external_modules),
+        "symbol_dependency_graph": symbol_dependency_graph(codebase.symbols),
+        "symbol_usage_graph": symbol_usage_graph(codebase.symbols),
+        "import_usage_graph": import_usage_graph(codebase.imports),
         "build_dependencies": sorted_signatures(build.dependencies),
         "build_symbol_usages": sorted_signatures(build.symbol_usages),
         "helper_symbol_usages_symbols_only": sorted_signatures(helper_symbol_usages),
@@ -293,6 +345,7 @@ def collect_typescript_report(codebase: Any, *, expect_blocked_graph: bool) -> d
         "python_graph_blocked": python_graph_blocked,
         "files": sorted(file.filepath for file in codebase.files),
         "symbols": sorted_signatures(codebase.symbols),
+        "imports": sorted_rows([import_target_signature(imp) for imp in codebase.imports]),
         "app_import_targets": sorted(
             (import_target_signature(imp) for imp in app.imports),
             key=lambda item: (item["from_file"] or "", item["name"] or ""),
@@ -301,6 +354,9 @@ def collect_typescript_report(codebase: Any, *, expect_blocked_graph: bool) -> d
             (export_signature(export) for export in codebase.exports),
             key=lambda item: (item["filepath"], item["name"] or ""),
         ),
+        "symbol_dependency_graph": symbol_dependency_graph(codebase.symbols),
+        "symbol_usage_graph": symbol_usage_graph(codebase.symbols),
+        "import_usage_graph": import_usage_graph(codebase.imports),
         "helper_symbol_usages_symbols_only": sorted_signatures(helper_symbol_usages),
         "run_resolved_dependency_targets": unique_sorted_signatures(
             [resolved_target_signature(dependency) for dependency in run.dependencies]
@@ -442,8 +498,12 @@ def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) 
     exact_keys = [
         "files",
         "symbols",
+        "imports",
         "service_imports",
         "external_modules",
+        "symbol_dependency_graph",
+        "symbol_usage_graph",
+        "import_usage_graph",
         "build_dependencies",
         "build_symbol_usages",
         "helper_symbol_usages_symbols_only",
@@ -466,8 +526,12 @@ def compare_typescript_reports(python_report: dict[str, Any], rust_report: dict[
     exact_keys = [
         "files",
         "symbols",
+        "imports",
         "app_import_targets",
         "exports",
+        "symbol_dependency_graph",
+        "symbol_usage_graph",
+        "import_usage_graph",
         "helper_symbol_usages_symbols_only",
         "run_resolved_dependency_targets",
     ]
