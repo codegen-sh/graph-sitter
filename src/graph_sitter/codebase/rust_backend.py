@@ -344,6 +344,7 @@ class RustIndexBackend:
     _external_module_handles: list[RustCompactExternalModule] | None = None
     _export_handles: list[RustCompactExport] | None = None
     _file_handles_by_id: dict[int, RustCompactFile] | None = None
+    _file_handles_by_path: dict[str, RustCompactFile] | None = None
     _symbol_handles_by_id: dict[int, RustCompactSymbol] | None = None
     _import_handles_by_id: dict[int, RustCompactImport] | None = None
     _external_module_handles_by_import_id: dict[int, RustCompactExternalModule] | None = None
@@ -399,6 +400,94 @@ class RustIndexBackend:
     @property
     def engine_version(self) -> str:
         return str(self.extension.engine_version())
+
+    def _record_from_json_method(self, method_name: str, factory: Any, *args: Any) -> Any | None:
+        method = getattr(self.index, method_name, None)
+        if method is None:
+            return None
+        data = json.loads(method(*args))
+        if data is None:
+            return None
+        return factory(data)
+
+    def _records_from_json_method(self, method_name: str, factory: Any, *args: Any) -> list[Any] | None:
+        method = getattr(self.index, method_name, None)
+        if method is None:
+            return None
+        return [factory(record) for record in json.loads(method(*args))]
+
+    def _bind_handle(self, handle: Any) -> Any:
+        if self._ctx is not None:
+            handle.ctx = self._ctx
+        return handle
+
+    def _file_record_by_id(self, file_id: int) -> RustFileRecord | None:
+        return self._record_from_json_method("file_by_id_json", RustFileRecord.from_dict, file_id)
+
+    def _file_record_by_path(self, filepath: str) -> RustFileRecord | None:
+        return self._record_from_json_method("file_by_path_json", RustFileRecord.from_dict, filepath)
+
+    def _symbol_record_by_id(self, symbol_id: int) -> RustSymbolRecord | None:
+        return self._record_from_json_method("symbol_by_id_json", RustSymbolRecord.from_dict, symbol_id)
+
+    def _import_record_by_id(self, import_id: int) -> RustImportRecord | None:
+        return self._record_from_json_method("import_by_id_json", RustImportRecord.from_dict, import_id)
+
+    def _export_record_by_id(self, export_id: int) -> RustExportRecord | None:
+        return self._record_from_json_method("export_by_id_json", RustExportRecord.from_dict, export_id)
+
+    def _file_handle_from_record(self, record: RustFileRecord) -> RustCompactFile:
+        if self._file_handles_by_id is None:
+            self._file_handles_by_id = {}
+        if self._file_handles_by_path is None:
+            self._file_handles_by_path = {}
+        handle = self._file_handles_by_id.get(record.id) or self._file_handles_by_path.get(record.path)
+        if handle is None:
+            handle = RustCompactFile(self, record)
+        self._bind_handle(handle)
+        self._file_handles_by_id[record.id] = handle
+        self._file_handles_by_path[record.path] = handle
+        return handle
+
+    def _symbol_handle_from_record(self, record: RustSymbolRecord) -> RustCompactSymbol:
+        if self._symbol_handles_by_id is None:
+            self._symbol_handles_by_id = {}
+        handle = self._symbol_handles_by_id.get(record.id)
+        if handle is None:
+            handle = RustCompactSymbol(self, record)
+        self._bind_handle(handle)
+        self._symbol_handles_by_id[record.id] = handle
+        return handle
+
+    def _import_handle_from_record(self, record: RustImportRecord) -> RustCompactImport:
+        if self._import_handles_by_id is None:
+            self._import_handles_by_id = {}
+        handle = self._import_handles_by_id.get(record.id)
+        if handle is None:
+            handle = RustCompactImport(self, record)
+        self._bind_handle(handle)
+        self._import_handles_by_id[record.id] = handle
+        return handle
+
+    def _external_module_handle_from_record(self, record: RustExternalModuleRecord) -> RustCompactExternalModule:
+        if self._external_module_handles_by_import_id is None:
+            self._external_module_handles_by_import_id = {}
+        handle = self._external_module_handles_by_import_id.get(record.import_id)
+        if handle is None:
+            handle = RustCompactExternalModule(self, record)
+        self._bind_handle(handle)
+        self._external_module_handles_by_import_id[record.import_id] = handle
+        return handle
+
+    def _export_handle_from_record(self, record: RustExportRecord) -> RustCompactExport:
+        if self._export_handles_by_id is None:
+            self._export_handles_by_id = {}
+        handle = self._export_handles_by_id.get(record.id)
+        if handle is None:
+            handle = RustCompactExport(self, record)
+        self._bind_handle(handle)
+        self._export_handles_by_id[record.id] = handle
+        return handle
 
     def compact_record_counts(self) -> dict[str, int]:
         return {
@@ -534,46 +623,31 @@ class RustIndexBackend:
     @property
     def file_handles(self) -> list[RustCompactFile]:
         if self._file_handles is None:
-            self._file_handles = [RustCompactFile(self, record) for record in self.files]
-            if self._ctx is not None:
-                for file in self._file_handles:
-                    file.ctx = self._ctx
+            self._file_handles = [self._file_handle_from_record(record) for record in self.files]
         return self._file_handles
 
     @property
     def symbol_handles(self) -> list[RustCompactSymbol]:
         if self._symbol_handles is None:
-            self._symbol_handles = [RustCompactSymbol(self, record) for record in self.symbols]
-            if self._ctx is not None:
-                for symbol in self._symbol_handles:
-                    symbol.ctx = self._ctx
+            self._symbol_handles = [self._symbol_handle_from_record(record) for record in self.symbols]
         return self._symbol_handles
 
     @property
     def import_handles(self) -> list[RustCompactImport]:
         if self._import_handles is None:
-            self._import_handles = [RustCompactImport(self, record) for record in self.imports]
-            if self._ctx is not None:
-                for import_handle in self._import_handles:
-                    import_handle.ctx = self._ctx
+            self._import_handles = [self._import_handle_from_record(record) for record in self.imports]
         return self._import_handles
 
     @property
     def external_module_handles(self) -> list[RustCompactExternalModule]:
         if self._external_module_handles is None:
-            self._external_module_handles = [RustCompactExternalModule(self, record) for record in self.external_modules]
-            if self._ctx is not None:
-                for external_module in self._external_module_handles:
-                    external_module.ctx = self._ctx
+            self._external_module_handles = [self._external_module_handle_from_record(record) for record in self.external_modules]
         return self._external_module_handles
 
     @property
     def export_handles(self) -> list[RustCompactExport]:
         if self._export_handles is None:
-            self._export_handles = [RustCompactExport(self, record) for record in self.exports]
-            if self._ctx is not None:
-                for export_handle in self._export_handles:
-                    export_handle.ctx = self._ctx
+            self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
         return self._export_handles
 
     def bind_context(self, ctx: CodebaseContext) -> None:
@@ -582,6 +656,18 @@ class RustIndexBackend:
             if handles is None:
                 continue
             for handle in handles:
+                handle.ctx = ctx
+        for handles_by_key in (
+            self._file_handles_by_id,
+            self._file_handles_by_path,
+            self._symbol_handles_by_id,
+            self._import_handles_by_id,
+            self._external_module_handles_by_import_id,
+            self._export_handles_by_id,
+        ):
+            if handles_by_key is None:
+                continue
+            for handle in handles_by_key.values():
                 handle.ctx = ctx
 
     def register_added_file(self, filepath: str, content: str = "") -> RustCompactFile:
@@ -607,10 +693,10 @@ class RustIndexBackend:
             root_range=_source_range_for_content(content),
         )
         self.files.append(record)
-        file = RustCompactFile(self, record)
-        file.ctx = self._ctx
+        file = self._file_handle_from_record(record)
         self.file_handles.append(file)
         self._file_handles_by_id = None
+        self._file_handles_by_path = None
         self._symbols_by_file_id = None
         self._imports_by_file_id = None
         return file
@@ -625,6 +711,7 @@ class RustIndexBackend:
         self._external_references = [reference for reference in self.external_references if reference.source_file_id != file_id]
         self._subclass_edges = [edge for edge in self.subclass_edges if edge.source_file_id != file_id and edge.target_file_id != file_id]
         self._file_handles_by_id = None
+        self._file_handles_by_path = None
         self._symbol_handles = None
         self._import_handles = None
         self._external_module_handles = None
@@ -667,12 +754,29 @@ class RustIndexBackend:
         normalized = path.as_posix()
         if normalized.startswith("./"):
             normalized = normalized[2:]
+        if not ignore_case and self._file_handles is None and hasattr(self.index, "file_by_path_json"):
+            if self._file_handles_by_path is not None and normalized in self._file_handles_by_path:
+                return self._file_handles_by_path[normalized]
+            record = self._file_record_by_path(normalized)
+            if record is not None:
+                return self._file_handle_from_record(record)
         if ignore_case:
             normalized = normalized.lower()
             return next((file for file in self.file_handles if file.filepath.lower() == normalized), None)
         return next((file for file in self.file_handles if file.filepath == normalized), None)
 
     def symbols_for_file(self, file_id: int) -> list[RustCompactSymbol]:
+        if self._symbol_handles is None and hasattr(self.index, "symbols_for_file_json"):
+            if self._symbols_by_file_id is None:
+                self._symbols_by_file_id = {}
+            if file_id not in self._symbols_by_file_id:
+                records = self._records_from_json_method("symbols_for_file_json", RustSymbolRecord.from_dict, file_id)
+                if records is not None:
+                    self._symbols_by_file_id[file_id] = [self._symbol_handle_from_record(record) for record in records]
+                else:
+                    self._symbol_handles = [self._symbol_handle_from_record(record) for record in self.symbols]
+            if file_id in self._symbols_by_file_id:
+                return self._symbols_by_file_id[file_id]
         if self._symbols_by_file_id is None:
             symbols_by_file_id: dict[int, list[RustCompactSymbol]] = {}
             for symbol in self.symbol_handles:
@@ -690,6 +794,17 @@ class RustIndexBackend:
         return self._symbols_by_parent_symbol_id.get(parent_symbol_id, [])
 
     def imports_for_file(self, file_id: int) -> list[RustCompactImport]:
+        if self._import_handles is None and hasattr(self.index, "imports_for_file_json"):
+            if self._imports_by_file_id is None:
+                self._imports_by_file_id = {}
+            if file_id not in self._imports_by_file_id:
+                records = self._records_from_json_method("imports_for_file_json", RustImportRecord.from_dict, file_id)
+                if records is not None:
+                    self._imports_by_file_id[file_id] = [self._import_handle_from_record(record) for record in records]
+                else:
+                    self._import_handles = [self._import_handle_from_record(record) for record in self.imports]
+            if file_id in self._imports_by_file_id:
+                return self._imports_by_file_id[file_id]
         if self._imports_by_file_id is None:
             imports_by_file_id: dict[int, list[RustCompactImport]] = {}
             for import_handle in self.import_handles:
@@ -698,6 +813,17 @@ class RustIndexBackend:
         return self._imports_by_file_id.get(file_id, [])
 
     def exports_for_file(self, file_id: int) -> list[RustCompactExport]:
+        if self._export_handles is None and hasattr(self.index, "exports_for_file_json"):
+            if self._exports_by_file_id is None:
+                self._exports_by_file_id = {}
+            if file_id not in self._exports_by_file_id:
+                records = self._records_from_json_method("exports_for_file_json", RustExportRecord.from_dict, file_id)
+                if records is not None:
+                    self._exports_by_file_id[file_id] = [self._export_handle_from_record(record) for record in records]
+                else:
+                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+            if file_id in self._exports_by_file_id:
+                return self._exports_by_file_id[file_id]
         if self._exports_by_file_id is None:
             exports_by_file_id: dict[int, list[RustCompactExport]] = {}
             for export_handle in self.export_handles:
@@ -706,36 +832,99 @@ class RustIndexBackend:
         return self._exports_by_file_id.get(file_id, [])
 
     def file_handle_by_id(self, file_id: int) -> RustCompactFile | None:
+        if self._file_handles is None and hasattr(self.index, "file_by_id_json"):
+            if self._file_handles_by_id is None:
+                self._file_handles_by_id = {}
+            if file_id not in self._file_handles_by_id:
+                record = self._file_record_by_id(file_id)
+                if record is not None:
+                    return self._file_handle_from_record(record)
+            if file_id in self._file_handles_by_id:
+                return self._file_handles_by_id[file_id]
         if self._file_handles_by_id is None:
             self._file_handles_by_id = {file.record.id: file for file in self.file_handles}
         return self._file_handles_by_id.get(file_id)
 
     def symbol_handle_by_id(self, symbol_id: int) -> RustCompactSymbol | None:
+        if self._symbol_handles is None and hasattr(self.index, "symbol_by_id_json"):
+            if self._symbol_handles_by_id is None:
+                self._symbol_handles_by_id = {}
+            if symbol_id not in self._symbol_handles_by_id:
+                record = self._symbol_record_by_id(symbol_id)
+                if record is not None:
+                    return self._symbol_handle_from_record(record)
+            if symbol_id in self._symbol_handles_by_id:
+                return self._symbol_handles_by_id[symbol_id]
         if self._symbol_handles_by_id is None:
             self._symbol_handles_by_id = {symbol.record.id: symbol for symbol in self.symbol_handles}
         return self._symbol_handles_by_id.get(symbol_id)
 
     def import_handle_by_id(self, import_id: int) -> RustCompactImport | None:
+        if self._import_handles is None and hasattr(self.index, "import_by_id_json"):
+            if self._import_handles_by_id is None:
+                self._import_handles_by_id = {}
+            if import_id not in self._import_handles_by_id:
+                record = self._import_record_by_id(import_id)
+                if record is not None:
+                    return self._import_handle_from_record(record)
+            if import_id in self._import_handles_by_id:
+                return self._import_handles_by_id[import_id]
         if self._import_handles_by_id is None:
             self._import_handles_by_id = {import_handle.record.id: import_handle for import_handle in self.import_handles}
         return self._import_handles_by_id.get(import_id)
 
     def external_module_for_import(self, import_id: int) -> RustCompactExternalModule | None:
+        if self._external_module_handles is None and hasattr(self.index, "external_module_for_import_json"):
+            if self._external_module_handles_by_import_id is None:
+                self._external_module_handles_by_import_id = {}
+            if import_id not in self._external_module_handles_by_import_id:
+                record = self._record_from_json_method("external_module_for_import_json", RustExternalModuleRecord.from_dict, import_id)
+                if record is not None:
+                    return self._external_module_handle_from_record(record)
+            if import_id in self._external_module_handles_by_import_id:
+                return self._external_module_handles_by_import_id[import_id]
         if self._external_module_handles_by_import_id is None:
             self._external_module_handles_by_import_id = {external_module.record.import_id: external_module for external_module in self.external_module_handles}
         return self._external_module_handles_by_import_id.get(import_id)
 
     def export_handle_by_id(self, export_id: int) -> RustCompactExport | None:
+        if self._export_handles is None and hasattr(self.index, "export_by_id_json"):
+            if self._export_handles_by_id is None:
+                self._export_handles_by_id = {}
+            if export_id not in self._export_handles_by_id:
+                record = self._export_record_by_id(export_id)
+                if record is not None:
+                    return self._export_handle_from_record(record)
+            if export_id in self._export_handles_by_id:
+                return self._export_handles_by_id[export_id]
         if self._export_handles_by_id is None:
             self._export_handles_by_id = {export_handle.record.id: export_handle for export_handle in self.export_handles}
         return self._export_handles_by_id.get(export_id)
 
     def import_resolution_for_import(self, import_id: int) -> RustImportResolutionRecord | None:
+        if self._import_resolutions is None and hasattr(self.index, "import_resolution_for_import_json"):
+            if self._import_resolutions_by_import_id is None:
+                self._import_resolutions_by_import_id = {}
+            if import_id not in self._import_resolutions_by_import_id:
+                record = self._record_from_json_method("import_resolution_for_import_json", RustImportResolutionRecord.from_dict, import_id)
+                if record is not None:
+                    self._import_resolutions_by_import_id[record.import_id] = record
+            if import_id in self._import_resolutions_by_import_id:
+                return self._import_resolutions_by_import_id[import_id]
         if self._import_resolutions_by_import_id is None:
             self._import_resolutions_by_import_id = {resolution.import_id: resolution for resolution in self.import_resolutions}
         return self._import_resolutions_by_import_id.get(import_id)
 
     def import_resolutions_to_file(self, file_id: int) -> list[RustImportResolutionRecord]:
+        if self._import_resolutions is None and hasattr(self.index, "import_resolutions_to_file_json"):
+            if self._import_resolutions_by_target_file_id is None:
+                self._import_resolutions_by_target_file_id = {}
+            if file_id not in self._import_resolutions_by_target_file_id:
+                records = self._records_from_json_method("import_resolutions_to_file_json", RustImportResolutionRecord.from_dict, file_id)
+                if records is not None:
+                    self._import_resolutions_by_target_file_id[file_id] = records
+            if file_id in self._import_resolutions_by_target_file_id:
+                return self._import_resolutions_by_target_file_id[file_id]
         if self._import_resolutions_by_target_file_id is None:
             import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] = {}
             for resolution in self.import_resolutions:
@@ -744,6 +933,15 @@ class RustIndexBackend:
         return self._import_resolutions_by_target_file_id.get(file_id, [])
 
     def references_to_symbol(self, symbol_id: int) -> list[RustReferenceRecord]:
+        if self._references is None and hasattr(self.index, "references_to_symbol_json"):
+            if self._references_by_target_symbol_id is None:
+                self._references_by_target_symbol_id = {}
+            if symbol_id not in self._references_by_target_symbol_id:
+                records = self._records_from_json_method("references_to_symbol_json", RustReferenceRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._references_by_target_symbol_id[symbol_id] = records
+            if symbol_id in self._references_by_target_symbol_id:
+                return self._references_by_target_symbol_id[symbol_id]
         if self._references_by_target_symbol_id is None:
             references_by_target_symbol_id: dict[int, list[RustReferenceRecord]] = {}
             for reference in self.references:
@@ -752,6 +950,15 @@ class RustIndexBackend:
         return self._references_by_target_symbol_id.get(symbol_id, [])
 
     def references_from_symbol(self, symbol_id: int) -> list[RustReferenceRecord]:
+        if self._references is None and hasattr(self.index, "references_from_symbol_json"):
+            if self._references_by_source_symbol_id is None:
+                self._references_by_source_symbol_id = {}
+            if symbol_id not in self._references_by_source_symbol_id:
+                records = self._records_from_json_method("references_from_symbol_json", RustReferenceRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._references_by_source_symbol_id[symbol_id] = records
+            if symbol_id in self._references_by_source_symbol_id:
+                return self._references_by_source_symbol_id[symbol_id]
         if self._references_by_source_symbol_id is None:
             references_by_source_symbol_id: dict[int, list[RustReferenceRecord]] = {}
             for reference in self.references:
@@ -761,6 +968,15 @@ class RustIndexBackend:
         return self._references_by_source_symbol_id.get(symbol_id, [])
 
     def references_for_import(self, import_id: int) -> list[RustReferenceRecord]:
+        if self._references is None and hasattr(self.index, "references_for_import_json"):
+            if self._references_by_import_id is None:
+                self._references_by_import_id = {}
+            if import_id not in self._references_by_import_id:
+                records = self._records_from_json_method("references_for_import_json", RustReferenceRecord.from_dict, import_id)
+                if records is not None:
+                    self._references_by_import_id[import_id] = records
+            if import_id in self._references_by_import_id:
+                return self._references_by_import_id[import_id]
         if self._references_by_import_id is None:
             references_by_import_id: dict[int, list[RustReferenceRecord]] = {}
             for reference in self.references:
@@ -770,11 +986,29 @@ class RustIndexBackend:
         return self._references_by_import_id.get(import_id, [])
 
     def reference_by_id(self, reference_id: int) -> RustReferenceRecord | None:
+        if self._references is None and hasattr(self.index, "reference_by_id_json"):
+            if self._references_by_id is None:
+                self._references_by_id = {}
+            if reference_id not in self._references_by_id:
+                record = self._record_from_json_method("reference_by_id_json", RustReferenceRecord.from_dict, reference_id)
+                if record is not None:
+                    self._references_by_id[record.id] = record
+            if reference_id in self._references_by_id:
+                return self._references_by_id[reference_id]
         if self._references_by_id is None:
             self._references_by_id = {reference.id: reference for reference in self.references}
         return self._references_by_id.get(reference_id)
 
     def external_references_from_symbol(self, symbol_id: int) -> list[RustExternalReferenceRecord]:
+        if self._external_references is None and hasattr(self.index, "external_references_from_symbol_json"):
+            if self._external_references_by_source_symbol_id is None:
+                self._external_references_by_source_symbol_id = {}
+            if symbol_id not in self._external_references_by_source_symbol_id:
+                records = self._records_from_json_method("external_references_from_symbol_json", RustExternalReferenceRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._external_references_by_source_symbol_id[symbol_id] = records
+            if symbol_id in self._external_references_by_source_symbol_id:
+                return self._external_references_by_source_symbol_id[symbol_id]
         if self._external_references_by_source_symbol_id is None:
             references_by_source_symbol_id: dict[int, list[RustExternalReferenceRecord]] = {}
             for reference in self.external_references:
@@ -784,6 +1018,15 @@ class RustIndexBackend:
         return self._external_references_by_source_symbol_id.get(symbol_id, [])
 
     def external_references_for_import(self, import_id: int) -> list[RustExternalReferenceRecord]:
+        if self._external_references is None and hasattr(self.index, "external_references_for_import_json"):
+            if self._external_references_by_import_id is None:
+                self._external_references_by_import_id = {}
+            if import_id not in self._external_references_by_import_id:
+                records = self._records_from_json_method("external_references_for_import_json", RustExternalReferenceRecord.from_dict, import_id)
+                if records is not None:
+                    self._external_references_by_import_id[import_id] = records
+            if import_id in self._external_references_by_import_id:
+                return self._external_references_by_import_id[import_id]
         if self._external_references_by_import_id is None:
             references_by_import_id: dict[int, list[RustExternalReferenceRecord]] = {}
             for reference in self.external_references:
@@ -792,6 +1035,15 @@ class RustIndexBackend:
         return self._external_references_by_import_id.get(import_id, [])
 
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
+        if self._dependencies is None and hasattr(self.index, "dependencies_from_symbol_json"):
+            if self._dependencies_by_source_symbol_id is None:
+                self._dependencies_by_source_symbol_id = {}
+            if symbol_id not in self._dependencies_by_source_symbol_id:
+                records = self._records_from_json_method("dependencies_from_symbol_json", RustDependencyRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._dependencies_by_source_symbol_id[symbol_id] = records
+            if symbol_id in self._dependencies_by_source_symbol_id:
+                return self._dependencies_by_source_symbol_id[symbol_id]
         if self._dependencies_by_source_symbol_id is None:
             dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] = {}
             for dependency in self.dependencies:
@@ -800,6 +1052,15 @@ class RustIndexBackend:
         return self._dependencies_by_source_symbol_id.get(symbol_id, [])
 
     def dependencies_to_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
+        if self._dependencies is None and hasattr(self.index, "dependencies_to_symbol_json"):
+            if self._dependencies_by_target_symbol_id is None:
+                self._dependencies_by_target_symbol_id = {}
+            if symbol_id not in self._dependencies_by_target_symbol_id:
+                records = self._records_from_json_method("dependencies_to_symbol_json", RustDependencyRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._dependencies_by_target_symbol_id[symbol_id] = records
+            if symbol_id in self._dependencies_by_target_symbol_id:
+                return self._dependencies_by_target_symbol_id[symbol_id]
         if self._dependencies_by_target_symbol_id is None:
             dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] = {}
             for dependency in self.dependencies:
@@ -808,6 +1069,15 @@ class RustIndexBackend:
         return self._dependencies_by_target_symbol_id.get(symbol_id, [])
 
     def subclass_edges_from_symbol(self, symbol_id: int) -> list[RustSubclassRecord]:
+        if self._subclass_edges is None and hasattr(self.index, "subclass_edges_from_symbol_json"):
+            if self._subclass_edges_by_source_symbol_id is None:
+                self._subclass_edges_by_source_symbol_id = {}
+            if symbol_id not in self._subclass_edges_by_source_symbol_id:
+                records = self._records_from_json_method("subclass_edges_from_symbol_json", RustSubclassRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._subclass_edges_by_source_symbol_id[symbol_id] = records
+            if symbol_id in self._subclass_edges_by_source_symbol_id:
+                return self._subclass_edges_by_source_symbol_id[symbol_id]
         if self._subclass_edges_by_source_symbol_id is None:
             subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] = {}
             for edge in self.subclass_edges:
@@ -816,6 +1086,15 @@ class RustIndexBackend:
         return self._subclass_edges_by_source_symbol_id.get(symbol_id, [])
 
     def subclass_edges_to_symbol(self, symbol_id: int) -> list[RustSubclassRecord]:
+        if self._subclass_edges is None and hasattr(self.index, "subclass_edges_to_symbol_json"):
+            if self._subclass_edges_by_target_symbol_id is None:
+                self._subclass_edges_by_target_symbol_id = {}
+            if symbol_id not in self._subclass_edges_by_target_symbol_id:
+                records = self._records_from_json_method("subclass_edges_to_symbol_json", RustSubclassRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._subclass_edges_by_target_symbol_id[symbol_id] = records
+            if symbol_id in self._subclass_edges_by_target_symbol_id:
+                return self._subclass_edges_by_target_symbol_id[symbol_id]
         if self._subclass_edges_by_target_symbol_id is None:
             subclass_edges_by_target_symbol_id: dict[int, list[RustSubclassRecord]] = {}
             for edge in self.subclass_edges:

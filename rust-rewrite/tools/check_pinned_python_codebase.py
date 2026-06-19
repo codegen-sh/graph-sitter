@@ -128,6 +128,15 @@ EXPECTED_KNOWN_DEPENDENCIES = {
     ],
 }
 
+EXPECTED_LARGE_CACHE_MATERIALIZATION = {
+    "files": False,
+    "symbols": False,
+    "imports": False,
+    "references": False,
+    "external_references": False,
+    "dependencies": False,
+}
+
 RECORDED_PYTHON_BASELINE = {
     "wall_seconds": 18.649,
     "max_rss_mb": 3470.3,
@@ -212,6 +221,17 @@ def known_dependency_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
     }
 
 
+def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
+    return {
+        "files": backend._files is not None,
+        "symbols": backend._symbols is not None,
+        "imports": backend._imports is not None,
+        "references": backend._references is not None,
+        "external_references": backend._external_references is not None,
+        "dependencies": backend._dependencies is not None,
+    }
+
+
 def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples = [memory_sample("start")]
     repo, actual_commit = prepare_pinned_repo(args)
@@ -262,8 +282,10 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     compat_counts = backend.compact_compat_counts()
     memory_samples.append(memory_sample("after_compat_handles"))
     known_lookups = known_lookup_report(codebase)
+    memory_samples.append(memory_sample("after_known_lookups"))
     known_dependencies = known_dependency_report(codebase)
-    memory_samples.append(memory_sample("after_known_queries"))
+    memory_samples.append(memory_sample("after_known_dependencies"))
+    large_cache_materialization = large_cache_materialization_report(backend)
 
     totals = {
         "wall_seconds": round(wall, 6),
@@ -297,6 +319,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "compat_handles": compat_counts,
         "known_lookups": known_lookups,
         "known_dependencies": known_dependencies,
+        "large_cache_materialization": large_cache_materialization,
         "comparison": comparison,
     }
     validate_report(report, args)
@@ -322,6 +345,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("known byte-range lookup results drifted")
         if report["known_dependencies"] != EXPECTED_KNOWN_DEPENDENCIES:
             failures.append("known dependency results drifted")
+        if report["large_cache_materialization"] != EXPECTED_LARGE_CACHE_MATERIALIZATION:
+            failures.append("large Rust backend caches were materialized during known queries")
 
     totals = report["totals"]
     comparison = report["comparison"]

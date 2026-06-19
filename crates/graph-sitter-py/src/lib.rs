@@ -232,6 +232,187 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn file_by_id_json(&self, file_id: u32) -> PyResult<String> {
+            serde_json::to_string(&self.inner.files.iter().find(|file| file.id == file_id))
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn file_by_path_json(&self, path: &str) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .files
+                    .iter()
+                    .find(|file| file.path.as_ref() == path),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn symbols_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn symbol_by_id_json(&self, symbol_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .symbols
+                    .iter()
+                    .find(|symbol| symbol.id == symbol_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .imports
+                .iter()
+                .filter(|import| import.file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_by_id_json(&self, import_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .imports
+                    .iter()
+                    .find(|import| import.id == import_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_resolution_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .import_resolutions
+                    .iter()
+                    .find(|resolution| resolution.import_id == import_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_resolutions_to_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .import_resolutions
+                .iter()
+                .filter(|resolution| resolution.target_file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn external_module_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .external_modules
+                    .iter()
+                    .find(|external_module| external_module.import_id == import_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn dependencies_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .dependencies
+                .iter()
+                .filter(|dependency| dependency.source_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn dependencies_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .dependencies
+                .iter()
+                .filter(|dependency| dependency.target_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn reference_by_id_json(&self, reference_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .references
+                    .iter()
+                    .find(|reference| reference.id == reference_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn references_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .references
+                .iter()
+                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn references_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .references
+                .iter()
+                .filter(|reference| reference.import_id == Some(import_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn external_references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .external_references
+                .iter()
+                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn external_references_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .external_references
+                .iter()
+                .filter(|reference| reference.import_id == import_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn file_ids(&self) -> Vec<u32> {
             self.inner.files.iter().map(|file| file.id).collect()
         }
@@ -448,6 +629,231 @@ mod bindings {
 
         fn subclass_edges_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.subclass_edges)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn file_by_id_json(&self, file_id: u32) -> PyResult<String> {
+            serde_json::to_string(&self.inner.files.iter().find(|file| file.id == file_id))
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn file_by_path_json(&self, path: &str) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .files
+                    .iter()
+                    .find(|file| file.path.as_ref() == path),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn symbols_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn symbol_by_id_json(&self, symbol_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .symbols
+                    .iter()
+                    .find(|symbol| symbol.id == symbol_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .imports
+                .iter()
+                .filter(|import| import.file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_by_id_json(&self, import_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .imports
+                    .iter()
+                    .find(|import| import.id == import_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn exports_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .exports
+                .iter()
+                .filter(|export| export.file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn export_by_id_json(&self, export_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .exports
+                    .iter()
+                    .find(|export| export.id == export_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_resolution_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .import_resolutions
+                    .iter()
+                    .find(|resolution| resolution.import_id == import_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn import_resolutions_to_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .import_resolutions
+                .iter()
+                .filter(|resolution| resolution.target_file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn external_module_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .external_modules
+                    .iter()
+                    .find(|external_module| external_module.import_id == import_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn dependencies_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .dependencies
+                .iter()
+                .filter(|dependency| dependency.source_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn dependencies_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .dependencies
+                .iter()
+                .filter(|dependency| dependency.target_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn reference_by_id_json(&self, reference_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .references
+                    .iter()
+                    .find(|reference| reference.id == reference_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn references_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .references
+                .iter()
+                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn references_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .references
+                .iter()
+                .filter(|reference| reference.import_id == Some(import_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn external_references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .external_references
+                .iter()
+                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn external_references_for_import_json(&self, import_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .external_references
+                .iter()
+                .filter(|reference| reference.import_id == import_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn subclass_edges_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .subclass_edges
+                .iter()
+                .filter(|edge| edge.source_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn subclass_edges_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .subclass_edges
+                .iter()
+                .filter(|edge| edge.target_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
