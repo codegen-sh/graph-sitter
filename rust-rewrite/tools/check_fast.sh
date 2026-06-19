@@ -14,6 +14,15 @@ cargo fmt --all --check
 cargo test --workspace --all-targets
 
 PYTHON_BIN="$(uv run python -c 'import sys; print(sys.executable)')"
+PYTHON_LIBDIR="$("$PYTHON_BIN" - <<'PY'
+import sysconfig
+
+print(sysconfig.get_config_var("LIBDIR") or "")
+PY
+)"
+if [[ -n "$PYTHON_LIBDIR" && -d "$PYTHON_LIBDIR" ]]; then
+  export LD_LIBRARY_PATH="$PYTHON_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
 PYO3_PYTHON="$PYTHON_BIN" cargo check -p graph-sitter-py --features pyo3-bindings
 PYO3_PYTHON="$PYTHON_BIN" cargo test -p graph-sitter-py --features pyo3-bindings
 if [[ "$(uname)" == "Darwin" ]]; then
