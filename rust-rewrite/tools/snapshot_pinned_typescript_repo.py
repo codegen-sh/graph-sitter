@@ -34,7 +34,7 @@ from snapshot_pinned_python_repo import (  # noqa: E402
 DEFAULT_EXPECTED_SNAPSHOT = (
     REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
 )
-SNAPSHOT_SCHEMA_VERSION = 3
+SNAPSHOT_SCHEMA_VERSION = 4
 
 
 def range_list(record: dict[str, Any], name: str = "range") -> list[int]:
@@ -107,6 +107,28 @@ def reference_key(
     target_symbol = symbol_key(symbol_by_id[reference["target_symbol_id"]], file_by_id)
     source_file = file_by_id[reference["source_file_id"]]["path"]
     return f"{source_file}:{source_symbol}->{target_symbol}:{import_record}:{reference['name']}@{range_list(reference)[0]}"
+
+
+def subclass_edge_key(
+    subclass_edge: dict[str, Any],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+    reference_by_id: dict[int, dict[str, Any]],
+) -> str:
+    source_symbol = symbol_key(
+        symbol_by_id[subclass_edge["source_symbol_id"]], file_by_id
+    )
+    target_symbol = symbol_key(
+        symbol_by_id[subclass_edge["target_symbol_id"]], file_by_id
+    )
+    reference = reference_key(
+        reference_by_id[subclass_edge["reference_id"]],
+        file_by_id,
+        symbol_by_id,
+        import_by_id,
+    )
+    return f"{source_symbol}->{target_symbol}:{reference}"
 
 
 def make_file_rows(files: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -338,6 +360,46 @@ def make_dependency_rows(
     )
 
 
+def make_subclass_edge_rows(
+    subclass_edges: list[dict[str, Any]],
+    file_by_id: dict[int, dict[str, Any]],
+    symbol_by_id: dict[int, dict[str, Any]],
+    import_by_id: dict[int, dict[str, Any]],
+    reference_by_id: dict[int, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = []
+    for edge in subclass_edges:
+        rows.append(
+            {
+                "key": subclass_edge_key(
+                    edge, file_by_id, symbol_by_id, import_by_id, reference_by_id
+                ),
+                "source_symbol": symbol_key(
+                    symbol_by_id[edge["source_symbol_id"]], file_by_id
+                ),
+                "target_symbol": symbol_key(
+                    symbol_by_id[edge["target_symbol_id"]], file_by_id
+                ),
+                "source_file": file_by_id[edge["source_file_id"]]["path"],
+                "target_file": file_by_id[edge["target_file_id"]]["path"],
+                "reference": reference_key(
+                    reference_by_id[edge["reference_id"]],
+                    file_by_id,
+                    symbol_by_id,
+                    import_by_id,
+                ),
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            row["source_symbol"],
+            row["target_symbol"],
+            row["reference"],
+        ),
+    )
+
+
 def validate_integrity(
     *,
     files: list[dict[str, Any]],
@@ -347,6 +409,7 @@ def validate_integrity(
     exports: list[dict[str, Any]],
     references: list[dict[str, Any]],
     dependencies: list[dict[str, Any]],
+    subclass_edges: list[dict[str, Any]],
     selected_file_count: int | None,
 ) -> dict[str, int]:
     file_ids = {file["id"] for file in files}
@@ -426,6 +489,36 @@ def validate_integrity(
         for dependency in dependencies
         for reference_id in dependency["reference_ids"]
     )
+    missing_subclass_edge_source_symbol_links = sum(
+        int(edge["source_symbol_id"] not in symbol_ids) for edge in subclass_edges
+    )
+    missing_subclass_edge_target_symbol_links = sum(
+        int(edge["target_symbol_id"] not in symbol_ids) for edge in subclass_edges
+    )
+    missing_subclass_edge_source_file_links = sum(
+        int(edge["source_file_id"] not in file_ids) for edge in subclass_edges
+    )
+    missing_subclass_edge_target_file_links = sum(
+        int(edge["target_file_id"] not in file_ids) for edge in subclass_edges
+    )
+    missing_subclass_edge_reference_links = sum(
+        int(edge["reference_id"] not in reference_ids) for edge in subclass_edges
+    )
+    reference_by_id = {reference["id"]: reference for reference in references}
+    mismatched_subclass_edge_references = sum(
+        int(
+            edge["reference_id"] in reference_by_id
+            and (
+                reference_by_id[edge["reference_id"]]["source_symbol_id"]
+                != edge["source_symbol_id"]
+                or reference_by_id[edge["reference_id"]]["target_symbol_id"]
+                != edge["target_symbol_id"]
+                or reference_by_id[edge["reference_id"]]["source_file_id"]
+                != edge["source_file_id"]
+            )
+        )
+        for edge in subclass_edges
+    )
 
     selected_file_count_delta = (
         0 if selected_file_count is None else len(files) - selected_file_count
@@ -449,6 +542,12 @@ def validate_integrity(
         "missing_dependency_source_file_links": missing_dependency_source_file_links,
         "missing_dependency_target_file_links": missing_dependency_target_file_links,
         "missing_dependency_reference_links": missing_dependency_reference_links,
+        "missing_subclass_edge_source_symbol_links": missing_subclass_edge_source_symbol_links,
+        "missing_subclass_edge_target_symbol_links": missing_subclass_edge_target_symbol_links,
+        "missing_subclass_edge_source_file_links": missing_subclass_edge_source_file_links,
+        "missing_subclass_edge_target_file_links": missing_subclass_edge_target_file_links,
+        "missing_subclass_edge_reference_links": missing_subclass_edge_reference_links,
+        "mismatched_subclass_edge_references": mismatched_subclass_edge_references,
         "selected_file_count_delta": selected_file_count_delta,
     }
 
@@ -492,6 +591,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     exports = json.loads(index.exports_json())
     references = json.loads(index.references_json())
     dependencies = json.loads(index.dependencies_json())
+    subclass_edges = json.loads(index.subclass_edges_json())
 
     file_by_id = {file["id"]: file for file in files}
     symbol_by_id = {symbol["id"]: symbol for symbol in symbols}
@@ -509,6 +609,9 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     dependency_rows = make_dependency_rows(
         dependencies, file_by_id, symbol_by_id, import_by_id, reference_by_id
     )
+    subclass_edge_rows = make_subclass_edge_rows(
+        subclass_edges, file_by_id, symbol_by_id, import_by_id, reference_by_id
+    )
     integrity = validate_integrity(
         files=files,
         symbols=symbols,
@@ -517,6 +620,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
         exports=exports,
         references=references,
         dependencies=dependencies,
+        subclass_edges=subclass_edges,
         selected_file_count=selected_file_count,
     )
     assert_integrity(integrity)
@@ -535,6 +639,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
         "summary": {
             **summary,
             "exports": index.export_count,
+            "subclass_edges": index.subclass_edge_count,
         },
         "graphs": {
             "files": compact_record_set(file_rows, sample_size=args.sample_size),
@@ -547,6 +652,9 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             "references": compact_record_set(reference_rows, sample_size=args.sample_size),
             "dependencies": compact_record_set(
                 dependency_rows, sample_size=args.sample_size
+            ),
+            "subclass_edges": compact_record_set(
+                subclass_edge_rows, sample_size=args.sample_size
             ),
         },
         "integrity": integrity,
@@ -654,7 +762,8 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']} "
         f"exports={summary['exports']} references={summary['references']} "
-        f"dependencies={summary['dependencies']} files_with_errors={summary['files_with_errors']}"
+        f"dependencies={summary['dependencies']} subclass_edges={summary['subclass_edges']} "
+        f"files_with_errors={summary['files_with_errors']}"
     )
     print(
         "hashes: "
@@ -664,7 +773,8 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
         f"import_resolutions={snapshot['graphs']['import_resolutions']['sha256']} "
         f"exports={snapshot['graphs']['exports']['sha256']} "
         f"references={snapshot['graphs']['references']['sha256']} "
-        f"dependencies={snapshot['graphs']['dependencies']['sha256']}"
+        f"dependencies={snapshot['graphs']['dependencies']['sha256']} "
+        f"subclass_edges={snapshot['graphs']['subclass_edges']['sha256']}"
     )
 
 

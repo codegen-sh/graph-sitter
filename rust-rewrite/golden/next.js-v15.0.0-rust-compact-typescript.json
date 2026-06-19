@@ -1663,6 +1663,172 @@
       ],
       "sha256": "21b2844aab783e8856a5d423f21667e007e542064a634fc56f620356dde01d6c"
     },
+    "subclass_edges": {
+      "count": 151,
+      "samples": [
+        {
+          "key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@246",
+          "reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@246",
+          "source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220",
+          "target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@254",
+          "reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@254",
+          "source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228",
+          "target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@192",
+          "reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@192",
+          "source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163",
+          "target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@301",
+          "reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@301",
+          "source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272",
+          "target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:named_import:..:Plugin:Plugin@266:Plugin@351",
+          "reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:named_import:..:Plugin:Plugin@266:Plugin@351",
+          "source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319",
+          "target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:named_import:..:Plugin:Plugin@417:Plugin@498",
+          "reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:named_import:..:Plugin:Plugin@417:Plugin@498",
+          "source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470",
+          "target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:named_import:..:Plugin:Plugin@276:Plugin@332",
+          "reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:named_import:..:Plugin:Plugin@276:Plugin@332",
+          "source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303",
+          "target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:named_import:..:Plugin:Plugin@134:Plugin@267",
+          "reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:named_import:..:Plugin:Plugin@134:Plugin@267",
+          "source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245",
+          "target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155->examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155->examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:named_import:..:SiteResolverPlugin:SiteResolverPlugin@116:SiteResolverPlugin@180",
+          "reference": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155->examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:named_import:..:SiteResolverPlugin:SiteResolverPlugin@116:SiteResolverPlugin@180",
+          "source_file": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155",
+          "target_file": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489"
+        },
+        {
+          "key": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235->examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235->examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:named_import:..:SitemapFetcherPlugin:SitemapFetcherPlugin@148:SitemapFetcherPlugin@274",
+          "reference": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235->examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:named_import:..:SitemapFetcherPlugin:SitemapFetcherPlugin@148:SitemapFetcherPlugin@274",
+          "source_file": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts",
+          "source_symbol": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235",
+          "target_file": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts",
+          "target_symbol": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185"
+        },
+        {
+          "key": "examples/with-xata/utils/xata.codegen.ts:class:XataClient@673->examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599:examples/with-xata/utils/xata.codegen.ts:examples/with-xata/utils/xata.codegen.ts:class:XataClient@673->examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599::DatabaseClient@692",
+          "reference": "examples/with-xata/utils/xata.codegen.ts:examples/with-xata/utils/xata.codegen.ts:class:XataClient@673->examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599::DatabaseClient@692",
+          "source_file": "examples/with-xata/utils/xata.codegen.ts",
+          "source_symbol": "examples/with-xata/utils/xata.codegen.ts:class:XataClient@673",
+          "target_file": "examples/with-xata/utils/xata.codegen.ts",
+          "target_symbol": "examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599"
+        },
+        {
+          "key": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Endpoint@5583:packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Endpoint@5583:packages/next/src/build/swc/index.ts:named_import:./types:Endpoint:Endpoint@1178:Endpoint@24134",
+          "reference": "packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Endpoint@5583:packages/next/src/build/swc/index.ts:named_import:./types:Endpoint:Endpoint@1178:Endpoint@24134",
+          "source_file": "packages/next/src/build/swc/index.ts",
+          "source_symbol": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558",
+          "target_file": "packages/next/src/build/swc/types.ts",
+          "target_symbol": "packages/next/src/build/swc/types.ts:interface:Endpoint@5583"
+        },
+        {
+          "key": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Project@4420:packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Project@4420:packages/next/src/build/swc/index.ts:named_import:./types:Project:Project@1208:Project@17659",
+          "reference": "packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Project@4420:packages/next/src/build/swc/index.ts:named_import:./types:Project:Project@1208:Project@17659",
+          "source_file": "packages/next/src/build/swc/index.ts",
+          "source_symbol": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558",
+          "target_file": "packages/next/src/build/swc/types.ts",
+          "target_symbol": "packages/next/src/build/swc/types.ts:interface:Project@4420"
+        },
+        {
+          "key": "packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533->packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468:packages/next/src/build/swc/jest-transformer.ts:packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533->packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468::TransformerConfig@1563",
+          "reference": "packages/next/src/build/swc/jest-transformer.ts:packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533->packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468::TransformerConfig@1563",
+          "source_file": "packages/next/src/build/swc/jest-transformer.ts",
+          "source_symbol": "packages/next/src/build/swc/jest-transformer.ts:interface:JestTransformerConfig@1533",
+          "target_file": "packages/next/src/build/swc/jest-transformer.ts",
+          "target_symbol": "packages/next/src/build/swc/jest-transformer.ts:type_alias:TransformerConfig@1468"
+        },
+        {
+          "key": "packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144:packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3290",
+          "reference": "packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3290",
+          "source_file": "packages/next/src/build/swc/types.ts",
+          "source_symbol": "packages/next/src/build/swc/types.ts:interface:IssuesUpdate@3269",
+          "target_file": "packages/next/src/build/swc/types.ts",
+          "target_symbol": "packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144"
+        },
+        {
+          "key": "packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144:packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3562",
+          "reference": "packages/next/src/build/swc/types.ts:packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540->packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144::BaseUpdate@3562",
+          "source_file": "packages/next/src/build/swc/types.ts",
+          "source_symbol": "packages/next/src/build/swc/types.ts:interface:PartialUpdate@3540",
+          "target_file": "packages/next/src/build/swc/types.ts",
+          "target_symbol": "packages/next/src/build/swc/types.ts:interface:BaseUpdate@3144"
+        },
+        {
+          "key": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550->packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258:packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550->packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258::WebpackPluginInstance@591",
+          "reference": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550->packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258::WebpackPluginInstance@591",
+          "source_file": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts",
+          "source_symbol": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:class:NextJsRequireCacheHotReloader@550",
+          "target_file": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts",
+          "target_symbol": "packages/next/src/build/webpack/plugins/nextjs-require-cache-hot-reloader.ts:type_alias:WebpackPluginInstance@258"
+        },
+        {
+          "key": "packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138->packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941:packages/next/src/client/components/error-boundary.tsx:packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138->packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941::ErrorBoundaryProps@1172",
+          "reference": "packages/next/src/client/components/error-boundary.tsx:packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138->packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941::ErrorBoundaryProps@1172",
+          "source_file": "packages/next/src/client/components/error-boundary.tsx",
+          "source_symbol": "packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryHandlerProps@1138",
+          "target_file": "packages/next/src/client/components/error-boundary.tsx",
+          "target_symbol": "packages/next/src/client/components/error-boundary.tsx:interface:ErrorBoundaryProps@941"
+        },
+        {
+          "key": "packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504->packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323:packages/next/src/client/components/not-found-boundary.tsx:packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504->packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323::NotFoundBoundaryProps@539",
+          "reference": "packages/next/src/client/components/not-found-boundary.tsx:packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504->packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323::NotFoundBoundaryProps@539",
+          "source_file": "packages/next/src/client/components/not-found-boundary.tsx",
+          "source_symbol": "packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundErrorBoundaryProps@504",
+          "target_file": "packages/next/src/client/components/not-found-boundary.tsx",
+          "target_symbol": "packages/next/src/client/components/not-found-boundary.tsx:interface:NotFoundBoundaryProps@323"
+        },
+        {
+          "key": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159->packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159->packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:named_import:../../server/shared:OriginalStackFrameResponse:OriginalStackFrameResponse@85:OriginalStackFrameResponse@186",
+          "reference": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159->packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355:packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:named_import:../../server/shared:OriginalStackFrameResponse:OriginalStackFrameResponse@85:OriginalStackFrameResponse@186",
+          "source_file": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts",
+          "source_symbol": "packages/next/src/client/components/react-dev-overlay/internal/helpers/stack-frame.ts:interface:OriginalStackFrame@159",
+          "target_file": "packages/next/src/client/components/react-dev-overlay/server/shared.ts",
+          "target_symbol": "packages/next/src/client/components/react-dev-overlay/server/shared.ts:interface:OriginalStackFrameResponse@355"
+        }
+      ],
+      "sha256": "37e5e5b00d68c263830ee3b22186b38495bdf5de0341a7dfc5cb2e7c470d4676"
+    },
     "symbols": {
       "count": 23980,
       "samples": [
@@ -2151,6 +2317,7 @@
     }
   },
   "integrity": {
+    "mismatched_subclass_edge_references": 0,
     "missing_dependency_reference_links": 0,
     "missing_dependency_source_file_links": 0,
     "missing_dependency_source_symbol_links": 0,
@@ -2168,6 +2335,11 @@
     "missing_resolution_source_file_links": 0,
     "missing_resolution_target_file_links": 0,
     "missing_resolution_target_symbol_links": 0,
+    "missing_subclass_edge_reference_links": 0,
+    "missing_subclass_edge_source_file_links": 0,
+    "missing_subclass_edge_source_symbol_links": 0,
+    "missing_subclass_edge_target_file_links": 0,
+    "missing_subclass_edge_target_symbol_links": 0,
     "missing_symbol_file_links": 0,
     "selected_file_count_delta": 0
   },
@@ -2179,7 +2351,7 @@
     "repo_url": "https://github.com/vercel/next.js.git",
     "selected_file_count": 13688
   },
-  "schema_version": 3,
+  "schema_version": 4,
   "summary": {
     "bytes": 25421217,
     "classes": 502,
@@ -2193,6 +2365,7 @@
     "imports": 28210,
     "lines": 634891,
     "references": 48157,
+    "subclass_edges": 151,
     "symbols": 23980
   }
 }
