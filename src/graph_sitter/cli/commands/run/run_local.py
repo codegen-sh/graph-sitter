@@ -10,6 +10,7 @@ from graph_sitter.cli.utils.function_finder import DecoratedFunction
 from graph_sitter.codebase.config import ProjectConfig
 from graph_sitter.codebase.progress.progress import Progress
 from graph_sitter.codebase.progress.task import Task
+from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.git.schemas.repo_config import RepoConfig
@@ -49,6 +50,8 @@ def parse_codebase(
     repo_path: Path,
     subdirectories: list[str] | None = None,
     language: ProgrammingLanguage | None = None,
+    backend: GraphBackend = GraphBackend.PYTHON,
+    fallback: RustFallbackMode = RustFallbackMode.PYTHON,
 ) -> Codebase:
     """Parse the codebase at the given root.
 
@@ -74,29 +77,44 @@ def parse_codebase(
                     programming_language=language or determine_project_language(repo_path),
                 )
             ],
+            config=CodebaseConfig(graph_backend=backend, rust_fallback=fallback),
             progress=RichProgress(progress),
         )
     return codebase
 
 
 def run_local(
-    session: CliSession,
+    session: CliSession | None,
     function: DecoratedFunction,
     diff_preview: int | None = None,
+    *,
+    repo_path: Path | None = None,
+    arguments: dict | None = None,
+    backend: GraphBackend = GraphBackend.PYTHON,
+    fallback: RustFallbackMode = RustFallbackMode.PYTHON,
+    language: ProgrammingLanguage | None = None,
 ) -> None:
     """Run a function locally against the codebase.
 
     Args:
-        session: The current codegen session
+        session: The current codegen session, if running from initialized session state
         function: The function to run
         diff_preview: Number of lines of diff to preview (None for all)
     """
-    rich.print(f"Parsing codebase at {session.repo_path} with subdirectories {function.subdirectories or 'ALL'} and language {function.language or 'AUTO'} ...")
+    repo_path = repo_path or session.repo_path
+    codebase_language = language or function.language
+    rich.print(f"Parsing codebase at {repo_path} with subdirectories {function.subdirectories or 'ALL'} and language {codebase_language or 'AUTO'} ...")
     # Parse codebase and run
-    codebase = parse_codebase(repo_path=session.repo_path, subdirectories=function.subdirectories, language=function.language)
+    codebase = parse_codebase(
+        repo_path=repo_path,
+        subdirectories=function.subdirectories,
+        language=codebase_language,
+        backend=backend,
+        fallback=fallback,
+    )
     with Status("[bold]Running codemod...", spinner="dots") as status:
         status.update("")
-        function.run(codebase)  # Run the function
+        function.run(codebase, arguments=arguments)  # Run the function
         status.update("[bold green]✓ Completed codemod")
 
     # Get the diff from the codebase

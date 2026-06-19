@@ -23,6 +23,7 @@ This plan does not change docs/site content.
 
 - `uv run gs --help` and `uv run graph-sitter --help` work.
 - `graph-sitter parse [PATH] --backend python --format json` works without `.codegen` initialization and emits stable summary JSON.
+- `graph-sitter run LABEL PATH --arguments '{"key":"value"}' --backend python` resolves decorated functions under the target repo's `.codegen/codemods`, validates typed Pydantic arguments, and runs without an active `gs init` session.
 - `graph_sitter.cli.cli:main` is the public CLI. `graph_sitter.gscli` appears to be an internal generation CLI and should not be used for the `uvx graph-sitter` surface.
 - The current `run` path executes decorated functions found under `.codegen/codemods`:
   - `gs init` creates/persists a session for a git repo.
@@ -70,10 +71,10 @@ uvx graph-sitter run LABEL [PATH] --write
 Behavior:
 
 - `LABEL` resolves decorated functions under `.codegen/codemods`, matching current `gs run`.
-- `PATH` should be accepted directly instead of relying only on the globally active session. This is important for repeatable `uvx` and CI usage.
+- `PATH` is accepted directly instead of relying only on the globally active session. This is important for repeatable `uvx` and CI usage.
 - `--check` should parse and execute in a transaction, print or emit the diff, and exit non-zero if changes would be produced.
 - `--write` should apply changes to the filesystem. Current `gs run` writes by default, so the migration should preserve `gs run` behavior while making `graph-sitter run` explicit or at least warning before first write.
-- `--arguments` currently validates JSON when a schema exists, but the local runner does not pass parsed arguments into `DecoratedFunction.run(...)`; fix this before documenting argument support for transformations.
+- `--arguments` validates JSON when a schema exists and passes typed Pydantic argument models into decorated functions.
 
 ### Transform By Import Path
 
@@ -157,9 +158,9 @@ Required packaging decision:
    - `CodebaseConfig(graph_backend=...)`
    - `ProjectConfig.from_path(...)` or equivalent repo/operator construction
 4. [x] Add machine-readable JSON output from existing Python properties and Rust compact summary properties.
-5. Add an explicit `PATH` argument to `run` while preserving current active-session behavior as fallback.
-6. Fix `--arguments` propagation into decorated functions before advertising it as supported.
-7. Add `--check` and `--write` modes for transformations. Preserve `gs run` compatibility separately if needed.
+5. [x] Add an explicit `PATH` argument to `run` while preserving current active-session behavior as fallback.
+6. [x] Fix `--arguments` propagation into decorated functions before advertising it as supported.
+7. [ ] Add `--check` and `--write` modes for transformations. Preserve `gs run` compatibility separately if needed. Notes: this needs a real no-write sandbox because existing codemods can call `codebase.commit()` internally.
 8. Add import-path `transform MODULE:OBJECT` after the command and safety model are tested.
 9. Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install.
 
@@ -172,6 +173,7 @@ Fast tests:
   - assert `gs` and `graph-sitter` both resolve to `graph_sitter.cli.cli:main` in `pyproject.toml`.
 - Click runner tests for:
   - `graph-sitter parse <tmp-git-repo> --backend python --format json` (`tests/unit/cli/commands/parse/test_parse.py`)
+  - `graph-sitter parse <tmp-git-repo> --language typescript --backend python --format json`
   - missing Rust extension with `--backend rust` returns a clear error or, when the extension is built locally, returns Rust JSON counts
   - `--backend auto` falls back predictably when Rust is unavailable
 - Tiny repo fixtures:
@@ -180,7 +182,8 @@ Fast tests:
 
 Transformation tests:
 
-- Initialize a temp git repo, create a `.codegen/codemods/<label>/<label>.py` decorated function, run `graph-sitter run <label> <repo> --check`, and assert the diff without writing.
+- Initialize a temp git repo, create a `.codegen/codemods/<label>/<label>.py` decorated function, run `graph-sitter run <label> <repo> --arguments ...`, and assert modified file bytes (`tests/unit/cli/commands/run/test_run.py`).
+- Initialize a temp git repo, create a `.codegen/codemods/<label>/<label>.py` decorated function, run `graph-sitter run <label> <repo> --check`, and assert the diff without writing once no-write execution exists.
 - Run the same codemod with `--write` and assert modified file bytes.
 - Add a codemod with typed arguments and assert `--arguments` reaches the function.
 - Add an import-path function and a `Codemod.execute` class fixture once `transform MODULE:OBJECT` exists.
@@ -203,9 +206,8 @@ Regression gates:
 
 - `graph-sitter` is now declared as a console script, but it is not available to users until the package is released or installed from this branch.
 - The Rust extension is not currently bundled into the Python wheel/source install path, so `--backend rust` cannot be promised to `uvx` users yet.
-- Current `run` is active-session oriented. `uvx` can read persisted session state after `init`, but reproducible CI and agent usage needs `run LABEL PATH`.
+- `run LABEL PATH` works for local decorated functions, but daemon mode still requires an initialized active session.
 - Current local `run` applies changes to the filesystem. A distributed transformation CLI should have explicit `--check` and `--write` modes before being promoted as the primary UX.
-- `--arguments` validation exists, but argument values are not passed through the current local runner.
 - Class-based `Codemod.execute(codebase)` entry points are tested internally but not exposed by the public CLI.
 - User-facing CLI copy still says "codegen" in several places. This is not a packaging blocker, but it will make the `graph-sitter` UX feel inconsistent.
 - Python version support is narrow (`>=3.12, <3.14`), so `uvx` examples should specify a compatible Python when needed, for example `uvx --python 3.13 graph-sitter ...`.

@@ -4,6 +4,7 @@ import importlib
 import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
@@ -22,11 +23,13 @@ class DecoratedFunction:
     parameters: list[tuple[str, str | None]] = dataclasses.field(default_factory=list)
     arguments_type_schema: dict | None = None
 
-    def run(self, codebase) -> str | None:
+    def run(self, codebase, arguments: dict[str, Any] | None = None) -> str | None:
         """Import and run the actual function from its file.
 
         Args:
             codebase: The codebase to run the function on
+            arguments: Optional JSON-compatible arguments for codemods with an
+                ``arguments`` parameter.
 
         Returns:
             The result of running the function (usually a diff string)
@@ -49,6 +52,13 @@ class DecoratedFunction:
             item = getattr(module, item_name)
             if hasattr(item, "__codegen_name__") and item.__codegen_name__ == self.name:
                 # Found our function, run it
+                if any(param_name == "arguments" for param_name, _ in self.parameters):
+                    argument_model = item.__annotations__.get("arguments")
+                    if isinstance(argument_model, str):
+                        argument_model = getattr(module, argument_model, None)
+                    if arguments is not None and hasattr(argument_model, "model_validate"):
+                        arguments = argument_model.model_validate(arguments)
+                    return item(codebase, arguments)
                 return item(codebase)
 
         msg = f"Could not find function '{self.name}' in {self.filepath}"

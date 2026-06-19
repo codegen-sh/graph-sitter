@@ -55,6 +55,37 @@ def test_parse_command_summarizes_python_repo_as_json(tmp_path):
     assert payload["dependencies"] >= 1
 
 
+def test_parse_command_summarizes_typescript_repo_as_json(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "util.ts").write_text("export function helper() {\n  return 1;\n}\n")
+    (tmp_path / "src" / "app.ts").write_text("import { helper } from './util';\n\nexport function run() {\n  return helper();\n}\n")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "parse",
+            str(tmp_path),
+            "--language",
+            "typescript",
+            "--backend",
+            "python",
+            "--format",
+            "json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["backend"] == "python"
+    assert payload["language"] == "typescript"
+    assert payload["files"] == 2
+    assert payload["functions"] == 2
+    assert payload["imports"] == 1
+    assert payload["exports"] == 2
+    assert payload["dependencies"] >= 1
+
+
 def test_parse_command_json_stdout_is_machine_readable(tmp_path):
     _init_repo(tmp_path)
     (tmp_path / "app.py").write_text("import os\n\ndef run():\n    return os.getcwd()\n")

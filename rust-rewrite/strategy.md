@@ -341,7 +341,7 @@ Recommended task format:
 - [x] Define the `uvx graph-sitter ...` CLI command surface. owner: Lovelace. Result: `uvx-cli-plan.md` proposes `graph-sitter parse`, `graph-sitter run`, future `graph-sitter transform`, backend flags, JSON output, and check/write modes.
 - [x] Identify package metadata and entry-point changes needed for `uvx graph-sitter`. owner: Lovelace. Result: add `graph-sitter = "graph_sitter.cli.cli:main"` alongside `gs`, then package the Rust extension before promising `--backend rust` through `uvx`.
 - [x] Add initial `graph-sitter` console alias and parse command. owner: codex. Result: `pyproject.toml` now declares `graph-sitter = "graph_sitter.cli.cli:main"`, and `graph-sitter parse [PATH] --backend python|rust|auto --language auto|python|typescript --format summary|json` emits repo summary counts without `.codegen` initialization.
-- [ ] Add CLI smoke tests for parse and transformation flows. owner: Lovelace. Notes: tests should cover a tiny Python repo and a tiny TypeScript repo, with Rust compact mode where supported and fallback behavior documented.
+- [x] Add CLI smoke tests for parse and transformation flows. owner: codex. Result: focused CLI tests now cover Python parse, TypeScript parse, clean JSON stdout, strict Rust-backend unavailable behavior, path-aware `graph-sitter run LABEL PATH`, typed Pydantic `--arguments`, and rejection of unused arguments.
 - [x] Define skill distribution plan. owner: codex. Result: added `rust-rewrite/skill-distribution-plan.md` with the proposed skill trigger, folder shape, progressive-disclosure references, `uvx graph-sitter ...` positioning, validation steps, and release gates.
 
 ## Rollout And Feature Flag Criteria
@@ -380,7 +380,7 @@ Default-backend promotion criteria:
 - [x] Rust backend has golden snapshots for graph IR and dependency edges. owner: codex. Result: committed Airflow and Next.js compact golden snapshots cover files, symbols, imports, import resolutions, external modules, references, external references, dependencies, plus TypeScript exports/subclass edges; fresh pinned readiness replay verified them.
 - [x] Unsupported Python APIs fail explicitly or fall back to Python backend. owner: codex. Result: supported-subset manifest includes strict unsupported API errors, missing-extension strict failure, and `rust_fallback="python"` promotion tests, all run through `check_fast.sh`.
 - [ ] Docs site accurately explains setup, Rust backend status, and CLI usage.
-- [ ] `uvx graph-sitter ...` is documented and backed by tested parse and transformation entry points. Notes: the console alias and `parse` command are implemented and tested; transformation `PATH`, `--check`, `--write`, and wheel-distributed Rust extension support remain open.
+- [ ] `uvx graph-sitter ...` is documented and backed by tested parse and transformation entry points. Notes: the console alias, `parse`, path-aware `run`, and typed `--arguments` are implemented and tested; transformation `--check`, `--write`, import-path `transform`, and wheel-distributed Rust extension support remain open.
 - [x] A graph-sitter agent skill distribution plan exists. owner: codex. Result: see `rust-rewrite/skill-distribution-plan.md`; the actual discoverable skill folder remains pending install-location and CLI finalization.
 
 ## Agent Log
@@ -394,6 +394,7 @@ Default-backend promotion criteria:
 - [x] 2026-06-19: Added first `uvx graph-sitter` implementation slice. owner: codex. Notes: added the `graph-sitter` console-script alias, a read-only `parse` command with backend/language/JSON flags, and focused CLI tests for the alias, Python parse summary, and clean Rust-backend unavailable behavior.
 - [x] 2026-06-19: Added first Vercel landing-page scaffold. owner: codex. Notes: created the isolated `site/` Next.js app and kept deployment cutover as a Vercel project setting decision.
 - [x] 2026-06-19: Audited `uvx` Rust-wheel blockers. owner: Hypatia. Notes: `uvx-cli-plan.md` now records that Hatch/Cython packaging does not yet bundle the PyO3 extension, `graph_sitter_py` is imported directly, and installed-wheel `uvx --from dist/<wheel>.whl ...` smoke tests are required before advertising `--backend rust`.
+- [x] 2026-06-19: Added path-aware `graph-sitter run` smoke coverage. owner: codex. Notes: `run` now accepts an explicit repo path without active-session lookup, propagates typed Pydantic `--arguments`, keeps active-session behavior as fallback, and has focused CLI tests for Python codemod mutation plus TypeScript parse.
 - [x] 2026-06-18: PyO3 compatibility helper completed and its planning artifact was staged for integration. owner: codex.
 - [x] 2026-06-18: Implemented first Rust Python compact-index slice and benchmark comparison; initial measurements show 9x-22x wall-time improvement and 70x-104x RSS improvement on this repo for the implemented slice. owner: codex.
 - [x] 2026-06-18: Exposed the compact Python index through the PyO3 module and verified a Python import smoke against this repo. owner: codex. Notes: extension returned 1127 files, 3117 symbols, and 6414 imports for the current checkout.
