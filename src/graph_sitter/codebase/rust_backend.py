@@ -63,8 +63,12 @@ class RustIndexSummary:
     global_variables: int
     imports: int
     import_resolutions: int
+    external_modules: int
+    exports: int
     references: int
+    external_references: int
     dependencies: int
+    subclass_edges: int
     bytes: int
     lines: int
     files_with_errors: int
@@ -76,8 +80,8 @@ class RustIndexSummary:
         elif isinstance(summary, dict):
             data = summary
         else:
-            data = {field: getattr(summary, field) for field in cls.__dataclass_fields__}
-        return cls(**{field: int(data[field]) for field in cls.__dataclass_fields__})
+            data = {field: getattr(summary, field, 0) for field in cls.__dataclass_fields__}
+        return cls(**{field: int(data.get(field, 0)) for field in cls.__dataclass_fields__})
 
 
 @dataclass(frozen=True)
@@ -395,6 +399,61 @@ class RustIndexBackend:
     @property
     def engine_version(self) -> str:
         return str(self.extension.engine_version())
+
+    def compact_record_counts(self) -> dict[str, int]:
+        return {
+            "rust_files": self.summary.files,
+            "rust_symbols": self.summary.symbols,
+            "rust_classes": self.summary.classes,
+            "rust_functions": self.summary.functions,
+            "rust_global_vars": self.summary.global_variables,
+            "rust_imports": self.summary.imports,
+            "rust_import_resolutions": self.summary.import_resolutions,
+            "rust_external_modules": self.summary.external_modules,
+            "rust_exports": self.summary.exports,
+            "rust_references": self.summary.references,
+            "rust_external_references": self.summary.external_references,
+            "rust_dependencies": self.summary.dependencies,
+            "rust_subclass_edges": self.summary.subclass_edges,
+        }
+
+    def compact_compat_counts(self) -> dict[str, int]:
+        index = self.index
+
+        def count_attr(name: str, fallback: Any) -> int:
+            value = getattr(index, name, None)
+            if value is None:
+                if callable(fallback):
+                    return int(fallback())
+                return int(fallback)
+            if callable(value):
+                value = value()
+            return int(value)
+
+        def id_list_count(name: str, fallback: int) -> int:
+            value = getattr(index, name, None)
+            if value is None:
+                return fallback
+            if callable(value):
+                value = value()
+            return len(value)
+
+        symbols = count_attr(
+            "top_level_symbol_count",
+            lambda: id_list_count("top_level_symbol_ids", self.summary.symbols),
+        )
+        return {
+            "files": self.summary.files,
+            "symbols": symbols,
+            "classes": count_attr("top_level_class_count", self.summary.classes),
+            "functions": count_attr("top_level_function_count", self.summary.functions),
+            "global_vars": count_attr("top_level_global_variable_count", self.summary.global_variables),
+            "interfaces": count_attr("interface_count", lambda: id_list_count("interface_ids", 0)),
+            "types": count_attr("type_count", lambda: id_list_count("type_ids", 0)),
+            "imports": self.summary.imports,
+            "external_modules": self.summary.external_modules,
+            "exports": count_attr("export_count", self.summary.exports),
+        }
 
     @property
     def files(self) -> list[RustFileRecord]:

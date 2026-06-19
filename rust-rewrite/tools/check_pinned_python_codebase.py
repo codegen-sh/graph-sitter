@@ -237,6 +237,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         python_graph_blocked = True
     memory_samples.append(memory_sample("after_python_graph_block_check"))
 
+    backend = codebase.ctx.rust_index
+    assert backend is not None
     summary = codebase.rust_index_summary
     summary_counts = {
         "files": summary.files,
@@ -246,42 +248,18 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "global_variables": summary.global_variables,
         "imports": summary.imports,
         "import_resolutions": summary.import_resolutions,
-        "external_modules": len(codebase.rust_external_modules),
+        "external_modules": summary.external_modules,
         "references": summary.references,
-        "external_references": len(codebase.rust_external_references),
+        "external_references": summary.external_references,
         "dependencies": summary.dependencies,
         "bytes": summary.bytes,
         "lines": summary.lines,
         "files_with_errors": summary.files_with_errors,
     }
     memory_samples.append(memory_sample("after_summary_counts"))
-    record_counts = {
-        "rust_files": len(codebase.rust_files),
-        "rust_symbols": len(codebase.rust_symbols),
-        "rust_classes": len(codebase.rust_classes),
-        "rust_functions": len(codebase.rust_functions),
-        "rust_global_vars": len(codebase.rust_global_vars),
-        "rust_imports": len(codebase.rust_imports),
-        "rust_import_resolutions": len(codebase.rust_import_resolutions),
-        "rust_external_modules": len(codebase.rust_external_modules),
-        "rust_exports": len(codebase.rust_exports),
-        "rust_references": len(codebase.rust_references),
-        "rust_external_references": len(codebase.rust_external_references),
-        "rust_dependencies": len(codebase.rust_dependencies),
-        "rust_subclass_edges": len(codebase.rust_subclass_edges),
-    }
+    record_counts = backend.compact_record_counts()
     memory_samples.append(memory_sample("after_record_counts"))
-    compat_counts = {
-        "files": len(codebase.files),
-        "symbols": len(codebase.symbols),
-        "classes": len(codebase.classes),
-        "functions": len(codebase.functions),
-        "global_vars": len(codebase.global_vars),
-        "interfaces": len(codebase.interfaces),
-        "types": len(codebase.types),
-        "imports": len(codebase.imports),
-        "external_modules": len(codebase.external_modules),
-    }
+    compat_counts = backend.compact_compat_counts()
     memory_samples.append(memory_sample("after_compat_handles"))
     known_lookups = known_lookup_report(codebase)
     known_dependencies = known_dependency_report(codebase)

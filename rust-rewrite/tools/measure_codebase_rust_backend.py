@@ -58,6 +58,8 @@ def make_report(repo: Path, *, language: str) -> dict:
         python_graph_blocked = True
     memory_samples.append(memory_sample("after_python_graph_block_check"))
 
+    backend = codebase.ctx.rust_index
+    assert backend is not None
     summary = codebase.rust_index_summary
     summary_counts = {
         "files": summary.files,
@@ -67,41 +69,20 @@ def make_report(repo: Path, *, language: str) -> dict:
         "global_variables": summary.global_variables,
         "imports": summary.imports,
         "import_resolutions": summary.import_resolutions,
-        "external_modules": len(codebase.rust_external_modules),
+        "external_modules": summary.external_modules,
         "references": summary.references,
+        "external_references": summary.external_references,
         "dependencies": summary.dependencies,
+        "exports": summary.exports,
+        "subclass_edges": summary.subclass_edges,
         "bytes": summary.bytes,
         "lines": summary.lines,
         "files_with_errors": summary.files_with_errors,
     }
     memory_samples.append(memory_sample("after_summary_counts"))
-    records = {
-        "rust_files": len(codebase.rust_files),
-        "rust_symbols": len(codebase.rust_symbols),
-        "rust_classes": len(codebase.rust_classes),
-        "rust_functions": len(codebase.rust_functions),
-        "rust_global_vars": len(codebase.rust_global_vars),
-        "rust_imports": len(codebase.rust_imports),
-        "rust_import_resolutions": len(codebase.rust_import_resolutions),
-        "rust_external_modules": len(codebase.rust_external_modules),
-        "rust_exports": len(codebase.rust_exports),
-        "rust_references": len(codebase.rust_references),
-        "rust_dependencies": len(codebase.rust_dependencies),
-    }
+    records = backend.compact_record_counts()
     memory_samples.append(memory_sample("after_record_counts"))
-    exports = codebase.exports if language == "typescript" else []
-    compat_handles = {
-        "files": len(codebase.files),
-        "symbols": len(codebase.symbols),
-        "classes": len(codebase.classes),
-        "functions": len(codebase.functions),
-        "global_vars": len(codebase.global_vars),
-        "interfaces": len(codebase.interfaces),
-        "types": len(codebase.types),
-        "imports": len(codebase.imports),
-        "external_modules": len(codebase.external_modules),
-        "exports": len(exports),
-    }
+    compat_handles = backend.compact_compat_counts()
     memory_samples.append(memory_sample("after_compat_handles"))
     return {
         "metadata": {
@@ -157,6 +138,7 @@ def print_human(report: dict) -> None:
         f"imports={summary['imports']} "
         f"import_resolutions={summary['import_resolutions']} "
         f"external_modules={summary['external_modules']} "
+        f"external_references={summary.get('external_references', 0)} "
         f"references={summary['references']} "
         f"dependencies={summary['dependencies']}"
     )
@@ -169,6 +151,7 @@ def print_human(report: dict) -> None:
         f"external_modules={records['rust_external_modules']} "
         f"exports={records['rust_exports']} "
         f"references={records['rust_references']} "
+        f"external_references={records.get('rust_external_references', 0)} "
         f"dependencies={records['rust_dependencies']}"
     )
     print(

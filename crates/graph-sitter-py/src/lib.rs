@@ -75,9 +75,17 @@ mod bindings {
         #[pyo3(get)]
         import_resolutions: usize,
         #[pyo3(get)]
+        external_modules: usize,
+        #[pyo3(get)]
+        exports: usize,
+        #[pyo3(get)]
         references: usize,
         #[pyo3(get)]
+        external_references: usize,
+        #[pyo3(get)]
         dependencies: usize,
+        #[pyo3(get)]
+        subclass_edges: usize,
         #[pyo3(get)]
         bytes: usize,
         #[pyo3(get)]
@@ -96,8 +104,12 @@ mod bindings {
                 global_variables: summary.global_variables,
                 imports: summary.imports,
                 import_resolutions: summary.import_resolutions,
+                external_modules: summary.external_modules,
+                exports: summary.exports,
                 references: summary.references,
+                external_references: summary.external_references,
                 dependencies: summary.dependencies,
+                subclass_edges: summary.subclass_edges,
                 bytes: summary.bytes,
                 lines: summary.lines,
                 files_with_errors: summary.files_with_errors,
@@ -116,8 +128,12 @@ mod bindings {
                 ("global_variables", self.global_variables),
                 ("imports", self.imports),
                 ("import_resolutions", self.import_resolutions),
+                ("external_modules", self.external_modules),
+                ("exports", self.exports),
                 ("references", self.references),
+                ("external_references", self.external_references),
                 ("dependencies", self.dependencies),
+                ("subclass_edges", self.subclass_edges),
                 ("bytes", self.bytes),
                 ("lines", self.lines),
                 ("files_with_errors", self.files_with_errors),
@@ -126,7 +142,7 @@ mod bindings {
 
         fn __repr__(&self) -> String {
             format!(
-                "IndexSummary(files={}, symbols={}, classes={}, functions={}, global_variables={}, imports={}, import_resolutions={}, references={}, dependencies={}, bytes={}, lines={}, files_with_errors={})",
+                "IndexSummary(files={}, symbols={}, classes={}, functions={}, global_variables={}, imports={}, import_resolutions={}, external_modules={}, exports={}, references={}, external_references={}, dependencies={}, subclass_edges={}, bytes={}, lines={}, files_with_errors={})",
                 self.files,
                 self.symbols,
                 self.classes,
@@ -134,8 +150,12 @@ mod bindings {
                 self.global_variables,
                 self.imports,
                 self.import_resolutions,
+                self.external_modules,
+                self.exports,
                 self.references,
+                self.external_references,
                 self.dependencies,
+                self.subclass_edges,
                 self.bytes,
                 self.lines,
                 self.files_with_errors
@@ -229,6 +249,30 @@ mod bindings {
                 .collect()
         }
 
+        #[getter]
+        fn top_level_symbol_count(&self) -> usize {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level)
+                .count()
+        }
+
+        #[getter]
+        fn top_level_class_count(&self) -> usize {
+            self.top_level_symbol_count_by_kind(SymbolKind::Class)
+        }
+
+        #[getter]
+        fn top_level_function_count(&self) -> usize {
+            self.top_level_symbol_count_by_kind(SymbolKind::Function)
+        }
+
+        #[getter]
+        fn top_level_global_variable_count(&self) -> usize {
+            self.top_level_symbol_count_by_kind(SymbolKind::GlobalVariable)
+        }
+
         fn class_ids(&self) -> Vec<u32> {
             self.symbol_ids_by_kind(SymbolKind::Class)
         }
@@ -271,13 +315,28 @@ mod bindings {
         }
 
         #[getter]
+        fn export_count(&self) -> usize {
+            0
+        }
+
+        #[getter]
         fn reference_count(&self) -> usize {
             self.inner.references.len()
         }
 
         #[getter]
+        fn external_reference_count(&self) -> usize {
+            self.inner.external_references.len()
+        }
+
+        #[getter]
         fn dependency_count(&self) -> usize {
             self.inner.dependencies.len()
+        }
+
+        #[getter]
+        fn subclass_edge_count(&self) -> usize {
+            0
         }
 
         fn __repr__(&self) -> String {
@@ -302,6 +361,14 @@ mod bindings {
                 .filter(|symbol| symbol.kind == kind)
                 .map(|symbol| symbol.id)
                 .collect()
+        }
+
+        fn top_level_symbol_count_by_kind(&self, kind: SymbolKind) -> usize {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level && symbol.kind == kind)
+                .count()
         }
     }
 
@@ -401,6 +468,30 @@ mod bindings {
                 .collect()
         }
 
+        #[getter]
+        fn top_level_symbol_count(&self) -> usize {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level)
+                .count()
+        }
+
+        #[getter]
+        fn top_level_class_count(&self) -> usize {
+            self.top_level_symbol_count_by_kind(SymbolKind::Class)
+        }
+
+        #[getter]
+        fn top_level_function_count(&self) -> usize {
+            self.top_level_symbol_count_by_kind(SymbolKind::Function)
+        }
+
+        #[getter]
+        fn top_level_global_variable_count(&self) -> usize {
+            self.top_level_symbol_count_by_kind(SymbolKind::GlobalVariable)
+        }
+
         fn class_ids(&self) -> Vec<u32> {
             self.symbol_ids_by_kind(SymbolKind::Class)
         }
@@ -427,6 +518,26 @@ mod bindings {
 
         fn namespace_ids(&self) -> Vec<u32> {
             self.symbol_ids_by_kind(SymbolKind::Namespace)
+        }
+
+        #[getter]
+        fn interface_count(&self) -> usize {
+            self.symbol_count_by_kind(SymbolKind::Interface)
+        }
+
+        #[getter]
+        fn type_count(&self) -> usize {
+            self.symbol_count_by_kind(SymbolKind::TypeAlias)
+        }
+
+        #[getter]
+        fn enum_count(&self) -> usize {
+            self.symbol_count_by_kind(SymbolKind::Enum)
+        }
+
+        #[getter]
+        fn namespace_count(&self) -> usize {
+            self.symbol_count_by_kind(SymbolKind::Namespace)
         }
 
         fn import_ids(&self) -> Vec<u32> {
@@ -473,6 +584,11 @@ mod bindings {
         }
 
         #[getter]
+        fn external_reference_count(&self) -> usize {
+            self.inner.external_references.len()
+        }
+
+        #[getter]
         fn dependency_count(&self) -> usize {
             self.inner.dependencies.len()
         }
@@ -505,6 +621,22 @@ mod bindings {
                 .filter(|symbol| symbol.kind == kind)
                 .map(|symbol| symbol.id)
                 .collect()
+        }
+
+        fn symbol_count_by_kind(&self, kind: SymbolKind) -> usize {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.kind == kind)
+                .count()
+        }
+
+        fn top_level_symbol_count_by_kind(&self, kind: SymbolKind) -> usize {
+            self.inner
+                .symbols
+                .iter()
+                .filter(|symbol| symbol.is_top_level && symbol.kind == kind)
+                .count()
         }
     }
 
