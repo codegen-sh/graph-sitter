@@ -68,10 +68,10 @@ export default function Home() {
       <section className="hero" id="top">
         <div className="hero-copy">
           <p className="eyebrow">Codebase graphs for codemods</p>
-          <h1>Write Python programs that understand and edit codebases.</h1>
+          <h1>A codebase graph and codemod library.</h1>
           <p className="hero-text">
-            Graph-sitter parses whole repositories into files, symbols, imports,
-            calls, and usages, then gives automation enough structure to query
+            Graph-sitter lets Python programs parse whole repositories into
+            files, symbols, imports, calls, and usages, then query those
             relationships and make targeted source edits.
           </p>
           <div className="hero-actions" aria-label="Primary actions">

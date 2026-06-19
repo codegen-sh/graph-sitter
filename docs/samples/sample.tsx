@@ -1,5 +1,19 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+declare namespace React {
+	type FC = () => JSX.Element;
+}
+
+declare namespace JSX {
+	interface Element {}
+	interface IntrinsicElements {
+		[elementName: string]: unknown;
+	}
+}
+
+declare function useState<T>(initialValue: T): [T, (value: T) => void];
+declare const styled: {
+	div: (strings: TemplateStringsArray, ...values: unknown[]) => React.FC;
+	h1: (strings: TemplateStringsArray, ...values: unknown[]) => React.FC;
+};
 
 interface Kevin {
 	id: number;
