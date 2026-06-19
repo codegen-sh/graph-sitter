@@ -16,11 +16,13 @@
         "file-local name resolution",
         "module-import attribute resolution",
         "source-backed directory lookup and traversal",
+        "non-source directory all-file traversal",
         "TypeScript file-local export lookup"
       ],
       "tests": [
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_public_queries_preserve_python_sorting",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_queries_do_not_materialize_python_graph",
+        "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_all_file_queries_include_non_source_files",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_ignore_case_file_lookup_does_not_materialize_file_lists",
         "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes",

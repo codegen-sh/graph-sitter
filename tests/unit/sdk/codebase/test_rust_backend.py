@@ -1860,6 +1860,63 @@ def test_rust_compact_directory_queries_do_not_materialize_python_graph(monkeypa
         assert backend._export_handles is None
 
 
+def test_rust_compact_directory_all_file_queries_include_non_source_files(monkeypatch, tmp_path):
+    indexed_paths, selected_paths = install_fake_rust_extension(monkeypatch, index_cls=FakeOrderingIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+    files = {
+        "z/service.py": "class Zed:\n    pass\n\ndef z_func():\n    pass\n",
+        "a/service.py": "class Alpha:\n    pass\n\ndef a_func():\n    pass\n",
+        "pkg/alpha.py": "class Beta:\n    pass\n\ndef b_func():\n    pass\n",
+        "pkg/README.md": "# package notes\n",
+        "docs/guide.md": "# guide\n",
+    }
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files=files,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+        assert indexed_paths == [str(tmp_path.resolve())]
+        assert selected_paths == [["a/service.py", "pkg/alpha.py", "z/service.py"]]
+        assert sorted(backend._all_file_paths) == ["a/service.py", "docs/guide.md", "pkg/README.md", "pkg/alpha.py", "z/service.py"]
+
+        assert {file.filepath for file in codebase.files} == {"a/service.py", "pkg/alpha.py", "z/service.py"}
+        assert backend._files is None
+        assert backend._file_handles is None
+
+        pkg = codebase.get_directory("pkg")
+        assert {file.filepath for file in pkg.files} == {"pkg/alpha.py"}
+        assert {file.filepath for file in pkg.files(extensions="*")} == {"pkg/README.md", "pkg/alpha.py"}
+        assert pkg.get_file("readme.md", ignore_case=True).content == "# package notes\n"
+
+        docs = codebase.get_directory("docs")
+        assert docs.files == []
+        assert [file.filepath for file in docs.files(extensions="*")] == ["docs/guide.md"]
+
+        codebase.create_directory("empty/nested", parents=True)
+        assert codebase.has_directory("empty/nested")
+        assert codebase.get_directory("empty").item_names == ["nested"]
+        assert codebase.get_directory("empty/nested").items == []
+
+        config_file = codebase.create_file("empty/nested/config.json", "{}\n", sync=False)
+        assert config_file.filepath == "empty/nested/config.json"
+        assert codebase.get_directory("empty/nested").files == []
+        assert [file.filepath for file in codebase.get_directory("empty/nested").files(extensions="*")] == ["empty/nested/config.json"]
+
+        all_files = {file.filepath for file in codebase.files(extensions="*")}
+        assert {"pkg/README.md", "docs/guide.md", "empty/nested/config.json"}.issubset(all_files)
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._exports is None
+        assert backend._export_handles is None
+
+
 def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkeypatch, tmp_path):
     install_fake_rust_extension(monkeypatch)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST)

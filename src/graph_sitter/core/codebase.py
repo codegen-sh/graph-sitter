@@ -354,8 +354,15 @@ class Codebase(
         if isinstance(extensions, str) and extensions != "*":
             msg = "extensions must be a list of extensions or '*'"
             raise ValueError(msg)
-        files = self._require_rust_index().file_handles
-        if isinstance(extensions, list):
+        rust_index = self._require_rust_index()
+        if extensions is None and rust_index.summary.files > 0:
+            files = rust_index.source_file_handles
+        else:
+            files = rust_index.file_handles
+        if extensions is None and rust_index.summary.files > 0:
+            allowed = set(self.ctx.extensions)
+            files = [file for file in files if file.extension in allowed]
+        elif isinstance(extensions, list):
             allowed = set(extensions)
             files = [file for file in files if file.extension in allowed]
         return sorted(files, key=lambda file: (file.name, file.filepath))
@@ -642,6 +649,8 @@ class Codebase(
             logger.warning(f"Directory {dir_path} already exists in codebase. Overwriting...")
 
         self.ctx.to_absolute(dir_path).mkdir(parents=parents, exist_ok=exist_ok)
+        if self.ctx.rust_compact_mode:
+            self._require_rust_index().register_directory(dir_path)
 
     def has_file(self, filepath: str, ignore_case: bool = False) -> bool:
         """Determines if a file exists in the codebase.

@@ -97,6 +97,7 @@ class RustFileRecord:
     line_count: int
     has_error: bool
     root_range: RustSourceRange
+    is_binary: bool = False
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> RustFileRecord:
@@ -110,6 +111,7 @@ class RustFileRecord:
             line_count=int(data["line_count"]),
             has_error=bool(data["has_error"]),
             root_range=RustSourceRange.from_dict(data["root_range"]),
+            is_binary=bool(data.get("is_binary", False)),
         )
 
 
@@ -388,12 +390,23 @@ class RustIndexBackend:
     _removed_file_paths: set[str] = field(default_factory=set)
     _added_file_records_by_id: dict[int, RustFileRecord] = field(default_factory=dict)
     _added_file_records_by_path: dict[str, RustFileRecord] = field(default_factory=dict)
+    _synthetic_file_records_by_id: dict[int, RustFileRecord] = field(default_factory=dict)
+    _synthetic_file_records_by_path: dict[str, RustFileRecord] = field(default_factory=dict)
     _source_file_paths: tuple[str, ...] = ()
+    _all_file_paths: tuple[str, ...] = ()
+    _explicit_directory_paths: set[str] = field(default_factory=set)
     _next_added_file_id: int | None = None
     _ctx: CodebaseContext | None = None
 
     @classmethod
-    def build(cls, repo_path: str | Path, file_paths: Sequence[str] | None = None, *, language: ProgrammingLanguage = ProgrammingLanguage.PYTHON) -> RustIndexBackend:
+    def build(
+        cls,
+        repo_path: str | Path,
+        file_paths: Sequence[str] | None = None,
+        *,
+        all_file_paths: Sequence[str] | None = None,
+        language: ProgrammingLanguage = ProgrammingLanguage.PYTHON,
+    ) -> RustIndexBackend:
         path = Path(repo_path).resolve()
         try:
             extension = import_module("graph_sitter_py")
@@ -420,8 +433,17 @@ class RustIndexBackend:
             message = f"Rust graph backend failed to index {path}"
             raise RustIndexBuildError(message) from error
 
-        source_file_paths = tuple(cls._normalize_relative_path_for_repo(path, file_path) for file_path in file_paths or ())
-        return cls(repo_path=path, extension=extension, index=index, summary=summary, _source_file_paths=source_file_paths)
+        source_file_paths = tuple(dict.fromkeys(cls._normalize_relative_path_for_repo(path, file_path) for file_path in file_paths or ()))
+        all_paths_source = all_file_paths if all_file_paths is not None else source_file_paths
+        all_paths = tuple(dict.fromkeys(cls._normalize_relative_path_for_repo(path, file_path) for file_path in all_paths_source))
+        return cls(
+            repo_path=path,
+            extension=extension,
+            index=index,
+            summary=summary,
+            _source_file_paths=source_file_paths,
+            _all_file_paths=all_paths,
+        )
 
     @staticmethod
     def _normalize_relative_path_for_repo(repo_path: Path, filepath: str | Path) -> str:
@@ -460,19 +482,39 @@ class RustIndexBackend:
     def _file_record_by_id(self, file_id: int) -> RustFileRecord | None:
         if file_id in self._added_file_records_by_id:
             return self._added_file_records_by_id[file_id]
+        if file_id in self._synthetic_file_records_by_id:
+            return self._synthetic_file_records_by_id[file_id]
+        non_source_paths = self._non_source_file_paths()
+        non_source_offset = file_id - self.summary.files
+        if 0 <= non_source_offset < len(non_source_paths):
+            return self._synthetic_file_record_by_path(non_source_paths[non_source_offset])
         return self._record_from_json_method("file_by_id_json", RustFileRecord.from_dict, file_id)
 
     def _file_record_by_path(self, filepath: str) -> RustFileRecord | None:
         if filepath in self._added_file_records_by_path:
             return self._added_file_records_by_path[filepath]
-        return self._record_from_json_method("file_by_path_json", RustFileRecord.from_dict, filepath)
+        if filepath in self._synthetic_file_records_by_path:
+            return self._synthetic_file_records_by_path[filepath]
+        record = self._record_from_json_method("file_by_path_json", RustFileRecord.from_dict, filepath)
+        if record is not None:
+            return record
+        return self._synthetic_file_record_by_path(filepath)
 
     def _file_record_by_path_ignore_case(self, filepath: str) -> RustFileRecord | None:
         normalized = filepath.lower()
         for added_path, record in self._added_file_records_by_path.items():
             if added_path.lower() == normalized:
                 return record
-        return self._record_from_json_method("file_by_path_ignore_case_json", RustFileRecord.from_dict, filepath)
+        for synthetic_path, record in self._synthetic_file_records_by_path.items():
+            if synthetic_path.lower() == normalized:
+                return record
+        record = self._record_from_json_method("file_by_path_ignore_case_json", RustFileRecord.from_dict, filepath)
+        if record is not None:
+            return record
+        synthetic_path = next((path for path in self._non_source_file_paths() if path.lower() == normalized), None)
+        if synthetic_path is None:
+            return None
+        return self._synthetic_file_record_by_path(synthetic_path)
 
     def _symbol_record_by_id(self, symbol_id: int) -> RustSymbolRecord | None:
         return self._record_from_json_method("symbol_by_id_json", RustSymbolRecord.from_dict, symbol_id)
@@ -599,6 +641,7 @@ class RustIndexBackend:
                 for record in json.loads(self.index.files_json())
                 if int(record["id"]) not in self._removed_file_ids
             ]
+            self._files.extend(record for record in self._synthetic_file_records() if record.id not in self._removed_file_ids)
             self._files.extend(record for record in self._added_file_records_by_id.values() if record.id not in self._removed_file_ids)
         return self._files
 
@@ -679,6 +722,22 @@ class RustIndexBackend:
         return self._file_handles
 
     @property
+    def source_file_handles(self) -> list[RustCompactFile]:
+        if self._source_file_paths:
+            source_files = [
+                file
+                for filepath in self._source_file_paths
+                if (file := self.get_file_handle(filepath)) is not None
+            ]
+            source_files.extend(
+                self._file_handle_from_record(record)
+                for record in self._added_file_records_by_id.values()
+                if record.id not in self._removed_file_ids and record.language
+            )
+            return source_files
+        return [file for file in self.file_handles if file.record.language]
+
+    @property
     def symbol_handles(self) -> list[RustCompactSymbol]:
         if self._symbol_handles is None:
             self._symbol_handles = [self._symbol_handle_from_record(record) for record in self.symbols]
@@ -726,6 +785,7 @@ class RustIndexBackend:
     def _allocate_added_file_id(self) -> int:
         if self._next_added_file_id is None:
             next_id = self.summary.files
+            next_id = max(next_id, self.summary.files + len(self._non_source_file_paths()))
             if self._files is not None:
                 next_id = max((file.id for file in self._files), default=-1) + 1
             elif self._file_handles is not None:
@@ -734,6 +794,59 @@ class RustIndexBackend:
         file_id = self._next_added_file_id
         self._next_added_file_id += 1
         return file_id
+
+    def _non_source_file_paths(self) -> list[str]:
+        if not self._all_file_paths:
+            return []
+        source_paths = set(self._source_file_paths)
+        return sorted(path for path in self._all_file_paths if path not in source_paths and path not in self._removed_file_paths)
+
+    def _synthetic_file_records(self) -> list[RustFileRecord]:
+        return [record for path in self._non_source_file_paths() if (record := self._synthetic_file_record_by_path(path)) is not None]
+
+    def _synthetic_file_record_by_path(self, filepath: str) -> RustFileRecord | None:
+        normalized = self._normalize_relative_path(filepath)
+        if normalized in self._removed_file_paths:
+            return None
+        if normalized in self._source_file_paths:
+            return None
+        if normalized not in set(self._all_file_paths):
+            return None
+        if normalized in self._synthetic_file_records_by_path:
+            return self._synthetic_file_records_by_path[normalized]
+
+        absolute_path = self.repo_path / normalized
+        try:
+            content_bytes = absolute_path.read_bytes()
+        except OSError:
+            return None
+
+        try:
+            content = content_bytes.decode("utf-8")
+            line_count = _line_count(content)
+            root_range = _source_range_for_content(content)
+            is_binary = False
+        except UnicodeDecodeError:
+            line_count = 0
+            root_range = _source_range_for_bytes(content_bytes)
+            is_binary = True
+
+        file_id = self.summary.files + self._non_source_file_paths().index(normalized)
+        record = RustFileRecord(
+            id=file_id,
+            path=normalized,
+            module_name=None,
+            language="",
+            content_hash=_stable_content_hash(content_bytes),
+            byte_len=len(content_bytes),
+            line_count=line_count,
+            has_error=False,
+            root_range=root_range,
+            is_binary=is_binary,
+        )
+        self._synthetic_file_records_by_path[record.path] = record
+        self._synthetic_file_records_by_id[record.id] = record
+        return record
 
     def register_added_file(self, filepath: str, content: str = "") -> RustCompactFile:
         relative_path = self._normalize_relative_path(filepath)
@@ -774,6 +887,19 @@ class RustIndexBackend:
             self._exports_by_file_id[record.id] = []
         self._invalidate_directory_handles()
         return file
+
+    def register_directory(self, dirpath: str | Path) -> RustCompactDirectory:
+        normalized = self._normalize_directory_path(dirpath)
+        if normalized is None:
+            msg = f"Directory {dirpath} is not under repo path {self.repo_path}"
+            raise ValueError(msg)
+        self._explicit_directory_paths.add(normalized)
+        self._invalidate_directory_handles()
+        directory = self.get_directory_handle(normalized)
+        if directory is None:
+            msg = f"Failed to register directory {normalized}"
+            raise RuntimeError(msg)
+        return directory
 
     def unregister_file(self, file_id: int, filepath: str | None = None) -> None:
         if filepath is None:
@@ -868,7 +994,9 @@ class RustIndexBackend:
         return normalized.rstrip("/")
 
     def _active_file_paths(self) -> list[str]:
-        if self._source_file_paths:
+        if self._all_file_paths:
+            paths = list(self._all_file_paths)
+        elif self._source_file_paths:
             paths = list(self._source_file_paths)
         else:
             paths = [record.path for record in self.files]
@@ -893,14 +1021,10 @@ class RustIndexBackend:
                 files_by_directory.setdefault(path, set())
                 subdirectories_by_directory.setdefault(path, set())
 
-            for filepath in self._active_file_paths():
-                file_path = PurePosixPath(filepath)
-                parent_path = "" if file_path.parent.as_posix() == "." else file_path.parent.as_posix()
-                ensure_directory(parent_path)
-                files_by_directory[parent_path].add(file_path.name)
-
+            def ensure_directory_chain(path: str) -> None:
+                ensure_directory(path)
                 current = ""
-                for part in parent_path.split("/"):
+                for part in path.split("/"):
                     if not part:
                         continue
                     child = part if not current else f"{current}/{part}"
@@ -908,6 +1032,15 @@ class RustIndexBackend:
                     ensure_directory(child)
                     subdirectories_by_directory[current].add(part)
                     current = child
+
+            for filepath in self._active_file_paths():
+                file_path = PurePosixPath(filepath)
+                parent_path = "" if file_path.parent.as_posix() == "." else file_path.parent.as_posix()
+                ensure_directory_chain(parent_path)
+                files_by_directory[parent_path].add(file_path.name)
+
+            for dirpath in self._explicit_directory_paths:
+                ensure_directory_chain(dirpath)
 
             self._directory_records_by_path = {
                 path: RustDirectoryRecord(
@@ -1901,6 +2034,17 @@ def _source_range_for_content(source: str) -> RustSourceRange:
     )
 
 
+def _source_range_for_bytes(content: bytes) -> RustSourceRange:
+    return RustSourceRange(
+        start_byte=0,
+        end_byte=len(content),
+        start_row=0,
+        start_column=0,
+        end_row=0,
+        end_column=len(content),
+    )
+
+
 def _line_byte_offsets(source: str) -> list[int]:
     offsets: list[int] = []
     offset = 0
@@ -2009,15 +2153,21 @@ class RustCompactDirectory:
         if isinstance(extensions, str) and extensions != "*":
             msg = "extensions must be a list of extensions or '*'"
             raise ValueError(msg)
-        allowed = set(extensions if extensions is not None and extensions != "*" else [])
+        if extensions is None and self.backend.summary.files > 0:
+            allowed = set(self.ctx.extensions if self.ctx is not None else [])
+        elif extensions == "*":
+            allowed = None
+        else:
+            allowed = set(extensions)
         files: list[RustCompactFile] = []
         for file_name in self._files:
+            if allowed is not None and PurePosixPath(file_name).suffix not in allowed:
+                continue
             filepath = f"{self.dirpath}/{file_name}" if self.dirpath else file_name
             file = self.backend.get_file_handle(filepath)
             if file is None:
                 continue
-            if extensions in (None, "*") or file.extension in allowed:
-                files.append(file)
+            files.append(file)
 
         if recursive:
             for directory in self.subdirectories:
@@ -2138,7 +2288,7 @@ class RustCompactFile(RustCompactHandle):
         self.filepath = record.path
         self.path = backend.repo_path / record.path
         self.name = self.path.stem
-        self._binary = False
+        self._binary = record.is_binary
         self._pending_imports: set[str] = set()
 
     def __repr__(self) -> str:
@@ -2215,6 +2365,9 @@ class RustCompactFile(RustCompactHandle):
 
     @property
     def content(self) -> str:
+        if self.is_binary:
+            msg = "Cannot read binary file as string. Use content_bytes instead."
+            raise ValueError(msg)
         return self.content_bytes.decode("utf-8")
 
     @property

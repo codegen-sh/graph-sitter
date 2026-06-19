@@ -239,7 +239,8 @@ class CodebaseContext:
 
         try:
             file_paths = self._rust_index_file_paths()
-            self.rust_index = RustIndexBackend.build(self.repo_path, file_paths=file_paths, language=self.programming_language)
+            all_file_paths = self._rust_all_file_paths()
+            self.rust_index = RustIndexBackend.build(self.repo_path, file_paths=file_paths, all_file_paths=all_file_paths, language=self.programming_language)
         except (RustBackendUnavailableError, RustIndexBuildError) as error:
             self._handle_rust_backend_unavailable(str(error))
 
@@ -253,6 +254,17 @@ class CodebaseContext:
                 subdirs=self.projects[0].subdirectories,
                 extensions=self.extensions,
                 ignore_list=GLOBAL_FILE_IGNORE_LIST,
+            )
+        ]
+
+    def _rust_all_file_paths(self) -> list[str]:
+        repo_operator = self.projects[0].repo_operator
+        return [
+            str(filepath)
+            for filepath, _ in repo_operator.iter_files(
+                subdirs=self.projects[0].subdirectories,
+                ignore_list=GLOBAL_FILE_IGNORE_LIST,
+                skip_content=True,
             )
         ]
 
