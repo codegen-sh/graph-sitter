@@ -1,14 +1,106 @@
 #![forbid(unsafe_code)]
 
-use serde::Serialize;
+use serde::{Serialize, Serializer};
+use std::borrow::Borrow;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt;
 use std::fs;
 use std::io;
+use std::ops::Deref;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use tree_sitter::{Node, Parser, Range, Tree};
 
 const ENABLED_FEATURES: &[&str] = &["skeleton", "python-index", "typescript-index"];
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct InternedString(Arc<str>);
+
+impl InternedString {
+    pub fn ptr_eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+impl From<&str> for InternedString {
+    fn from(value: &str) -> Self {
+        Self(Arc::from(value))
+    }
+}
+
+impl From<String> for InternedString {
+    fn from(value: String) -> Self {
+        Self(Arc::from(value))
+    }
+}
+
+impl AsRef<str> for InternedString {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl Borrow<str> for InternedString {
+    fn borrow(&self) -> &str {
+        self.as_ref()
+    }
+}
+
+impl Deref for InternedString {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_ref()
+    }
+}
+
+impl fmt::Display for InternedString {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(self.as_ref())
+    }
+}
+
+impl PartialEq<&str> for InternedString {
+    fn eq(&self, other: &&str) -> bool {
+        self.as_ref() == *other
+    }
+}
+
+impl PartialEq<InternedString> for &str {
+    fn eq(&self, other: &InternedString) -> bool {
+        *self == other.as_ref()
+    }
+}
+
+impl Serialize for InternedString {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.as_ref())
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct StringInterner {
+    values: HashSet<InternedString>,
+}
+
+impl StringInterner {
+    pub fn intern(&mut self, value: impl AsRef<str>) -> InternedString {
+        let value = value.as_ref();
+        if let Some(existing) = self.values.get(value) {
+            return existing.clone();
+        }
+        let interned = InternedString::from(value);
+        self.values.insert(interned.clone());
+        interned
+    }
+
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EngineInfo {
@@ -175,9 +267,15 @@ pub struct PythonIndex {
     pub dependencies: Vec<DependencyRecord>,
     #[serde(skip)]
     pub all_exports_by_file: HashMap<u32, BTreeSet<String>>,
+    #[serde(skip)]
+    pub strings: StringInterner,
 }
 
 impl PythonIndex {
+    fn intern(&mut self, value: impl AsRef<str>) -> InternedString {
+        self.strings.intern(value)
+    }
+
     pub fn summary(&self) -> IndexSummary {
         IndexSummary {
             files: self.files.len(),
@@ -242,9 +340,15 @@ pub struct TypeScriptIndex {
     pub external_references: Vec<ExternalReferenceRecord>,
     pub dependencies: Vec<DependencyRecord>,
     pub subclass_edges: Vec<SubclassRecord>,
+    #[serde(skip)]
+    pub strings: StringInterner,
 }
 
 impl TypeScriptIndex {
+    fn intern(&mut self, value: impl AsRef<str>) -> InternedString {
+        self.strings.intern(value)
+    }
+
     pub fn summary(&self) -> IndexSummary {
         IndexSummary {
             files: self.files.len(),
@@ -374,8 +478,8 @@ pub struct IndexSummary {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct FileRecord {
     pub id: u32,
-    pub path: String,
-    pub module_name: Option<String>,
+    pub path: InternedString,
+    pub module_name: Option<InternedString>,
     pub language: FileLanguage,
     pub content_hash: String,
     pub byte_len: usize,
@@ -416,7 +520,7 @@ pub struct SymbolRecord {
     pub file_id: u32,
     pub parent_symbol_id: Option<u32>,
     pub is_top_level: bool,
-    pub name: String,
+    pub name: InternedString,
     pub kind: SymbolKind,
     pub range: SourceRange,
     pub name_range: SourceRange,
@@ -440,9 +544,9 @@ pub struct ImportRecord {
     pub id: u32,
     pub file_id: u32,
     pub kind: ImportKind,
-    pub module: Option<String>,
-    pub name: Option<String>,
-    pub alias: Option<String>,
+    pub module: Option<InternedString>,
+    pub name: Option<InternedString>,
+    pub alias: Option<InternedString>,
     pub range: SourceRange,
 }
 
@@ -451,9 +555,9 @@ pub struct ExternalModuleRecord {
     pub id: u32,
     pub import_id: u32,
     pub file_id: u32,
-    pub module: Option<String>,
-    pub name: String,
-    pub alias: Option<String>,
+    pub module: Option<InternedString>,
+    pub name: InternedString,
+    pub alias: Option<InternedString>,
     pub range: SourceRange,
 }
 
@@ -472,9 +576,9 @@ pub struct ExportRecord {
     pub id: u32,
     pub file_id: u32,
     pub kind: ExportKind,
-    pub name: Option<String>,
-    pub local_name: Option<String>,
-    pub source_module: Option<String>,
+    pub name: Option<InternedString>,
+    pub local_name: Option<InternedString>,
+    pub source_module: Option<InternedString>,
     pub symbol_id: Option<u32>,
     pub import_id: Option<u32>,
     pub range: SourceRange,
@@ -496,7 +600,7 @@ pub struct ReferenceRecord {
     pub source_symbol_id: Option<u32>,
     pub target_symbol_id: u32,
     pub import_id: Option<u32>,
-    pub name: String,
+    pub name: InternedString,
     pub range: SourceRange,
 }
 
@@ -506,7 +610,7 @@ pub struct ExternalReferenceRecord {
     pub source_file_id: u32,
     pub source_symbol_id: Option<u32>,
     pub import_id: u32,
-    pub name: String,
+    pub name: InternedString,
     pub range: SourceRange,
 }
 
@@ -618,8 +722,8 @@ fn append_common_debug_graph(
             node_type: "file",
             record_id: file.id,
             file_id: Some(file.id),
-            name: file.module_name.clone(),
-            path: Some(file.path.clone()),
+            name: file.module_name.as_ref().map(|name| name.to_string()),
+            path: Some(file.path.to_string()),
             range: Some(file.root_range),
         });
     }
@@ -630,7 +734,7 @@ fn append_common_debug_graph(
             node_type: "symbol",
             record_id: symbol.id,
             file_id: Some(symbol.file_id),
-            name: Some(symbol.name.clone()),
+            name: Some(symbol.name.to_string()),
             path: None,
             range: Some(symbol.range),
         });
@@ -640,7 +744,7 @@ fn append_common_debug_graph(
             file_debug_id(symbol.file_id),
             symbol_debug_id(symbol.id),
         );
-        file_edge.name = Some(symbol.name.clone());
+        file_edge.name = Some(symbol.name.to_string());
         file_edge.range = Some(symbol.range);
         edges.push(file_edge);
 
@@ -650,7 +754,7 @@ fn append_common_debug_graph(
                 symbol_debug_id(parent_symbol_id),
                 symbol_debug_id(symbol.id),
             );
-            parent_edge.name = Some(symbol.name.clone());
+            parent_edge.name = Some(symbol.name.to_string());
             parent_edge.range = Some(symbol.range);
             edges.push(parent_edge);
         }
@@ -686,7 +790,7 @@ fn append_common_debug_graph(
             node_type: "external_module",
             record_id: external_module.id,
             file_id: Some(external_module.file_id),
-            name: Some(external_module.name.clone()),
+            name: Some(external_module.name.to_string()),
             path: None,
             range: Some(external_module.range),
         });
@@ -697,7 +801,7 @@ fn append_common_debug_graph(
             external_module_debug_id(external_module.id),
         );
         file_edge.import_id = Some(external_module.import_id);
-        file_edge.name = Some(external_module.name.clone());
+        file_edge.name = Some(external_module.name.to_string());
         file_edge.range = Some(external_module.range);
         edges.push(file_edge);
     }
@@ -724,7 +828,7 @@ fn append_common_debug_graph(
         );
         edge.import_id = reference.import_id;
         edge.reference_id = Some(reference.id);
-        edge.name = Some(reference.name.clone());
+        edge.name = Some(reference.name.to_string());
         edge.range = Some(reference.range);
         edges.push(edge);
     }
@@ -742,7 +846,7 @@ fn append_common_debug_graph(
         );
         edge.import_id = Some(reference.import_id);
         edge.reference_id = Some(reference.id);
-        edge.name = Some(reference.name.clone());
+        edge.name = Some(reference.name.to_string());
         edge.range = Some(reference.range);
         edges.push(edge);
     }
@@ -806,17 +910,19 @@ fn export_debug_id(id: u32) -> String {
 fn import_debug_name(import: &ImportRecord) -> Option<String> {
     import
         .alias
-        .clone()
-        .or_else(|| import.name.clone())
-        .or_else(|| import.module.clone())
+        .as_ref()
+        .or(import.name.as_ref())
+        .or(import.module.as_ref())
+        .map(|value| value.to_string())
 }
 
 fn export_debug_name(export: &ExportRecord) -> Option<String> {
     export
         .name
-        .clone()
-        .or_else(|| export.local_name.clone())
-        .or_else(|| export.source_module.clone())
+        .as_ref()
+        .or(export.local_name.as_ref())
+        .or(export.source_module.as_ref())
+        .map(|value| value.to_string())
 }
 
 struct PythonIndexer {
@@ -895,6 +1001,7 @@ impl PythonIndexer {
             external_references: Vec::new(),
             dependencies: Vec::new(),
             all_exports_by_file: HashMap::new(),
+            strings: StringInterner::default(),
         };
         let mut reference_candidates = Vec::new();
         paths.sort();
@@ -913,9 +1020,11 @@ impl PythonIndexer {
                 .to_string_lossy()
                 .replace('\\', "/");
 
+            let module_name = python_module_name(&relative_path).map(|name| index.intern(name));
+            let relative_path = index.intern(relative_path);
             index.files.push(FileRecord {
                 id: file_id,
-                module_name: python_module_name(&relative_path),
+                module_name,
                 path: relative_path,
                 language: FileLanguage::Python,
                 content_hash,
@@ -999,6 +1108,7 @@ impl TypeScriptIndexer {
             external_references: Vec::new(),
             dependencies: Vec::new(),
             subclass_edges: Vec::new(),
+            strings: StringInterner::default(),
         };
         let mut reference_candidates = Vec::new();
         paths.sort();
@@ -1018,6 +1128,7 @@ impl TypeScriptIndexer {
                 .to_string_lossy()
                 .replace('\\', "/");
 
+            let relative_path = index.intern(relative_path);
             index.files.push(FileRecord {
                 id: file_id,
                 module_name: None,
@@ -1480,12 +1591,13 @@ fn push_typescript_named_symbol(
         return None;
     };
     let symbol_id = index.symbols.len() as u32;
+    let name = index.intern(name);
     index.symbols.push(SymbolRecord {
         id: symbol_id,
         file_id,
         parent_symbol_id: None,
         is_top_level: true,
-        name: name.to_owned(),
+        name,
         kind,
         range: declaration.range().into(),
         name_range: name_node.range().into(),
@@ -1515,12 +1627,13 @@ fn push_typescript_variable_symbols(
             for target in targets {
                 if let Ok(name) = target.utf8_text(source.as_bytes()) {
                     let symbol_id = index.symbols.len() as u32;
+                    let name = index.intern(name);
                     index.symbols.push(SymbolRecord {
                         id: symbol_id,
                         file_id,
                         parent_symbol_id: None,
                         is_top_level: true,
-                        name: name.to_owned(),
+                        name,
                         kind,
                         range: declaration.range().into(),
                         name_range: target.range().into(),
@@ -1769,6 +1882,7 @@ fn push_typescript_export_statement(
         let is_default = has_direct_child_kind(node, "default");
         for symbol_id in symbol_ids {
             let symbol = &index.symbols[symbol_id as usize];
+            let symbol_name = symbol.name.to_string();
             push_typescript_export(
                 file_id,
                 if is_default {
@@ -1779,9 +1893,9 @@ fn push_typescript_export_statement(
                 Some(if is_default {
                     "default".to_owned()
                 } else {
-                    symbol.name.clone()
+                    symbol_name.clone()
                 }),
-                Some(symbol.name.clone()),
+                Some(symbol_name),
                 None,
                 Some(symbol_id),
                 None,
@@ -1971,6 +2085,9 @@ fn push_typescript_import(
     index: &mut TypeScriptIndex,
 ) -> u32 {
     let import_id = index.imports.len() as u32;
+    let module = module.map(|value| index.intern(value));
+    let name = name.map(|value| index.intern(value));
+    let alias = alias.map(|value| index.intern(value));
     index.imports.push(ImportRecord {
         id: import_id,
         file_id,
@@ -1994,6 +2111,9 @@ fn push_typescript_export(
     range: SourceRange,
     index: &mut TypeScriptIndex,
 ) {
+    let name = name.map(|value| index.intern(value));
+    let local_name = local_name.map(|value| index.intern(value));
+    let source_module = source_module.map(|value| index.intern(value));
     index.exports.push(ExportRecord {
         id: index.exports.len() as u32,
         file_id,
@@ -2068,7 +2188,7 @@ fn collect_typescript_local_bindings(
     for symbol in file_symbols {
         let mut names = HashSet::new();
         collect_typescript_local_bindings_for_symbol(source, root, symbol.range, &mut names);
-        names.remove(&symbol.name);
+        names.remove(symbol.name.as_ref());
         if !names.is_empty() {
             bindings.insert(symbol.id, names);
         }
@@ -2777,13 +2897,13 @@ fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScr
     let file_by_path: HashMap<String, u32> = index
         .files
         .iter()
-        .map(|file| (file.path.clone(), file.id))
+        .map(|file| (file.path.to_string(), file.id))
         .collect();
     let symbol_by_file_and_name: HashMap<(u32, String), u32> = index
         .symbols
         .iter()
         .filter(|symbol| symbol.is_top_level)
-        .map(|symbol| ((symbol.file_id, symbol.name.clone()), symbol.id))
+        .map(|symbol| ((symbol.file_id, symbol.name.to_string()), symbol.id))
         .collect();
     let mut resolutions = Vec::new();
     for import in &index.imports {
@@ -2858,7 +2978,7 @@ fn import_is_external_candidate(import: &ImportRecord) -> bool {
         .is_some_and(|name| !name.starts_with('.'))
 }
 
-fn external_module_name(import: &ImportRecord) -> Option<String> {
+fn external_module_name(import: &ImportRecord) -> Option<InternedString> {
     import.name.clone().or_else(|| import.module.clone())
 }
 
@@ -3136,11 +3256,12 @@ fn has_typescript_module_suffix(path: &str, suffixes: &[&str]) -> bool {
 }
 
 fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<ReferenceCandidate>) {
+    let mut strings = std::mem::take(&mut index.strings);
     let symbol_by_file_and_name: HashMap<(u32, String), u32> = index
         .symbols
         .iter()
         .filter(|symbol| symbol.is_top_level)
-        .map(|symbol| ((symbol.file_id, symbol.name.clone()), symbol.id))
+        .map(|symbol| ((symbol.file_id, symbol.name.to_string()), symbol.id))
         .collect();
     let local_exported_symbols =
         typescript_local_exported_symbol_map(index, &symbol_by_file_and_name);
@@ -3228,12 +3349,13 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
                 if let Some(import_id) = external_import_by_binding
                     .get(&(candidate.source_file_id, candidate.name.clone()))
                 {
+                    let name = strings.intern(&candidate.name);
                     external_references.push(ExternalReferenceRecord {
                         id: external_references.len() as u32,
                         source_file_id: candidate.source_file_id,
                         source_symbol_id: candidate.source_symbol_id,
                         import_id: *import_id,
-                        name: candidate.name,
+                        name,
                         range: candidate.range,
                     });
                 }
@@ -3245,13 +3367,14 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         }
 
         let reference_id = references.len() as u32;
+        let name = strings.intern(&candidate.name);
         references.push(ReferenceRecord {
             id: reference_id,
             source_file_id: candidate.source_file_id,
             source_symbol_id: candidate.source_symbol_id,
             target_symbol_id,
             import_id,
-            name: candidate.name,
+            name,
             range: candidate.range,
         });
         if candidate.is_subclass {
@@ -3280,6 +3403,7 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
     index.references = references;
     index.external_references = external_references;
     index.subclass_edges = subclass_edges;
+    index.strings = strings;
 }
 
 fn typescript_import_binding_name(import: &ImportRecord) -> Option<String> {
@@ -3288,9 +3412,9 @@ fn typescript_import_binding_name(import: &ImportRecord) -> Option<String> {
     }
     match import.kind {
         ImportKind::DefaultImport | ImportKind::NamedImport | ImportKind::DynamicImport => {
-            import.name.clone()
+            import.name.as_ref().map(|name| name.to_string())
         }
-        ImportKind::NamespaceImport => import.alias.clone(),
+        ImportKind::NamespaceImport => import.alias.as_ref().map(|alias| alias.to_string()),
         ImportKind::Import
         | ImportKind::FromImport
         | ImportKind::FutureImport
@@ -3660,12 +3784,13 @@ fn push_symbol_with_range(
         return None;
     };
     let symbol_id = index.symbols.len() as u32;
+    let name = index.intern(name);
     index.symbols.push(SymbolRecord {
         id: symbol_id,
         file_id,
         parent_symbol_id,
         is_top_level: parent_symbol_id.is_none(),
-        name: name.to_owned(),
+        name,
         kind,
         range: declaration_range.into(),
         name_range: name_node.range().into(),
@@ -3702,12 +3827,13 @@ fn push_global_assignment(
         let Ok(name) = target.utf8_text(source.as_bytes()) else {
             continue;
         };
+        let name = index.intern(name);
         index.symbols.push(SymbolRecord {
             id: index.symbols.len() as u32,
             file_id,
             parent_symbol_id: None,
             is_top_level: true,
-            name: name.to_owned(),
+            name,
             kind: SymbolKind::GlobalVariable,
             range: node.range().into(),
             name_range: target.range().into(),
@@ -3800,7 +3926,7 @@ fn collect_local_bindings(
             bindings
                 .entry(parent_symbol_id)
                 .or_default()
-                .insert(symbol.name.clone());
+                .insert(symbol.name.to_string());
         }
     }
 
@@ -4427,13 +4553,15 @@ fn push_import_statement(file_id: u32, source: &str, node: Node<'_>, index: &mut
 
     for import in imports {
         let (name, alias) = split_alias(import);
+        let name = index.intern(name);
+        let alias = alias.map(|value| index.intern(value));
         index.imports.push(ImportRecord {
             id: index.imports.len() as u32,
             file_id,
             kind: ImportKind::Import,
             module: None,
-            name: Some(name.to_owned()),
-            alias: alias.map(str::to_owned),
+            name: Some(name),
+            alias,
             range: node.range().into(),
         });
     }
@@ -4460,13 +4588,16 @@ fn push_from_import_statement(file_id: u32, source: &str, node: Node<'_>, index:
         .filter(|part| !part.is_empty())
     {
         let (name, alias) = split_alias(import);
+        let module = index.intern(module.trim());
+        let name = index.intern(name);
+        let alias = alias.map(|value| index.intern(value));
         index.imports.push(ImportRecord {
             id: index.imports.len() as u32,
             file_id,
             kind,
-            module: Some(module.trim().to_owned()),
-            name: Some(name.to_owned()),
-            alias: alias.map(str::to_owned),
+            module: Some(module),
+            name: Some(name),
+            alias,
             range: node.range().into(),
         });
     }
@@ -4521,7 +4652,7 @@ fn resolve_python_imports(index: &mut PythonIndex) {
         .symbols
         .iter()
         .filter(|symbol| symbol.is_top_level)
-        .map(|symbol| ((symbol.file_id, symbol.name.as_str()), symbol.id))
+        .map(|symbol| ((symbol.file_id, symbol.name.as_ref()), symbol.id))
         .collect();
 
     let mut resolutions = Vec::new();
@@ -4617,7 +4748,7 @@ fn python_exported_symbols_by_file(index: &PythonIndex) -> ExportedSymbolsByFile
         exports
             .entry(symbol.file_id)
             .or_default()
-            .insert(symbol.name.clone(), symbol.id);
+            .insert(symbol.name.to_string(), symbol.id);
     }
 
     for _ in 0..index.imports.len().max(1) {
@@ -4678,6 +4809,7 @@ fn wildcard_visible_exports<'a>(
 }
 
 fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceCandidate>) {
+    let mut strings = std::mem::take(&mut index.strings);
     let module_to_file: HashMap<&str, u32> = index
         .files
         .iter()
@@ -4688,7 +4820,7 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         .symbols
         .iter()
         .filter(|symbol| symbol.is_top_level)
-        .map(|symbol| ((symbol.file_id, symbol.name.as_str()), symbol.id))
+        .map(|symbol| ((symbol.file_id, symbol.name.as_ref()), symbol.id))
         .collect();
     let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
         .import_resolutions
@@ -4838,12 +4970,13 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
                         .get(&(candidate.source_file_id, candidate.name.clone()))
                         .copied()
                 }) {
+                    let name = strings.intern(&candidate.name);
                     external_references.push(ExternalReferenceRecord {
                         id: external_references.len() as u32,
                         source_file_id: candidate.source_file_id,
                         source_symbol_id: candidate.source_symbol_id,
                         import_id,
-                        name: candidate.name,
+                        name,
                         range: candidate.range,
                     });
                 }
@@ -4854,18 +4987,20 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
             continue;
         }
 
+        let name = strings.intern(&candidate.name);
         references.push(ReferenceRecord {
             id: references.len() as u32,
             source_file_id: candidate.source_file_id,
             source_symbol_id: candidate.source_symbol_id,
             target_symbol_id,
             import_id,
-            name: candidate.name,
+            name,
             range: candidate.range,
         });
     }
     index.references = references;
     index.external_references = external_references;
+    index.strings = strings;
 }
 
 fn symbol_ranges_by_file(symbols: &[SymbolRecord]) -> HashMap<u32, Vec<(u32, SourceRange)>> {
@@ -5051,8 +5186,8 @@ fn import_binding_name(import: &ImportRecord) -> Option<String> {
         ImportKind::FromImport | ImportKind::FutureImport => import
             .name
             .as_ref()
-            .filter(|name| name.as_str() != "*")
-            .cloned(),
+            .filter(|name| name.as_ref() != "*")
+            .map(|name| name.to_string()),
         ImportKind::SideEffect
         | ImportKind::DefaultImport
         | ImportKind::NamedImport
@@ -5161,7 +5296,7 @@ fn resolve_module_name(source_file: &FileRecord, raw_module: &str) -> Option<Str
 
 fn source_package_name(file: &FileRecord) -> Option<&str> {
     let module = file.module_name.as_deref()?;
-    if file.path.ends_with("/__init__.py") || file.path == "__init__.py" {
+    if file.path.ends_with("/__init__.py") || file.path.as_ref() == "__init__.py" {
         Some(module)
     } else {
         module.rsplit_once('.').map(|(package, _)| package)
@@ -5251,6 +5386,51 @@ mod tests {
         assert!(index.external_modules.iter().any(|external_module| {
             external_module.name == "sys" && external_module.alias.as_deref() == Some("system")
         }));
+    }
+
+    #[test]
+    fn compact_python_records_intern_repeated_strings() {
+        let repo = temp_repo_path("python-interned-record-strings");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(
+            repo.join("pkg/a.py"),
+            "import requests\n\ndef fetch_a():\n    return requests.get('/a')\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("pkg/b.py"),
+            "import requests\n\ndef fetch_b():\n    return requests.post('/b')\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let import_names = index
+            .imports
+            .iter()
+            .filter_map(|import| import.name.as_ref())
+            .filter(|name| name.as_ref() == "requests")
+            .collect::<Vec<_>>();
+        let external_module_names = index
+            .external_modules
+            .iter()
+            .filter(|module| module.name.as_ref() == "requests")
+            .map(|module| &module.name)
+            .collect::<Vec<_>>();
+        let external_reference_names = index
+            .external_references
+            .iter()
+            .filter(|reference| reference.name.as_ref() == "requests")
+            .map(|reference| &reference.name)
+            .collect::<Vec<_>>();
+
+        assert_eq!(import_names.len(), 2);
+        assert_eq!(external_module_names.len(), 2);
+        assert_eq!(external_reference_names.len(), 2);
+        assert!(import_names[0].ptr_eq(import_names[1]));
+        assert!(import_names[0].ptr_eq(external_module_names[0]));
+        assert!(import_names[0].ptr_eq(external_reference_names[0]));
     }
 
     #[test]
@@ -5391,7 +5571,7 @@ const Component = () => <div />;
         let symbols = index
             .symbols
             .iter()
-            .map(|symbol| (symbol.name.as_str(), symbol.kind))
+            .map(|symbol| (symbol.name.as_ref(), symbol.kind))
             .collect::<Vec<_>>();
         assert!(symbols.contains(&("run", SymbolKind::Function)));
         assert!(symbols.contains(&("Page", SymbolKind::Function)));
