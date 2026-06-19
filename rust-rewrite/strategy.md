@@ -154,6 +154,7 @@ Recommended task format:
 - [x] Add fast Rust rewrite PR CI lane. owner: codex. Result: `.github/workflows/rust-rewrite-fast.yml` runs `rust-rewrite/tools/check_fast.sh` for full ruff, Rust fmt/tests, PyO3 binding checks, live Python/Rust fixture parity, focused py_compile, and focused Rust-backend pytest without running large pinned repo benchmarks.
 - [x] Add tiny CLI smoke CI lane for the `uvx graph-sitter` surface. owner: codex. Result: `.github/workflows/rust-rewrite-cli-smoke.yml` runs `rust-rewrite/tools/check_cli_smoke.sh` for focused ruff/py_compile, command help, and parse/run/transform unit tests when CLI files change.
 - [x] Harden Linux PyO3 CI against missing uv libpython loader paths. owner: codex. Result: `check_fast.sh` and `check_extension_build.sh` export the active Python `LIBDIR` through `LD_LIBRARY_PATH` before running linked PyO3 test binaries.
+- [x] Fix large-repo workflow validation before job startup. owner: codex. Result: moved `runner.temp`-derived pinned-check env vars from job-level env to the run step where the runner context is valid.
 - [x] Add benchmark command comparing Python backend with Rust compact indexer. owner: codex. Result: added `rust-rewrite/tools/compare_rust_python_index.py`.
 - [x] Add benchmark command for the Python-facing Rust facade. owner: codex. Result: added `rust-rewrite/tools/measure_rust_facade.py`.
 - [x] Add benchmark command for real `Codebase` construction with the Rust compact backend. owner: codex. Result: added `rust-rewrite/tools/measure_codebase_rust_backend.py`.
