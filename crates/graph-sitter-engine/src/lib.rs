@@ -1705,6 +1705,17 @@ fn collect_typescript_scoped_local_bindings_from_node(
     scoped_bindings: &mut Vec<LocalBindingScope>,
 ) {
     match node.kind() {
+        "function_declaration"
+        | "generator_function_declaration"
+        | "class_declaration"
+        | "abstract_class_declaration" => {
+            push_typescript_nested_declaration_binding_scope(
+                source,
+                node,
+                symbol_ranges,
+                scoped_bindings,
+            );
+        }
         "for_in_statement" => {
             if let Some(left) = node
                 .child_by_field_name("left")
@@ -1760,6 +1771,45 @@ fn collect_typescript_scoped_local_bindings_from_node(
             symbol_ranges,
             scoped_bindings,
         );
+    }
+}
+
+fn push_typescript_nested_declaration_binding_scope(
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    scoped_bindings: &mut Vec<LocalBindingScope>,
+) {
+    let node_range = SourceRange::from(node.range());
+    let Some((source_symbol_id, symbol_range)) =
+        innermost_symbol_range_for_range(symbol_ranges, node_range)
+    else {
+        return;
+    };
+    if node_range == symbol_range {
+        return;
+    }
+    let Some(name) = node.child_by_field_name("name") else {
+        return;
+    };
+    let scope_range = SourceRange {
+        start_byte: name.start_byte(),
+        end_byte: symbol_range.end_byte,
+        start_row: name.start_position().row,
+        start_column: name.start_position().column,
+        end_row: symbol_range.end_row,
+        end_column: symbol_range.end_column,
+    };
+    let mut names = HashSet::new();
+    if let Ok(name) = name.utf8_text(source.as_bytes()) {
+        names.insert(name.to_owned());
+    }
+    if !names.is_empty() {
+        scoped_bindings.push(LocalBindingScope {
+            source_symbol_id,
+            range: scope_range,
+            names,
+        });
     }
 }
 
@@ -3487,11 +3537,18 @@ fn innermost_symbol_for_range(
     symbol_ranges: &[(u32, SourceRange)],
     range: SourceRange,
 ) -> Option<u32> {
+    innermost_symbol_range_for_range(symbol_ranges, range).map(|(symbol_id, _)| symbol_id)
+}
+
+fn innermost_symbol_range_for_range(
+    symbol_ranges: &[(u32, SourceRange)],
+    range: SourceRange,
+) -> Option<(u32, SourceRange)> {
     symbol_ranges
         .iter()
         .filter(|(_, symbol_range)| contains_range(*symbol_range, range))
         .min_by_key(|(_, symbol_range)| symbol_range.end_byte - symbol_range.start_byte)
-        .map(|(symbol_id, _)| *symbol_id)
+        .map(|(symbol_id, symbol_range)| (*symbol_id, *symbol_range))
 }
 
 fn contains_range(container: SourceRange, range: SourceRange) -> bool {
@@ -4776,6 +4833,59 @@ export function run(items: number[]) {\n\
                 .filter(|reference| reference.target_symbol_id == imported_symbol_id)
                 .count(),
             2
+        );
+    }
+
+    #[test]
+    fn excludes_typescript_references_shadowed_by_nested_declarations() {
+        let repo = temp_repo_path("resolve-typescript-nested-declaration-shadows");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { Imported, Other, StillImported } from './values';\n\
+\n\
+export function run() {\n\
+  function Imported() { return 1; }\n\
+  class Other {}\n\
+  return Imported() + new Other() + StillImported;\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/values.ts"),
+            "export const Imported = 1;\nexport const Other = 2;\nexport const StillImported = 3;\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 2);
+        assert_eq!(index.summary().imports, 3);
+        assert_eq!(index.summary().import_resolutions, 3);
+        assert_eq!(index.summary().references, 1);
+        assert_eq!(index.summary().dependencies, 1);
+
+        let values_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/values.ts")
+            .unwrap()
+            .id;
+        let still_imported_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == values_file_id && symbol.name == "StillImported")
+            .unwrap()
+            .id;
+
+        assert_eq!(
+            index
+                .references
+                .iter()
+                .filter(|reference| reference.target_symbol_id == still_imported_symbol_id)
+                .count(),
+            1
         );
     }
 
