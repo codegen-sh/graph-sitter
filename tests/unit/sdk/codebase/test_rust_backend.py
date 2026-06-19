@@ -25,6 +25,12 @@ def fake_range(start_byte: int, end_byte: int, start_row: int = 0, start_column:
     }
 
 
+def fake_range_overlaps(record: dict[str, int], start_byte: int, end_byte: int) -> bool:
+    if start_byte == end_byte:
+        return record["start_byte"] <= start_byte < record["end_byte"]
+    return record["start_byte"] < end_byte and start_byte < record["end_byte"]
+
+
 class FakeSummary:
     def as_dict(self):
         return {
@@ -200,6 +206,15 @@ class FakeIndex:
             ]
         )
 
+    def symbols_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["file_id"] == file_id and fake_range_overlaps(symbol["range"], start_byte, end_byte)
+            ]
+        )
+
     def imports_json(self):
         return json.dumps(
             [
@@ -251,6 +266,15 @@ class FakeIndex:
             if any(candidate and (lookup == candidate or candidate in lookup) for candidate in candidates):
                 rows.append(import_record)
         return json.dumps(rows)
+
+    def imports_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
+        return json.dumps(
+            [
+                import_record
+                for import_record in json.loads(self.imports_json())
+                if import_record["file_id"] == file_id and fake_range_overlaps(import_record["range"], start_byte, end_byte)
+            ]
+        )
 
     def import_resolutions_json(self):
         return json.dumps(
@@ -832,6 +856,15 @@ class FakeTypeScriptIndex:
             ]
         )
 
+    def symbols_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["file_id"] == file_id and fake_range_overlaps(symbol["range"], start_byte, end_byte)
+            ]
+        )
+
     def imports_json(self):
         return json.dumps(
             [
@@ -844,6 +877,15 @@ class FakeTypeScriptIndex:
                     "alias": "helper",
                     "range": fake_range(9, 15, 0, 9, 0, 15),
                 }
+            ]
+        )
+
+    def imports_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
+        return json.dumps(
+            [
+                import_record
+                for import_record in json.loads(self.imports_json())
+                if import_record["file_id"] == file_id and fake_range_overlaps(import_record["range"], start_byte, end_byte)
             ]
         )
 
@@ -897,6 +939,15 @@ class FakeTypeScriptIndex:
                 export
                 for export in json.loads(self.exports_json())
                 if export["file_id"] == file_id and export["name"] == name
+            ]
+        )
+
+    def exports_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
+        return json.dumps(
+            [
+                export
+                for export in json.loads(self.exports_json())
+                if export["file_id"] == file_id and fake_range_overlaps(export["range"], start_byte, end_byte)
             ]
         )
 
@@ -1658,6 +1709,38 @@ def test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols(monkey
         assert backend._import_handles is None
         assert backend._imports_by_file_id is None
         assert sorted(backend._symbol_handles_by_id) == [0, 1, 2]
+
+
+def test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        service_file = codebase.get_file("pkg/service.py")
+        assert [node.name for node in service_file.find_by_byte_range({"start_byte": 0, "end_byte": 9})] == ["os"]
+        assert [node.name for node in service_file.find_by_byte_range({"start_byte": 96, "end_byte": 102})] == ["helper"]
+        assert service_file.find_by_byte_range({"start_byte": 28, "end_byte": 30}) == []
+
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert backend._symbols_by_file_id is None
+        assert backend._imports is None
+        assert backend._import_handles is None
+        assert backend._imports_by_file_id is None
+        assert backend._exports is None
+        assert backend._export_handles is None
+        assert backend._exports_by_file_id is None
+        assert sorted(backend._symbol_handles_by_id) == [2]
+        assert sorted(backend._import_handles_by_id) == [0]
 
 
 def test_rust_compact_exact_export_lookups_do_not_materialize_all_exports(monkeypatch, tmp_path):

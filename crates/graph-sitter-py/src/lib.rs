@@ -270,6 +270,30 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn symbols_for_file_by_byte_range_json(
+            &self,
+            file_id: u32,
+            start_byte: usize,
+            end_byte: usize,
+        ) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| {
+                    symbol.file_id == file_id
+                        && ranges_overlap(
+                            symbol.range.start_byte,
+                            symbol.range.end_byte,
+                            start_byte,
+                            end_byte,
+                        )
+                })
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn symbols_for_parent_json(&self, parent_symbol_id: u32) -> PyResult<String> {
             let records: Vec<_> = self
                 .inner
@@ -326,6 +350,30 @@ mod bindings {
                             import.name.as_ref().map(|value| value.as_ref()),
                             import.alias.as_ref().map(|value| value.as_ref()),
                             lookup,
+                        )
+                })
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn imports_for_file_by_byte_range_json(
+            &self,
+            file_id: u32,
+            start_byte: usize,
+            end_byte: usize,
+        ) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .imports
+                .iter()
+                .filter(|import| {
+                    import.file_id == file_id
+                        && ranges_overlap(
+                            import.range.start_byte,
+                            import.range.end_byte,
+                            start_byte,
+                            end_byte,
                         )
                 })
                 .collect();
@@ -722,6 +770,30 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn symbols_for_file_by_byte_range_json(
+            &self,
+            file_id: u32,
+            start_byte: usize,
+            end_byte: usize,
+        ) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .symbols
+                .iter()
+                .filter(|symbol| {
+                    symbol.file_id == file_id
+                        && ranges_overlap(
+                            symbol.range.start_byte,
+                            symbol.range.end_byte,
+                            start_byte,
+                            end_byte,
+                        )
+                })
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn symbols_for_parent_json(&self, parent_symbol_id: u32) -> PyResult<String> {
             let records: Vec<_> = self
                 .inner
@@ -785,6 +857,30 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn imports_for_file_by_byte_range_json(
+            &self,
+            file_id: u32,
+            start_byte: usize,
+            end_byte: usize,
+        ) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .imports
+                .iter()
+                .filter(|import| {
+                    import.file_id == file_id
+                        && ranges_overlap(
+                            import.range.start_byte,
+                            import.range.end_byte,
+                            start_byte,
+                            end_byte,
+                        )
+                })
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn import_by_id_json(&self, import_id: u32) -> PyResult<String> {
             serde_json::to_string(
                 &self
@@ -813,6 +909,30 @@ mod bindings {
                 .exports
                 .iter()
                 .filter(|export| export.file_id == file_id && export.name.as_deref() == Some(name))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn exports_for_file_by_byte_range_json(
+            &self,
+            file_id: u32,
+            start_byte: usize,
+            end_byte: usize,
+        ) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .exports
+                .iter()
+                .filter(|export| {
+                    export.file_id == file_id
+                        && ranges_overlap(
+                            export.range.start_byte,
+                            export.range.end_byte,
+                            start_byte,
+                            end_byte,
+                        )
+                })
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -1324,6 +1444,19 @@ mod bindings {
             })
     }
 
+    fn ranges_overlap(
+        record_start: usize,
+        record_end: usize,
+        query_start: usize,
+        query_end: usize,
+    ) -> bool {
+        if query_start == query_end {
+            record_start <= query_start && query_start < record_end
+        } else {
+            record_start < query_end && query_start < record_end
+        }
+    }
+
     #[pymodule]
     fn graph_sitter_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.add_class::<PyEngine>()?;
@@ -1383,6 +1516,14 @@ mod bindings {
             assert_eq!(summary.functions, 1);
             assert_eq!(summary.imports, 1);
             assert!(index.to_json().unwrap().contains("\"Service\""));
+            assert!(index
+                .symbols_for_file_by_byte_range_json(0, 0, 1_000)
+                .unwrap()
+                .contains("\"Service\""));
+            assert!(index
+                .imports_for_file_by_byte_range_json(0, 0, 9)
+                .unwrap()
+                .contains("\"os\""));
         }
 
         #[test]
@@ -1546,6 +1687,18 @@ mod bindings {
                 .dependencies_json()
                 .unwrap()
                 .contains("reference_count"));
+            assert!(index
+                .symbols_for_file_by_byte_range_json(0, 0, 1_000)
+                .unwrap()
+                .contains("\"Page\""));
+            assert!(index
+                .imports_for_file_by_byte_range_json(0, 0, 30)
+                .unwrap()
+                .contains("\"React\""));
+            assert!(index
+                .exports_for_file_by_byte_range_json(0, 0, 1_000)
+                .unwrap()
+                .contains("\"Page\""));
             assert_eq!(index.subclass_edges_json().unwrap(), "[]");
             assert!(index.to_json().unwrap().contains("\"import_resolutions\""));
             assert!(index.to_json().unwrap().contains("\"external_modules\""));

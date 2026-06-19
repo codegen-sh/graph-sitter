@@ -154,6 +154,13 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "imports_by_file": False,
 }
 
+EXPECTED_BYTE_RANGE_CACHE_MATERIALIZATION = {
+    **EXPECTED_TARGETED_CACHE_MATERIALIZATION,
+    "exports": False,
+    "export_handles": False,
+    "exports_by_file": False,
+}
+
 EXPECTED_KNOWN_DEPENDENCIES = {
     "airflow_init_getattr_dependencies": [
         {
@@ -341,6 +348,14 @@ def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
     return report
 
 
+def byte_range_cache_materialization_report(backend: Any) -> dict[str, bool]:
+    report = targeted_cache_materialization_report(backend)
+    report["exports"] = backend._exports is not None
+    report["export_handles"] = backend._export_handles is not None
+    report["exports_by_file"] = backend._exports_by_file_id is not None
+    return report
+
+
 def make_report(args: argparse.Namespace) -> dict[str, Any]:
     memory_samples = [memory_sample("start")]
     repo, actual_commit = prepare_pinned_repo(args)
@@ -401,6 +416,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     targeted_cache_materialization = targeted_cache_materialization_report(backend)
     known_lookups = known_lookup_report(codebase)
     memory_samples.append(memory_sample("after_known_lookups"))
+    byte_range_cache_materialization = byte_range_cache_materialization_report(backend)
     known_dependencies = known_dependency_report(codebase)
     memory_samples.append(memory_sample("after_known_dependencies"))
     large_cache_materialization = large_cache_materialization_report(backend)
@@ -441,6 +457,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "known_file_local_import_lookups": known_file_local_import_lookups,
         "targeted_cache_materialization": targeted_cache_materialization,
         "known_lookups": known_lookups,
+        "byte_range_cache_materialization": byte_range_cache_materialization,
         "known_dependencies": known_dependencies,
         "large_cache_materialization": large_cache_materialization,
         "comparison": comparison,
@@ -476,6 +493,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append("targeted lookup caches were materialized before byte-range queries")
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:
             failures.append("known byte-range lookup results drifted")
+        if report["byte_range_cache_materialization"] != EXPECTED_BYTE_RANGE_CACHE_MATERIALIZATION:
+            failures.append("byte-range lookup caches were materialized")
         if report["known_dependencies"] != EXPECTED_KNOWN_DEPENDENCIES:
             failures.append("known dependency results drifted")
         if report["large_cache_materialization"] != EXPECTED_LARGE_CACHE_MATERIALIZATION:

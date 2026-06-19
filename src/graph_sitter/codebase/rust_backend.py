@@ -350,10 +350,13 @@ class RustIndexBackend:
     _external_module_handles_by_import_id: dict[int, RustCompactExternalModule] | None = None
     _export_handles_by_id: dict[int, RustCompactExport] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
+    _symbols_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactSymbol]] | None = None
     _imports_by_file_id_and_lookup: dict[tuple[int, str], list[RustCompactImport]] | None = None
+    _imports_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactImport]] | None = None
     _imports_by_file_id: dict[int, list[RustCompactImport]] | None = None
     _exports_by_file_id: dict[int, list[RustCompactExport]] | None = None
     _exports_by_file_id_and_name: dict[tuple[int, str], list[RustCompactExport]] | None = None
+    _exports_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactExport]] | None = None
     _import_resolutions_by_import_id: dict[int, RustImportResolutionRecord] | None = None
     _import_resolutions_by_target_file_id: dict[int, list[RustImportResolutionRecord]] | None = None
     _symbols_by_file_id_and_name: dict[tuple[int, str], list[RustCompactSymbol]] | None = None
@@ -701,7 +704,10 @@ class RustIndexBackend:
         self._file_handles_by_id = None
         self._file_handles_by_path = None
         self._symbols_by_file_id = None
+        self._symbols_by_file_id_and_byte_range = None
         self._imports_by_file_id = None
+        self._imports_by_file_id_and_byte_range = None
+        self._exports_by_file_id_and_byte_range = None
         return file
 
     def unregister_file(self, file_id: int) -> None:
@@ -722,10 +728,13 @@ class RustIndexBackend:
         self._external_module_handles_by_import_id = None
         self._export_handles_by_id = None
         self._symbols_by_file_id = None
+        self._symbols_by_file_id_and_byte_range = None
         self._imports_by_file_id_and_lookup = None
+        self._imports_by_file_id_and_byte_range = None
         self._imports_by_file_id = None
         self._exports_by_file_id = None
         self._exports_by_file_id_and_name = None
+        self._exports_by_file_id_and_byte_range = None
         self._import_resolutions_by_import_id = None
         self._import_resolutions_by_target_file_id = None
         self._symbols_by_file_id_and_name = None
@@ -805,6 +814,21 @@ class RustIndexBackend:
                 return self._symbols_by_file_id_and_name[key]
         return [symbol for symbol in self.symbols_for_file(file_id) if symbol.name == name]
 
+    def symbols_for_file_by_byte_range(self, file_id: int, start_byte: int, end_byte: int) -> list[RustCompactSymbol]:
+        if self._symbol_handles is None and hasattr(self.index, "symbols_for_file_by_byte_range_json"):
+            if self._symbols_by_file_id_and_byte_range is None:
+                self._symbols_by_file_id_and_byte_range = {}
+            key = (file_id, start_byte, end_byte)
+            if key not in self._symbols_by_file_id_and_byte_range:
+                records = self._records_from_json_method("symbols_for_file_by_byte_range_json", RustSymbolRecord.from_dict, file_id, start_byte, end_byte)
+                if records is not None:
+                    self._symbols_by_file_id_and_byte_range[key] = [self._symbol_handle_from_record(record) for record in records]
+                else:
+                    self._symbol_handles = [self._symbol_handle_from_record(record) for record in self.symbols]
+            if key in self._symbols_by_file_id_and_byte_range:
+                return self._symbols_by_file_id_and_byte_range[key]
+        return [symbol for symbol in self.symbols_for_file(file_id) if _ranges_overlap(symbol.range, start_byte, end_byte)]
+
     def symbols_for_parent(self, parent_symbol_id: int) -> list[RustCompactSymbol]:
         if self._symbol_handles is None and hasattr(self.index, "symbols_for_parent_json"):
             if self._symbols_by_parent_symbol_id is None:
@@ -865,6 +889,21 @@ class RustIndexBackend:
                 return self._imports_by_file_id_and_lookup[key]
         return [import_handle for import_handle in self.imports_for_file(file_id) if import_handle.matches_lookup(lookup)]
 
+    def imports_for_file_by_byte_range(self, file_id: int, start_byte: int, end_byte: int) -> list[RustCompactImport]:
+        if self._import_handles is None and hasattr(self.index, "imports_for_file_by_byte_range_json"):
+            if self._imports_by_file_id_and_byte_range is None:
+                self._imports_by_file_id_and_byte_range = {}
+            key = (file_id, start_byte, end_byte)
+            if key not in self._imports_by_file_id_and_byte_range:
+                records = self._records_from_json_method("imports_for_file_by_byte_range_json", RustImportRecord.from_dict, file_id, start_byte, end_byte)
+                if records is not None:
+                    self._imports_by_file_id_and_byte_range[key] = [self._import_handle_from_record(record) for record in records]
+                else:
+                    self._import_handles = [self._import_handle_from_record(record) for record in self.imports]
+            if key in self._imports_by_file_id_and_byte_range:
+                return self._imports_by_file_id_and_byte_range[key]
+        return [import_handle for import_handle in self.imports_for_file(file_id) if _ranges_overlap(import_handle.range, start_byte, end_byte)]
+
     def exports_for_file(self, file_id: int) -> list[RustCompactExport]:
         if self._export_handles is None and hasattr(self.index, "exports_for_file_json"):
             if self._exports_by_file_id is None:
@@ -898,6 +937,31 @@ class RustIndexBackend:
             if key in self._exports_by_file_id_and_name:
                 return self._exports_by_file_id_and_name[key]
         return [export_handle for export_handle in self.exports_for_file(file_id) if export_handle.name == name]
+
+    def exports_for_file_by_byte_range(self, file_id: int, start_byte: int, end_byte: int) -> list[RustCompactExport]:
+        if self.summary.exports == 0:
+            return []
+        if self._export_handles is None and hasattr(self.index, "exports_for_file_by_byte_range_json"):
+            if self._exports_by_file_id_and_byte_range is None:
+                self._exports_by_file_id_and_byte_range = {}
+            key = (file_id, start_byte, end_byte)
+            if key not in self._exports_by_file_id_and_byte_range:
+                records = self._records_from_json_method("exports_for_file_by_byte_range_json", RustExportRecord.from_dict, file_id, start_byte, end_byte)
+                if records is not None:
+                    self._exports_by_file_id_and_byte_range[key] = [self._export_handle_from_record(record) for record in records]
+                else:
+                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+            if key in self._exports_by_file_id_and_byte_range:
+                return self._exports_by_file_id_and_byte_range[key]
+        return [export_handle for export_handle in self.exports_for_file(file_id) if _ranges_overlap(export_handle.range, start_byte, end_byte)]
+
+    def nodes_for_file_by_byte_range(self, file_id: int, start_byte: int, end_byte: int) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
+        nodes: list[RustCompactImport | RustCompactExport | RustCompactSymbol] = [
+            *self.imports_for_file_by_byte_range(file_id, start_byte, end_byte),
+            *self.exports_for_file_by_byte_range(file_id, start_byte, end_byte),
+            *self.symbols_for_file_by_byte_range(file_id, start_byte, end_byte),
+        ]
+        return sorted(nodes, key=lambda node: (node.start_byte, node.end_byte, int(node.node_type), node.node_id))
 
     def file_handle_by_id(self, file_id: int) -> RustCompactFile | None:
         if self._file_handles is None and hasattr(self.index, "file_by_id_json"):
@@ -1892,7 +1956,7 @@ class RustCompactFile(RustCompactHandle):
 
     def find_by_byte_range(self, range: Any) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
         start_byte, end_byte = _byte_range_bounds(range)
-        return [node for node in self.get_nodes() if _ranges_overlap(node.range, start_byte, end_byte)]
+        return self.backend.nodes_for_file_by_byte_range(self.record.id, start_byte, end_byte)
 
     @property
     def descendant_symbols(self) -> list[RustCompactImport | RustCompactExport | RustCompactSymbol]:
