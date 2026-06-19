@@ -35,12 +35,12 @@ EXPECTED_SUMMARY = {
     "classes": 5665,
     "functions": 34535,
     "global_variables": 12139,
-    "imports": 40580,
-    "import_resolutions": 19011,
-    "external_modules": 17880,
-    "references": 109817,
-    "external_references": 74583,
-    "dependencies": 71932,
+    "imports": 45404,
+    "import_resolutions": 21930,
+    "external_modules": 19785,
+    "references": 117799,
+    "external_references": 78784,
+    "dependencies": 77570,
     "bytes": 36617627,
     "lines": 924514,
     "files_with_errors": 0,
@@ -52,13 +52,13 @@ EXPECTED_RECORDS = {
     "rust_classes": 5665,
     "rust_functions": 34535,
     "rust_global_vars": 12139,
-    "rust_imports": 40580,
-    "rust_import_resolutions": 19011,
-    "rust_external_modules": 17880,
+    "rust_imports": 45404,
+    "rust_import_resolutions": 21930,
+    "rust_external_modules": 19785,
     "rust_exports": 0,
-    "rust_references": 109817,
-    "rust_external_references": 74583,
-    "rust_dependencies": 71932,
+    "rust_references": 117799,
+    "rust_external_references": 78784,
+    "rust_dependencies": 77570,
     "rust_subclass_edges": 0,
 }
 
@@ -70,8 +70,8 @@ EXPECTED_COMPAT_HANDLES = {
     "global_vars": 12139,
     "interfaces": 0,
     "types": 0,
-    "imports": 40580,
-    "external_modules": 17880,
+    "imports": 45404,
+    "external_modules": 19785,
 }
 
 EXPECTED_KNOWN_LOOKUPS = {
@@ -96,6 +96,34 @@ EXPECTED_KNOWN_LOOKUPS = {
             "kind": "function",
             "name": "__getattr__",
         }
+    ],
+}
+
+EXPECTED_KNOWN_DEPENDENCIES = {
+    "airflow_init_getattr_dependencies": [
+        {
+            "filepath": "airflow/__init__.py",
+            "name": "importlib",
+            "node_type": "IMPORT",
+            "source": "import importlib",
+        },
+        {
+            "filepath": "airflow/__init__.py",
+            "name": "sys",
+            "node_type": "IMPORT",
+            "source": "import sys",
+        },
+        {
+            "filepath": "airflow/__init__.py",
+            "name": "warnings",
+            "node_type": "IMPORT",
+            "source": "import warnings",
+        },
+        {
+            "filepath": "airflow/__init__.py",
+            "name": "__lazy_imports",
+            "node_type": "SYMBOL",
+        },
     ],
 }
 
@@ -144,6 +172,28 @@ def known_lookup_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
             handle_signature(handle)
             for handle in init_file.find_by_byte_range({"start_byte": 4169, "end_byte": 4183})
         ],
+    }
+
+
+def dependency_signature(handle: Any) -> dict[str, Any]:
+    node_type = getattr(handle, "node_type", None)
+    signature = {
+        "filepath": handle.filepath,
+        "name": handle.name,
+        "node_type": getattr(node_type, "name", str(node_type)),
+    }
+    if signature["node_type"] == "IMPORT":
+        signature["source"] = handle.source
+    return signature
+
+
+def known_dependency_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
+    getattr_function = codebase.get_file("airflow/__init__.py").get_function("__getattr__")
+    return {
+        "airflow_init_getattr_dependencies": sorted(
+            (dependency_signature(handle) for handle in getattr_function.dependencies),
+            key=lambda item: (item["node_type"], item["name"], item["filepath"], item.get("source", "")),
+        )
     }
 
 
@@ -213,6 +263,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "external_modules": len(codebase.external_modules),
     }
     known_lookups = known_lookup_report(codebase)
+    known_dependencies = known_dependency_report(codebase)
 
     totals = {
         "wall_seconds": round(wall, 6),
@@ -243,6 +294,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "records": record_counts,
         "compat_handles": compat_counts,
         "known_lookups": known_lookups,
+        "known_dependencies": known_dependencies,
         "comparison": comparison,
     }
     validate_report(report, args)
@@ -266,6 +318,8 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
         compare_counts("compat_handles", report["compat_handles"], EXPECTED_COMPAT_HANDLES, failures)
         if report["known_lookups"] != EXPECTED_KNOWN_LOOKUPS:
             failures.append("known byte-range lookup results drifted")
+        if report["known_dependencies"] != EXPECTED_KNOWN_DEPENDENCIES:
+            failures.append("known dependency results drifted")
 
     totals = report["totals"]
     comparison = report["comparison"]

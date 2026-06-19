@@ -3425,6 +3425,7 @@ fn extract_python_file(
     for child in root.named_children(&mut cursor) {
         extract_top_level_node(file_id, source, child, index, &mut excluded_name_ranges);
     }
+    collect_nested_python_imports(file_id, source, root, index, true);
     let symbol_ranges = index
         .symbols
         .iter()
@@ -3513,6 +3514,32 @@ fn extract_top_level_node(
             }
         }
         _ => {}
+    }
+}
+
+fn collect_nested_python_imports(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut PythonIndex,
+    is_root: bool,
+) {
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        if !is_root {
+            match child.kind() {
+                "import_statement" => {
+                    push_import_statement(file_id, source, child, index);
+                    continue;
+                }
+                "import_from_statement" | "future_import_statement" => {
+                    push_from_import_statement(file_id, source, child, index);
+                    continue;
+                }
+                _ => {}
+            }
+        }
+        collect_nested_python_imports(file_id, source, child, index, false);
     }
 }
 
@@ -3883,16 +3910,6 @@ fn collect_local_bindings_from_node(
             push_match_pattern_binding_targets(source, node, symbol_ranges, bindings);
         }
         "import_statement" | "import_from_statement" | "future_import_statement" => {
-            if let Some(source_symbol_id) =
-                innermost_symbol_for_range(symbol_ranges, node.range().into())
-            {
-                for binding in local_import_binding_names(source, node) {
-                    bindings
-                        .entry(source_symbol_id)
-                        .or_default()
-                        .insert(binding);
-                }
-            }
             return;
         }
         _ => {}
@@ -4166,50 +4183,6 @@ fn push_local_binding_names(
             .or_default()
             .insert(name.to_owned());
     }
-}
-
-fn local_import_binding_names(source: &str, node: Node<'_>) -> Vec<String> {
-    match node.kind() {
-        "import_statement" => plain_import_binding_names(node_text(source, node)),
-        "import_from_statement" | "future_import_statement" => {
-            from_import_binding_names(node_text(source, node))
-        }
-        _ => Vec::new(),
-    }
-}
-
-fn plain_import_binding_names(text: &str) -> Vec<String> {
-    text.trim()
-        .trim_start_matches("import")
-        .split(',')
-        .map(str::trim)
-        .filter(|part| !part.is_empty())
-        .filter_map(|part| {
-            let (name, alias) = split_alias(part);
-            alias
-                .map(str::to_owned)
-                .or_else(|| name.split('.').next().map(str::to_owned))
-        })
-        .collect()
-}
-
-fn from_import_binding_names(text: &str) -> Vec<String> {
-    let stripped = text.trim();
-    let Some(after_from) = stripped.strip_prefix("from ") else {
-        return Vec::new();
-    };
-    let Some((_, names)) = after_from.split_once(" import ") else {
-        return Vec::new();
-    };
-    names
-        .split(',')
-        .map(str::trim)
-        .filter(|part| !part.is_empty() && *part != "*")
-        .map(|part| {
-            let (name, alias) = split_alias(part);
-            alias.unwrap_or(name).to_owned()
-        })
-        .collect()
 }
 
 fn collect_identifier_candidates(
@@ -4724,6 +4697,7 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         .collect();
     let exported_symbols_by_file = python_exported_symbols_by_file(index);
     let mut imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
+    let mut local_imported_symbol_by_binding: HashMap<(u32, String), (u32, u32)> = HashMap::new();
     let mut imported_module_by_qualifier: HashMap<(u32, String), (u32, u32)> = HashMap::new();
     let mut imported_module_prefix_by_binding: HashMap<(u32, String), (String, u32)> =
         HashMap::new();
@@ -4733,11 +4707,21 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         .map(|external_module| external_module.import_id)
         .collect();
     let mut external_import_by_binding: HashMap<(u32, String), u32> = HashMap::new();
+    let mut local_external_import_by_binding: HashMap<(u32, String), u32> = HashMap::new();
+    let symbol_ranges_by_file: HashMap<u32, Vec<(u32, SourceRange)>> =
+        symbol_ranges_by_file(&index.symbols);
 
     for import in &index.imports {
+        let import_source_symbol_id = symbol_ranges_by_file
+            .get(&import.file_id)
+            .and_then(|symbol_ranges| innermost_symbol_for_range(symbol_ranges, import.range));
         if external_import_ids.contains(&import.id) {
             if let Some(binding) = import_binding_name(import) {
-                external_import_by_binding.insert((import.file_id, binding), import.id);
+                if let Some(source_symbol_id) = import_source_symbol_id {
+                    local_external_import_by_binding.insert((source_symbol_id, binding), import.id);
+                } else {
+                    external_import_by_binding.insert((import.file_id, binding), import.id);
+                }
             }
         }
         if let Some(source_file) = index.files.get(import.file_id as usize) {
@@ -4783,7 +4767,13 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
         let Some(binding) = import_binding_name(import) else {
             continue;
         };
-        imported_symbol_by_binding.insert((import.file_id, binding), (target_symbol_id, import.id));
+        if let Some(source_symbol_id) = import_source_symbol_id {
+            local_imported_symbol_by_binding
+                .insert((source_symbol_id, binding), (target_symbol_id, import.id));
+        } else {
+            imported_symbol_by_binding
+                .insert((import.file_id, binding), (target_symbol_id, import.id));
+        }
     }
 
     let mut references = Vec::new();
@@ -4809,6 +4799,17 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
                     )
                 })
         } else {
+            let local_external_import_id =
+                candidate.source_symbol_id.and_then(|source_symbol_id| {
+                    local_external_import_by_binding
+                        .get(&(source_symbol_id, candidate.name.clone()))
+                        .copied()
+                });
+            let local_imported_target = candidate.source_symbol_id.and_then(|source_symbol_id| {
+                local_imported_symbol_by_binding
+                    .get(&(source_symbol_id, candidate.name.clone()))
+                    .copied()
+            });
             let imported_target = imported_symbol_by_binding
                 .get(&(candidate.source_file_id, candidate.name.clone()))
                 .copied();
@@ -4816,20 +4817,32 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
                 .get(&(candidate.source_file_id, candidate.name.as_str()))
                 .copied()
                 .map(|symbol_id| (symbol_id, None));
-            imported_target
-                .map(|(symbol_id, import_id)| (symbol_id, Some(import_id)))
-                .or(same_file_target)
+            if local_external_import_id.is_some() {
+                None
+            } else {
+                local_imported_target
+                    .or(imported_target)
+                    .map(|(symbol_id, import_id)| (symbol_id, Some(import_id)))
+                    .or(same_file_target)
+            }
         };
         let Some((target_symbol_id, import_id)) = resolved_target else {
             if candidate.qualifier.is_none() {
-                if let Some(import_id) = external_import_by_binding
-                    .get(&(candidate.source_file_id, candidate.name.clone()))
-                {
+                let local_import_id = candidate.source_symbol_id.and_then(|source_symbol_id| {
+                    local_external_import_by_binding
+                        .get(&(source_symbol_id, candidate.name.clone()))
+                        .copied()
+                });
+                if let Some(import_id) = local_import_id.or_else(|| {
+                    external_import_by_binding
+                        .get(&(candidate.source_file_id, candidate.name.clone()))
+                        .copied()
+                }) {
                     external_references.push(ExternalReferenceRecord {
                         id: external_references.len() as u32,
                         source_file_id: candidate.source_file_id,
                         source_symbol_id: candidate.source_symbol_id,
-                        import_id: *import_id,
+                        import_id,
                         name: candidate.name,
                         range: candidate.range,
                     });
@@ -4853,6 +4866,17 @@ fn resolve_python_references(index: &mut PythonIndex, candidates: Vec<ReferenceC
     }
     index.references = references;
     index.external_references = external_references;
+}
+
+fn symbol_ranges_by_file(symbols: &[SymbolRecord]) -> HashMap<u32, Vec<(u32, SourceRange)>> {
+    let mut ranges_by_file: HashMap<u32, Vec<(u32, SourceRange)>> = HashMap::new();
+    for symbol in symbols {
+        ranges_by_file
+            .entry(symbol.file_id)
+            .or_default()
+            .push((symbol.id, symbol.range));
+    }
+    ranges_by_file
 }
 
 fn internal_python_module_prefixes(files: &[FileRecord]) -> HashSet<String> {
@@ -5265,6 +5289,45 @@ mod tests {
         assert_eq!(reference.import_id, import.id);
         assert_eq!(reference.name, "requests");
         assert_eq!(reference.range.start_row, 3);
+        assert_eq!(reference.range.start_column, 11);
+    }
+
+    #[test]
+    fn resolves_python_function_local_external_import_references() {
+        let repo = temp_repo_path("python-local-external-import-references");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "def load(name):\n    import importlib\n    return importlib.import_module(name)\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        assert_eq!(index.summary().files, 1);
+        assert_eq!(index.summary().imports, 1);
+        assert_eq!(index.external_modules.len(), 1);
+        assert_eq!(index.summary().references, 0);
+        assert_eq!(index.summary().dependencies, 0);
+        assert_eq!(index.external_references.len(), 1);
+
+        let import = index
+            .imports
+            .iter()
+            .find(|import| import.name.as_deref() == Some("importlib"))
+            .unwrap();
+        let load = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "load")
+            .unwrap();
+        let reference = &index.external_references[0];
+
+        assert_eq!(reference.source_symbol_id, Some(load.id));
+        assert_eq!(reference.import_id, import.id);
+        assert_eq!(reference.name, "importlib");
+        assert_eq!(reference.range.start_row, 2);
         assert_eq!(reference.range.start_column, 11);
     }
 
