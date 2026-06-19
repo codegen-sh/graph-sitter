@@ -105,6 +105,7 @@ def import_signature(imp: Any) -> dict[str, Any]:
 
 def import_target_signature(imp: Any) -> dict[str, Any]:
     return {
+        "source": imp.source,
         "name": imp.name,
         "from_file": None if imp.from_file is None else imp.from_file.filepath,
         "resolved_symbol": node_signature(imp.resolved_symbol),

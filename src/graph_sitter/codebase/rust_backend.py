@@ -2205,6 +2205,8 @@ class RustCompactImport(RustCompactHandle):
 
     @property
     def source(self) -> str:
+        if _is_typescript_like_extension(self.file.extension):
+            return self._statement_line()[0]
         return self.file.content_bytes[self.start_byte : self.end_byte].decode("utf-8")
 
     @property

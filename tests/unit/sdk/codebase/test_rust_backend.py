@@ -1839,6 +1839,8 @@ def test_codebase_context_builds_opt_in_typescript_rust_index(monkeypatch, tmp_p
         assert app_file.named_exports == [run_export]
         assert app_file.default_exports == []
         assert app_file.export_statements == [run_export]
+        assert app_file.get_import("helper").source == "import { helper } from './util';"
+        assert app_file.get_import("helper").import_statement.source == "import { helper } from './util';"
         assert run_export.exported_symbol == run
         assert run_export.resolved_symbol == run
         assert run_export.declared_symbol == run
