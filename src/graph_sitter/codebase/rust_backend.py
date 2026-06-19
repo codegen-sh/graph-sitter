@@ -254,6 +254,34 @@ class RustExternalReferenceRecord:
 
 
 @dataclass(frozen=True)
+class RustFunctionCallRecord:
+    id: int
+    source_file_id: int
+    source_symbol_id: int | None
+    target_symbol_id: int | None
+    import_id: int | None
+    name: str
+    range: RustSourceRange
+    name_range: RustSourceRange
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustFunctionCallRecord:
+        source_symbol_id = data["source_symbol_id"]
+        target_symbol_id = data["target_symbol_id"]
+        import_id = data["import_id"]
+        return cls(
+            id=int(data["id"]),
+            source_file_id=int(data["source_file_id"]),
+            source_symbol_id=None if source_symbol_id is None else int(source_symbol_id),
+            target_symbol_id=None if target_symbol_id is None else int(target_symbol_id),
+            import_id=None if import_id is None else int(import_id),
+            name=str(data["name"]),
+            range=RustSourceRange.from_dict(data["range"]),
+            name_range=RustSourceRange.from_dict(data["name_range"]),
+        )
+
+
+@dataclass(frozen=True)
 class RustDependencyRecord:
     id: int
     source_symbol_id: int
@@ -347,6 +375,7 @@ class RustIndexBackend:
     _exports: list[RustExportRecord] | None = None
     _references: list[RustReferenceRecord] | None = None
     _external_references: list[RustExternalReferenceRecord] | None = None
+    _function_calls: list[RustFunctionCallRecord] | None = None
     _dependencies: list[RustDependencyRecord] | None = None
     _subclass_edges: list[RustSubclassRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
@@ -354,12 +383,14 @@ class RustIndexBackend:
     _import_handles: list[RustCompactImport] | None = None
     _external_module_handles: list[RustCompactExternalModule] | None = None
     _export_handles: list[RustCompactExport] | None = None
+    _function_call_handles: list[RustCompactFunctionCall] | None = None
     _file_handles_by_id: dict[int, RustCompactFile] | None = None
     _file_handles_by_path: dict[str, RustCompactFile] | None = None
     _symbol_handles_by_id: dict[int, RustCompactSymbol] | None = None
     _import_handles_by_id: dict[int, RustCompactImport] | None = None
     _external_module_handles_by_import_id: dict[int, RustCompactExternalModule] | None = None
     _export_handles_by_id: dict[int, RustCompactExport] | None = None
+    _function_call_handles_by_id: dict[int, RustCompactFunctionCall] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
     _symbols_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactSymbol]] | None = None
     _imports_by_file_id_and_lookup: dict[tuple[int, str], list[RustCompactImport]] | None = None
@@ -379,6 +410,8 @@ class RustIndexBackend:
     _references_by_id: dict[int, RustReferenceRecord] | None = None
     _external_references_by_source_symbol_id: dict[int, list[RustExternalReferenceRecord]] | None = None
     _external_references_by_import_id: dict[int, list[RustExternalReferenceRecord]] | None = None
+    _function_calls_by_file_id: dict[int, list[RustCompactFunctionCall]] | None = None
+    _function_calls_by_source_symbol_id: dict[int, list[RustCompactFunctionCall]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
@@ -578,6 +611,16 @@ class RustIndexBackend:
         self._export_handles_by_id[record.id] = handle
         return handle
 
+    def _function_call_handle_from_record(self, record: RustFunctionCallRecord) -> RustCompactFunctionCall:
+        if self._function_call_handles_by_id is None:
+            self._function_call_handles_by_id = {}
+        handle = self._function_call_handles_by_id.get(record.id)
+        if handle is None:
+            handle = RustCompactFunctionCall(self, record)
+        self._bind_handle(handle)
+        self._function_call_handles_by_id[record.id] = handle
+        return handle
+
     def compact_record_counts(self) -> dict[str, int]:
         return {
             "rust_files": self.summary.files,
@@ -700,6 +743,16 @@ class RustIndexBackend:
         return self._external_references
 
     @property
+    def function_calls(self) -> list[RustFunctionCallRecord]:
+        if self._function_calls is None:
+            function_calls_json = getattr(self.index, "function_calls_json", None)
+            if function_calls_json is None:
+                self._function_calls = []
+            else:
+                self._function_calls = [RustFunctionCallRecord.from_dict(record) for record in json.loads(function_calls_json())]
+        return self._function_calls
+
+    @property
     def dependencies(self) -> list[RustDependencyRecord]:
         if self._dependencies is None:
             self._dependencies = [RustDependencyRecord.from_dict(record) for record in json.loads(self.index.dependencies_json())]
@@ -761,10 +814,16 @@ class RustIndexBackend:
             self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
         return self._export_handles
 
+    @property
+    def function_call_handles(self) -> list[RustCompactFunctionCall]:
+        if self._function_call_handles is None:
+            self._function_call_handles = [self._function_call_handle_from_record(record) for record in self.function_calls]
+        return self._function_call_handles
+
     def bind_context(self, ctx: CodebaseContext) -> None:
         self._ctx = ctx
         directory_handles = list(self._directory_handles_by_path.values()) if self._directory_handles_by_path is not None else None
-        for handles in (self._file_handles, self._symbol_handles, self._import_handles, self._external_module_handles, self._export_handles, directory_handles):
+        for handles in (self._file_handles, self._symbol_handles, self._import_handles, self._external_module_handles, self._export_handles, self._function_call_handles, directory_handles):
             if handles is None:
                 continue
             for handle in handles:
@@ -776,6 +835,7 @@ class RustIndexBackend:
             self._import_handles_by_id,
             self._external_module_handles_by_import_id,
             self._export_handles_by_id,
+            self._function_call_handles_by_id,
         ):
             if handles_by_key is None:
                 continue
@@ -885,6 +945,8 @@ class RustIndexBackend:
             self._imports_by_file_id[record.id] = []
         if self._exports_by_file_id is not None:
             self._exports_by_file_id[record.id] = []
+        if self._function_calls_by_file_id is not None:
+            self._function_calls_by_file_id[record.id] = []
         self._invalidate_directory_handles()
         return file
 
@@ -934,6 +996,8 @@ class RustIndexBackend:
             self._references = [reference for reference in self._references if reference.source_file_id != file_id]
         if self._external_references is not None:
             self._external_references = [reference for reference in self._external_references if reference.source_file_id != file_id]
+        if self._function_calls is not None:
+            self._function_calls = [call for call in self._function_calls if call.source_file_id != file_id]
         if self._dependencies is not None:
             self._dependencies = [dependency for dependency in self._dependencies if dependency.source_file_id != file_id and dependency.target_file_id != file_id]
         if self._subclass_edges is not None:
@@ -944,8 +1008,10 @@ class RustIndexBackend:
         self._import_handles = None
         self._external_module_handles = None
         self._export_handles = None
+        self._function_call_handles = None
         self._external_module_handles_by_import_id = None
         self._export_handles_by_id = None
+        self._function_call_handles_by_id = None
         self._symbols_by_file_id = None
         self._symbols_by_file_id_and_byte_range = None
         self._imports_by_file_id_and_lookup = None
@@ -965,6 +1031,8 @@ class RustIndexBackend:
         self._references_by_id = None
         self._external_references_by_source_symbol_id = None
         self._external_references_by_import_id = None
+        self._function_calls_by_file_id = None
+        self._function_calls_by_source_symbol_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
         self._subclass_edges_by_source_symbol_id = None
@@ -1556,6 +1624,56 @@ class RustIndexBackend:
             self._external_references_by_import_id = references_by_import_id
         return self._external_references_by_import_id.get(import_id, [])
 
+    def function_call_by_id(self, call_id: int) -> RustCompactFunctionCall | None:
+        if self._function_call_handles is None and hasattr(self.index, "function_call_by_id_json"):
+            if self._function_call_handles_by_id is None:
+                self._function_call_handles_by_id = {}
+            if call_id not in self._function_call_handles_by_id:
+                record = self._record_from_json_method("function_call_by_id_json", RustFunctionCallRecord.from_dict, call_id)
+                if record is not None:
+                    return self._function_call_handle_from_record(record)
+                return None
+            if call_id in self._function_call_handles_by_id:
+                return self._function_call_handles_by_id[call_id]
+        if self._function_call_handles_by_id is None:
+            self._function_call_handles_by_id = {call.record.id: call for call in self.function_call_handles}
+        return self._function_call_handles_by_id.get(call_id)
+
+    def function_calls_for_file(self, file_id: int) -> list[RustCompactFunctionCall]:
+        if self._function_call_handles is None and hasattr(self.index, "function_calls_for_file_json"):
+            if self._function_calls_by_file_id is None:
+                self._function_calls_by_file_id = {}
+            if file_id not in self._function_calls_by_file_id:
+                records = self._records_from_json_method("function_calls_for_file_json", RustFunctionCallRecord.from_dict, file_id)
+                if records is not None:
+                    self._function_calls_by_file_id[file_id] = [self._function_call_handle_from_record(record) for record in records]
+            if file_id in self._function_calls_by_file_id:
+                return self._function_calls_by_file_id[file_id]
+        if self._function_calls_by_file_id is None:
+            calls_by_file_id: dict[int, list[RustCompactFunctionCall]] = {}
+            for call in self.function_call_handles:
+                calls_by_file_id.setdefault(call.record.source_file_id, []).append(call)
+            self._function_calls_by_file_id = calls_by_file_id
+        return self._function_calls_by_file_id.get(file_id, [])
+
+    def function_calls_for_symbol(self, symbol_id: int) -> list[RustCompactFunctionCall]:
+        if self._function_call_handles is None and hasattr(self.index, "function_calls_for_symbol_json"):
+            if self._function_calls_by_source_symbol_id is None:
+                self._function_calls_by_source_symbol_id = {}
+            if symbol_id not in self._function_calls_by_source_symbol_id:
+                records = self._records_from_json_method("function_calls_for_symbol_json", RustFunctionCallRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._function_calls_by_source_symbol_id[symbol_id] = [self._function_call_handle_from_record(record) for record in records]
+            if symbol_id in self._function_calls_by_source_symbol_id:
+                return self._function_calls_by_source_symbol_id[symbol_id]
+        if self._function_calls_by_source_symbol_id is None:
+            calls_by_source_symbol_id: dict[int, list[RustCompactFunctionCall]] = {}
+            for call in self.function_call_handles:
+                if call.record.source_symbol_id is not None:
+                    calls_by_source_symbol_id.setdefault(call.record.source_symbol_id, []).append(call)
+            self._function_calls_by_source_symbol_id = calls_by_source_symbol_id
+        return self._function_calls_by_source_symbol_id.get(symbol_id, [])
+
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies is None and hasattr(self.index, "dependencies_from_symbol_json"):
             if self._dependencies_by_source_symbol_id is None:
@@ -2104,6 +2222,79 @@ class RustCompactHandle:
         return self.ctx.transaction_manager
 
 
+class RustCompactFunctionCall(RustCompactHandle):
+    node_type = NodeType.EXPRESSION
+
+    def __init__(self, backend: RustIndexBackend, record: RustFunctionCallRecord) -> None:
+        self.record = record
+        self.name = record.name
+        self._name_node = RustCompactName(record.name)
+        super().__init__(backend, record.id, record.range)
+
+    def __repr__(self) -> str:
+        return f"RustCompactFunctionCall(name={self.name!r}, filepath={self.filepath!r})"
+
+    @property
+    def file(self) -> RustCompactFile:
+        file = self.backend.file_handle_by_id(self.record.source_file_id)
+        if file is None:
+            msg = f"Rust compact function call {self.record.id} references missing file {self.record.source_file_id}"
+            raise RuntimeError(msg)
+        return file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def source(self) -> str:
+        return self.file.content_bytes[self.start_byte : self.end_byte].decode("utf-8")
+
+    @property
+    def full_name(self) -> str:
+        return self.name
+
+    @property
+    def parent_symbol(self) -> RustCompactSymbol | RustCompactFile:
+        if self.record.source_symbol_id is not None:
+            symbol = self.backend.symbol_handle_by_id(self.record.source_symbol_id)
+            if symbol is not None:
+                return symbol
+        return self.file
+
+    @property
+    def parent(self) -> RustCompactSymbol | RustCompactFile:
+        return self.parent_symbol
+
+    @property
+    def parent_function(self) -> RustCompactSymbol | None:
+        parent = self.parent_symbol
+        return parent if isinstance(parent, RustCompactSymbol) and parent.symbol_type == SymbolType.Function else None
+
+    @property
+    def function_definition(self) -> RustCompactSymbol | RustCompactExternalModule | RustCompactImport | None:
+        if self.record.target_symbol_id is not None:
+            return self.backend.symbol_handle_by_id(self.record.target_symbol_id)
+        if self.record.import_id is not None:
+            external_module = self.backend.external_module_for_import(self.record.import_id)
+            if external_module is not None:
+                return external_module
+            return self.backend.import_handle_by_id(self.record.import_id)
+        return None
+
+    @property
+    def resolved_symbol(self) -> RustCompactSymbol | RustCompactExternalModule | RustCompactImport | None:
+        return self.function_definition
+
+    @property
+    def function_definitions(self) -> list[RustCompactSymbol | RustCompactExternalModule | RustCompactImport]:
+        definition = self.function_definition
+        return [] if definition is None else [definition]
+
+    def get_name(self) -> RustCompactName:
+        return self._name_node
+
+
 class RustCompactDirectory:
     def __init__(self, backend: RustIndexBackend, record: RustDirectoryRecord) -> None:
         self.backend = backend
@@ -2494,6 +2685,10 @@ class RustCompactFile(RustCompactHandle):
     @property
     def exports(self) -> list[RustCompactExport]:
         return self.backend.exports_for_file(self.record.id)
+
+    @property
+    def function_calls(self) -> list[RustCompactFunctionCall]:
+        return self.backend.function_calls_for_file(self.record.id)
 
     @property
     def import_statements(self) -> list[RustCompactImport]:
@@ -3093,8 +3288,8 @@ class RustCompactSymbol(RustCompactHandle):
         return self.backend.symbols_for_parent(self.record.id)
 
     @property
-    def function_calls(self) -> list[object]:
-        return []
+    def function_calls(self) -> list[RustCompactFunctionCall]:
+        return self.backend.function_calls_for_symbol(self.record.id)
 
     @property
     def is_exported(self) -> bool:

@@ -352,6 +352,7 @@ pub struct TypeScriptIndex {
     pub exports: Vec<ExportRecord>,
     pub references: Vec<ReferenceRecord>,
     pub external_references: Vec<ExternalReferenceRecord>,
+    pub function_calls: Vec<FunctionCallRecord>,
     pub dependencies: Vec<DependencyRecord>,
     pub subclass_edges: Vec<SubclassRecord>,
     #[serde(skip)]
@@ -639,6 +640,18 @@ pub struct ExternalReferenceRecord {
     pub import_id: u32,
     pub name: InternedString,
     pub range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct FunctionCallRecord {
+    pub id: u32,
+    pub source_file_id: u32,
+    pub source_symbol_id: Option<u32>,
+    pub target_symbol_id: Option<u32>,
+    pub import_id: Option<u32>,
+    pub name: InternedString,
+    pub range: SourceRange,
+    pub name_range: SourceRange,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -964,6 +977,7 @@ struct ReferenceCandidate {
     qualifier: Option<String>,
     range: SourceRange,
     is_subclass: bool,
+    call_range: Option<SourceRange>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1170,6 +1184,7 @@ impl TypeScriptIndexer {
             exports: Vec::new(),
             references: Vec::new(),
             external_references: Vec::new(),
+            function_calls: Vec::new(),
             dependencies: Vec::new(),
             subclass_edges: Vec::new(),
             strings: StringInterner::default(),
@@ -2868,6 +2883,54 @@ fn collect_typescript_identifier_candidates(
         | "extends_clause"
         | "implements_clause"
         | "extends_type_clause" => return,
+        "call_expression" => {
+            let function_node = node.child_by_field_name("function");
+            if let Some(function_node) = function_node {
+                push_typescript_call_reference_candidate(
+                    file_id,
+                    source,
+                    node,
+                    function_node,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+                collect_typescript_call_function_operands(
+                    file_id,
+                    source,
+                    function_node,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+
+            let function_range = function_node.map(|function| SourceRange::from(function.range()));
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                if function_range.is_some_and(|range| SourceRange::from(child.range()) == range) {
+                    continue;
+                }
+                collect_typescript_identifier_candidates(
+                    file_id,
+                    source,
+                    child,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+            return;
+        }
         "member_expression" => {
             if let (Some(object), Some(property)) = (
                 node.child_by_field_name("object"),
@@ -2897,6 +2960,7 @@ fn collect_typescript_identifier_candidates(
                                 qualifier: Some(qualifier.to_owned()),
                                 range,
                                 is_subclass: false,
+                                call_range: None,
                             });
                         }
                     }
@@ -2939,6 +3003,7 @@ fn collect_typescript_identifier_candidates(
                     qualifier: None,
                     range,
                     is_subclass: false,
+                    call_range: None,
                 });
             }
         }
@@ -2958,6 +3023,183 @@ fn collect_typescript_identifier_candidates(
             out,
         );
     }
+}
+
+fn collect_typescript_call_function_operands(
+    file_id: u32,
+    source: &str,
+    function_node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    match function_node.kind() {
+        "member_expression" => {
+            if let Some(object) = function_node.child_by_field_name("object") {
+                collect_typescript_identifier_candidates(
+                    file_id,
+                    source,
+                    object,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+        }
+        "call_expression" => {
+            collect_typescript_identifier_candidates(
+                file_id,
+                source,
+                function_node,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                indexed_local_symbols,
+                out,
+            );
+        }
+        "identifier" => {}
+        _ => {
+            let mut cursor = function_node.walk();
+            for child in function_node.named_children(&mut cursor) {
+                collect_typescript_identifier_candidates(
+                    file_id,
+                    source,
+                    child,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+        }
+    }
+}
+
+fn push_typescript_call_reference_candidate(
+    file_id: u32,
+    source: &str,
+    call_node: Node<'_>,
+    function_node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    match function_node.kind() {
+        "identifier" | "property_identifier" | "private_property_identifier" => {
+            push_typescript_named_call_reference_candidate(
+                file_id,
+                source,
+                call_node.range().into(),
+                function_node,
+                None,
+                function_node,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                indexed_local_symbols,
+                out,
+            );
+        }
+        "member_expression" => {
+            let (Some(object), Some(property)) = (
+                function_node.child_by_field_name("object"),
+                function_node.child_by_field_name("property"),
+            ) else {
+                return;
+            };
+            if !matches!(
+                property.kind(),
+                "identifier" | "property_identifier" | "private_property_identifier"
+            ) {
+                return;
+            }
+            push_typescript_named_call_reference_candidate(
+                file_id,
+                source,
+                call_node.range().into(),
+                property,
+                Some(object),
+                property,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                indexed_local_symbols,
+                out,
+            );
+        }
+        _ => {}
+    }
+}
+
+fn push_typescript_named_call_reference_candidate(
+    file_id: u32,
+    source: &str,
+    call_range: SourceRange,
+    name_node: Node<'_>,
+    qualifier_node: Option<Node<'_>>,
+    shadow_name_node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    let name_range = SourceRange::from(name_node.range());
+    if range_matches_any(name_range, excluded_ranges) {
+        return;
+    }
+    let Ok(name) = name_node.utf8_text(source.as_bytes()) else {
+        return;
+    };
+    let qualifier = qualifier_node.and_then(|qualifier_node| {
+        qualifier_node
+            .utf8_text(source.as_bytes())
+            .ok()
+            .map(|qualifier| qualifier.to_owned())
+    });
+    let source_symbol_id = innermost_symbol_for_range(symbol_ranges, name_range);
+    let shadow_name = qualifier
+        .as_deref()
+        .map(|qualifier| qualifier.split('.').next().unwrap_or(qualifier))
+        .unwrap_or(name);
+    let shadow_range = qualifier_node
+        .map(|qualifier_node| SourceRange::from(qualifier_node.range()))
+        .unwrap_or_else(|| SourceRange::from(shadow_name_node.range()));
+    if typescript_reference_is_shadowed(
+        source_symbol_id,
+        shadow_name,
+        shadow_range,
+        local_bindings_by_symbol_id,
+        local_binding_scopes,
+        indexed_local_symbols,
+    ) {
+        return;
+    }
+    out.push(ReferenceCandidate {
+        source_file_id: file_id,
+        source_symbol_id,
+        name: name.to_owned(),
+        qualifier,
+        range: name_range,
+        is_subclass: false,
+        call_range: Some(call_range),
+    });
 }
 
 fn collect_typescript_type_reference_candidates(
@@ -3083,6 +3325,7 @@ fn push_typescript_type_reference_candidate(
             qualifier: None,
             range,
             is_subclass: false,
+            call_range: None,
         });
     }
 }
@@ -3132,6 +3375,7 @@ fn push_typescript_nested_type_reference_candidate(
             qualifier: Some(qualifier.to_owned()),
             range,
             is_subclass,
+            call_range: None,
         });
     }
 }
@@ -3239,6 +3483,7 @@ fn push_typescript_heritage_expression_reference_candidate(
                     qualifier: None,
                     range,
                     is_subclass: true,
+                    call_range: None,
                 });
             }
         }
@@ -3276,6 +3521,7 @@ fn push_typescript_heritage_expression_reference_candidate(
                     qualifier: Some(qualifier.to_owned()),
                     range,
                     is_subclass: true,
+                    call_range: None,
                 });
             }
         }
@@ -3319,6 +3565,7 @@ fn push_typescript_heritage_type_reference_candidate(
                     qualifier: None,
                     range,
                     is_subclass: true,
+                    call_range: None,
                 });
             }
         }
@@ -3371,6 +3618,7 @@ fn push_typescript_heritage_type_reference_candidate(
                     qualifier: Some(qualifier.to_owned()),
                     range,
                     is_subclass: true,
+                    call_range: None,
                 });
             }
         }
@@ -3908,6 +4156,7 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
     let indexed_local_symbols = IndexedLocalSymbols::from_symbols(index.symbols.iter());
     let mut references = Vec::new();
     let mut external_references = Vec::new();
+    let mut function_calls = Vec::new();
     let mut subclass_edges = Vec::new();
     let mut subclass_edge_pairs = HashSet::new();
     for candidate in candidates {
@@ -3943,11 +4192,13 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
                 .or(same_file_target))
         };
         let Some((target_symbol_id, import_id)) = resolved_target else {
+            let mut call_import_id = None;
             if candidate.qualifier.is_none() {
                 if let Some(import_id) = external_import_by_binding
                     .get(&(candidate.source_file_id, candidate.name.clone()))
                 {
                     let name = strings.intern(&candidate.name);
+                    call_import_id = Some(*import_id);
                     external_references.push(ExternalReferenceRecord {
                         id: external_references.len() as u32,
                         source_file_id: candidate.source_file_id,
@@ -3957,9 +4208,39 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
                         range: candidate.range,
                     });
                 }
+            } else if let Some(qualifier) = candidate.qualifier.as_ref() {
+                call_import_id = external_import_by_binding
+                    .get(&(candidate.source_file_id, qualifier.clone()))
+                    .copied();
+            }
+            if let Some(call_range) = candidate.call_range {
+                let name = strings.intern(&candidate.name);
+                function_calls.push(FunctionCallRecord {
+                    id: function_calls.len() as u32,
+                    source_file_id: candidate.source_file_id,
+                    source_symbol_id: candidate.source_symbol_id,
+                    target_symbol_id: None,
+                    import_id: call_import_id,
+                    name,
+                    range: call_range,
+                    name_range: candidate.range,
+                });
             }
             continue;
         };
+        if let Some(call_range) = candidate.call_range {
+            let name = strings.intern(&candidate.name);
+            function_calls.push(FunctionCallRecord {
+                id: function_calls.len() as u32,
+                source_file_id: candidate.source_file_id,
+                source_symbol_id: candidate.source_symbol_id,
+                target_symbol_id: Some(target_symbol_id),
+                import_id,
+                name,
+                range: call_range,
+                name_range: candidate.range,
+            });
+        }
         if candidate.source_symbol_id == Some(target_symbol_id) {
             continue;
         }
@@ -4000,6 +4281,7 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
     }
     index.references = references;
     index.external_references = external_references;
+    index.function_calls = function_calls;
     index.subclass_edges = subclass_edges;
     index.strings = strings;
 }
@@ -4959,6 +5241,7 @@ fn collect_identifier_candidates(
                             qualifier: Some(qualifier.to_owned()),
                             range,
                             is_subclass: false,
+                            call_range: None,
                         });
                     }
                 }
@@ -5010,6 +5293,7 @@ fn collect_identifier_candidates(
                 qualifier: None,
                 range,
                 is_subclass: false,
+                call_range: None,
             });
         }
     }
@@ -7467,6 +7751,72 @@ export function shadow(localHelper: number) {\n\
             dependency.source_symbol_id == run_symbol_id
                 && dependency.target_symbol_id == helper_symbol_id
                 && dependency.reference_count == 1
+        }));
+    }
+
+    #[test]
+    fn extracts_typescript_function_call_records() {
+        let repo = temp_repo_path("typescript-function-call-records");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/util.ts"),
+            "export function helper(value: number): number { return value; }\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { helper } from './util';\n\n\
+function local(value: number) {\n  return helper(value);\n}\n\n\
+export function run() {\n  local(helper(1));\n  return run();\n}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let helper = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "helper")
+            .unwrap();
+        let local = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "local")
+            .unwrap();
+        let run = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "run")
+            .unwrap();
+
+        assert!(index.function_calls.iter().any(|call| {
+            call.name == "helper"
+                && call.source_symbol_id == Some(local.id)
+                && call.target_symbol_id == Some(helper.id)
+                && call.import_id.is_some()
+        }));
+        assert!(index.function_calls.iter().any(|call| {
+            call.name == "local"
+                && call.source_symbol_id == Some(run.id)
+                && call.target_symbol_id == Some(local.id)
+                && call.import_id.is_none()
+        }));
+        assert!(index.function_calls.iter().any(|call| {
+            call.name == "helper"
+                && call.source_symbol_id == Some(run.id)
+                && call.target_symbol_id == Some(helper.id)
+                && call.import_id.is_some()
+        }));
+        assert!(index.function_calls.iter().any(|call| {
+            call.name == "run"
+                && call.source_symbol_id == Some(run.id)
+                && call.target_symbol_id == Some(run.id)
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run.id)
+                && reference.target_symbol_id == run.id
+                && reference.name == "run"
         }));
     }
 

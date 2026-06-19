@@ -745,6 +745,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn function_calls_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.function_calls)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn dependencies_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.dependencies)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -1122,6 +1127,39 @@ mod bindings {
                 .external_references
                 .iter()
                 .filter(|reference| reference.import_id == import_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn function_call_by_id_json(&self, call_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .function_calls
+                    .iter()
+                    .find(|call| call.id == call_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn function_calls_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .function_calls
+                .iter()
+                .filter(|call| call.source_file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn function_calls_for_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .function_calls
+                .iter()
+                .filter(|call| call.source_symbol_id == Some(symbol_id))
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))

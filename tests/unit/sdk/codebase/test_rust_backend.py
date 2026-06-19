@@ -1266,6 +1266,43 @@ class FakeTypeScriptIndex:
             ]
         )
 
+    def function_calls_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 2,
+                    "target_symbol_id": 3,
+                    "import_id": 0,
+                    "name": "helper",
+                    "range": fake_range(125, 133, 5, 9, 5, 17),
+                    "name_range": fake_range(125, 131, 5, 9, 5, 15),
+                }
+            ]
+        )
+
+    def function_call_by_id_json(self, call_id: int):
+        return json.dumps(next((call for call in json.loads(self.function_calls_json()) if call["id"] == call_id), None))
+
+    def function_calls_for_file_json(self, file_id: int):
+        return json.dumps(
+            [
+                call
+                for call in json.loads(self.function_calls_json())
+                if call["source_file_id"] == file_id
+            ]
+        )
+
+    def function_calls_for_symbol_json(self, symbol_id: int):
+        return json.dumps(
+            [
+                call
+                for call in json.loads(self.function_calls_json())
+                if call["source_symbol_id"] == symbol_id
+            ]
+        )
+
     def dependencies_json(self):
         return json.dumps(
             [
@@ -2306,6 +2343,51 @@ def test_rust_compact_exact_export_lookups_do_not_materialize_all_exports(monkey
         assert backend._exports_by_file_id is None
         assert sorted(backend._symbol_handles_by_id) == [2]
         assert sorted(backend._export_handles_by_id) == [0]
+
+
+def test_rust_compact_typescript_function_calls_do_not_materialize_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "src/app.ts": "import { helper } from './util';\nexport interface Props {}\nexport type Mode = 'on';\nexport function run(): string {\n  return helper();\n}\n",
+            "src/util.ts": "export function helper(): string {\n  return 'ok';\n}\n",
+        },
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        app_file = codebase.get_file("src/app.ts")
+        run = backend.symbol_handle_by_id(2)
+        helper = backend.symbol_handle_by_id(3)
+        assert run is not None
+        assert helper is not None
+
+        calls = app_file.function_calls
+        assert len(calls) == 1
+        call = calls[0]
+        assert call.name == "helper"
+        assert call.source == "helper()"
+        assert call.file == app_file
+        assert call.parent_function == run
+        assert call.function_definition == helper
+        assert call.resolved_symbol == helper
+        assert call.function_definitions == [helper]
+        assert run.function_calls == [call]
+        assert backend.function_call_by_id(call.record.id) == call
+
+        assert backend._function_calls is None
+        assert backend._function_call_handles is None
+        assert backend._function_calls_by_file_id == {0: [call]}
+        assert backend._function_calls_by_source_symbol_id == {2: [call]}
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
 
 
 def test_codebase_context_builds_opt_in_rust_index(monkeypatch, tmp_path):
