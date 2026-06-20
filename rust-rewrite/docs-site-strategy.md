@@ -226,8 +226,8 @@ Rules:
 - [x] Create docs/site strategy. owner: docs-vercel-subagent. Result: `rust-rewrite/docs-site-strategy.md`.
 - [ ] Decide whether docs stay on Mintlify for launch or migrate to Vercel MDX. owner: unclaimed.
 - [ ] Add a docs release gate checklist to `rust-rewrite/strategy.md` or keep this file as the docs ledger. owner: unclaimed.
-- [ ] Audit `docs/introduction/installation.mdx` against current `uv run`, `uv tool install`, and `uvx` behavior. owner: unclaimed.
-- [ ] Add or update a dedicated `docs/cli/uvx.mdx` page once published-package commands are release-ready. owner: unclaimed.
+- [x] Audit `docs/introduction/installation.mdx` against current `uv run`, `uv tool install`, and `uvx` behavior. owner: codex. Result: installation docs now distinguish installed tool, local source, published-package `uvx`, and branch-built wheel validation.
+- [x] Add or update a dedicated `docs/cli/uvx.mdx` page with release-gated package guidance. owner: codex. Result: added `docs/cli/uvx.mdx` for parse, run, transform, backend, safety, `--subdir`, and release-gate workflows.
 - [ ] Add Rust backend architecture/status docs sourced from `rust-rewrite/supported-subset.json` and current wheel checks. owner: unclaimed.
 - [ ] Add correctness/parity docs that distinguish old-backend parity from semantic correctness. owner: unclaimed.
 - [ ] Add large-repo benchmark docs for pinned Airflow and pinned Next.js after fresh measurements. owner: unclaimed.

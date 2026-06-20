@@ -150,6 +150,7 @@
       "pages": [
         "cli/about",
         "cli/doctor",
+        "cli/uvx",
         "cli/parse",
         "cli/init",
         "cli/notebook",

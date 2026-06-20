@@ -26,11 +26,14 @@ The Graph-sitter CLI helps you:
 graph-sitter parse . --format json
 ```
 
-After release, the same workflow should be available without a local checkout:
+Run the same command from a published package with `uvx`:
 
 ```bash
 uvx --python 3.13 graph-sitter parse . --format json
 ```
+
+See [uvx workflows](/cli/uvx) for branch-built wheel validation and release
+gate details.
 
 2. **Initialize Graph-sitter** in your repository:
 
@@ -54,6 +57,9 @@ The `--description` flag enables AI assistance to help generate your codemod. Be
   </Card>
   <Card title="doctor" icon="stethoscope" href="/cli/doctor">
     Check package, parser dependency, and Rust backend readiness.
+  </Card>
+  <Card title="uvx" icon="terminal" href="/cli/uvx">
+    Run Graph-sitter from a package or wheel in a clean temporary environment.
   </Card>
   <Card title="parse" icon="diagram-project" href="/cli/parse">
     Parse a repository and print graph summary counts.

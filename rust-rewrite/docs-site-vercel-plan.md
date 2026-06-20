@@ -304,8 +304,11 @@ docs owner explicitly approves a config migration.
 - [ ] Validate Mintlify docs navigation and broken links.
 - [ ] Update stale docs copy that still says Codegen where it should say
   Graph-sitter, without erasing legitimate company attribution.
-- [ ] Update install/setup docs once the release command is final.
-- [ ] Document both `gs` compatibility commands and the new
+- [x] Update install/setup docs for the current release-gated command surface.
+  Result: installation docs now use `graph-sitter` as the primary command,
+  include `uvx graph-sitter ...`, and keep branch-built wheel validation
+  separate from published-package release proof.
+- [x] Document both `gs` compatibility commands and the new
   `uvx graph-sitter ...` commands.
 - [ ] Confirm artifact-level wheel smoke tests pass for parse and transform
   before advertising `uvx graph-sitter` as the public path.
@@ -333,7 +336,9 @@ docs owner explicitly approves a config migration.
   gates pass.
 - [ ] Add or update Mintlify docs pages for quickstart, `uvx` CLI,
   transformations/codemods, Rust architecture, benchmark methodology,
-  correctness/parity, and skill distribution.
+  correctness/parity, and skill distribution. Notes: quickstart, `uvx` CLI,
+  parse/run/transform, and Rust backend setup docs are updated; benchmark,
+  correctness/parity, and skill public docs remain open.
 - [ ] Make docs examples use commands that are backed by current tests:
   `graph-sitter parse`, `graph-sitter transform --check|--write`, strict
   backend flags, and fallback behavior.
