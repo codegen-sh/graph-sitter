@@ -5,61 +5,101 @@ icon: "play"
 iconType: "solid"
 ---
 
-The `run` command executes a codemod against your local codebase, showing you the changes and applying them to your filesystem.
+The `run` command executes a registered codemod from `.codegen/codemods`
+against a local repository.
 
 ```bash
-gs run rename-function
+graph-sitter run rename-function . --check
 ```
 
 ## Usage
 
 ```bash
-gs run LABEL [OPTIONS]
+graph-sitter run LABEL [PATH] [OPTIONS]
 ```
+
+`PATH` defaults to the active Graph-sitter session when omitted. Pass `PATH`
+explicitly for repeatable `uvx` and CI usage.
 
 ## Arguments
 
 - `LABEL`: The name of the codemod to run (e.g., "rename-function")
+- `PATH`: Optional repository path to transform
 
 ## Options
 
-- `--diff-preview N`: Show a preview of the first N lines of the diff
-- `--arguments JSON`: Pass arguments to the codemod as a JSON string (required if the codemod expects arguments)
+- `--backend python|rust|auto`: Choose the graph backend.
+- `--fallback python|error`: Choose fallback behavior when the Rust backend is
+  unavailable or unsupported for the requested API.
+- `--language auto|python|typescript`: Choose the repository language.
+- `--arguments JSON`: Pass arguments to the codemod as a JSON object. Typed
+  Pydantic argument models are validated when present.
+- `--diff-preview N`: Show the first N lines of the produced diff.
+- `--check`: Run in a temporary copied repository, print the diff, leave the
+  target unchanged, and exit non-zero when changes would be produced.
+- `--write`: Apply changes to the target repository.
 
 ## Examples
 
-Run a codemod:
+Preview a registered codemod:
+
 ```bash
-gs run rename-function
+graph-sitter run rename-function . --check
 ```
 
-Run with a diff preview limited to 50 lines:
+Apply a registered codemod:
+
 ```bash
-gs run rename-function --diff-preview 50
+graph-sitter run rename-function . --write
 ```
 
-Run with arguments (for codemods that require them):
+Run with arguments:
+
 ```bash
-gs run rename-function --arguments '{"old_name": "getUserData", "new_name": "fetchUserProfile"}'
+graph-sitter run rename-function . --arguments '{"old_name":"getUserData","new_name":"fetchUserProfile"}' --check
 ```
 
-## Output
+Run against a TypeScript repository:
 
-The command will:
-1. Parse your codebase
-2. Run the codemod
-3. Show a diff preview (if requested)
-4. Apply changes to your filesystem
+```bash
+graph-sitter run rename-component ./next.js --language typescript --backend auto --fallback python --check
+```
+
+## With uvx
+
+Published package form after release:
+
+```bash
+uvx --python 3.13 graph-sitter run rename-function . --arguments '{"old_name":"getUserData","new_name":"fetchUserProfile"}' --check
+```
+
+Branch-built wheel validation form before release:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter run rename-function . --backend rust --fallback error --check
+```
+
+## Safety Model
+
+Use `--check` before `--write` for normal workflows. `--check` copies the target
+repository to a temporary Git repo before running the codemod, so codemods that
+call `codebase.commit()` internally do not mutate the original checkout.
+
+For compatibility, `run` may still apply changes when neither `--check` nor
+`--write` is supplied. New docs, CI, and agent workflows should always pass an
+explicit mode.
 
 ## Execution Flow
 
-When you run a codemod:
-1. Graph-sitter parses your entire codebase into a graph representation
-2. The codemod function is executed against this graph
-3. Any changes made by the codemod are tracked
-4. Changes are automatically applied to your local files
-5. A summary of changes is displayed
+When you run a codemod, Graph-sitter:
+
+1. Parses the selected repository into a code graph.
+2. Resolves the registered codemod by `LABEL`.
+3. Validates and passes `--arguments` when required.
+4. Executes the codemod against the graph.
+5. Prints a diff preview and either reports or applies the changes.
 
 <Note>
-The codebase parsing step may take a few moments for larger codebases. Learn more in [How it Works](/introduction/how-it-works.mdx)
+  For one-shot transformations that are not registered under
+  `.codegen/codemods`, use [`transform`](/cli/transform).
 </Note>

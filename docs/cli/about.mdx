@@ -5,10 +5,12 @@ icon: "square-info"
 iconType: "solid"
 ---
 
-The graph_sitter.cli helps you:
+The Graph-sitter CLI helps you:
 
+- Parse a local repository into graph summary data
 - Initialize Graph-sitter in your repository
 - Create and run codemods
+- Run one-shot transformations by import path
 - Work with AI assistance
 
 <Note>
@@ -18,16 +20,28 @@ The graph_sitter.cli helps you:
 
 ## Getting Started
 
-1. **Initialize Codegen** in your repository:
+1. **Parse a repository** without project initialization:
 
 ```bash
-gs init
+graph-sitter parse . --format json
 ```
 
-2. **Create your first codemod**:
+After release, the same workflow should be available without a local checkout:
 
 ```bash
-gs create my-codemod --description "What you want to accomplish"
+uvx --python 3.13 graph-sitter parse . --format json
+```
+
+2. **Initialize Graph-sitter** in your repository:
+
+```bash
+graph-sitter init
+```
+
+3. **Create your first codemod**:
+
+```bash
+graph-sitter create my-codemod --description "What you want to accomplish"
 ```
 
 The `--description` flag enables AI assistance to help generate your codemod. Be as specific as possible about what you want to achieve.
@@ -48,7 +62,10 @@ The `--description` flag enables AI assistance to help generate your codemod. Be
     Create new codemods with optional AI assistance.
   </Card>
   <Card title="run" icon="play" href="/cli/run">
-    Execute codemods with various options.
+    Execute registered codemods with check and write modes.
+  </Card>
+  <Card title="transform" icon="wand-magic-sparkles" href="/cli/transform">
+    Run one-shot codemods by Python import path or file path.
   </Card>
   <Card title="expert" icon="robot" href="/cli/expert">
     Use Graph-sitter docs and project context with an AI assistant.

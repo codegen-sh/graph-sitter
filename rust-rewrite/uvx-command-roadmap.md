@@ -18,6 +18,65 @@ This file intentionally stays separate from implementation and wheel-building
 work. The integrator currently owns `src/gsbuild/**`, `hatch.toml`, `uv.lock`,
 `.github/workflows/rust-rewrite-extension.yml`, and focused wheel smoke tests.
 
+## Command Taxonomy At A Glance
+
+The public `uvx` story should have three user-facing lanes:
+
+| Lane | Command | Requires `.codegen`? | Mutates target? | Primary user |
+| --- | --- | --- | --- | --- |
+| Inspect | `uvx graph-sitter parse [PATH]` | No | Never | Humans, CI, agents, benchmarks |
+| Registered codemod | `uvx graph-sitter run LABEL [PATH] --check|--write` | Yes, for `LABEL` lookup | Only with `--write` or compatibility default | Repos that own codemods |
+| One-shot transform | `uvx graph-sitter transform MODULE:OBJECT [PATH] --check|--write` | No | Only with `--write` | Agents, release gates, external codemods |
+
+Supporting lane:
+
+| Lane | Command | Purpose |
+| --- | --- | --- |
+| Diagnostics | `uvx graph-sitter doctor [--backend rust] [--json]` | Prove package, parser dependency, and optional Rust-backend readiness before parse or transform workflows |
+
+The canonical spelling is `graph-sitter`. The historical `gs` script remains a
+compatibility alias, but new docs, skills, benchmark scripts, and release gates
+should use `uvx graph-sitter ...`.
+
+Minimum public examples:
+
+```bash
+uvx --python 3.13 graph-sitter doctor --json
+uvx --python 3.13 graph-sitter parse . --language python --backend auto --fallback python --format json
+uvx --python 3.13 graph-sitter run rename-symbol . --arguments '{"new_name":"renamed"}' --check
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --arguments '{"new_name":"renamed"}' --check
+```
+
+Strict Rust and branch-artifact examples:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter doctor --backend rust --language python --json
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter parse ./repo --language typescript --backend rust --fallback error --format json
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter transform ./codemods/rename.py:rename ./repo --backend rust --fallback error --check
+```
+
+## Packaging Constraints For `uvx`
+
+- The distribution name must remain `graph-sitter`, and the `graph-sitter`
+  console script must resolve to `graph_sitter.cli.cli:main`.
+- Keep `gs` as a compatibility script, but do not use it as the primary
+  published-package or skill-facing command.
+- Public examples should pin `--python 3.13` while package metadata remains
+  constrained to Python `>=3.12,<3.14`.
+- Rust-backed `uvx` requires wheels that include the platform-specific
+  `graph_sitter_py` extension. Python-backend imports must remain safe when the
+  extension is absent.
+- Clean `uvx` environments must include `codemods/codemod.py`, parser runtime
+  dependencies, and compatible tree-sitter grammar wheels.
+- Branch proof uses `uvx --from dist/<wheel>.whl graph-sitter ...`; release
+  proof must use uploaded artifacts with
+  `uvx --from graph-sitter==<version> graph-sitter ...`, then the default
+  `uvx graph-sitter ...` spelling.
+- Do not advertise `--backend rust` from PyPI until uploaded Linux/macOS wheels
+  pass parse and transform smokes for Python 3.12 and 3.13.
+- If an sdist is published, it must include the Rust crate sources and any
+  build inputs needed to compile the PyO3 extension.
+
 ## Source Audit
 
 Current package metadata declares both scripts:
@@ -482,13 +541,17 @@ Skill rules:
   shape. owner: CLI/distribution agent.
 - [x] Record branch-built wheel proof versus published-package validation.
   owner: CLI/distribution agent.
-- [ ] Reconcile public docs with this roadmap once the docs site worktree lands.
-  owner: docs/site agent.
+- [x] Reconcile public CLI docs with this roadmap. owner: delegated-worker.
+  Result: `docs/cli/run.mdx` now documents explicit path/check/write/uvx
+  usage, `docs/cli/transform.mdx` documents one-shot import-path transforms,
+  and the CLI overview/navigation links the parse/run/transform taxonomy.
 - [ ] Update skill docs to use explicit `--check` or `--write` in every
   transform example. owner: skill/docs agent.
 - [ ] Replace remaining user-facing "codegen function" copy in
   `graph-sitter run --help` with Graph-sitter/codemod wording. owner: CLI UX
   agent.
+- [ ] Add a docs release note that distinguishes branch-built wheel proof from
+  published-package proof. owner: release/docs agent.
 - [x] Add `graph-sitter doctor` for setup and skill diagnostics. owner: codex.
   Result: `doctor --json` reports Python/package/platform/parser dependency
   readiness, Rust extension status, and an optional generated strict Rust parse

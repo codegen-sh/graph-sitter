@@ -155,6 +155,7 @@
         "cli/notebook",
         "cli/create",
         "cli/run",
+        "cli/transform",
         "cli/reset",
         "cli/expert"
       ]

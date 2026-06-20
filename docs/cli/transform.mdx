@@ -1,0 +1,97 @@
+---
+title: "Transform Command"
+sidebarTitle: "transform"
+icon: "wand-magic-sparkles"
+iconType: "solid"
+---
+
+The `transform` command runs an ad hoc Python transform by import path or file
+path. Use it when you want a one-shot codemod without registering a function in
+`.codegen/codemods`.
+
+```bash
+graph-sitter transform ./codemods/rename.py:rename . --check
+```
+
+## Usage
+
+```bash
+graph-sitter transform MODULE:OBJECT [PATH] (--check | --write) [OPTIONS]
+```
+
+`PATH` defaults to the current directory.
+
+## Arguments
+
+- `MODULE:OBJECT`: Import path or Python file path plus the callable object to
+  run. Examples: `my_package.rename:run`, `./codemods/rename.py:run`,
+  `./codemods/rename.py:MyCodemod`.
+- `PATH`: Optional repository path to transform.
+
+`OBJECT` may be a plain function, a `codemods.codemod.Codemod` subclass, a
+`Codemod` instance, or an object exposing `execute(codebase)`.
+
+## Options
+
+- `--backend python|rust|auto`: Choose the graph backend.
+- `--fallback python|error`: Choose fallback behavior when the Rust backend is
+  unavailable or unsupported for the requested API.
+- `--language auto|python|typescript`: Choose the repository language.
+- `--arguments JSON`: Pass arguments as a JSON object. If the transform accepts
+  a typed argument model, Graph-sitter validates it before execution.
+- `--diff-preview N`: Show the first N lines of the produced diff.
+- `--check`: Run in a temporary copied repository, print the diff, leave the
+  target unchanged, and exit non-zero when changes would be produced.
+- `--write`: Apply changes to the target repository.
+
+`--check` and `--write` are mutually exclusive, and one of them is required.
+
+## Examples
+
+Preview a Python transform:
+
+```bash
+graph-sitter transform ./codemods/rename.py:rename ./service --language python --arguments '{"new_name":"renamed"}' --check
+```
+
+Apply the same transform:
+
+```bash
+graph-sitter transform ./codemods/rename.py:rename ./service --language python --arguments '{"new_name":"renamed"}' --write
+```
+
+Preview a TypeScript transform:
+
+```bash
+graph-sitter transform ./codemods/rename_component.py:rename ./next.js --language typescript --backend auto --fallback python --arguments '{"new_name":"RenamedCard"}' --check
+```
+
+Validate strict Rust behavior from a branch-built wheel:
+
+```bash
+graph-sitter transform ./codemods/rename.py:rename ./service --language python --backend rust --fallback error --check
+```
+
+## With uvx
+
+Published package form after release:
+
+```bash
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --arguments '{"new_name":"renamed"}' --check
+```
+
+Branch-built wheel validation form before release:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter transform ./codemods/rename.py:rename . --backend rust --fallback error --check
+```
+
+## Safety Model
+
+Use `--check` before `--write` unless you intentionally want to mutate the
+target checkout immediately. `--check` copies the target repository to a
+temporary Git repo before running the transform, so transforms that call
+`codebase.commit()` internally do not mutate the original checkout.
+
+For repository-owned codemods that already live under `.codegen/codemods`, use
+[`run`](/cli/run).

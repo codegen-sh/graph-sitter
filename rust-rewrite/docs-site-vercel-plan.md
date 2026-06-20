@@ -31,6 +31,7 @@ from being coupled to landing-page deploys.
 
 ## Current Findings
 
+- [x] This pass was verified on 2026-06-19 from branch `rust-rewrite`.
 - [x] `docs/` is a Mintlify project configured by `docs/mint.json`.
 - [x] `docs/**/*.mdx` contains the human-authored docs, examples, tutorials,
   CLI pages, and API reference pages.
@@ -45,11 +46,18 @@ from being coupled to landing-page deploys.
   TypeScript build info, and local env files.
 - [x] No repo-level `vercel.json`, `site/vercel.json`, `.vercel/`, or
   `.openai/hosting.json` is checked in.
-- [x] A working Vercel CLI was verified locally through Node 22:
-  `PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH" npx vercel --version`
-  returns `Vercel CLI 54.7.1`.
+- [x] A working Vercel CLI is available at
+  `$HOME/.nvm/versions/node/v22.19.0/bin/vercel`; `vercel --version` returns
+  `Vercel CLI 54.7.1`.
 - [x] Authenticated Vercel user was verified with `vercel whoami`:
   `jayhack`.
+- [x] `site/` builds successfully with Node 22:
+  `PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH" npm run build`.
+- [x] Mintlify docs validation passes:
+  `PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH" npx --yes mintlify@latest validate`.
+- [x] The default Homebrew Node on this machine is currently unusable because
+  it references a missing `libllhttp.9.3.dylib`; use the Node 22 path above
+  for docs, site, and Vercel commands until that local install is fixed.
 - [ ] Vercel project link state, project ownership, and team scope still need
   to be verified before any preview deploy.
 - [ ] Mintlify project ownership and custom-domain state still need to be
@@ -60,7 +68,10 @@ from being coupled to landing-page deploys.
 Mintlify owns durable product documentation:
 
 - setup and installation
+- current `uv tool install graph-sitter --python 3.13` setup until the
+  published `uvx graph-sitter ...` package path is proven
 - `uvx graph-sitter ...` once the command is released
+- existing `gs` compatibility commands while the CLI transition is in flight
 - Python API usage
 - codemod authoring and execution
 - backend/fallback semantics
@@ -96,7 +107,8 @@ Recommended landing-page shape in `site/`:
 
 - `/`: simple product page explaining that Graph-sitter builds codebase graphs
   for repository queries and codemods.
-- Hero: name and literal offer, not benchmark claims.
+- Hero: `Graph-sitter` plus the literal offer: codebase graphs for codemods.
+  Avoid benchmark claims until benchmark reports are current.
 - Quick example: `Codebase("./")` Python shell usage.
 - Capabilities: parse, graph, transform.
 - Architecture: Python shell, compact Rust backend, explicit fallback status.
@@ -130,6 +142,56 @@ Recommended Mintlify docs shape:
 - `building-with-graph-sitter/*`: durable API and concept guides that remain
   accurate for the Python shell.
 - `api-reference/*`: generated pages only, refreshed by the docs workflow.
+
+## Setup Docs Contract
+
+The setup docs need to be honest about what works today and clear about where
+the CLI is headed.
+
+Current repo-validated path:
+
+```bash
+uv run graph-sitter doctor
+uv run graph-sitter parse . --language python --backend rust --format summary
+uv run graph-sitter transform ./codemods/rename.py:rename . --check
+uv run gs init
+uv run gs run <codemod-name> . --check
+```
+
+Target public path after package-release gates pass:
+
+```bash
+uvx graph-sitter doctor
+uvx graph-sitter parse . --language auto --backend rust --format summary
+uvx graph-sitter transform ./codemods/rename.py:rename . --check
+uvx graph-sitter transform ./codemods/rename.py:rename . --write
+```
+
+Do not make `uvx graph-sitter ...` the primary install path in permanent docs
+until the exact published artifact is tested against a clean environment. Until
+then, use release-gated wording like "target command surface" or "planned
+public entrypoint."
+
+## Skill Distribution Plan
+
+The Codex skill should be distributed only after the library, CLI, and docs all
+agree on setup and command names.
+
+The skill should contain:
+
+- a short purpose statement: use Graph-sitter to inspect codebase graphs and
+  run guarded codemods
+- prerequisites: supported Python versions, `uv`, and platform notes
+- setup check: `uvx graph-sitter doctor` once released, or the branch-wheel
+  equivalent before release
+- parse workflow: `graph-sitter parse` / `uvx graph-sitter parse`
+- transform workflow: check mode before write mode
+- language support and backend/fallback caveats
+- links to the docs, benchmarks, correctness/parity page, and examples
+
+Before publishing the skill, run it as a clean consumer would: install from the
+documented source, parse a small Python repo, parse a small TS repo, run a
+checked codemod, then run a write-mode codemod in a disposable git repo.
 
 ## Vercel Project and Deploy Flow
 
