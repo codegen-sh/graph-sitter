@@ -178,6 +178,7 @@ def test_parse_command_summarizes_python_repo_as_json(tmp_path):
     payload = json.loads(result.output)
     assert payload["backend_requested"] == "python"
     assert payload["backend"] == "python"
+    assert payload["schema_version"] == 1
     assert payload["language"] == "python"
     assert payload["files"] == 1
     assert payload["classes"] == 1
@@ -296,7 +297,59 @@ def test_parse_command_json_stdout_is_machine_readable(tmp_path):
     )
 
     assert result.stdout.startswith("{")
-    assert json.loads(result.stdout)["backend"] == "python"
+    payload = json.loads(result.stdout)
+    assert payload["backend"] == "python"
+    assert payload["schema_version"] == 1
+
+
+def test_parse_command_writes_json_output_file(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def run():\n    return 1\n")
+    output_path = tmp_path / "parse-summary.json"
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "parse",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "python",
+            "--format",
+            "json",
+            "--output",
+            str(output_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == ""
+    payload = json.loads(output_path.read_text())
+    assert payload["schema_version"] == 1
+    assert payload["backend"] == "python"
+    assert payload["files"] == 1
+    assert payload["functions"] == 1
+
+
+def test_parse_command_rejects_output_for_summary_format(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def run():\n    return 1\n")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "parse",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--output",
+            str(tmp_path / "parse-summary.json"),
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "--output is only supported with --format json" in result.output
 
 
 def test_parse_command_rust_backend_missing_extension_fails_cleanly(tmp_path):

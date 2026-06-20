@@ -30,6 +30,7 @@ graph-sitter parse [PATH] [OPTIONS]
   to `auto`.
 - `--format summary|json`: Choose human-readable or machine-readable output.
   Defaults to `summary`.
+- `--output FILE`: Write JSON output to a file. Requires `--format json`.
 - `--subdir PATH`: Limit parsing to a repository-relative subdirectory or file.
   Pass this option more than once to include multiple paths.
 
@@ -42,7 +43,18 @@ graph-sitter parse . --language python --backend python --format json
 ```
 
 The JSON payload includes the requested backend, actual backend, language,
-elapsed time, selected subdirectories, and graph count fields.
+elapsed time, selected subdirectories, and graph count fields. It also includes
+`schema_version`; the current parse summary schema is version `1`.
+
+Write JSON to a file when the parse output is large or consumed by another
+tool:
+
+```bash
+graph-sitter parse . --language python --format json --output graph-sitter-index.json
+```
+
+`--output` is JSON-only. Human-readable `summary` output is always printed to
+stdout.
 
 ## Subdirectory Parsing
 
@@ -85,6 +97,7 @@ Published package form:
 
 ```bash
 uvx --python 3.13 graph-sitter parse . --language python --format json
+uvx --python 3.13 graph-sitter parse . --language python --format json --output graph-sitter-index.json
 ```
 
 Branch-built wheel validation form:

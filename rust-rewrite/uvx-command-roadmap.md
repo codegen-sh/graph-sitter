@@ -181,6 +181,7 @@ uvx graph-sitter parse [PATH] --language auto|python|typescript
 uvx graph-sitter parse [PATH] --backend python|rust|auto
 uvx graph-sitter parse [PATH] --fallback error|python
 uvx graph-sitter parse [PATH] --format summary|json
+uvx graph-sitter parse [PATH] --format json --output graph-sitter-index.json
 uvx graph-sitter parse [PATH] --subdir src --subdir packages/app
 ```
 
@@ -198,10 +199,9 @@ uvx --python 3.13 graph-sitter parse ./next.js --language typescript --backend a
 uvx --python 3.13 graph-sitter parse ./next.js --language typescript --backend rust --fallback error --format json
 ```
 
-Planned parse extensions:
+Deferred parse extensions:
 
 ```bash
-uvx graph-sitter parse [PATH] --output graph-sitter-index.json
 uvx graph-sitter parse [PATH] --format jsonl
 ```
 
@@ -213,11 +213,15 @@ Contract:
 - `--format summary` is human-readable and may change copy.
 - `--format json` is machine-readable and should remain stable within a major
   version.
-- JSON output must include at least `path`, `backend_requested`, `backend`,
-  `language`, `elapsed_seconds`, `subdirectories`, `files`, `symbols`,
-  `classes`, `functions`, `global_variables`, `imports`, `exports`, `references`,
-  `external_references`, `dependencies`, `subclass_edges`, `files_with_errors`,
-  and `rust_backend_error`.
+- JSON output schema version `1` must include at least `schema_version`, `path`,
+  `backend_requested`, `backend`, `language`, `elapsed_seconds`,
+  `subdirectories`, `files`, `symbols`, `classes`, `functions`,
+  `global_variables`, `imports`, `exports`, `references`,
+  `external_references`, `dependencies`, `subclass_edges`,
+  `files_with_errors`, and `rust_backend_error`.
+- `--output FILE` is supported only with `--format json`, writes a
+  newline-terminated JSON document, and leaves stdout empty for machine
+  workflows.
 - `--subdir` may be passed more than once. Paths are resolved relative to
   `PATH`; absolute paths are accepted only when they are inside the repository.
   Directory filters feed the same file-discovery path used by both Python and
@@ -563,12 +567,15 @@ Skill rules:
   Result: parse accepts repeated repository-relative or in-repo absolute
   subdirectory/file filters, threads them through `ProjectConfig`, reports the
   selected `subdirectories` in JSON, and has focused Python-backend CLI tests.
-- [ ] Add `--output` for JSON output files once the JSON schema is stable.
-  owner: CLI implementation agent.
+- [x] Add `--output` for JSON output files once the JSON schema is stable.
+  owner: codex. Result: parse JSON payloads now include `schema_version: 1`,
+  and `--format json --output FILE` writes newline-terminated JSON with empty
+  stdout.
 - [ ] Decide whether `jsonl` belongs in v1 or should wait for a richer graph
   export command. owner: CLI/distribution agent.
-- [ ] Version the parse JSON schema or document its stability policy. owner:
-  CLI/contracts agent.
+- [x] Version the parse JSON schema or document its stability policy. owner:
+  codex. Result: parse summary JSON uses `schema_version: 1`, and docs identify
+  that marker as the current parse summary schema version.
 - [ ] Add `--backend auto` unit coverage for unavailable Rust fallback and
   selected-backend disclosure. owner: test agent.
 - [x] Add installed-wheel TypeScript strict Rust parse smoke. owner: codex.

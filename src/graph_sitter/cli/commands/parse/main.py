@@ -14,6 +14,8 @@ from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, R
 from graph_sitter.core.codebase import Codebase
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
+PARSE_JSON_SCHEMA_VERSION = 1
+
 
 @contextmanager
 def _suppress_parse_logs(disabled_level: int) -> Iterator[None]:
@@ -85,6 +87,7 @@ def _base_payload(codebase: Codebase, *, path: Path, backend: str, elapsed_secon
     actual_backend = "rust" if rust_summary is not None else "python"
 
     payload: dict[str, Any] = {
+        "schema_version": PARSE_JSON_SCHEMA_VERSION,
         "path": str(path.resolve()),
         "backend_requested": backend,
         "backend": actual_backend,
@@ -153,15 +156,41 @@ def _print_summary(payload: dict[str, Any]) -> None:
         rich.print(f"[yellow]Rust backend fallback:[/yellow] {payload['rust_backend_error']}")
 
 
+def _write_json_payload(payload: dict[str, Any], output: Path | None) -> None:
+    contents = json.dumps(payload, sort_keys=True) + "\n"
+    if output is None:
+        click.echo(contents, nl=False)
+        return
+
+    try:
+        output.write_text(contents)
+    except OSError as error:
+        msg = f"Could not write parse JSON output to {output}: {error}"
+        raise click.ClickException(msg) from error
+
+
 @click.command(name="parse")
 @click.argument("path", type=click.Path(path_type=Path, exists=True, file_okay=False), default=Path("."), required=False)
 @click.option("--backend", type=click.Choice(["python", "rust", "auto"]), default="python", show_default=True, help="Graph backend to use.")
 @click.option("--fallback", type=click.Choice(["python", "error"]), default="error", show_default=True, help="Fallback behavior when the Rust backend is unavailable.")
 @click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")
 @click.option("--format", "output_format", type=click.Choice(["summary", "json"]), default="summary", show_default=True, help="Output format.")
+@click.option("--output", type=click.Path(path_type=Path, dir_okay=False), help="Write JSON output to this file. Requires --format json.")
 @click.option("--subdir", "subdirectories", multiple=True, help="Limit parsing to a repository-relative subdirectory or file. Can be passed more than once.")
-def parse_command(path: Path, backend: str, fallback: str, language: str, output_format: str, subdirectories: tuple[str, ...]) -> None:
+def parse_command(
+    path: Path,
+    backend: str,
+    fallback: str,
+    language: str,
+    output_format: str,
+    output: Path | None,
+    subdirectories: tuple[str, ...],
+) -> None:
     """Parse a local codebase and print graph summary counts."""
+    if output is not None and output_format != "json":
+        msg = "--output is only supported with --format json"
+        raise click.ClickException(msg)
+
     config = CodebaseConfig(
         graph_backend=GraphBackend(backend),
         rust_fallback=RustFallbackMode(fallback),
@@ -180,6 +209,6 @@ def parse_command(path: Path, backend: str, fallback: str, language: str, output
 
     payload = _base_payload(codebase, path=path, backend=backend, elapsed_seconds=elapsed_seconds)
     if output_format == "json":
-        click.echo(json.dumps(payload, sort_keys=True))
+        _write_json_payload(payload, output)
     else:
         _print_summary(payload)
