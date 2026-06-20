@@ -51,6 +51,11 @@ MUTATION_FILES = {
 MUTATION_OUTPUT_PATHS = ["pkg/service.py"]
 
 TYPESCRIPT_FIXTURE_FILES = {
+    "src/base.ts": (
+        "export interface Animal {}\n"
+        "export interface Dog extends Animal {}\n"
+        "export class Labrador implements Dog {}\n"
+    ),
     "src/util.ts": "export function helper(value: number) { return value; }\n",
     "src/index.ts": (
         "export { helper as publicHelper } from './util';\n"
@@ -215,6 +220,12 @@ def import_usage_graph(imports: list[Any]) -> list[dict[str, Any]]:
     )
 
 
+def relation_signatures(value: Any) -> list[dict[str, Any]]:
+    if callable(value):
+        value = value()
+    return sorted_signatures(list(value))
+
+
 def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, Any]:
     python_graph_blocked = False
     try:
@@ -320,6 +331,33 @@ def make_codebase_report(files: dict[str, str], *, backend: str) -> dict[str, An
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+def typescript_heritage_graph(codebase: Any) -> dict[str, Any]:
+    animal = get_symbol(codebase, "Animal")
+    dog = get_symbol(codebase, "Dog")
+    labrador = get_symbol(codebase, "Labrador")
+    if animal is None or dog is None or labrador is None:
+        missing = [
+            name
+            for name, symbol in (
+                ("Animal", animal),
+                ("Dog", dog),
+                ("Labrador", labrador),
+            )
+            if symbol is None
+        ]
+        msg = "missing expected TypeScript heritage symbols: " + ", ".join(missing)
+        raise RuntimeError(msg)
+
+    return {
+        "animal_implementations": relation_signatures(animal.implementations),
+        "dog_dependencies": sorted_signatures(list(dog.dependencies)),
+        "dog_implementations": relation_signatures(dog.implementations),
+        "labrador_dependencies": sorted_signatures(list(labrador.dependencies)),
+        "labrador_is_subclass": bool(labrador.is_subclass),
+        "labrador_superclasses": relation_signatures(labrador.superclasses),
+    }
+
+
 def collect_typescript_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, Any]:
     python_graph_blocked = False
     try:
@@ -364,6 +402,7 @@ def collect_typescript_report(codebase: Any, *, expect_blocked_graph: bool) -> d
         "run_resolved_dependency_targets": unique_sorted_signatures(
             [resolved_target_signature(dependency) for dependency in run.dependencies]
         ),
+        "typescript_heritage_graph": typescript_heritage_graph(codebase),
     }
     if expect_blocked_graph and not python_graph_blocked:
         msg = "expected compact Rust backend to block Python graph materialization"
@@ -537,6 +576,7 @@ def compare_typescript_reports(python_report: dict[str, Any], rust_report: dict[
         "import_usage_graph",
         "helper_symbol_usages_symbols_only",
         "run_resolved_dependency_targets",
+        "typescript_heritage_graph",
     ]
     mismatches = [
         key for key in exact_keys if python_report.get(key) != rust_report.get(key)

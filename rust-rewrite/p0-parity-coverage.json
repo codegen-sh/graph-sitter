@@ -70,6 +70,7 @@
         "export identity/predicates/resolution/import string helpers",
         "external import dependency handles",
         "TypeScript import type/default/namespace predicates",
+        "TypeScript interface/class heritage dependencies and traversal",
         "TypeScript named namespace re-export member dependencies",
         "TypeScript file.get_namespace and namespace member lookups",
         "TypeScript subclass and implementation traversal"
