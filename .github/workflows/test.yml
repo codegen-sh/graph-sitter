@@ -35,23 +35,65 @@ jobs:
           username: ${{ github.triggering_actor }}
           error-if-missing: true
 
-  unit-tests:
+  legacy-test-scope:
     needs: access-check
+    runs-on: ubuntu-latest
+    outputs:
+      run_legacy_tests: ${{ steps.scope.outputs.run_legacy_tests }}
+    steps:
+      - name: Detect changes requiring legacy tests
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if [[ "$GH_EVENT_NAME" != "pull_request_target" ]]; then
+            echo "run_legacy_tests=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          run_legacy_tests=false
+          while IFS= read -r file; do
+            case "$file" in
+              .codegen/*|.github/actions/*|.github/workflows/test.yml|Cargo.lock|Cargo.toml|Dockerfile|hatch.toml|mypy.ini|pyproject.toml|ruff.toml|uv.lock|crates/*|examples/*|rust-rewrite/tools/*|scripts/*|src/*|tests/*)
+                run_legacy_tests=true
+                ;;
+            esac
+          done < <(gh api --paginate "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --jq '.[].filename')
+
+          echo "run_legacy_tests=$run_legacy_tests" >> "$GITHUB_OUTPUT"
+          if [[ "$run_legacy_tests" == "true" ]]; then
+            echo "Code, package, test, or workflow files changed; running legacy tests."
+          else
+            echo "Only docs/site/planning files changed; skipping expensive legacy tests."
+          fi
+
+  unit-tests:
+    needs: [access-check, legacy-test-scope]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         group: [1, 2, 3, 4, 5, 6, 7, 8]
 
     steps:
+      - name: Skip legacy unit tests
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests != 'true' }}
+        run: echo "Only docs/site/planning files changed; skipping legacy unit test shard ${{ matrix.group }}."
+
       - uses: actions/checkout@v4
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup environment
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         uses: ./.github/actions/setup-environment
 
       - name: Test with pytest
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         timeout-minutes: 5
         run: |
           uv run pytest \
@@ -63,6 +105,7 @@ jobs:
             tests/unit
 
       - uses: ./.github/actions/report
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         with:
           flag: unit-tests
           codecov_token: ${{ secrets.CODECOV_TOKEN }}
@@ -181,21 +224,28 @@ jobs:
             }
 
   integration-tests:
-    needs: access-check
+    needs: [access-check, legacy-test-scope]
     # The rust-rewrite baseline PR keeps protected checks focused on local unit,
     # Rust, wheel, docs, and large-repo proof. These legacy integration tests push
     # branches to an external fixture repo and require a writable PAT.
     if: ${{ github.event_name != 'pull_request_target' || github.event.pull_request.head.ref != 'rust-rewrite' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Skip legacy integration tests
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests != 'true' }}
+        run: echo "Only docs/site/planning files changed; skipping legacy integration tests."
+
       - uses: actions/checkout@v4
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup environment
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         uses: ./.github/actions/setup-environment
 
       - name: Test with pytest
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         timeout-minutes: 5
         env:
           GITHUB_WORKSPACE: $GITHUB_WORKSPACE
@@ -207,6 +257,7 @@ jobs:
             tests/integration/codegen
 
       - uses: ./.github/actions/report
+        if: ${{ needs.legacy-test-scope.outputs.run_legacy_tests == 'true' }}
         with:
           flag: integration-tests
           codecov_token: ${{ secrets.CODECOV_TOKEN }}
