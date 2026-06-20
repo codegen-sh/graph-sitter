@@ -189,6 +189,37 @@ def test_parse_command_summarizes_python_repo_as_json(tmp_path):
     assert payload["dependencies"] >= 1
 
 
+def test_parse_command_auto_backend_discloses_python_fallback_when_rust_unavailable(monkeypatch, tmp_path):
+    monkeypatch.setitem(sys.modules, "graph_sitter_py", None)
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def run():\n    return 1\n")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "parse",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "auto",
+            "--fallback",
+            "python",
+            "--format",
+            "json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["backend_requested"] == "auto"
+    assert payload["backend"] == "python"
+    assert payload["rust_backend_error"]
+    assert "graph_sitter_py" in payload["rust_backend_error"]
+    assert payload["files"] == 1
+    assert payload["functions"] == 1
+
+
 def test_parse_command_limits_python_repo_to_subdirectories(tmp_path):
     _init_repo(tmp_path)
     (tmp_path / "src").mkdir()

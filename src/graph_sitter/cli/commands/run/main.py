@@ -40,9 +40,9 @@ def _parse_arguments(raw_arguments: str | None) -> dict | None:
 @click.command(name="run")
 @click.argument("label", required=True)
 @click.argument("path", required=False, type=click.Path(path_type=Path, exists=True, file_okay=False))
-@click.option("--daemon", "-d", is_flag=True, help="Run the function against a running daemon")
+@click.option("--daemon", "-d", is_flag=True, help="Run the codemod against a running daemon.")
 @click.option("--diff-preview", type=int, help="Show a preview of the first N lines of the diff")
-@click.option("--arguments", type=str, help="Arguments as a json string to pass as the function's 'arguments' parameter")
+@click.option("--arguments", type=str, help="Arguments as a JSON object to pass to the codemod's arguments parameter.")
 @click.option("--backend", type=click.Choice(["python", "rust", "auto"]), default="python", show_default=True, help="Graph backend to use.")
 @click.option("--fallback", type=click.Choice(["python", "error"]), default="python", show_default=True, help="Fallback behavior when the Rust backend is unavailable.")
 @click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")
@@ -60,7 +60,7 @@ def run_command(
     check: bool = False,
     write: bool = False,
 ):
-    """Run a codegen function by its label."""
+    """Run a registered codemod by label."""
     if check and write:
         msg = "--check and --write cannot be used together"
         raise click.ClickException(msg)
@@ -89,7 +89,7 @@ def run_command(
 
     # Handle arguments if needed
     if codemod.arguments_type_schema and not arguments:
-        msg = f"This function requires the --arguments parameter. Expected schema: {codemod.arguments_type_schema}"
+        msg = f"This codemod requires the --arguments parameter. Expected schema: {codemod.arguments_type_schema}"
         raise click.ClickException(msg)
 
     if codemod.arguments_type_schema and arguments_json:

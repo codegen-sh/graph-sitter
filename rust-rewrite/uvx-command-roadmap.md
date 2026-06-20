@@ -551,9 +551,10 @@ Skill rules:
   and the CLI overview/navigation links the parse/run/transform taxonomy.
 - [ ] Update skill docs to use explicit `--check` or `--write` in every
   transform example. owner: skill/docs agent.
-- [ ] Replace remaining user-facing "codegen function" copy in
-  `graph-sitter run --help` with Graph-sitter/codemod wording. owner: CLI UX
-  agent.
+- [x] Replace remaining user-facing "codegen function" copy in
+  `graph-sitter run --help` with Graph-sitter/codemod wording. owner: codex.
+  Result: `run --help` now describes registered codemods and codemod
+  arguments, with regression coverage rejecting the legacy phrase.
 - [ ] Add a docs release note that distinguishes branch-built wheel proof from
   published-package proof. owner: release/docs agent.
 - [x] Add `graph-sitter doctor` for setup and skill diagnostics. owner: codex.
@@ -576,8 +577,11 @@ Skill rules:
 - [x] Version the parse JSON schema or document its stability policy. owner:
   codex. Result: parse summary JSON uses `schema_version: 1`, and docs identify
   that marker as the current parse summary schema version.
-- [ ] Add `--backend auto` unit coverage for unavailable Rust fallback and
-  selected-backend disclosure. owner: test agent.
+- [x] Add `--backend auto` unit coverage for unavailable Rust fallback and
+  selected-backend disclosure. owner: codex. Result: parse CLI coverage forces
+  an unavailable `graph_sitter_py` extension and asserts
+  `backend_requested: auto`, actual `backend: python`, and a populated
+  `rust_backend_error`.
 - [x] Add installed-wheel TypeScript strict Rust parse smoke. owner: codex.
   Result: `check_wheel_rust_backend.sh` now builds a tiny TypeScript repo and
   asserts strict Rust parse counts through `uvx --from dist/<wheel>.whl`.

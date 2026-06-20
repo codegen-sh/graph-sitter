@@ -18,6 +18,17 @@ def _commit_all(path: Path, message: str = "initial") -> None:
     subprocess.run(["git", "-C", str(path), "commit", "-m", message], check=True, capture_output=True)
 
 
+def test_run_command_help_uses_graph_sitter_codemod_wording():
+    result = CliRunner().invoke(main, ["run", "--help"])
+
+    assert result.exit_code == 0, result.output
+    output = strip_ansi(result.output)
+    assert "Run a registered codemod by label" in output
+    assert "codemod's" in output
+    assert "arguments parameter" in output
+    assert "codegen function" not in output.lower()
+
+
 def test_run_command_accepts_path_and_typed_arguments_without_active_session(tmp_path):
     _init_repo(tmp_path)
     (tmp_path / "app.py").write_text("def target():\n    return 1\n")
