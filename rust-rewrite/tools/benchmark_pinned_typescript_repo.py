@@ -51,11 +51,7 @@ def run_python_backend(repo: Path, args: argparse.Namespace) -> dict[str, Any]:
 def run_rust_typescript_index(repo: Path, args: argparse.Namespace) -> dict[str, Any]:
     env = os.environ.copy()
     pythonpath = env.get("PYTHONPATH")
-    env["PYTHONPATH"] = (
-        str(args.extension_dir)
-        if not pythonpath
-        else f"{args.extension_dir}{os.pathsep}{pythonpath}"
-    )
+    env["PYTHONPATH"] = str(args.extension_dir) if not pythonpath else f"{args.extension_dir}{os.pathsep}{pythonpath}"
     command = [
         sys.executable,
         str(TOOLS_DIR / "measure_typescript_rust_index.py"),
@@ -109,12 +105,9 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
             "python_source_files": python_graph["source_files"],
             "rust_files": rust_summary["files"],
             "rust_selected_files": rust_selected_files,
-            "selected_file_count_match": rust_selected_files is None
-            or rust_selected_files == rust_summary["files"],
-            "python_materialized_file_count_match": python_graph["source_files"]
-            == rust_summary["files"],
-            "python_materialized_file_delta": rust_summary["files"]
-            - python_graph["source_files"],
+            "selected_file_count_match": rust_selected_files is None or rust_selected_files == rust_summary["files"],
+            "python_materialized_file_count_match": python_graph["source_files"] == rust_summary["files"],
+            "python_materialized_file_delta": rust_summary["files"] - python_graph["source_files"],
             "rust_symbols": rust_summary["symbols"],
             "rust_classes": rust_summary["classes"],
             "rust_functions": rust_summary["functions"],
@@ -142,14 +135,9 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
     wall_ratio = comparison["python_to_rust_wall_ratio"]
     rss_ratio = comparison["python_to_rust_rss_ratio"]
     if args.require_file_count_match and not comparison["selected_file_count_match"]:
-        failures.append(
-            "selected file count mismatch: "
-            f"selected={comparison['rust_selected_files']} rust={comparison['rust_files']}"
-        )
+        failures.append(f"selected file count mismatch: selected={comparison['rust_selected_files']} rust={comparison['rust_files']}")
     if wall_ratio is None or wall_ratio < args.min_wall_ratio:
-        failures.append(
-            f"wall ratio {wall_ratio}x is below required {args.min_wall_ratio}x"
-        )
+        failures.append(f"wall ratio {wall_ratio}x is below required {args.min_wall_ratio}x")
     if rss_ratio is None or rss_ratio < args.min_rss_ratio:
         failures.append(f"RSS ratio {rss_ratio}x is below required {args.min_rss_ratio}x")
     if failures:
@@ -193,9 +181,7 @@ def print_human(report: dict[str, Any]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Benchmark a pinned large TypeScript/JavaScript repository against the compact Rust TS indexer."
-    )
+    parser = argparse.ArgumentParser(description="Benchmark a pinned large TypeScript/JavaScript repository against the compact Rust TS indexer.")
     parser.add_argument("--name", default=DEFAULT_REPO_NAME, help="Stable name for the pinned repository checkout.")
     parser.add_argument("--repo-url", default=DEFAULT_REPO_URL, help="Git repository URL.")
     parser.add_argument("--ref", default=DEFAULT_REF, help="Remote ref or commit to fetch.")
@@ -273,9 +259,7 @@ def parse_args() -> argparse.Namespace:
         help="Do not fail if Rust file count differs from the selected TS/JS file list.",
     )
     parser.add_argument("--output", type=Path, help="Optional path to write JSON report.")
-    parser.add_argument(
-        "--json", action="store_true", help="Print JSON report instead of a human summary."
-    )
+    parser.add_argument("--json", action="store_true", help="Print JSON report instead of a human summary.")
     parser.set_defaults(python_disable_graph=True, require_file_count_match=True)
     return parser.parse_args()
 
@@ -287,9 +271,7 @@ def main() -> int:
     report = make_report(args)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(
-            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
+        args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

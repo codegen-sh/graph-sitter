@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Self, TypeVar
 
 from graph_sitter.compiled.utils import find_line_start_and_end_nodes
 from graph_sitter.core.autocommit import reader, writer
@@ -17,7 +17,7 @@ Parent = TypeVar("Parent", bound="TSHasBlock")
 
 
 @ts_apidoc
-class TSCodeBlock(CodeBlock[Parent, "TSAssignment"], Generic[Parent]):
+class TSCodeBlock[Parent: "TSHasBlock"](CodeBlock[Parent, "TSAssignment"]):
     """Extends the CodeBlock class to provide TypeScript-specific functionality."""
 
     @noapidoc

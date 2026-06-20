@@ -43,17 +43,9 @@ def collect_pytest_ids(pytest_roots: list[str]) -> set[str]:
         text=True,
     )
     if result.returncode != 0:
-        msg = (
-            f"pytest collection failed with exit code {result.returncode}\n"
-            f"stdout:\n{result.stdout}\n"
-            f"stderr:\n{result.stderr}"
-        )
+        msg = f"pytest collection failed with exit code {result.returncode}\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         raise RuntimeError(msg)
-    return {
-        line.strip()
-        for line in result.stdout.splitlines()
-        if "::test_" in line and line.strip().endswith(tuple("abcdefghijklmnopqrstuvwxyz0123456789_]"))
-    }
+    return {line.strip() for line in result.stdout.splitlines() if "::test_" in line and line.strip().endswith(tuple("abcdefghijklmnopqrstuvwxyz0123456789_]"))}
 
 
 def manifest_test_ids(manifest: dict[str, Any]) -> list[str]:
@@ -129,9 +121,7 @@ def print_human(report: dict[str, Any]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Validate that the Rust rewrite supported-subset manifest matches collected fast-lane tests."
-    )
+    parser = argparse.ArgumentParser(description="Validate that the Rust rewrite supported-subset manifest matches collected fast-lane tests.")
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--json", action="store_true", help="Print JSON instead of a human summary.")
     return parser.parse_args()

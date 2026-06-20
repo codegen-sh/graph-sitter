@@ -15,23 +15,23 @@ This inventory maps the current Python implementation that needs parity in the R
 
 The Python backend stores graph nodes as live Python objects in `rustworkx.PyDiGraph`. The resolver/dependency graph uses:
 
-| Concept | Current node/record | Important fields |
-| --- | --- | --- |
-| File | `SourceFile` | `node_id`, `filepath`, `_nodes`, `code_block`, `valid_symbol_names`, `valid_import_names` |
-| Symbol | `Symbol` subclasses | `name`, `full_name`, `symbol_type`, `parent_symbol`, code ranges, nested `code_block` |
-| Import | `Import` subclasses | `module`, `symbol_name`, `alias`, `import_type`, `_unique_node`, `to_file_id` |
-| Export | `TSExport` | `name`, `exported_name`, `_declared_symbol`, `_exported_symbol`, `_value_node` |
-| External module | `ExternalModule` | module/source name, originating import |
-| Usage | `Usage` dataclass | `match`, `usage_symbol`, `imported_by`, `usage_type`, `kind` |
+| Concept         | Current node/record | Important fields                                                                          |
+| --------------- | ------------------- | ----------------------------------------------------------------------------------------- |
+| File            | `SourceFile`        | `node_id`, `filepath`, `_nodes`, `code_block`, `valid_symbol_names`, `valid_import_names` |
+| Symbol          | `Symbol` subclasses | `name`, `full_name`, `symbol_type`, `parent_symbol`, code ranges, nested `code_block`     |
+| Import          | `Import` subclasses | `module`, `symbol_name`, `alias`, `import_type`, `_unique_node`, `to_file_id`             |
+| Export          | `TSExport`          | `name`, `exported_name`, `_declared_symbol`, `_exported_symbol`, `_value_node`            |
+| External module | `ExternalModule`    | module/source name, originating import                                                    |
+| Usage           | `Usage` dataclass   | `match`, `usage_symbol`, `imported_by`, `usage_type`, `kind`                              |
 
 Graph edges:
 
-| Edge kind | Direction | Meaning |
-| --- | --- | --- |
-| `IMPORT_SYMBOL_RESOLUTION` | import -> symbol/file/external | Import path/specifier resolution |
-| `EXPORT` | export -> symbol/import/file | Export target resolution |
-| `SUBCLASS` | class/interface -> class/interface/external | Resolved inheritance/implements relation |
-| `SYMBOL_USAGE` | usage owner -> target | Dependency edge with `Usage` metadata |
+| Edge kind                  | Direction                                   | Meaning                                  |
+| -------------------------- | ------------------------------------------- | ---------------------------------------- |
+| `IMPORT_SYMBOL_RESOLUTION` | import -> symbol/file/external              | Import path/specifier resolution         |
+| `EXPORT`                   | export -> symbol/import/file                | Export target resolution                 |
+| `SUBCLASS`                 | class/interface -> class/interface/external | Resolved inheritance/implements relation |
+| `SYMBOL_USAGE`             | usage owner -> target                       | Dependency edge with `Usage` metadata    |
 
 `UsageType` is an `IntFlag` with `DIRECT`, `CHAINED`, `INDIRECT`, and `ALIASED`. `UsageKind` records where the reference came from: subclass, typed parameter, type annotation, body, decorator, return type, type definition, exported symbol, wildcard export, generic, imported, wildcard import, or default value.
 
@@ -40,16 +40,16 @@ Graph edges:
 `CodebaseContext._process_diff_files` is the orchestrator:
 
 1. Clear caches unless this is an incremental add-only update.
-2. Start and wait for dependency manager/language engine if configured.
-3. Normalize missing `ADD`/`REPARSE` paths into `DELETE`.
-4. For deleted files, remove internal edges, unparse nodes, remove graph nodes, and collect predecessor nodes of removed nodes into `to_resolve`.
-5. For reparsed files, remove internal edges, unparse children, reparse the same file node from disk, and enqueue the file plus all new nodes.
-6. For added files, parse and enqueue the file plus all new nodes.
-7. Rebuild directory tree and TypeScript configs.
-8. For every import in `to_resolve`, remove old import-resolution edges, add new ones, and append `node.symbol_usages` to `to_resolve`.
-9. For every export in `to_resolve`, remove old export edges, compute export edges, and append `node.symbol_usages` to `to_resolve`.
-10. For every inherited symbol in `to_resolve`, remove old subclass edges and compute superclass dependencies.
-11. Run `_compute_dependencies(to_resolve, incremental)`.
+1. Start and wait for dependency manager/language engine if configured.
+1. Normalize missing `ADD`/`REPARSE` paths into `DELETE`.
+1. For deleted files, remove internal edges, unparse nodes, remove graph nodes, and collect predecessor nodes of removed nodes into `to_resolve`.
+1. For reparsed files, remove internal edges, unparse children, reparse the same file node from disk, and enqueue the file plus all new nodes.
+1. For added files, parse and enqueue the file plus all new nodes.
+1. Rebuild directory tree and TypeScript configs.
+1. For every import in `to_resolve`, remove old import-resolution edges, add new ones, and append `node.symbol_usages` to `to_resolve`.
+1. For every export in `to_resolve`, remove old export edges, compute export edges, and append `node.symbol_usages` to `to_resolve`.
+1. For every inherited symbol in `to_resolve`, remove old subclass edges and compute superclass dependencies.
+1. Run `_compute_dependencies(to_resolve, incremental)`.
 
 `_compute_dependencies` is a fixed-point queue over Python objects. Each node recomputes outgoing `SYMBOL_USAGE` edges. In incremental mode, `Importable.recompute` removes old usage edges, calls `_compute_dependencies`, and returns `descendant_symbols + file.get_nodes(sort=False)`. In non-incremental mode, each fixed-point round appends every graph node not yet seen. This is correct enough for the object model, but it fans out far beyond the semantic delta.
 
@@ -78,15 +78,15 @@ Current Rust implementation status:
 `PyImport.resolve_import` resolves from `module`, `symbol_name`, `alias`, and `ImportType`:
 
 1. Pick `base_path` from the first project or an explicit retry.
-2. Convert relative dot imports to absolute dotted paths based on the current file directory.
-3. For module and wildcard imports, try `base_path/module/path.py`.
-4. For named imports, first try `base_path/module/path/symbol.py` to support importing a submodule as the symbol.
-5. Try configured `import_resolution_paths` and optionally `sys.path` before the default graph lookup.
-6. Try direct file paths, then package `__init__.py`.
-7. For `module.py` or `module/__init__.py`, look up `symbol_name` through `get_node_by_name`.
-8. If a symbol is missing but a wildcard import chain can provide it, return the file as `imports_file=True`.
-9. If unresolved from repo root, retry with `src`, then `test` if those directories exist.
-10. Otherwise return `None` and let the shared layer create/reuse an external module node.
+1. Convert relative dot imports to absolute dotted paths based on the current file directory.
+1. For module and wildcard imports, try `base_path/module/path.py`.
+1. For named imports, first try `base_path/module/path/symbol.py` to support importing a submodule as the symbol.
+1. Try configured `import_resolution_paths` and optionally `sys.path` before the default graph lookup.
+1. Try direct file paths, then package `__init__.py`.
+1. For `module.py` or `module/__init__.py`, look up `symbol_name` through `get_node_by_name`.
+1. If a symbol is missing but a wildcard import chain can provide it, return the file as `imports_file=True`.
+1. If unresolved from repo root, retry with `src`, then `test` if those directories exist.
+1. Otherwise return `None` and let the shared layer create/reuse an external module node.
 
 Python `valid_import_names` extends the base file map for `__init__.py`: child files in the package directory are importable by file stem.
 
@@ -97,13 +97,13 @@ Python `valid_import_names` extends the base file map for `__init__.py`: child f
 `TSImport.resolve_import`:
 
 1. Strip quotes from the import source.
-2. Translate aliases through the nearest `TSConfig` if available.
-3. Mark relative imports, prepend the project base path for non-prefixed sources, and normalize relative paths against the importing file directory.
-4. If the path has no extension and an index file exists, prefer `index.ts`, `index.js`, `index.tsx`, then `index.jsx`.
-5. Try both the import source and its extensionless stem with extensions: empty, `.ts`, `.d.ts`, `.tsx`, `.d.tsx`, `.js`, `.jsx`.
-6. If the target file exists and the import is module-like (`MODULE`, `WILDCARD`, `DEFAULT_EXPORT`, or non-type `SIDE_EFFECT`), resolve to the file.
-7. For named imports, resolve to `file.get_export(symbol_name)`. If the export is missing, return the file as `imports_file=True` so module re-export search can resolve later.
-8. If no file matches, return `None` for external module handling.
+1. Translate aliases through the nearest `TSConfig` if available.
+1. Mark relative imports, prepend the project base path for non-prefixed sources, and normalize relative paths against the importing file directory.
+1. If the path has no extension and an index file exists, prefer `index.ts`, `index.js`, `index.tsx`, then `index.jsx`.
+1. Try both the import source and its extensionless stem with extensions: empty, `.ts`, `.d.ts`, `.tsx`, `.d.tsx`, `.js`, `.jsx`.
+1. If the target file exists and the import is module-like (`MODULE`, `WILDCARD`, `DEFAULT_EXPORT`, or non-type `SIDE_EFFECT`), resolve to the file.
+1. For named imports, resolve to `file.get_export(symbol_name)`. If the export is missing, return the file as `imports_file=True` so module re-export search can resolve later.
+1. If no file matches, return `None` for external module handling.
 
 `TSImport.resolved_symbol` adds TypeScript-specific hops:
 
@@ -195,12 +195,12 @@ Parity requires both edge families: `SYMBOL_USAGE` for the inheritance expressio
 The main fan-out points to avoid in Rust are:
 
 1. `to_resolve.extend(node.symbol_usages)` during import and export passes. A changed import/export pulls all current users of that object into the recompute queue, even if only one name or target changed.
-2. `Importable.recompute(incremental=True)` returns `descendant_symbols + file.get_nodes(sort=False)`. Any changed node schedules the whole file's graph nodes plus nested descendants.
-3. Non-incremental `_compute_dependencies` appends every graph node not yet seen on every fixed-point round.
-4. Cache invalidation is coarse: `uncache_all()` and file-level `invalidate()` drop broad Python cached properties instead of specific name/export/import indexes.
-5. Wildcard imports and exports invalidate importer files by object traversal, not by changed exported-name sets.
-6. TypeScript re-export search uses BFS through module imports at query time, so a missing named export can repeatedly search the same module-import frontier.
-7. `valid_symbol_names` and `valid_import_names` are derived from live object lists and can expand wildcard imports into many object wrappers.
+1. `Importable.recompute(incremental=True)` returns `descendant_symbols + file.get_nodes(sort=False)`. Any changed node schedules the whole file's graph nodes plus nested descendants.
+1. Non-incremental `_compute_dependencies` appends every graph node not yet seen on every fixed-point round.
+1. Cache invalidation is coarse: `uncache_all()` and file-level `invalidate()` drop broad Python cached properties instead of specific name/export/import indexes.
+1. Wildcard imports and exports invalidate importer files by object traversal, not by changed exported-name sets.
+1. TypeScript re-export search uses BFS through module imports at query time, so a missing named export can repeatedly search the same module-import frontier.
+1. `valid_symbol_names` and `valid_import_names` are derived from live object lists and can expand wildcard imports into many object wrappers.
 
 The Rust engine should compute semantic deltas first and only enqueue relations whose inputs changed.
 
@@ -208,35 +208,35 @@ The Rust engine should compute semantic deltas first and only enqueue relations 
 
 ### Canonical Records
 
-| Record | Required fields |
-| --- | --- |
-| `FileRecord` | `FileId`, path ID, language, content hash, parser generation, tsconfig ID, root range |
-| `ScopeRecord` | `ScopeId`, file ID, parent scope, owner node, kind, range, hoist behavior |
-| `SymbolRecord` | `SymbolId`, file ID, scope ID, name ID, full-name ID, kind, parent symbol, declaration range, body range |
-| `ImportRecord` | `ImportId`, file ID, scope ID, module specifier ID, symbol name ID, alias ID, import type, statement range, specifier range |
-| `ExportRecord` | `ExportId`, file ID, export name ID, declared symbol/import ID, local exported symbol name ID, value expression ID, export kind, statement range |
-| `UsageSiteRecord` | `UsageSiteId`, file ID, scope ID, owner node ID, expression node ID, name/full-name IDs, match range, usage kind |
-| `ExternalModuleRecord` | `ExternalId`, module specifier ID, import name ID |
-| `GraphEdge` | source ID, target ID, edge kind, optional usage ID |
-| `UsageRecord` | usage site, owner node, target node, imported-by import ID, usage type, usage kind, match range |
+| Record                 | Required fields                                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `FileRecord`           | `FileId`, path ID, language, content hash, parser generation, tsconfig ID, root range                                                            |
+| `ScopeRecord`          | `ScopeId`, file ID, parent scope, owner node, kind, range, hoist behavior                                                                        |
+| `SymbolRecord`         | `SymbolId`, file ID, scope ID, name ID, full-name ID, kind, parent symbol, declaration range, body range                                         |
+| `ImportRecord`         | `ImportId`, file ID, scope ID, module specifier ID, symbol name ID, alias ID, import type, statement range, specifier range                      |
+| `ExportRecord`         | `ExportId`, file ID, export name ID, declared symbol/import ID, local exported symbol name ID, value expression ID, export kind, statement range |
+| `UsageSiteRecord`      | `UsageSiteId`, file ID, scope ID, owner node ID, expression node ID, name/full-name IDs, match range, usage kind                                 |
+| `ExternalModuleRecord` | `ExternalId`, module specifier ID, import name ID                                                                                                |
+| `GraphEdge`            | source ID, target ID, edge kind, optional usage ID                                                                                               |
+| `UsageRecord`          | usage site, owner node, target node, imported-by import ID, usage type, usage kind, match range                                                  |
 
 ### Lookup Indexes
 
-| Index | Purpose |
-| --- | --- |
-| `path_to_file` and `module_key_to_file` | O(1) candidate file lookup for Python/TS import paths and package/index files |
-| `file_to_nodes`, `file_to_imports`, `file_to_exports`, `file_to_scopes` | Fast deletion/reparse and debug dumps |
-| `scope_parent`, `scope_children`, `binding_by_scope_name` | Lexical name lookup without parent object recursion |
-| `binding_visibility_by_name` | Resolve nearest visible binding before a usage byte |
-| `file_importable_name` | `valid_import_names` equivalent for each file |
-| `wildcard_import_expansion` and `wildcard_export_expansion` | Cache expanded names with source file/export generation |
-| `import_resolution` | Import -> target file/symbol/export/external and reverse target -> imports |
-| `export_target` | Export -> symbol/import/file/external and reverse target -> exports |
-| `usage_by_owner`, `usage_by_target`, `usage_by_match` | Dependency queries, usages API, rename callsites |
-| `edge_by_source_kind`, `edge_by_target_kind` | Efficient graph deletes and parity dumps |
-| `subclass_succ`, `subclass_pred` | Superclass/subclass APIs |
-| `tsconfig_for_file`, `alias_prefix_to_imports` | Narrow TypeScript alias invalidation |
-| `unresolved_by_name`, `external_by_key` | Revisit unresolved references only when matching names/modules appear |
+| Index                                                                   | Purpose                                                                       |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `path_to_file` and `module_key_to_file`                                 | O(1) candidate file lookup for Python/TS import paths and package/index files |
+| `file_to_nodes`, `file_to_imports`, `file_to_exports`, `file_to_scopes` | Fast deletion/reparse and debug dumps                                         |
+| `scope_parent`, `scope_children`, `binding_by_scope_name`               | Lexical name lookup without parent object recursion                           |
+| `binding_visibility_by_name`                                            | Resolve nearest visible binding before a usage byte                           |
+| `file_importable_name`                                                  | `valid_import_names` equivalent for each file                                 |
+| `wildcard_import_expansion` and `wildcard_export_expansion`             | Cache expanded names with source file/export generation                       |
+| `import_resolution`                                                     | Import -> target file/symbol/export/external and reverse target -> imports    |
+| `export_target`                                                         | Export -> symbol/import/file/external and reverse target -> exports           |
+| `usage_by_owner`, `usage_by_target`, `usage_by_match`                   | Dependency queries, usages API, rename callsites                              |
+| `edge_by_source_kind`, `edge_by_target_kind`                            | Efficient graph deletes and parity dumps                                      |
+| `subclass_succ`, `subclass_pred`                                        | Superclass/subclass APIs                                                      |
+| `tsconfig_for_file`, `alias_prefix_to_imports`                          | Narrow TypeScript alias invalidation                                          |
+| `unresolved_by_name`, `external_by_key`                                 | Revisit unresolved references only when matching names/modules appear         |
 
 ## Compact Frontier And Invalidation Rules
 
@@ -257,11 +257,11 @@ For each changed file, compute deltas before invalidating dependents:
 Use separate queues instead of one object queue:
 
 1. `ResolveImports`: import IDs whose module candidate set or specifier fields changed.
-2. `ResolveExports`: export IDs whose declared/local/import target changed, plus wildcard re-exporters of changed export names.
-3. `ResolveNames`: usage sites whose lexical binding candidates changed by name/scope/range.
-4. `BuildUsageEdges`: usage sites whose resolution stack changed.
-5. `BuildSubclassEdges`: inheritance expressions whose resolved target changed.
-6. `PropagateNameExports`: files whose `file_importable_name` set changed.
+1. `ResolveExports`: export IDs whose declared/local/import target changed, plus wildcard re-exporters of changed export names.
+1. `ResolveNames`: usage sites whose lexical binding candidates changed by name/scope/range.
+1. `BuildUsageEdges`: usage sites whose resolution stack changed.
+1. `BuildSubclassEdges`: inheritance expressions whose resolved target changed.
+1. `PropagateNameExports`: files whose `file_importable_name` set changed.
 
 ### Frontier Rules
 
@@ -279,15 +279,15 @@ The Rust fixed point should operate on relation generations: if a queue item rec
 ## Rust Port Plan
 
 1. Extract compact import/export/scope/usage IR alongside the Python backend and produce debug snapshots without changing behavior.
-2. Implement Python import path resolution in Rust with a candidate-path trace for parity debugging.
-3. Implement TypeScript import path resolution, including tsconfig alias maps, index files, extension permutations, dynamic imports, and external module records.
-4. Implement TypeScript export target resolution and file importable-name tables, including wildcard re-export expansion.
-5. Implement lexical scope tables and name lookup for file, function, class, parameter, loop, `self`/`super()`, `this`, and conditional-resolution cases.
-6. Implement resolution-stack edge emission so normalized `SYMBOL_USAGE` edges include intermediate import/export nodes and the current `UsageType`/`UsageKind`.
-7. Implement `SUBCLASS` edge construction from parent/interface expressions and BFS query indexes for superclass/subclass APIs.
-8. Add incremental relation generations and the compact work queues above.
-9. Expose graph debug dumps through PyO3: nodes, imports, exports, usage sites, resolution stacks, and normalized edges.
-10. Keep Python object APIs as wrappers over IDs only after graph edge parity is proven.
+1. Implement Python import path resolution in Rust with a candidate-path trace for parity debugging.
+1. Implement TypeScript import path resolution, including tsconfig alias maps, index files, extension permutations, dynamic imports, and external module records.
+1. Implement TypeScript export target resolution and file importable-name tables, including wildcard re-export expansion.
+1. Implement lexical scope tables and name lookup for file, function, class, parameter, loop, `self`/`super()`, `this`, and conditional-resolution cases.
+1. Implement resolution-stack edge emission so normalized `SYMBOL_USAGE` edges include intermediate import/export nodes and the current `UsageType`/`UsageKind`.
+1. Implement `SUBCLASS` edge construction from parent/interface expressions and BFS query indexes for superclass/subclass APIs.
+1. Add incremental relation generations and the compact work queues above.
+1. Expose graph debug dumps through PyO3: nodes, imports, exports, usage sites, resolution stacks, and normalized edges.
+1. Keep Python object APIs as wrappers over IDs only after graph edge parity is proven.
 
 ## Edge Parity Tests
 
@@ -302,15 +302,15 @@ Add Rust-vs-Python golden snapshots using normalized tuples:
 
 Required parity categories:
 
-| Category | Fixtures to cover |
-| --- | --- |
-| Python imports | module, named, aliased, wildcard, relative dots, package `__init__.py`, custom resolve paths, `src`/`test` fallback, external modules |
-| TypeScript imports | default, named, alias, namespace, side-effect, `require`, dynamic import, directory index, extension fallback, tsconfig paths/baseUrl/references, external modules |
+| Category           | Fixtures to cover                                                                                                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Python imports     | module, named, aliased, wildcard, relative dots, package `__init__.py`, custom resolve paths, `src`/`test` fallback, external modules                                           |
+| TypeScript imports | default, named, alias, namespace, side-effect, `require`, dynamic import, directory index, extension fallback, tsconfig paths/baseUrl/references, external modules              |
 | TypeScript exports | declaration exports, default exports, `export =`, object value exports, named local exports, named re-exports, wildcard re-exports, aliased wildcard exports, type-only exports |
-| Usage types | direct same-file references, imported references, indirect re-export chains, aliased imports/exports, chained module/class/namespace references |
-| Usage kinds | body, decorator, subclass, generic, type annotation, typed parameter, return type, type definition, exported symbol, imported, default value |
-| Name/scope | nested functions, parameter shadowing, definitions after usage, class methods, Python `self` and `super()`, TypeScript `this`, loop variables, conditional blocks |
-| Subclass/interface | Python class bases, TS `extends`, TS `implements`, interface `extends`, generic parent types, external/ambiguous parents |
-| Incremental | add file, delete file, reparse no-op, rename import target, change exported name, wildcard export name delta, tsconfig alias delta |
+| Usage types        | direct same-file references, imported references, indirect re-export chains, aliased imports/exports, chained module/class/namespace references                                 |
+| Usage kinds        | body, decorator, subclass, generic, type annotation, typed parameter, return type, type definition, exported symbol, imported, default value                                    |
+| Name/scope         | nested functions, parameter shadowing, definitions after usage, class methods, Python `self` and `super()`, TypeScript `this`, loop variables, conditional blocks               |
+| Subclass/interface | Python class bases, TS `extends`, TS `implements`, interface `extends`, generic parent types, external/ambiguous parents                                                        |
+| Incremental        | add file, delete file, reparse no-op, rename import target, change exported name, wildcard export name delta, tsconfig alias delta                                              |
 
 Existing tests already cover many behavior assertions under `tests/unit/sdk/python/import_resolution`, `tests/unit/sdk/typescript/import_resolution`, `tests/unit/sdk/typescript/export`, `tests/unit/sdk/python/class_definition/test_class_dependencies.py`, `tests/unit/sdk/typescript/class_definition/test_class_dependencies.py`, `tests/unit/sdk/typescript/interface/test_interface_dependencies.py`, `tests/unit/sdk/python/file/test_file_reparse.py`, and `tests/unit/sdk/python/codebase/test_codebase_reset.py`. The Rust parity layer should reuse those fixture shapes and compare graph-edge snapshots directly.

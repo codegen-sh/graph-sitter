@@ -775,11 +775,7 @@ class RustIndexBackend:
     @property
     def files(self) -> list[RustFileRecord]:
         if self._files is None:
-            self._files = [
-                RustFileRecord.from_dict(record)
-                for record in json.loads(self.index.files_json())
-                if int(record["id"]) not in self._removed_file_ids
-            ]
+            self._files = [RustFileRecord.from_dict(record) for record in json.loads(self.index.files_json()) if int(record["id"]) not in self._removed_file_ids]
             self._files.extend(record for record in self._synthetic_file_records() if record.id not in self._removed_file_ids)
             self._files.extend(record for record in self._added_file_records_by_id.values() if record.id not in self._removed_file_ids)
         return self._files
@@ -787,16 +783,8 @@ class RustIndexBackend:
     @property
     def source_files(self) -> list[RustFileRecord]:
         if self._source_file_paths:
-            source_files = [
-                record
-                for filepath in self._source_file_paths
-                if (record := self._file_record_by_path(filepath)) is not None and record.id not in self._removed_file_ids
-            ]
-            source_files.extend(
-                record
-                for record in self._added_file_records_by_id.values()
-                if record.id not in self._removed_file_ids and record.language
-            )
+            source_files = [record for filepath in self._source_file_paths if (record := self._file_record_by_path(filepath)) is not None and record.id not in self._removed_file_ids]
+            source_files.extend(record for record in self._added_file_records_by_id.values() if record.id not in self._removed_file_ids and record.language)
             return source_files
         return [record for record in self.files if record.language]
 
@@ -909,16 +897,8 @@ class RustIndexBackend:
     @property
     def source_file_handles(self) -> list[RustCompactFile]:
         if self._source_file_paths:
-            source_files = [
-                file
-                for filepath in self._source_file_paths
-                if (file := self.get_file_handle(filepath)) is not None
-            ]
-            source_files.extend(
-                self._file_handle_from_record(record)
-                for record in self._added_file_records_by_id.values()
-                if record.id not in self._removed_file_ids and record.language
-            )
+            source_files = [file for filepath in self._source_file_paths if (file := self.get_file_handle(filepath)) is not None]
+            source_files.extend(self._file_handle_from_record(record) for record in self._added_file_records_by_id.values() if record.id not in self._removed_file_ids and record.language)
             return source_files
         return [file for file in self.file_handles if file.record.language]
 
@@ -2648,11 +2628,7 @@ class RustCompactPromiseChain(RustCompactHandle):
 
     @property
     def then_chain(self) -> list[RustCompactPromiseChainStage]:
-        return [
-            RustCompactPromiseChainStage(parent=self, name=stage_name, index=index)
-            for index, stage_name in enumerate(self.stage_names)
-            if stage_name == "then"
-        ]
+        return [RustCompactPromiseChainStage(parent=self, name=stage_name, index=index) for index, stage_name in enumerate(self.stage_names) if stage_name == "then"]
 
     @property
     def catch_call(self) -> RustCompactPromiseChainStage | None:
@@ -3869,10 +3845,7 @@ class RustCompactSymbol(RustCompactHandle):
         file.add_symbol(self)
         import_line = self.get_import_string(module=file.import_module_name)
         is_used_in_source_file = any(
-            usage_symbol != self
-            and getattr(usage_symbol, "file", None) == self.file
-            and getattr(usage_symbol, "node_type", None) == NodeType.SYMBOL
-            for usage_symbol in self.symbol_usages
+            usage_symbol != self and getattr(usage_symbol, "file", None) == self.file and getattr(usage_symbol, "node_type", None) == NodeType.SYMBOL for usage_symbol in self.symbol_usages
         )
         imported_usages = [usage for usage in self.usages if usage.imported_by is not None and usage.imported_by not in encountered_symbols]
 
@@ -4194,10 +4167,7 @@ class RustCompactImport(RustCompactHandle):
         if not _usage_types_include_direct(usage_types):
             return []
 
-        usages = [
-            RustCompactUsage(self.backend, reference)
-            for reference in [*self.backend.references_for_import(self.record.id), *self.backend.external_references_for_import(self.record.id)]
-        ]
+        usages = [RustCompactUsage(self.backend, reference) for reference in [*self.backend.references_for_import(self.record.id), *self.backend.external_references_for_import(self.record.id)]]
         return sorted(dict.fromkeys(usages), key=lambda usage: (usage.file.filepath, usage.match.start_byte), reverse=True)
 
     @proxy_property
@@ -4632,11 +4602,7 @@ class RustCompactExport(RustCompactHandle):
             if symbol_name is None:
                 return None
             return next(
-                (
-                    symbol
-                    for symbol in self.backend.symbols_for_file_by_name(self.record.file_id, symbol_name)
-                    if symbol.is_top_level
-                ),
+                (symbol for symbol in self.backend.symbols_for_file_by_name(self.record.file_id, symbol_name) if symbol.is_top_level),
                 None,
             )
         if self.is_wildcard_export():

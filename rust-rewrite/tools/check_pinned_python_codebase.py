@@ -302,18 +302,9 @@ def file_signature(file: Any) -> dict[str, Any]:
 def known_lookup_report(codebase: Any) -> dict[str, list[dict[str, Any]]]:
     init_file = codebase.get_file("airflow/__init__.py")
     return {
-        "airflow_init_import_os": [
-            handle_signature(handle)
-            for handle in init_file.find_by_byte_range({"start_byte": 847, "end_byte": 856})
-        ],
-        "airflow_init_getattr_name": [
-            handle_signature(handle)
-            for handle in init_file.find_by_byte_range({"start_byte": 4048, "end_byte": 4059})
-        ],
-        "airflow_init_lazy_imports_reference_container": [
-            handle_signature(handle)
-            for handle in init_file.find_by_byte_range({"start_byte": 4169, "end_byte": 4183})
-        ],
+        "airflow_init_import_os": [handle_signature(handle) for handle in init_file.find_by_byte_range({"start_byte": 847, "end_byte": 856})],
+        "airflow_init_getattr_name": [handle_signature(handle) for handle in init_file.find_by_byte_range({"start_byte": 4048, "end_byte": 4059})],
+        "airflow_init_lazy_imports_reference_container": [handle_signature(handle) for handle in init_file.find_by_byte_range({"start_byte": 4169, "end_byte": 4183})],
     }
 
 
@@ -525,12 +516,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     comparison = {
         "recorded_python_wall_seconds": RECORDED_PYTHON_BASELINE["wall_seconds"],
         "recorded_python_max_rss_mb": RECORDED_PYTHON_BASELINE["max_rss_mb"],
-        "recorded_python_to_rust_wall_ratio": ratio(
-            RECORDED_PYTHON_BASELINE["wall_seconds"], totals["wall_seconds"]
-        ),
-        "recorded_python_to_rust_rss_ratio": ratio(
-            RECORDED_PYTHON_BASELINE["max_rss_mb"], totals["max_rss_mb"]
-        ),
+        "recorded_python_to_rust_wall_ratio": ratio(RECORDED_PYTHON_BASELINE["wall_seconds"], totals["wall_seconds"]),
+        "recorded_python_to_rust_rss_ratio": ratio(RECORDED_PYTHON_BASELINE["max_rss_mb"], totals["max_rss_mb"]),
     }
     report = {
         "metadata": {
@@ -614,13 +601,9 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
     wall_ratio = comparison["recorded_python_to_rust_wall_ratio"]
     rss_ratio = comparison["recorded_python_to_rust_rss_ratio"]
     if wall_ratio is None or wall_ratio < args.min_recorded_wall_ratio:
-        failures.append(
-            f"recorded Python/Rust wall ratio {wall_ratio}x is below {args.min_recorded_wall_ratio}x"
-        )
+        failures.append(f"recorded Python/Rust wall ratio {wall_ratio}x is below {args.min_recorded_wall_ratio}x")
     if rss_ratio is None or rss_ratio < args.min_recorded_rss_ratio:
-        failures.append(
-            f"recorded Python/Rust RSS ratio {rss_ratio}x is below {args.min_recorded_rss_ratio}x"
-        )
+        failures.append(f"recorded Python/Rust RSS ratio {rss_ratio}x is below {args.min_recorded_rss_ratio}x")
 
     if failures:
         raise RuntimeError("; ".join(failures))
@@ -636,14 +619,8 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"repo: {metadata['name']} {metadata['commit']}")
     print(f"checkout: {metadata['checkout']}")
     print(f"python graph blocked: {metadata['python_graph_blocked']}")
-    print(
-        f"rust Codebase: wall={totals['wall_seconds']:.3f}s "
-        f"max_rss={totals['max_rss_mb']:.1f} MB current_rss={totals['current_rss_mb']:.1f} MB"
-    )
-    print(
-        "rss samples: "
-        + " -> ".join(f"{sample['label']}={sample['rss_mb']:.1f} MB" for sample in report["rss_samples"])
-    )
+    print(f"rust Codebase: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB current_rss={totals['current_rss_mb']:.1f} MB")
+    print("rss samples: " + " -> ".join(f"{sample['label']}={sample['rss_mb']:.1f} MB" for sample in report["rss_samples"]))
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
@@ -657,22 +634,12 @@ def print_human(report: dict[str, Any]) -> None:
         f"functions={compat['functions']} global_vars={compat['global_vars']} imports={compat['imports']} "
         f"external_modules={compat['external_modules']}"
     )
-    print(
-        "records: "
-        f"references={records['rust_references']} external_references={records['rust_external_references']} "
-        f"dependencies={records['rust_dependencies']}"
-    )
-    print(
-        "recorded baseline ratios: "
-        f"wall={comparison['recorded_python_to_rust_wall_ratio']}x "
-        f"rss={comparison['recorded_python_to_rust_rss_ratio']}x"
-    )
+    print(f"records: references={records['rust_references']} external_references={records['rust_external_references']} dependencies={records['rust_dependencies']}")
+    print(f"recorded baseline ratios: wall={comparison['recorded_python_to_rust_wall_ratio']}x rss={comparison['recorded_python_to_rust_rss_ratio']}x")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Check pinned Airflow Rust Codebase construction, compatibility handles, byte-range lookups, and performance ceilings."
-    )
+    parser = argparse.ArgumentParser(description="Check pinned Airflow Rust Codebase construction, compatibility handles, byte-range lookups, and performance ceilings.")
     parser.add_argument("--name", default=DEFAULT_REPO_NAME, help="Stable name for the pinned repository checkout.")
     parser.add_argument("--repo-url", default=DEFAULT_REPO_URL, help="Git repository URL.")
     parser.add_argument("--ref", default=DEFAULT_REF, help="Remote ref or commit to fetch.")

@@ -172,11 +172,7 @@ def _run_check(
         sandbox_repo_path = Path(temporary_directory) / source_repo_path.name
         shutil.copytree(source_repo_path, sandbox_repo_path, ignore=_ignore_check_sandbox_entries)
         _initialize_check_sandbox_repo(sandbox_repo_path)
-        sandbox_function = (
-            check_function_resolver(sandbox_repo_path)
-            if check_function_resolver
-            else CodemodManager.get_codemod(function.name, start_path=sandbox_repo_path)
-        )
+        sandbox_function = check_function_resolver(sandbox_repo_path) if check_function_resolver else CodemodManager.get_codemod(function.name, start_path=sandbox_repo_path)
         result = _execute_codemod(
             repo_path=sandbox_repo_path,
             function=sandbox_function,

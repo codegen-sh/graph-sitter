@@ -100,7 +100,7 @@ for the current static landing page.
 ## Production Cutover Sequence
 
 1. Keep the current docs production site untouched.
-2. Review a Vercel preview deployment for `site/`.
-3. Move or confirm docs at `docs.graph-sitter.com`.
-4. Attach `graph-sitter.com` and `www.graph-sitter.com` to the Vercel landing
+1. Review a Vercel preview deployment for `site/`.
+1. Move or confirm docs at `docs.graph-sitter.com`.
+1. Attach `graph-sitter.com` and `www.graph-sitter.com` to the Vercel landing
    project only after explicit approval.

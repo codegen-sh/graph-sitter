@@ -22,16 +22,16 @@ work. The integrator currently owns `src/gsbuild/**`, `hatch.toml`, `uv.lock`,
 
 The public `uvx` story should have three user-facing lanes:
 
-| Lane | Command | Requires `.codegen`? | Mutates target? | Primary user |
-| --- | --- | --- | --- | --- |
-| Inspect | `uvx graph-sitter parse [PATH]` | No | Never | Humans, CI, agents, benchmarks |
-| Registered codemod | `uvx graph-sitter run LABEL [PATH] --check|--write` | Yes, for `LABEL` lookup | Only with `--write` or compatibility default | Repos that own codemods |
-| One-shot transform | `uvx graph-sitter transform MODULE:OBJECT [PATH] --check|--write` | No | Only with `--write` | Agents, release gates, external codemods |
+| Lane               | Command                                                   | Requires `.codegen`? | Mutates target?         | Primary user                                 |
+| ------------------ | --------------------------------------------------------- | -------------------- | ----------------------- | -------------------------------------------- |
+| Inspect            | `uvx graph-sitter parse [PATH]`                           | No                   | Never                   | Humans, CI, agents, benchmarks               |
+| Registered codemod | \`uvx graph-sitter run LABEL [PATH] --check               | --write\`            | Yes, for `LABEL` lookup | Only with `--write` or compatibility default |
+| One-shot transform | \`uvx graph-sitter transform MODULE:OBJECT [PATH] --check | --write\`            | No                      | Only with `--write`                          |
 
 Supporting lane:
 
-| Lane | Command | Purpose |
-| --- | --- | --- |
+| Lane        | Command                                             | Purpose                                                                                                   |
+| ----------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | Diagnostics | `uvx graph-sitter doctor [--backend rust] [--json]` | Prove package, parser dependency, and optional Rust-backend readiness before parse or transform workflows |
 
 The canonical spelling is `graph-sitter`. The historical `gs` script remains a
@@ -60,8 +60,10 @@ uvx --python 3.13 --from dist/<wheel>.whl graph-sitter transform ./codemods/rena
 
 - The distribution name must remain `graph-sitter`, and the `graph-sitter`
   console script must resolve to `graph_sitter.cli.cli:main`.
+
 - Keep `gs` as a compatibility script, but do not use it as the primary
   published-package or skill-facing command.
+
 - `pyproject.toml` must keep both scripts in `[project.scripts]` until a
   deliberate compatibility removal:
 
@@ -72,24 +74,31 @@ uvx --python 3.13 --from dist/<wheel>.whl graph-sitter transform ./codemods/rena
 
 - Public examples should pin `--python 3.13` while package metadata remains
   constrained to Python `>=3.12,<3.14`.
+
 - Rust-backed `uvx` requires wheels that include the platform-specific
   `graph_sitter_py` extension. Python-backend imports must remain safe when the
   extension is absent.
+
 - Clean `uvx` environments must include `codemods/codemod.py`, parser runtime
   dependencies, and compatible tree-sitter grammar wheels.
+
 - Wheel builds currently use `hatchling.build`, `hatch.toml`, and the custom
   hook at `src/gsbuild/build.py`. The hook must continue to build the PyO3
   crate, force-include `graph_sitter_py{EXT_SUFFIX}`, mark wheels
   platform-specific, and include `src/codemods` beside `src/graph_sitter`.
+
 - `cibuildwheel` must keep producing CPython 3.12 and 3.13 wheels for the
   supported Linux and macOS targets. First-release Windows support is an open
   decision, not an implicit promise.
+
 - Branch proof uses `uvx --from dist/<wheel>.whl graph-sitter ...`; release
   proof must use uploaded artifacts with
   `uvx --from graph-sitter==<version> graph-sitter ...`, then the default
   `uvx graph-sitter ...` spelling.
+
 - Do not advertise `--backend rust` from PyPI until uploaded Linux/macOS wheels
   pass parse and transform smokes for Python 3.12 and 3.13.
+
 - If an sdist is published, it must include the Rust crate sources and any
   build inputs needed to compile the PyO3 extension.
 
@@ -120,12 +129,12 @@ Implemented local command surfaces:
 
 Observed command options from the current Click implementations:
 
-| Command | Required args | Shared options | Mode/output options |
-| --- | --- | --- | --- |
-| `parse` | optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--format summary|json`, `--output FILE`, `--subdir PATH` |
-| `run` | `LABEL`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write`, `--subdir PATH`, `--daemon` |
-| `transform` | `MODULE:OBJECT`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write`, `--subdir PATH` |
-| `doctor` | none | `--backend python|rust`, `--language python|typescript` | `--json` |
+| Command     | Required args                    | Shared options     | Mode/output options       |
+| ----------- | -------------------------------- | ------------------ | ------------------------- |
+| `parse`     | optional `PATH`                  | \`--backend python | rust                      |
+| `run`       | `LABEL`, optional `PATH`         | \`--backend python | rust                      |
+| `transform` | `MODULE:OBJECT`, optional `PATH` | \`--backend python | rust                      |
+| `doctor`    | none                             | \`--backend python | rust`, `--language python |
 
 Current defaults:
 
@@ -356,10 +365,10 @@ Contract:
 
 Backend selection is shared by `parse`, `run`, and `transform`.
 
-| Request | Rust unavailable | Unsupported Rust API during transform |
-| --- | --- | --- |
-| `--backend python` | Not relevant | Not relevant |
-| `--backend rust --fallback error` | Exit non-zero | Exit non-zero |
+| Request                            | Rust unavailable    | Unsupported Rust API during transform |
+| ---------------------------------- | ------------------- | ------------------------------------- |
+| `--backend python`                 | Not relevant        | Not relevant                          |
+| `--backend rust --fallback error`  | Exit non-zero       | Exit non-zero                         |
 | `--backend rust --fallback python` | Fall back to Python | Fall back to Python graph if possible |
 | `--backend auto --fallback python` | Fall back to Python | Fall back to Python graph if possible |
 
@@ -754,8 +763,7 @@ Skill rules:
 
 - [x] Prove built wheels include `codemods` and `graph_sitter_py` in clean uv
   environments. owner: codex. Result: `check_wheel_rust_backend.sh` asserts
-  both wheel contents and imports the CLI from a clean `uvx --from
-  dist/<wheel>.whl` environment.
+  both wheel contents and imports the CLI from a clean `uvx --from dist/<wheel>.whl` environment.
 - [x] Add Linux and macOS wheel uvx smokes for Python 3.12 and 3.13. owner:
   codex. Result: `.github/workflows/rust-rewrite-extension.yml` runs
   `check_wheel_rust_backend.sh` across the supported Python/OS matrix.
@@ -763,8 +771,7 @@ Skill rules:
   advertising Rust-backed uvx parse. owner: codex. Result: branch-built wheel
   CI runs strict Rust parse and strict Rust transform smokes from the installed
   artifact.
-- [ ] Add published-package release checklist requiring `uvx graph-sitter
-  --help`, parse, and transform against the uploaded artifact. owner: release
+- [ ] Add published-package release checklist requiring `uvx graph-sitter --help`, parse, and transform against the uploaded artifact. owner: release
   agent. Notes: pre-upload release-built wheel smoke now exists; uploaded PyPI
   artifact validation remains open.
 - [ ] Convert the published-package smoke commands in this roadmap into a
@@ -780,8 +787,7 @@ Skill rules:
 
 - [ ] Add pinned large Python repo `uvx parse --backend rust --fallback error`
   benchmark from a published-package artifact. owner: benchmark agent.
-- [ ] Add pinned large TypeScript repo `uvx parse --backend rust --fallback
-  error` benchmark from a published-package artifact. owner: benchmark agent.
+- [ ] Add pinned large TypeScript repo `uvx parse --backend rust --fallback error` benchmark from a published-package artifact. owner: benchmark agent.
 - [ ] Add pinned codemod fixtures that assert file diffs, not just graph counts.
   owner: codemod parity agent.
 - [ ] Compare Rust and Python backend transform diffs for the same pinned

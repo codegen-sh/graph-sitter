@@ -138,14 +138,8 @@ def _doctor_payload(*, backend: str, language: str) -> dict[str, Any]:
     if backend == "rust":
         payload["rust_parse_smoke"] = _rust_parse_smoke(language)
 
-    dependency_failures = [
-        name for name, result in payload["dependencies"].items() if not result["ok"]
-    ]
-    payload["ok"] = (
-        not dependency_failures
-        and (backend != "rust" or payload["rust_extension"]["ok"])
-        and (backend != "rust" or payload["rust_parse_smoke"]["ok"])
-    )
+    dependency_failures = [name for name, result in payload["dependencies"].items() if not result["ok"]]
+    payload["ok"] = not dependency_failures and (backend != "rust" or payload["rust_extension"]["ok"]) and (backend != "rust" or payload["rust_parse_smoke"]["ok"])
     if dependency_failures:
         payload["dependency_failures"] = dependency_failures
     return payload
@@ -170,11 +164,7 @@ def _print_summary(payload: dict[str, Any]) -> None:
     rust_smoke = payload.get("rust_parse_smoke")
     if rust_smoke is not None:
         if rust_smoke["ok"]:
-            rich.print(
-                "Rust parse smoke: ok "
-                f"{rust_smoke['files']} file(s), {rust_smoke['symbols']} symbol(s), "
-                f"{rust_smoke['language']}"
-            )
+            rich.print(f"Rust parse smoke: ok {rust_smoke['files']} file(s), {rust_smoke['symbols']} symbol(s), {rust_smoke['language']}")
         else:
             rich.print(f"[red]Rust parse smoke: failed[/red] {rust_smoke.get('error') or ''}")
 

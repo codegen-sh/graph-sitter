@@ -77,13 +77,13 @@ Use `generateStaticParams` and `dynamicParams = false` for docs routes so Vercel
 The current `docs/` tree is a useful content seed, but it contains Mintlify-specific navigation and MDX components. Migrate deliberately:
 
 1. Inventory MDX component usage in `docs/**/*.mdx`.
-2. Implement local component shims in `site/components/docs/` for high-use components such as `Note`, `Card`, `CardGroup`, `Param`, `ResponseField`, and code blocks.
-3. Convert `docs/mint.json` navigation into a typed `site/content/nav.ts` or `site/content/nav.json`.
-4. Move or copy content into `site/content/docs/` so the Vercel project is self-contained.
-5. Add a build-time docs loader that parses frontmatter, resolves slugs, renders MDX, and emits a search manifest.
-6. Port generated API reference pages or replace them with a generator that writes Vercel-compatible MDX.
-7. Add redirects from old slugs to new slugs before domain cutover.
-8. Remove Mintlify CI only after Next docs build proves parity on all docs pages.
+1. Implement local component shims in `site/components/docs/` for high-use components such as `Note`, `Card`, `CardGroup`, `Param`, `ResponseField`, and code blocks.
+1. Convert `docs/mint.json` navigation into a typed `site/content/nav.ts` or `site/content/nav.json`.
+1. Move or copy content into `site/content/docs/` so the Vercel project is self-contained.
+1. Add a build-time docs loader that parses frontmatter, resolves slugs, renders MDX, and emits a search manifest.
+1. Port generated API reference pages or replace them with a generator that writes Vercel-compatible MDX.
+1. Add redirects from old slugs to new slugs before domain cutover.
+1. Remove Mintlify CI only after Next docs build proves parity on all docs pages.
 
 Do not depend on files outside `site/` at Vercel build time unless the project root is deliberately changed to the repository root. The lower-risk target is a self-contained `site/` app with docs content underneath `site/content/docs/`.
 

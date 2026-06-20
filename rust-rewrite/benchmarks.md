@@ -14,17 +14,17 @@ This document captures the first practical baseline plan for the Python backend 
 The eager path is:
 
 1. `Codebase.__init__` validates inputs, builds `ProjectConfig`, and constructs `CodebaseContext`.
-2. `CodebaseContext.__init__` creates `rustworkx.PyDiGraph`, indexes, parser, config parser, dependency manager, and language engine.
-3. `CodebaseContext.build_graph` enumerates files with `RepoOperator.iter_files`.
-4. `_process_diff_files` adds files:
+1. `CodebaseContext.__init__` creates `rustworkx.PyDiGraph`, indexes, parser, config parser, dependency manager, and language engine.
+1. `CodebaseContext.build_graph` enumerates files with `RepoOperator.iter_files`.
+1. `_process_diff_files` adds files:
    - dependency manager / language engine startup if configured
    - file existence checks for incremental runs
    - new file parsing through `SourceFile.from_content`
    - tree-sitter parse through `parse_file`
    - eager Python object materialization through `SourceFile.parse`
-5. `_process_diff_files` builds the directory tree with `build_directory_tree`.
-6. TypeScript only: `config_parser.parse_configs` assigns nearest `tsconfig.json` data.
-7. Unless `CodebaseConfig(disable_graph=True)` is set, graph resolution runs:
+1. `_process_diff_files` builds the directory tree with `build_directory_tree`.
+1. TypeScript only: `config_parser.parse_configs` assigns nearest `tsconfig.json` data.
+1. Unless `CodebaseConfig(disable_graph=True)` is set, graph resolution runs:
    - import resolution through `Import.add_symbol_resolution_edge`
    - TypeScript export dependency resolution through `TSExport.compute_export_dependencies`
    - superclass/interface dependency resolution through `compute_superclass_dependencies`
@@ -177,12 +177,12 @@ Phase timings are inclusive and do not sum to total time because some wrappers a
 
 Use pinned commits and record hardware, Python version, OS, and command line from the JSON metadata.
 
-| Tier | Repo | Purpose | Minimum samples |
-| --- | --- | --- | --- |
-| Smoke | generated fixture | CI/local sanity check | 1 |
-| Small | this repo or a compact fixture repo | stable regression signal | 5 |
-| Medium | representative Python service or TS package | phase distribution | 5 |
-| Huge | known memory-stressing monorepo | Rust rewrite target | 3 |
+| Tier   | Repo                                        | Purpose                  | Minimum samples |
+| ------ | ------------------------------------------- | ------------------------ | --------------- |
+| Smoke  | generated fixture                           | CI/local sanity check    | 1               |
+| Small  | this repo or a compact fixture repo         | stable regression signal | 5               |
+| Medium | representative Python service or TS package | phase distribution       | 5               |
+| Huge   | known memory-stressing monorepo             | Rust rewrite target      | 3               |
 
 For each real repo, capture both default graph mode and `--disable-graph` parse-only mode. The delta approximates resolution/dependency graph cost.
 
@@ -192,12 +192,12 @@ These measurements are for the first Rust vertical slice only: repo walk, tree-s
 
 Commands were run on this branch on 2026-06-18.
 
-| Input | Python mode | Python wall | Python max RSS | Rust index wall | Rust process wall | Rust sampled RSS | Wall ratio | RSS ratio |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Generated fixture, 150 modules x 20 helpers | `--disable-graph` | 0.460s | 166.3 MB | 0.047s | 0.281s | 3.3 MB | 9.875x | 50.918x |
-| Generated fixture, 150 modules x 20 helpers | full graph | 1.147s | 208.5 MB | 0.038s | 0.051s | 3.1 MB | 30.502x | 66.380x |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.874s | 531.9 MB | 0.317s | 0.333s | 7.6 MB | 9.069x | 70.045x |
-| `graph-sitter` repo checkout | full graph | 7.448s | 788.8 MB | 0.331s | 0.342s | 7.6 MB | 22.480x | 103.877x |
+| Input                                       | Python mode       | Python wall | Python max RSS | Rust index wall | Rust process wall | Rust sampled RSS | Wall ratio | RSS ratio |
+| ------------------------------------------- | ----------------- | ----------: | -------------: | --------------: | ----------------: | ---------------: | ---------: | --------: |
+| Generated fixture, 150 modules x 20 helpers | `--disable-graph` |      0.460s |       166.3 MB |          0.047s |            0.281s |           3.3 MB |     9.875x |   50.918x |
+| Generated fixture, 150 modules x 20 helpers | full graph        |      1.147s |       208.5 MB |          0.038s |            0.051s |           3.1 MB |    30.502x |   66.380x |
+| `graph-sitter` repo checkout                | `--disable-graph` |      2.874s |       531.9 MB |          0.317s |            0.333s |           7.6 MB |     9.069x |   70.045x |
+| `graph-sitter` repo checkout                | full graph        |      7.448s |       788.8 MB |          0.331s |            0.342s |           7.6 MB |    22.480x |  103.877x |
 
 The most conservative current-repo comparison is parse/object materialization only: Rust is about 9x faster and about 70x lower RSS for the implemented compact-index slice. Against today's full graph construction on this repo, Rust is about 22x faster and about 104x lower RSS for the same implemented slice.
 
@@ -207,9 +207,9 @@ These measurements use the new Python shell integration path: Python discovers f
 
 Commands were run on this branch on 2026-06-18 after adding selected-file PyO3 indexing.
 
-| Input | Python mode | Python wall | Python max RSS | Rust facade wall | Rust facade max RSS | Python files | Rust selected files | Rust globals | Rust import resolutions | Wall ratio | RSS ratio |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.987s | 535.0 MB | 0.692s | 115.3 MB | 1129 | 1129 | 799 | 432 | 4.317x | 4.638x |
+| Input                        | Python mode       | Python wall | Python max RSS | Rust facade wall | Rust facade max RSS | Python files | Rust selected files | Rust globals | Rust import resolutions | Wall ratio | RSS ratio |
+| ---------------------------- | ----------------- | ----------: | -------------: | ---------------: | ------------------: | -----------: | ------------------: | -----------: | ----------------------: | ---------: | --------: |
+| `graph-sitter` repo checkout | `--disable-graph` |      2.987s |       535.0 MB |           0.692s |            115.3 MB |         1129 |                1129 |          799 |                     432 |     4.317x |    4.638x |
 
 This shell-facing number is intentionally more conservative than the standalone Rust process benchmark because it includes Python startup, imports, and repo file discovery. The important result is that the selected-file integration preserves Python file-discovery parity for the current repo while still cutting parse/index/import-resolution wall time and process max RSS substantially for the implemented compact graph slice.
 
@@ -217,10 +217,10 @@ This shell-facing number is intentionally more conservative than the standalone 
 
 These measurements use real `Codebase(...)` construction with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`. In this mode, once the compact Rust index builds successfully, `CodebaseContext` does not build the eager Python graph. The Rust path now exercises public Python `Codebase.files`, `symbols`, `classes`, `functions`, `global_vars`, and `imports` compatibility handles, and TypeScript file/symbol/import/export compatibility handles, while `CodebaseContext.nodes` remains blocked so the old graph cannot be materialized accidentally.
 
-| Input | Python mode | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
-| `graph-sitter` repo checkout | `--disable-graph` | 2.731s | 543.0 MB | 0.681s | 124.0 MB | 1133 | 1133 | 6505 | 6496 | 432 | 4110 | 2953 | yes | 4.009x | 4.378x |
-| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` | 18.940s | 3469.5 MB | 4.085s | 266.2 MB | 4789 | 4789 | 52339 | 40580 | 19011 | 109817 | 71932 | yes | 4.637x | 13.031x |
+| Input                                                                | Python mode       | Python wall | Python max RSS | Rust `Codebase` wall | Rust `Codebase` max RSS | Python files | Rust files | Rust symbols | Rust imports | Rust import resolutions | Rust references | Rust dependencies | Python graph blocked | Wall ratio | RSS ratio |
+| -------------------------------------------------------------------- | ----------------- | ----------: | -------------: | -------------------: | ----------------------: | -----------: | ---------: | -----------: | -----------: | ----------------------: | --------------: | ----------------: | -------------------- | ---------: | --------: |
+| `graph-sitter` repo checkout                                         | `--disable-graph` |      2.731s |       543.0 MB |               0.681s |                124.0 MB |         1133 |       1133 |         6505 |         6496 |                     432 |            4110 |              2953 | yes                  |     4.009x |    4.378x |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` |     18.940s |      3469.5 MB |               4.085s |                266.2 MB |         4789 |       4789 |        52339 |        40580 |                   19011 |          109817 |             71932 | yes                  |     4.637x |   13.031x |
 
 ## Standalone TypeScript/JavaScript Rust Index Evidence
 
@@ -236,9 +236,9 @@ uv run python rust-rewrite/tools/benchmark_pinned_typescript_repo.py \
   --output /tmp/graph-sitter-nextjs-v15.0.0-benchmark.json
 ```
 
-| Input | Python mode | Python wall | Python max RSS | Python files | Python nodes | Rust TS index wall | Rust TS index max RSS | Rust selected files | Rust files | Rust symbols | Rust imports | Rust exports | Rust files with errors | Wall ratio | RSS ratio |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | `--disable-graph` | 24.959s | 3100.1 MB | 13679 | 213969 | 3.347s | 200.3 MB | 13688 | 13688 | 23957 | 28210 | 16026 | 114 | 7.457x | 15.475x |
+| Input                                                          | Python mode       | Python wall | Python max RSS | Python files | Python nodes | Rust TS index wall | Rust TS index max RSS | Rust selected files | Rust files | Rust symbols | Rust imports | Rust exports | Rust files with errors | Wall ratio | RSS ratio |
+| -------------------------------------------------------------- | ----------------- | ----------: | -------------: | -----------: | -----------: | -----------------: | --------------------: | ------------------: | ---------: | -----------: | -----------: | -----------: | ---------------------: | ---------: | --------: |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | `--disable-graph` |     24.959s |      3100.1 MB |        13679 |       213969 |             3.347s |              200.3 MB |               13688 |      13688 |        23957 |        28210 |        16026 |                    114 |     7.457x |   15.475x |
 
 The Rust selected-file count matches the Python `RepoOperator` selected file list exactly. Python materialized 9 fewer source-file objects because the repo includes intentionally broken/non-UTF-8 fixture files; Rust now records selected files and marks parser-error files instead of aborting or dropping the file.
 
@@ -255,9 +255,9 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
   --json
 ```
 
-| Input | Rust `Codebase` wall | Rust `Codebase` max RSS | Files | Symbols | Imports | Exports | Import resolutions | References | Dependencies | Function calls | Promise chains | Python graph blocked |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 10.771s | 435.2 MB | 13688 | 44871 | 28210 | 16027 | 13462 | 113809 | 49285 | 197581 | 878 | yes |
+| Input                                                          | Rust `Codebase` wall | Rust `Codebase` max RSS | Files | Symbols | Imports | Exports | Import resolutions | References | Dependencies | Function calls | Promise chains | Python graph blocked |
+| -------------------------------------------------------------- | -------------------: | ----------------------: | ----: | ------: | ------: | ------: | -----------------: | ---------: | -----------: | -------------: | -------------: | -------------------- |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) |              10.771s |                435.2 MB | 13688 |   44871 |   28210 |   16027 |              13462 |     113809 |        49285 |         197581 |            878 | yes                  |
 
 Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 2.317x faster and about 7.123x lower max RSS while exposing compact export, call, and Promise-chain handles and keeping the eager Python graph unbuilt. The pinned proof also validates a real `packages/next/src/cli/next-lint.ts` file/symbol lookup for 27 file-local call records, 16 `nextLint` symbol call records, and one `.then/.catch` Promise chain without materializing the full call or chain caches. JSX traversal now records component tag references while skipping lowercase intrinsic tags and prop-name false positives. A parser fallback tries the TS grammar for `.ts`/`.js` files and keeps the lower-error parse, reducing pinned Next.js parser-error files from 114 to 113 by recovering `test/integration/typescript/components/angle-bracket-type-assertions.ts`.
 
@@ -289,10 +289,10 @@ uv run python rust-rewrite/tools/check_wheel_pinned_python_repo.py \
   --output /tmp/graph-sitter-airflow-wheel-rust-vs-python.json
 ```
 
-| Input | Installed backend | Parse elapsed | `uvx` outer wall | Sampled process-tree RSS | Files | Symbols | Imports | References | External references | Dependencies |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | Rust strict | 4.913s | 6.064s | 487.0 MB | 4789 | 52339 | 45404 | 117799 | 78784 | 77570 |
-| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | Python | 48.242s | 77.649s | 5429.3 MB | 4789 | 27728 | 44100 | n/a | n/a | 1099202 |
+| Input                                                                | Installed backend | Parse elapsed | `uvx` outer wall | Sampled process-tree RSS | Files | Symbols | Imports | References | External references | Dependencies |
+| -------------------------------------------------------------------- | ----------------- | ------------: | ---------------: | -----------------------: | ----: | ------: | ------: | ---------: | ------------------: | -----------: |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | Rust strict       |        4.913s |           6.064s |                 487.0 MB |  4789 |   52339 |   45404 |     117799 |               78784 |        77570 |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | Python            |       48.242s |          77.649s |                5429.3 MB |  4789 |   27728 |   44100 |        n/a |                 n/a |      1099202 |
 
 The installed-wheel strict Rust path matched the committed compact Python golden
 summary at the time that wheel was built, including 4,789 files, 52,339 symbols,
@@ -315,15 +315,14 @@ uv run python rust-rewrite/tools/check_wheel_pinned_python_repo.py \
 ```
 
 That run parsed pinned Airflow in strict Rust mode, cloned a temporary mutable
-checkout, ran `graph-sitter transform ... --language python --backend rust
---fallback error --write` through `uvx --from`, added `from typing import Any`
+checkout, ran `graph-sitter transform ... --language python --backend rust --fallback error --write` through `uvx --from`, added `from typing import Any`
 to `airflow/__init__.py`, renamed `__getattr__` to
 `__getattr_wheel_proof__`, and asserted only `airflow/__init__.py` changed.
 
-| Operation | Wall | Sampled process-tree RSS | Validation |
-| --- | ---: | ---: | --- |
-| Installed-wheel strict Rust parse | 5.052s | 503.5 MB | matched compact golden summary |
-| Installed-wheel strict Rust transform | 5.920s | 500.1 MB | only `airflow/__init__.py` changed |
+| Operation                             |   Wall | Sampled process-tree RSS | Validation                         |
+| ------------------------------------- | -----: | -----------------------: | ---------------------------------- |
+| Installed-wheel strict Rust parse     | 5.052s |                 503.5 MB | matched compact golden summary     |
+| Installed-wheel strict Rust transform | 5.920s |                 500.1 MB | only `airflow/__init__.py` changed |
 
 ## Installed-Wheel `uvx` Next.js Evidence
 
@@ -343,10 +342,10 @@ uv run python rust-rewrite/tools/check_wheel_pinned_typescript_repo.py \
   --output /tmp/graph-sitter-nextjs-wheel-rust-vs-python.json
 ```
 
-| Input | Installed backend | Parse elapsed | `uvx` outer wall | Sampled process-tree RSS | Files | Symbols | Imports | Exports | References | Dependencies |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | Rust strict | 10.352s | 11.508s | 537.5 MB | 13688 | 44870 | 28210 | 16026 | 114463 | 49287 |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | Python | 57.956s | 78.107s | 4505.6 MB | 13679 | 25364 | 28723 | 17878 | n/a | 811914 |
+| Input                                                          | Installed backend | Parse elapsed | `uvx` outer wall | Sampled process-tree RSS | Files | Symbols | Imports | Exports | References | Dependencies |
+| -------------------------------------------------------------- | ----------------- | ------------: | ---------------: | -----------------------: | ----: | ------: | ------: | ------: | ---------: | -----------: |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | Rust strict       |       10.352s |          11.508s |                 537.5 MB | 13688 |   44870 |   28210 |   16026 |     114463 |        49287 |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | Python            |       57.956s |          78.107s |                4505.6 MB | 13679 |   25364 |   28723 |   17878 |        n/a |       811914 |
 
 The installed-wheel strict Rust path matched the committed compact TypeScript
 golden summary at the time that wheel was built, including 13,688 files, 44,870
@@ -372,30 +371,29 @@ uv run python rust-rewrite/tools/check_wheel_pinned_typescript_repo.py \
 ```
 
 That run parsed pinned Next.js in strict Rust mode, cloned a temporary mutable
-checkout, ran `graph-sitter transform ... --language typescript --backend rust
---fallback error --write` through `uvx --from`, added
+checkout, ran `graph-sitter transform ... --language typescript --backend rust --fallback error --write` through `uvx --from`, added
 `import { act } from 'react-dom/test-utils';` to
 `packages/next/src/client/components/app-router-announcer.tsx`, renamed
 `AppRouterAnnouncer` to `AppRouterAnnouncerWheelProof`, and rewrote the
 importing usage in `packages/next/src/client/components/app-router.tsx`.
 
-| Operation | Wall | Sampled process-tree RSS | Validation |
-| --- | ---: | ---: | --- |
-| Installed-wheel strict Rust parse | 10.386s | 549.7 MB | matched compact golden summary |
-| Installed-wheel strict Rust transform | 11.834s | 525.8 MB | only `app-router-announcer.tsx` and `app-router.tsx` changed |
+| Operation                             |    Wall | Sampled process-tree RSS | Validation                                                   |
+| ------------------------------------- | ------: | -----------------------: | ------------------------------------------------------------ |
+| Installed-wheel strict Rust parse     | 10.386s |                 549.7 MB | matched compact golden summary                               |
+| Installed-wheel strict Rust transform | 11.834s |                 525.8 MB | only `app-router-announcer.tsx` and `app-router.tsx` changed |
 
 ## Pinned Compact Snapshot Evidence
 
 The first committed large-repo compact snapshot is `rust-rewrite/golden/apache-airflow-2.10.5-rust-compact.json`. It was generated from Apache Airflow `2.10.5` at commit `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`.
 
-| Graph family | Count | SHA-256 |
-| --- | ---: | --- |
-| Files | 4789 | `226e8cb32dc0a23ec956e97b036e7c505037df979cce7182514f39a43b07cb80` |
-| Symbols | 52339 | `d4b75c9c6d82b1d30424845c86b88c9fb18ca7748fc088c16b4cfca00de30699` |
-| Imports | 40580 | `fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0` |
-| Import resolutions | 19011 | `84df9ba7bf069278f61ac2a4891d8b4cb38b25f4f63ce20dd77eada1ba654278` |
-| References | 109817 | `d7ab546586eb968f35dd1bf8f109db6a54b889af464a2c349e7af2e38ea60a8a` |
-| Dependencies | 71932 | `cbf361a2b46e5ea2e5cad352c5abe8ab493869eb422cbdb77912484ea9fab1d1` |
+| Graph family       |  Count | SHA-256                                                            |
+| ------------------ | -----: | ------------------------------------------------------------------ |
+| Files              |   4789 | `226e8cb32dc0a23ec956e97b036e7c505037df979cce7182514f39a43b07cb80` |
+| Symbols            |  52339 | `d4b75c9c6d82b1d30424845c86b88c9fb18ca7748fc088c16b4cfca00de30699` |
+| Imports            |  40580 | `fe4a595d850f2f57f1eb1a5ca347ecfcc09259e31cd7b44306902c04de7275d0` |
+| Import resolutions |  19011 | `84df9ba7bf069278f61ac2a4891d8b4cb38b25f4f63ce20dd77eada1ba654278` |
+| References         | 109817 | `d7ab546586eb968f35dd1bf8f109db6a54b889af464a2c349e7af2e38ea60a8a` |
+| Dependencies       |  71932 | `cbf361a2b46e5ea2e5cad352c5abe8ab493869eb422cbdb77912484ea9fab1d1` |
 
 The snapshot tool also validates internal compact graph integrity: import-resolution links, reference links, dependency links, dependency reference counts, and dependency reference source/target consistency must all be zero-mismatch before the snapshot can pass.
 

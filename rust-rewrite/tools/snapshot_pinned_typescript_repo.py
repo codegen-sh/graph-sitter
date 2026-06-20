@@ -31,9 +31,7 @@ from snapshot_pinned_python_repo import (  # noqa: E402
     max_rss_bytes,
 )
 
-DEFAULT_EXPECTED_SNAPSHOT = (
-    REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
-)
+DEFAULT_EXPECTED_SNAPSHOT = REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
 SNAPSHOT_SCHEMA_VERSION = 6
 
 
@@ -80,11 +78,7 @@ def import_resolution_key(
 ) -> str:
     import_record = import_by_id[resolution["import_id"]]
     target_file = file_by_id[resolution["target_file_id"]]["path"]
-    target_symbol = (
-        ""
-        if resolution["target_symbol_id"] is None
-        else symbol_key(symbol_by_id[resolution["target_symbol_id"]], file_by_id)
-    )
+    target_symbol = "" if resolution["target_symbol_id"] is None else symbol_key(symbol_by_id[resolution["target_symbol_id"]], file_by_id)
     return f"{import_key(import_record, file_by_id)}->{target_file}:{target_symbol}"
 
 
@@ -102,16 +96,8 @@ def reference_key(
     symbol_by_id: dict[int, dict[str, Any]],
     import_by_id: dict[int, dict[str, Any]],
 ) -> str:
-    source_symbol = (
-        ""
-        if reference["source_symbol_id"] is None
-        else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
-    )
-    import_record = (
-        ""
-        if reference["import_id"] is None
-        else import_key(import_by_id[reference["import_id"]], file_by_id)
-    )
+    source_symbol = "" if reference["source_symbol_id"] is None else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
+    import_record = "" if reference["import_id"] is None else import_key(import_by_id[reference["import_id"]], file_by_id)
     target_symbol = symbol_key(symbol_by_id[reference["target_symbol_id"]], file_by_id)
     source_file = file_by_id[reference["source_file_id"]]["path"]
     return f"{source_file}:{source_symbol}->{target_symbol}:{import_record}:{reference['name']}@{range_list(reference)[0]}"
@@ -123,11 +109,7 @@ def external_reference_key(
     symbol_by_id: dict[int, dict[str, Any]],
     import_by_id: dict[int, dict[str, Any]],
 ) -> str:
-    source_symbol = (
-        ""
-        if reference["source_symbol_id"] is None
-        else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
-    )
+    source_symbol = "" if reference["source_symbol_id"] is None else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
     import_record = import_key(import_by_id[reference["import_id"]], file_by_id)
     source_file = file_by_id[reference["source_file_id"]]["path"]
     return f"{source_file}:{source_symbol}->{import_record}:{reference['name']}@{range_list(reference)[0]}"
@@ -140,12 +122,8 @@ def subclass_edge_key(
     import_by_id: dict[int, dict[str, Any]],
     reference_by_id: dict[int, dict[str, Any]],
 ) -> str:
-    source_symbol = symbol_key(
-        symbol_by_id[subclass_edge["source_symbol_id"]], file_by_id
-    )
-    target_symbol = symbol_key(
-        symbol_by_id[subclass_edge["target_symbol_id"]], file_by_id
-    )
+    source_symbol = symbol_key(symbol_by_id[subclass_edge["source_symbol_id"]], file_by_id)
+    target_symbol = symbol_key(symbol_by_id[subclass_edge["target_symbol_id"]], file_by_id)
     reference = reference_key(
         reference_by_id[subclass_edge["reference_id"]],
         file_by_id,
@@ -177,9 +155,7 @@ def make_symbol_rows(
     rows = [
         {
             "key": symbol_key(symbol, file_by_id),
-            "parent_symbol": None
-            if symbol["parent_symbol_id"] is None
-            else symbol_key(symbol_by_id[symbol["parent_symbol_id"]], file_by_id),
+            "parent_symbol": None if symbol["parent_symbol_id"] is None else symbol_key(symbol_by_id[symbol["parent_symbol_id"]], file_by_id),
             "is_top_level": symbol["is_top_level"],
             "file": file_by_id[symbol["file_id"]]["path"],
             "kind": symbol["kind"],
@@ -232,16 +208,10 @@ def make_import_resolution_rows(
 ) -> list[dict[str, Any]]:
     rows = []
     for resolution in import_resolutions:
-        target_symbol = (
-            None
-            if resolution["target_symbol_id"] is None
-            else symbol_key(symbol_by_id[resolution["target_symbol_id"]], file_by_id)
-        )
+        target_symbol = None if resolution["target_symbol_id"] is None else symbol_key(symbol_by_id[resolution["target_symbol_id"]], file_by_id)
         rows.append(
             {
-                "key": import_resolution_key(
-                    resolution, file_by_id, symbol_by_id, import_by_id
-                ),
+                "key": import_resolution_key(resolution, file_by_id, symbol_by_id, import_by_id),
                 "import": import_key(import_by_id[resolution["import_id"]], file_by_id),
                 "source_file": file_by_id[resolution["source_file_id"]]["path"],
                 "target_file": file_by_id[resolution["target_file_id"]]["path"],
@@ -296,16 +266,8 @@ def make_export_rows(
 ) -> list[dict[str, Any]]:
     rows = []
     for export in exports:
-        symbol = (
-            None
-            if export["symbol_id"] is None
-            else symbol_key(symbol_by_id[export["symbol_id"]], file_by_id)
-        )
-        import_record = (
-            None
-            if export["import_id"] is None
-            else import_key(import_by_id[export["import_id"]], file_by_id)
-        )
+        symbol = None if export["symbol_id"] is None else symbol_key(symbol_by_id[export["symbol_id"]], file_by_id)
+        import_record = None if export["import_id"] is None else import_key(import_by_id[export["import_id"]], file_by_id)
         rows.append(
             {
                 "key": export_key(export, file_by_id),
@@ -340,24 +302,14 @@ def make_reference_rows(
 ) -> list[dict[str, Any]]:
     rows = []
     for reference in references:
-        source_symbol = (
-            None
-            if reference["source_symbol_id"] is None
-            else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
-        )
-        import_record = (
-            None
-            if reference["import_id"] is None
-            else import_key(import_by_id[reference["import_id"]], file_by_id)
-        )
+        source_symbol = None if reference["source_symbol_id"] is None else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
+        import_record = None if reference["import_id"] is None else import_key(import_by_id[reference["import_id"]], file_by_id)
         rows.append(
             {
                 "key": reference_key(reference, file_by_id, symbol_by_id, import_by_id),
                 "source_file": file_by_id[reference["source_file_id"]]["path"],
                 "source_symbol": source_symbol,
-                "target_symbol": symbol_key(
-                    symbol_by_id[reference["target_symbol_id"]], file_by_id
-                ),
+                "target_symbol": symbol_key(symbol_by_id[reference["target_symbol_id"]], file_by_id),
                 "import": import_record,
                 "name": reference["name"],
                 "range": range_list(reference),
@@ -384,11 +336,7 @@ def make_external_reference_rows(
 ) -> list[dict[str, Any]]:
     rows = []
     for reference in external_references:
-        source_symbol = (
-            None
-            if reference["source_symbol_id"] is None
-            else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
-        )
+        source_symbol = None if reference["source_symbol_id"] is None else symbol_key(symbol_by_id[reference["source_symbol_id"]], file_by_id)
         rows.append(
             {
                 "key": external_reference_key(reference, file_by_id, symbol_by_id, import_by_id),
@@ -422,19 +370,12 @@ def make_dependency_rows(
     for dependency in dependencies:
         rows.append(
             {
-                "source_symbol": symbol_key(
-                    symbol_by_id[dependency["source_symbol_id"]], file_by_id
-                ),
-                "target_symbol": symbol_key(
-                    symbol_by_id[dependency["target_symbol_id"]], file_by_id
-                ),
+                "source_symbol": symbol_key(symbol_by_id[dependency["source_symbol_id"]], file_by_id),
+                "target_symbol": symbol_key(symbol_by_id[dependency["target_symbol_id"]], file_by_id),
                 "source_file": file_by_id[dependency["source_file_id"]]["path"],
                 "target_file": file_by_id[dependency["target_file_id"]]["path"],
                 "reference_count": dependency["reference_count"],
-                "references": [
-                    reference_key(reference_by_id[reference_id], file_by_id, symbol_by_id, import_by_id)
-                    for reference_id in dependency["reference_ids"]
-                ],
+                "references": [reference_key(reference_by_id[reference_id], file_by_id, symbol_by_id, import_by_id) for reference_id in dependency["reference_ids"]],
             }
         )
     return sorted(
@@ -459,15 +400,9 @@ def make_subclass_edge_rows(
     for edge in subclass_edges:
         rows.append(
             {
-                "key": subclass_edge_key(
-                    edge, file_by_id, symbol_by_id, import_by_id, reference_by_id
-                ),
-                "source_symbol": symbol_key(
-                    symbol_by_id[edge["source_symbol_id"]], file_by_id
-                ),
-                "target_symbol": symbol_key(
-                    symbol_by_id[edge["target_symbol_id"]], file_by_id
-                ),
+                "key": subclass_edge_key(edge, file_by_id, symbol_by_id, import_by_id, reference_by_id),
+                "source_symbol": symbol_key(symbol_by_id[edge["source_symbol_id"]], file_by_id),
+                "target_symbol": symbol_key(symbol_by_id[edge["target_symbol_id"]], file_by_id),
                 "source_file": file_by_id[edge["source_file_id"]]["path"],
                 "target_file": file_by_id[edge["target_file_id"]]["path"],
                 "reference": reference_key(
@@ -507,135 +442,48 @@ def validate_integrity(
     import_ids = {import_record["id"] for import_record in imports}
     reference_ids = {reference["id"] for reference in references}
 
-    missing_symbol_file_links = sum(
-        int(symbol["file_id"] not in file_ids) for symbol in symbols
-    )
-    missing_import_file_links = sum(
-        int(import_record["file_id"] not in file_ids) for import_record in imports
-    )
-    missing_external_module_file_links = sum(
-        int(external_module["file_id"] not in file_ids)
-        for external_module in external_modules
-    )
-    missing_external_module_import_links = sum(
-        int(external_module["import_id"] not in import_ids)
-        for external_module in external_modules
-    )
-    missing_export_file_links = sum(
-        int(export["file_id"] not in file_ids) for export in exports
-    )
-    missing_export_symbol_links = sum(
-        int(export["symbol_id"] is not None and export["symbol_id"] not in symbol_ids)
-        for export in exports
-    )
-    missing_export_import_links = sum(
-        int(export["import_id"] is not None and export["import_id"] not in import_ids)
-        for export in exports
-    )
-    missing_resolution_import_links = sum(
-        int(resolution["import_id"] not in import_ids)
-        for resolution in import_resolutions
-    )
-    missing_resolution_source_file_links = sum(
-        int(resolution["source_file_id"] not in file_ids)
-        for resolution in import_resolutions
-    )
-    missing_resolution_target_file_links = sum(
-        int(resolution["target_file_id"] not in file_ids)
-        for resolution in import_resolutions
-    )
-    missing_resolution_target_symbol_links = sum(
-        int(
-            resolution["target_symbol_id"] is not None
-            and resolution["target_symbol_id"] not in symbol_ids
-        )
-        for resolution in import_resolutions
-    )
-    missing_reference_source_file_links = sum(
-        int(reference["source_file_id"] not in file_ids) for reference in references
-    )
-    missing_reference_source_symbol_links = sum(
-        int(
-            reference["source_symbol_id"] is not None
-            and reference["source_symbol_id"] not in symbol_ids
-        )
-        for reference in references
-    )
-    missing_reference_target_symbol_links = sum(
-        int(reference["target_symbol_id"] not in symbol_ids) for reference in references
-    )
-    missing_reference_import_links = sum(
-        int(reference["import_id"] is not None and reference["import_id"] not in import_ids)
-        for reference in references
-    )
-    missing_external_reference_source_file_links = sum(
-        int(reference["source_file_id"] not in file_ids)
-        for reference in external_references
-    )
-    missing_external_reference_source_symbol_links = sum(
-        int(
-            reference["source_symbol_id"] is not None
-            and reference["source_symbol_id"] not in symbol_ids
-        )
-        for reference in external_references
-    )
-    missing_external_reference_import_links = sum(
-        int(reference["import_id"] not in import_ids)
-        for reference in external_references
-    )
-    missing_dependency_source_symbol_links = sum(
-        int(dependency["source_symbol_id"] not in symbol_ids)
-        for dependency in dependencies
-    )
-    missing_dependency_target_symbol_links = sum(
-        int(dependency["target_symbol_id"] not in symbol_ids)
-        for dependency in dependencies
-    )
-    missing_dependency_source_file_links = sum(
-        int(dependency["source_file_id"] not in file_ids) for dependency in dependencies
-    )
-    missing_dependency_target_file_links = sum(
-        int(dependency["target_file_id"] not in file_ids) for dependency in dependencies
-    )
-    missing_dependency_reference_links = sum(
-        int(reference_id not in reference_ids)
-        for dependency in dependencies
-        for reference_id in dependency["reference_ids"]
-    )
-    missing_subclass_edge_source_symbol_links = sum(
-        int(edge["source_symbol_id"] not in symbol_ids) for edge in subclass_edges
-    )
-    missing_subclass_edge_target_symbol_links = sum(
-        int(edge["target_symbol_id"] not in symbol_ids) for edge in subclass_edges
-    )
-    missing_subclass_edge_source_file_links = sum(
-        int(edge["source_file_id"] not in file_ids) for edge in subclass_edges
-    )
-    missing_subclass_edge_target_file_links = sum(
-        int(edge["target_file_id"] not in file_ids) for edge in subclass_edges
-    )
-    missing_subclass_edge_reference_links = sum(
-        int(edge["reference_id"] not in reference_ids) for edge in subclass_edges
-    )
+    missing_symbol_file_links = sum(int(symbol["file_id"] not in file_ids) for symbol in symbols)
+    missing_import_file_links = sum(int(import_record["file_id"] not in file_ids) for import_record in imports)
+    missing_external_module_file_links = sum(int(external_module["file_id"] not in file_ids) for external_module in external_modules)
+    missing_external_module_import_links = sum(int(external_module["import_id"] not in import_ids) for external_module in external_modules)
+    missing_export_file_links = sum(int(export["file_id"] not in file_ids) for export in exports)
+    missing_export_symbol_links = sum(int(export["symbol_id"] is not None and export["symbol_id"] not in symbol_ids) for export in exports)
+    missing_export_import_links = sum(int(export["import_id"] is not None and export["import_id"] not in import_ids) for export in exports)
+    missing_resolution_import_links = sum(int(resolution["import_id"] not in import_ids) for resolution in import_resolutions)
+    missing_resolution_source_file_links = sum(int(resolution["source_file_id"] not in file_ids) for resolution in import_resolutions)
+    missing_resolution_target_file_links = sum(int(resolution["target_file_id"] not in file_ids) for resolution in import_resolutions)
+    missing_resolution_target_symbol_links = sum(int(resolution["target_symbol_id"] is not None and resolution["target_symbol_id"] not in symbol_ids) for resolution in import_resolutions)
+    missing_reference_source_file_links = sum(int(reference["source_file_id"] not in file_ids) for reference in references)
+    missing_reference_source_symbol_links = sum(int(reference["source_symbol_id"] is not None and reference["source_symbol_id"] not in symbol_ids) for reference in references)
+    missing_reference_target_symbol_links = sum(int(reference["target_symbol_id"] not in symbol_ids) for reference in references)
+    missing_reference_import_links = sum(int(reference["import_id"] is not None and reference["import_id"] not in import_ids) for reference in references)
+    missing_external_reference_source_file_links = sum(int(reference["source_file_id"] not in file_ids) for reference in external_references)
+    missing_external_reference_source_symbol_links = sum(int(reference["source_symbol_id"] is not None and reference["source_symbol_id"] not in symbol_ids) for reference in external_references)
+    missing_external_reference_import_links = sum(int(reference["import_id"] not in import_ids) for reference in external_references)
+    missing_dependency_source_symbol_links = sum(int(dependency["source_symbol_id"] not in symbol_ids) for dependency in dependencies)
+    missing_dependency_target_symbol_links = sum(int(dependency["target_symbol_id"] not in symbol_ids) for dependency in dependencies)
+    missing_dependency_source_file_links = sum(int(dependency["source_file_id"] not in file_ids) for dependency in dependencies)
+    missing_dependency_target_file_links = sum(int(dependency["target_file_id"] not in file_ids) for dependency in dependencies)
+    missing_dependency_reference_links = sum(int(reference_id not in reference_ids) for dependency in dependencies for reference_id in dependency["reference_ids"])
+    missing_subclass_edge_source_symbol_links = sum(int(edge["source_symbol_id"] not in symbol_ids) for edge in subclass_edges)
+    missing_subclass_edge_target_symbol_links = sum(int(edge["target_symbol_id"] not in symbol_ids) for edge in subclass_edges)
+    missing_subclass_edge_source_file_links = sum(int(edge["source_file_id"] not in file_ids) for edge in subclass_edges)
+    missing_subclass_edge_target_file_links = sum(int(edge["target_file_id"] not in file_ids) for edge in subclass_edges)
+    missing_subclass_edge_reference_links = sum(int(edge["reference_id"] not in reference_ids) for edge in subclass_edges)
     reference_by_id = {reference["id"]: reference for reference in references}
     mismatched_subclass_edge_references = sum(
         int(
             edge["reference_id"] in reference_by_id
             and (
-                reference_by_id[edge["reference_id"]]["source_symbol_id"]
-                != edge["source_symbol_id"]
-                or reference_by_id[edge["reference_id"]]["target_symbol_id"]
-                != edge["target_symbol_id"]
-                or reference_by_id[edge["reference_id"]]["source_file_id"]
-                != edge["source_file_id"]
+                reference_by_id[edge["reference_id"]]["source_symbol_id"] != edge["source_symbol_id"]
+                or reference_by_id[edge["reference_id"]]["target_symbol_id"] != edge["target_symbol_id"]
+                or reference_by_id[edge["reference_id"]]["source_file_id"] != edge["source_file_id"]
             )
         )
         for edge in subclass_edges
     )
 
-    selected_file_count_delta = (
-        0 if selected_file_count is None else len(files) - selected_file_count
-    )
+    selected_file_count_delta = 0 if selected_file_count is None else len(files) - selected_file_count
     return {
         "missing_symbol_file_links": missing_symbol_file_links,
         "missing_import_file_links": missing_import_file_links,
@@ -721,23 +569,13 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
     file_rows = make_file_rows(files)
     symbol_rows = make_symbol_rows(symbols, file_by_id, symbol_by_id)
     import_rows = make_import_rows(imports, file_by_id)
-    import_resolution_rows = make_import_resolution_rows(
-        import_resolutions, file_by_id, symbol_by_id, import_by_id
-    )
-    external_module_rows = make_external_module_rows(
-        external_modules, file_by_id, import_by_id
-    )
+    import_resolution_rows = make_import_resolution_rows(import_resolutions, file_by_id, symbol_by_id, import_by_id)
+    external_module_rows = make_external_module_rows(external_modules, file_by_id, import_by_id)
     export_rows = make_export_rows(exports, file_by_id, symbol_by_id, import_by_id)
     reference_rows = make_reference_rows(references, file_by_id, symbol_by_id, import_by_id)
-    external_reference_rows = make_external_reference_rows(
-        external_references, file_by_id, symbol_by_id, import_by_id
-    )
-    dependency_rows = make_dependency_rows(
-        dependencies, file_by_id, symbol_by_id, import_by_id, reference_by_id
-    )
-    subclass_edge_rows = make_subclass_edge_rows(
-        subclass_edges, file_by_id, symbol_by_id, import_by_id, reference_by_id
-    )
+    external_reference_rows = make_external_reference_rows(external_references, file_by_id, symbol_by_id, import_by_id)
+    dependency_rows = make_dependency_rows(dependencies, file_by_id, symbol_by_id, import_by_id, reference_by_id)
+    subclass_edge_rows = make_subclass_edge_rows(subclass_edges, file_by_id, symbol_by_id, import_by_id, reference_by_id)
     integrity = validate_integrity(
         files=files,
         symbols=symbols,
@@ -775,23 +613,13 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
             "files": compact_record_set(file_rows, sample_size=args.sample_size),
             "symbols": compact_record_set(symbol_rows, sample_size=args.sample_size),
             "imports": compact_record_set(import_rows, sample_size=args.sample_size),
-            "import_resolutions": compact_record_set(
-                import_resolution_rows, sample_size=args.sample_size
-            ),
-            "external_modules": compact_record_set(
-                external_module_rows, sample_size=args.sample_size
-            ),
+            "import_resolutions": compact_record_set(import_resolution_rows, sample_size=args.sample_size),
+            "external_modules": compact_record_set(external_module_rows, sample_size=args.sample_size),
             "exports": compact_record_set(export_rows, sample_size=args.sample_size),
             "references": compact_record_set(reference_rows, sample_size=args.sample_size),
-            "external_references": compact_record_set(
-                external_reference_rows, sample_size=args.sample_size
-            ),
-            "dependencies": compact_record_set(
-                dependency_rows, sample_size=args.sample_size
-            ),
-            "subclass_edges": compact_record_set(
-                subclass_edge_rows, sample_size=args.sample_size
-            ),
+            "external_references": compact_record_set(external_reference_rows, sample_size=args.sample_size),
+            "dependencies": compact_record_set(dependency_rows, sample_size=args.sample_size),
+            "subclass_edges": compact_record_set(subclass_edge_rows, sample_size=args.sample_size),
         },
         "integrity": integrity,
     }
@@ -806,9 +634,7 @@ def make_snapshot(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, A
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Create or verify a deterministic compact Rust syntax snapshot for a pinned TypeScript/JavaScript repository."
-    )
+    parser = argparse.ArgumentParser(description="Create or verify a deterministic compact Rust syntax snapshot for a pinned TypeScript/JavaScript repository.")
     parser.add_argument(
         "--name",
         default=DEFAULT_REPO_NAME,
@@ -889,10 +715,7 @@ def print_human(snapshot: dict[str, Any], observation: dict[str, Any], expected:
     print(f"repo root: {observation['repo_root']}")
     print(f"raw rust walk: {snapshot['metadata']['raw_rust_walk']}")
     print(f"selected files: {snapshot['metadata']['selected_file_count']}")
-    print(
-        f"rust TS snapshot: wall={observation['wall_seconds']:.3f}s "
-        f"max_rss={observation['max_rss_mb']:.1f} MB"
-    )
+    print(f"rust TS snapshot: wall={observation['wall_seconds']:.3f}s max_rss={observation['max_rss_mb']:.1f} MB")
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "

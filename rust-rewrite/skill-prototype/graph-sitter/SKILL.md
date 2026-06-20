@@ -1,7 +1,6 @@
----
-name: graph-sitter
-description: Use Graph-sitter to parse, query, analyze, and transform Python, TypeScript, JavaScript, and React codebases. Trigger when Codex needs codebase graph APIs, dependency/import/reference/usage analysis, codemod execution, large-repo Rust-backed parsing status, or `uvx graph-sitter ...` / local `graph-sitter` CLI workflows.
----
+______________________________________________________________________
+
+## name: graph-sitter description: Use Graph-sitter to parse, query, analyze, and transform Python, TypeScript, JavaScript, and React codebases. Trigger when Codex needs codebase graph APIs, dependency/import/reference/usage analysis, codemod execution, large-repo Rust-backed parsing status, or `uvx graph-sitter ...` / local `graph-sitter` CLI workflows.
 
 # Graph-sitter
 
@@ -16,10 +15,10 @@ Use Graph-sitter as the codebase graph and codemod layer. Prefer the Python API 
 ## Choose The Path
 
 1. For read-only inspection, start with `Codebase` in Python unless a JSON CLI summary is enough.
-2. For one-shot command-line summaries, run `graph-sitter parse` locally from the checkout with `uv run`, or use `uvx graph-sitter parse` only when the package is installed or supplied with `uvx --from`.
-3. For transformations, prefer `graph-sitter transform MODULE:OBJECT PATH --check` before `--write` when the transform is not already registered under `.codegen/codemods`.
-4. For large repositories, avoid broad list materialization unless the user asks for it. Prefer targeted lookups such as `get_file`, `get_function`, `get_import`, `find_by_byte_range`, dependencies, and usage probes.
-5. For unsupported Graph-sitter surfaces, fall back to ordinary code inspection or the Python backend. Do not imply the Rust backend has complete semantic coverage.
+1. For one-shot command-line summaries, run `graph-sitter parse` locally from the checkout with `uv run`, or use `uvx graph-sitter parse` only when the package is installed or supplied with `uvx --from`.
+1. For transformations, prefer `graph-sitter transform MODULE:OBJECT PATH --check` before `--write` when the transform is not already registered under `.codegen/codemods`.
+1. For large repositories, avoid broad list materialization unless the user asks for it. Prefer targeted lookups such as `get_file`, `get_function`, `get_import`, `find_by_byte_range`, dependencies, and usage probes.
+1. For unsupported Graph-sitter surfaces, fall back to ordinary code inspection or the Python backend. Do not imply the Rust backend has complete semantic coverage.
 
 ## Python API
 

@@ -172,7 +172,7 @@ Emit direct top-level declarations:
 - `enum_declaration` -> `Enum`
 - `internal_module` -> `Namespace`
 - `lexical_declaration` or `variable_declaration`
-  - If a `variable_declarator` value contains a top-level `arrow_function`, `function_expression`, or `generator_function` at depth <= 2, emit a `Function` named from the declarator's `name` field.
+  - If a `variable_declarator` value contains a top-level `arrow_function`, `function_expression`, or `generator_function` at depth \<= 2, emit a `Function` named from the declarator's `name` field.
   - Otherwise emit `GlobalVar` records for simple identifier declarator names.
   - For object/array patterns, emit one `GlobalVar` per simple bound identifier in source order. Defer type-aware destructuring semantics.
 
@@ -313,26 +313,26 @@ Add Rust IR snapshot tests that compare stable JSON, sorted by `(file_path, rang
 1. Add Rust parser crate module boundaries and tree-sitter setup.
    - `parser::language` maps paths to parser grammar and `Language`.
    - `parser::parse_file(path, bytes)` returns parse status and root range.
-2. Add arena records and interners.
+1. Add arena records and interners.
    - `Index` owns files, symbols, imports, exports, scopes, strings, paths.
    - JSON debug dump exposes stable, string-expanded snapshots.
-3. Implement file discovery input from Python.
+1. Implement file discovery input from Python.
    - Python passes `(relative_path, absolute_path, language, content bytes/hash)` or a repo-operator file list.
    - Rust does not walk the filesystem independently in the first slice.
-4. Implement Python extraction.
+1. Implement Python extraction.
    - File records, top-level class/function/global symbols, imports, ranges, file/top-level symbol scopes.
    - Snapshot `py_symbols_basic.py`, `py_relative_imports.py`, and `py_scopes.py`.
-5. Implement TypeScript/TSX extraction.
+1. Implement TypeScript/TSX extraction.
    - File records, top-level declaration/global/function symbols, static imports, direct export facts, ranges, scopes.
    - Snapshot `ts_symbols_basic.ts`, `ts_imports.ts`, `ts_exports.ts`, and `tsx_component.tsx`.
-6. Add dynamic import/require subset.
+1. Add dynamic import/require subset.
    - Snapshot `ts_dynamic_imports.js`.
-7. Expose PyO3 debug/query APIs.
+1. Expose PyO3 debug/query APIs.
    - `files() -> Vec<FileId>`
    - `symbols(file_id?) -> Vec<SymbolId>`
    - `classes()`, `functions()`, `imports()`, `exports()`
    - record lookup APIs returning compact structs or JSON for tests
-8. Add parity smoke tests against the Python backend counts/names for the fixture set.
+1. Add parity smoke tests against the Python backend counts/names for the fixture set.
    - Compare file paths, symbol names/kinds, import local names/kinds/modules, export names/kinds/modules.
    - Do not compare dependency edges or wrapper behavior in this phase.
 

@@ -248,9 +248,7 @@ def known_global_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
 
 
 def known_file_local_export_lookup_report(codebase: Any) -> dict[str, dict[str, Any]]:
-    export = codebase.get_file(
-        "packages/next/src/client/components/app-router-announcer.tsx"
-    ).get_export("AppRouterAnnouncer")
+    export = codebase.get_file("packages/next/src/client/components/app-router-announcer.tsx").get_export("AppRouterAnnouncer")
     signature = handle_signature(export)
     signature["filepath"] = export.filepath
     return {
@@ -403,12 +401,8 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
     comparison = {
         "recorded_python_wall_seconds": RECORDED_PYTHON_BASELINE["wall_seconds"],
         "recorded_python_max_rss_mb": RECORDED_PYTHON_BASELINE["max_rss_mb"],
-        "recorded_python_to_rust_wall_ratio": ratio(
-            RECORDED_PYTHON_BASELINE["wall_seconds"], totals["wall_seconds"]
-        ),
-        "recorded_python_to_rust_rss_ratio": ratio(
-            RECORDED_PYTHON_BASELINE["max_rss_mb"], totals["max_rss_mb"]
-        ),
+        "recorded_python_to_rust_wall_ratio": ratio(RECORDED_PYTHON_BASELINE["wall_seconds"], totals["wall_seconds"]),
+        "recorded_python_to_rust_rss_ratio": ratio(RECORDED_PYTHON_BASELINE["max_rss_mb"], totals["max_rss_mb"]),
     }
     report = {
         "metadata": {
@@ -468,23 +462,15 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
     totals = report["totals"]
     comparison = report["comparison"]
     if totals["wall_seconds"] > args.max_wall_seconds:
-        failures.append(
-            f"wall time {totals['wall_seconds']}s exceeds allowed {args.max_wall_seconds}s"
-        )
+        failures.append(f"wall time {totals['wall_seconds']}s exceeds allowed {args.max_wall_seconds}s")
     if totals["max_rss_mb"] > args.max_rss_mb:
-        failures.append(
-            f"max RSS {totals['max_rss_mb']} MB exceeds allowed {args.max_rss_mb} MB"
-        )
+        failures.append(f"max RSS {totals['max_rss_mb']} MB exceeds allowed {args.max_rss_mb} MB")
     wall_ratio = comparison["recorded_python_to_rust_wall_ratio"]
     rss_ratio = comparison["recorded_python_to_rust_rss_ratio"]
     if wall_ratio is None or wall_ratio < args.min_recorded_wall_ratio:
-        failures.append(
-            f"recorded Python/Rust wall ratio {wall_ratio}x is below {args.min_recorded_wall_ratio}x"
-        )
+        failures.append(f"recorded Python/Rust wall ratio {wall_ratio}x is below {args.min_recorded_wall_ratio}x")
     if rss_ratio is None or rss_ratio < args.min_recorded_rss_ratio:
-        failures.append(
-            f"recorded Python/Rust RSS ratio {rss_ratio}x is below {args.min_recorded_rss_ratio}x"
-        )
+        failures.append(f"recorded Python/Rust RSS ratio {rss_ratio}x is below {args.min_recorded_rss_ratio}x")
 
     if failures:
         raise RuntimeError("; ".join(failures))
@@ -499,14 +485,8 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"repo: {metadata['name']} {metadata['commit']}")
     print(f"checkout: {metadata['checkout']}")
     print(f"python graph blocked: {metadata['python_graph_blocked']}")
-    print(
-        f"rust Codebase: wall={totals['wall_seconds']:.3f}s "
-        f"max_rss={totals['max_rss_mb']:.1f} MB current_rss={totals['current_rss_mb']:.1f} MB"
-    )
-    print(
-        "rss samples: "
-        + " -> ".join(f"{sample['label']}={sample['rss_mb']:.1f} MB" for sample in report["rss_samples"])
-    )
+    print(f"rust Codebase: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB current_rss={totals['current_rss_mb']:.1f} MB")
+    print("rss samples: " + " -> ".join(f"{sample['label']}={sample['rss_mb']:.1f} MB" for sample in report["rss_samples"]))
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} imports={summary['imports']} "
@@ -523,17 +503,11 @@ def print_human(report: dict[str, Any]) -> None:
         f"types={compat['types']} imports={compat['imports']} exports={compat['exports']}"
         f" external_modules={compat['external_modules']}"
     )
-    print(
-        "recorded baseline ratios: "
-        f"wall={comparison['recorded_python_to_rust_wall_ratio']}x "
-        f"rss={comparison['recorded_python_to_rust_rss_ratio']}x"
-    )
+    print(f"recorded baseline ratios: wall={comparison['recorded_python_to_rust_wall_ratio']}x rss={comparison['recorded_python_to_rust_rss_ratio']}x")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Check pinned Next.js Rust Codebase construction, compatibility handles, and performance ceilings."
-    )
+    parser = argparse.ArgumentParser(description="Check pinned Next.js Rust Codebase construction, compatibility handles, and performance ceilings.")
     parser.add_argument("--name", default=DEFAULT_REPO_NAME, help="Stable name for the pinned repository checkout.")
     parser.add_argument("--repo-url", default=DEFAULT_REPO_URL, help="Git repository URL.")
     parser.add_argument("--ref", default=DEFAULT_REF, help="Remote ref or commit to fetch.")

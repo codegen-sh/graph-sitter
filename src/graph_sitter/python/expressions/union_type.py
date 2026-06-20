@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from graph_sitter.core.expressions.union_type import UnionType
 from graph_sitter.shared.decorators.docs import py_apidoc
@@ -10,7 +10,7 @@ Parent = TypeVar("Parent")
 
 
 @py_apidoc
-class PyUnionType(UnionType["PyType", Parent], Generic[Parent]):
+class PyUnionType[Parent](UnionType["PyType", Parent]):
     """Union type
 
     Examples:

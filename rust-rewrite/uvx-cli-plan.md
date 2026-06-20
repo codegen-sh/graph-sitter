@@ -13,6 +13,7 @@ This plan does not change docs/site content.
 ## Current State
 
 - The package distribution name is already `graph-sitter`.
+
 - The current branch exposes both the historical `gs` console script and the canonical `graph-sitter` script:
 
   ```toml
@@ -22,21 +23,35 @@ This plan does not change docs/site content.
   ```
 
 - `uv run gs --help` and `uv run graph-sitter --help` work.
+
 - `uvx --from <local checkout> graph-sitter --help` resolves to the packaged console script once the checkout is installable in uv's temporary environment.
+
 - Local `uvx --from <checkout> graph-sitter parse <repo> --backend python --format json` now works on Python 3.12 and 3.13 after constraining parser/runtime dependencies to the lock-compatible ranges.
+
 - `uvx --from dist/<wheel>.whl graph-sitter ...` is now the release-wheel smoke path: the Hatch custom wheel hook builds and bundles `graph_sitter_py`, and `rust-rewrite/tools/check_wheel_rust_backend.sh` proves the installed wheel can run `--help`, parse through both Python and strict Rust backends, run import-path transforms in strict Rust `--check` and `--write` modes, and run target-owned registered codemods in strict Rust `--check`, `--write`, and scoped `--subdir --check` modes.
+
 - `graph-sitter parse [PATH] --backend python --format json` works without `.codegen` initialization and emits stable summary JSON.
+
 - `graph-sitter run LABEL PATH --arguments '{"key":"value"}' --backend python` resolves decorated functions under the target repo's `.codegen/codemods`, validates typed Pydantic arguments, and runs without an active `gs init` session.
+
 - `graph-sitter run LABEL PATH --check` runs in a temporary copied-repo sandbox, reports the semantic diff, and leaves the target repo unchanged.
+
 - `graph-sitter transform MODULE:OBJECT PATH --check|--write` loads ad hoc file or module transforms, supports plain functions plus `Codemod.execute` classes/instances, requires explicit `--check` or `--write`, and uses the same backend/language/check/write path as `run`.
+
 - The Hatch wheel package list now includes both `src/graph_sitter` and `src/codemods` so `codemods.codemod.Codemod` is importable in clean `uvx` environments.
+
 - `graph_sitter.cli.cli:main` is the public CLI. `graph_sitter.gscli` appears to be an internal generation CLI and should not be used for the `uvx graph-sitter` surface.
+
 - The current `run` path executes decorated functions found under `.codegen/codemods`:
+
   - `gs init` creates/persists a session for a git repo.
   - `gs create <name>` scaffolds a `@graph_sitter.function("<name>")` function.
   - `gs run <label>` resolves the function by label, parses the repo, runs the function, and applies changes to the local filesystem.
+
 - `src/graph_sitter/cli/commands/run/run_local.py` already has a reusable `parse_codebase(repo_path, subdirectories=None, language=None)` helper.
+
 - `src/codemods/codemod.py` defines a minimal `Codemod` class with an `execute` callback, and the public `graph-sitter transform MODULE:OBJECT` path now supports `Codemod` subclasses and instances.
+
 - The Rust rewrite currently has a separate PyO3 module named `graph_sitter_py`. Built wheels now include that top-level module; source/editable development can still use the manual extension build helpers when bypassing wheel builds.
 
 ## Proposed Command Surface
@@ -147,12 +162,17 @@ Current packaging audit:
 Required packaging decision:
 
 1. Chosen wheel build path for the PyO3 extension: Hatch-compatible custom build hook that invokes Cargo/PyO3 and includes the built extension in the wheel.
-2. Decide the import namespace:
+
+1. Decide the import namespace:
+
    - short term: continue importing `graph_sitter_py`
    - long term: publish as `graph_sitter._rust` to keep the public namespace cohesive
-3. Ensure source distributions include `Cargo.toml`, `Cargo.lock` if locked builds are required, `crates/**`, and tree-sitter grammar dependencies.
-4. Keep Rust optional at import time. `graph-sitter parse --backend python` and default library imports must work without the extension.
-5. Wheel smoke tests install the built artifact into a clean environment and run:
+
+1. Ensure source distributions include `Cargo.toml`, `Cargo.lock` if locked builds are required, `crates/**`, and tree-sitter grammar dependencies.
+
+1. Keep Rust optional at import time. `graph-sitter parse --backend python` and default library imports must work without the extension.
+
+1. Wheel smoke tests install the built artifact into a clean environment and run:
 
    ```bash
    uvx --from dist/<wheel>.whl graph-sitter --help
@@ -168,23 +188,23 @@ Required packaging decision:
 ## Implementation Plan
 
 1. [x] Add the `graph-sitter` console script alias and a metadata test proving both `gs` and `graph-sitter` point to `graph_sitter.cli.cli:main`.
-2. [x] Add a `parse` command with no `.codegen` or active-session requirement.
-3. [x] Thread `--subdir` through parse construction. Result: `graph-sitter parse` accepts repeated `--subdir` filters, normalizes them through `ProjectConfig`, applies them to both Python and Rust selected-file discovery, and includes `subdirectories` in JSON output.
-4. [x] Add machine-readable JSON output from existing Python properties and Rust compact summary properties.
-5. [x] Add an explicit `PATH` argument to `run` while preserving current active-session behavior as fallback.
-6. [x] Fix `--arguments` propagation into decorated functions before advertising it as supported.
-7. [x] Add `--check` and `--write` modes for transformations. Preserve `gs run` compatibility separately if needed. Result: `--check` uses a temporary copied-repo sandbox so codemods that call `codebase.commit()` internally cannot touch the target repo; `--write` is explicit while default write behavior remains for compatibility.
-8. [x] Add import-path `transform MODULE:OBJECT` after the command and safety model are tested. Result: file/module import paths can run plain functions, `Codemod` subclasses, and `Codemod` instances with `--check`, `--write`, backend/language flags, and typed arguments.
-9. [x] Enforce explicit import-path transform mode. Result: `graph-sitter transform MODULE:OBJECT PATH` now fails until the user chooses `--check` or `--write`.
-10. [x] Make the Python-backend `uvx --from <checkout>` path executable. Result: include `codemods` in the wheel package list and constrain clean-install dependency resolution for tree-sitter and `mini-racer`.
-11. [x] Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install. Result: `src/gsbuild/build.py` builds `graph-sitter-py` through Cargo, force-includes `graph_sitter_py{EXT_SUFFIX}` into wheels, marks wheels platform-specific, and `check_wheel_rust_backend.sh` proves `uvx --from dist/<wheel>.whl graph-sitter parse --backend rust --fallback error`.
-12. [x] Add artifact-level transform smokes from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter --help`, Python parse, strict Rust import-path `transform --check` without target mutation, and strict Rust import-path `transform --write` with target mutation from the built wheel.
-13. [x] Add artifact-level TypeScript strict Rust parse smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter parse <tiny-typescript-repo> --language typescript --backend rust --fallback error --format json` from the built wheel.
-14. [x] Add artifact-level TypeScript strict Rust transform smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves a TypeScript function rename with `transform --check` and `transform --write` from the built wheel.
-15. [x] Add artifact-level registered codemod smokes from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves a target-owned `.codegen/codemods` function can run through `uvx --from dist/<wheel>.whl graph-sitter run` in strict Rust `--check`, `--write`, and scoped `--subdir --check` modes.
-16. [x] Add artifact-level large TypeScript parse proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py` builds or accepts a wheel, runs `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Next.js `v15.0.0` in strict Rust mode, compares summary counts with the committed compact TypeScript golden snapshot, and optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`.
-17. [x] Add artifact-level large TypeScript transform proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py --run-transform-proof` clones pinned Next.js, runs strict Rust `graph-sitter transform` through `uvx --from dist/<wheel>.whl`, renames `AppRouterAnnouncer`, rewrites the importing usage, and asserts only the two expected files changed.
-18. [x] Add artifact-level large Python parse and transform proof from a built wheel. Result: `check_wheel_pinned_python_repo.py` builds or accepts a wheel, runs strict Rust `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Airflow `2.10.5`, compares summary counts with the committed compact Python golden snapshot, optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`, and proves an installed-wheel strict Rust transform can rename `__getattr__` in `airflow/__init__.py` while touching only that file.
+1. [x] Add a `parse` command with no `.codegen` or active-session requirement.
+1. [x] Thread `--subdir` through parse construction. Result: `graph-sitter parse` accepts repeated `--subdir` filters, normalizes them through `ProjectConfig`, applies them to both Python and Rust selected-file discovery, and includes `subdirectories` in JSON output.
+1. [x] Add machine-readable JSON output from existing Python properties and Rust compact summary properties.
+1. [x] Add an explicit `PATH` argument to `run` while preserving current active-session behavior as fallback.
+1. [x] Fix `--arguments` propagation into decorated functions before advertising it as supported.
+1. [x] Add `--check` and `--write` modes for transformations. Preserve `gs run` compatibility separately if needed. Result: `--check` uses a temporary copied-repo sandbox so codemods that call `codebase.commit()` internally cannot touch the target repo; `--write` is explicit while default write behavior remains for compatibility.
+1. [x] Add import-path `transform MODULE:OBJECT` after the command and safety model are tested. Result: file/module import paths can run plain functions, `Codemod` subclasses, and `Codemod` instances with `--check`, `--write`, backend/language flags, and typed arguments.
+1. [x] Enforce explicit import-path transform mode. Result: `graph-sitter transform MODULE:OBJECT PATH` now fails until the user chooses `--check` or `--write`.
+1. [x] Make the Python-backend `uvx --from <checkout>` path executable. Result: include `codemods` in the wheel package list and constrain clean-install dependency resolution for tree-sitter and `mini-racer`.
+1. [x] Integrate the Rust extension into wheel builds so `--backend rust` works after `uvx` install. Result: `src/gsbuild/build.py` builds `graph-sitter-py` through Cargo, force-includes `graph_sitter_py{EXT_SUFFIX}` into wheels, marks wheels platform-specific, and `check_wheel_rust_backend.sh` proves `uvx --from dist/<wheel>.whl graph-sitter parse --backend rust --fallback error`.
+1. [x] Add artifact-level transform smokes from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter --help`, Python parse, strict Rust import-path `transform --check` without target mutation, and strict Rust import-path `transform --write` with target mutation from the built wheel.
+1. [x] Add artifact-level TypeScript strict Rust parse smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves `graph-sitter parse <tiny-typescript-repo> --language typescript --backend rust --fallback error --format json` from the built wheel.
+1. [x] Add artifact-level TypeScript strict Rust transform smoke from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves a TypeScript function rename with `transform --check` and `transform --write` from the built wheel.
+1. [x] Add artifact-level registered codemod smokes from a built wheel. Result: `check_wheel_rust_backend.sh` now also proves a target-owned `.codegen/codemods` function can run through `uvx --from dist/<wheel>.whl graph-sitter run` in strict Rust `--check`, `--write`, and scoped `--subdir --check` modes.
+1. [x] Add artifact-level large TypeScript parse proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py` builds or accepts a wheel, runs `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Next.js `v15.0.0` in strict Rust mode, compares summary counts with the committed compact TypeScript golden snapshot, and optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`.
+1. [x] Add artifact-level large TypeScript transform proof from a built wheel. Result: `check_wheel_pinned_typescript_repo.py --run-transform-proof` clones pinned Next.js, runs strict Rust `graph-sitter transform` through `uvx --from dist/<wheel>.whl`, renames `AppRouterAnnouncer`, rewrites the importing usage, and asserts only the two expected files changed.
+1. [x] Add artifact-level large Python parse and transform proof from a built wheel. Result: `check_wheel_pinned_python_repo.py` builds or accepts a wheel, runs strict Rust `uvx --from dist/<wheel>.whl graph-sitter parse` against pinned Airflow `2.10.5`, compares summary counts with the committed compact Python golden snapshot, optionally compares installed-wheel Python versus Rust parse elapsed/RSS with `--compare-python-backend`, and proves an installed-wheel strict Rust transform can rename `__getattr__` in `airflow/__init__.py` while touching only that file.
 
 ## Test Strategy
 

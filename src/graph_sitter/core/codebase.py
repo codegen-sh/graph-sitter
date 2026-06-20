@@ -1506,7 +1506,7 @@ class Codebase(
         if "/" not in repo_full_name:
             msg = "repo_name must be in format 'owner/repo'"
             raise ValueError(msg)
-        owner, repo = repo_full_name.split("/")
+        _owner, repo = repo_full_name.split("/")
 
         # Setup temp directory
         os.makedirs(tmp_dir, exist_ok=True)

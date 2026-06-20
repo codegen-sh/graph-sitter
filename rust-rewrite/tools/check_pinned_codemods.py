@@ -344,15 +344,9 @@ def validate_report(report: dict[str, Any], args: argparse.Namespace) -> None:
             failures.append(f"{suite['suite']} assertions failed: {', '.join(failed_assertions)}")
         timings = suite["timings"]
         if timings["codebase_construct_wall_seconds"] > args.max_construct_wall_seconds:
-            failures.append(
-                f"{suite['suite']} construct wall {timings['codebase_construct_wall_seconds']}s "
-                f"exceeds {args.max_construct_wall_seconds}s"
-            )
+            failures.append(f"{suite['suite']} construct wall {timings['codebase_construct_wall_seconds']}s exceeds {args.max_construct_wall_seconds}s")
         if timings["codemod_commit_wall_seconds"] > args.max_codemod_wall_seconds:
-            failures.append(
-                f"{suite['suite']} codemod wall {timings['codemod_commit_wall_seconds']}s "
-                f"exceeds {args.max_codemod_wall_seconds}s"
-            )
+            failures.append(f"{suite['suite']} codemod wall {timings['codemod_commit_wall_seconds']}s exceeds {args.max_codemod_wall_seconds}s")
         max_rss = max(float(sample["max_rss_mb"]) for sample in suite["rss_samples"])
         if max_rss > args.max_rss_mb:
             failures.append(f"{suite['suite']} max RSS {max_rss} MB exceeds {args.max_rss_mb} MB")
@@ -403,9 +397,7 @@ def print_human(report: dict[str, Any]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Run graph-free compact Rust codemod smoke checks on pinned Airflow and Next.js checkouts."
-    )
+    parser = argparse.ArgumentParser(description="Run graph-free compact Rust codemod smoke checks on pinned Airflow and Next.js checkouts.")
     parser.add_argument("--suite", choices=["all", "python", "typescript"], default="all")
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR, help="Directory for reusable pinned checkouts.")
     parser.add_argument("--extension-dir", type=Path, default=DEFAULT_EXTENSION_DIR, help="Directory for the built PyO3 extension module.")

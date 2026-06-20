@@ -55,25 +55,13 @@ def airflow_codebase_report() -> dict[str, Any]:
         "known_global_lookups": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_GLOBAL_LOOKUPS),
         "known_child_lookups": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_CHILD_LOOKUPS),
         "known_file_local_lookups": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_LOOKUPS),
-        "known_file_local_import_lookups": cloned(
-            readiness.airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_IMPORT_LOOKUPS
-        ),
-        "known_file_local_name_resolution": cloned(
-            readiness.airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_NAME_RESOLUTION
-        ),
-        "known_module_import_attribute_resolution": (
-            cloned(readiness.airflow_codebase.EXPECTED_KNOWN_MODULE_IMPORT_ATTRIBUTE_RESOLUTION)
-        ),
-        "known_ignore_case_file_lookups": cloned(
-            readiness.airflow_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS
-        ),
-        "targeted_cache_materialization": cloned(
-            readiness.airflow_codebase.EXPECTED_TARGETED_CACHE_MATERIALIZATION
-        ),
+        "known_file_local_import_lookups": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_IMPORT_LOOKUPS),
+        "known_file_local_name_resolution": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_FILE_LOCAL_NAME_RESOLUTION),
+        "known_module_import_attribute_resolution": (cloned(readiness.airflow_codebase.EXPECTED_KNOWN_MODULE_IMPORT_ATTRIBUTE_RESOLUTION)),
+        "known_ignore_case_file_lookups": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS),
+        "targeted_cache_materialization": cloned(readiness.airflow_codebase.EXPECTED_TARGETED_CACHE_MATERIALIZATION),
         "known_lookups": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_LOOKUPS),
-        "byte_range_cache_materialization": cloned(
-            readiness.airflow_codebase.EXPECTED_BYTE_RANGE_CACHE_MATERIALIZATION
-        ),
+        "byte_range_cache_materialization": cloned(readiness.airflow_codebase.EXPECTED_BYTE_RANGE_CACHE_MATERIALIZATION),
         "known_dependencies": cloned(readiness.airflow_codebase.EXPECTED_KNOWN_DEPENDENCIES),
         "large_cache_materialization": cloned(readiness.airflow_codebase.EXPECTED_LARGE_CACHE_MATERIALIZATION),
         "comparison": {
@@ -91,21 +79,11 @@ def nextjs_codebase_report() -> dict[str, Any]:
         "records": cloned(readiness.nextjs_codebase.EXPECTED_RECORDS),
         "compat_handles": cloned(readiness.nextjs_codebase.EXPECTED_COMPAT_HANDLES),
         "known_global_lookups": cloned(readiness.nextjs_codebase.EXPECTED_KNOWN_GLOBAL_LOOKUPS),
-        "known_file_local_export_lookups": (
-            cloned(readiness.nextjs_codebase.EXPECTED_KNOWN_FILE_LOCAL_EXPORT_LOOKUPS)
-        ),
-        "known_ignore_case_file_lookups": cloned(
-            readiness.nextjs_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS
-        ),
-        "known_file_local_call_lookups": cloned(
-            readiness.nextjs_codebase.EXPECTED_KNOWN_FILE_LOCAL_CALL_LOOKUPS
-        ),
-        "targeted_cache_materialization": cloned(
-            readiness.nextjs_codebase.EXPECTED_TARGETED_CACHE_MATERIALIZATION
-        ),
-        "large_cache_materialization": cloned(
-            readiness.nextjs_codebase.EXPECTED_LARGE_CACHE_MATERIALIZATION
-        ),
+        "known_file_local_export_lookups": (cloned(readiness.nextjs_codebase.EXPECTED_KNOWN_FILE_LOCAL_EXPORT_LOOKUPS)),
+        "known_ignore_case_file_lookups": cloned(readiness.nextjs_codebase.EXPECTED_KNOWN_IGNORE_CASE_FILE_LOOKUPS),
+        "known_file_local_call_lookups": cloned(readiness.nextjs_codebase.EXPECTED_KNOWN_FILE_LOCAL_CALL_LOOKUPS),
+        "targeted_cache_materialization": cloned(readiness.nextjs_codebase.EXPECTED_TARGETED_CACHE_MATERIALIZATION),
+        "large_cache_materialization": cloned(readiness.nextjs_codebase.EXPECTED_LARGE_CACHE_MATERIALIZATION),
         "comparison": {
             "recorded_python_to_rust_wall_ratio": 10.0,
             "recorded_python_to_rust_rss_ratio": 10.0,

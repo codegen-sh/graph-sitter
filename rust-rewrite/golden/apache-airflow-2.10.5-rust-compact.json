@@ -1,1704 +1,1344 @@
 {
-  "graphs": {
-    "dependencies": {
-      "count": 79737,
-      "samples": [
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__init__.py",
-          "source_symbol": "airflow/__init__.py:function:__getattr__@4048",
-          "target_file": "airflow/__init__.py",
-          "target_symbol": "airflow/__init__.py:global_variable:__lazy_imports@3362"
-        },
-        {
-          "reference_count": 2,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
-          "target_file": "airflow/api_internal/internal_api_call.py",
-          "target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:class:AirflowConfigParser@6263"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
-          "target_file": "airflow/exceptions.py",
-          "target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_file": "airflow/__main__.py",
-          "target_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_file": "airflow/cli/cli_parser.py",
-          "target_symbol": "airflow/cli/cli_parser.py:function:get_parser@4978"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:function:write_default_airflow_configuration_if_needed@88783"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:function:write_webserver_configuration_if_needed@93544"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:global_variable:conf@102463"
-        },
-        {
-          "reference_count": 2,
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_file": "airflow/api/__init__.py",
-          "target_symbol": "airflow/api/__init__.py:global_variable:log@1018"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:global_variable:conf@102463"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_file": "airflow/exceptions.py",
-          "target_symbol": "airflow/exceptions.py:class:AirflowConfigException@1913"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_file": "airflow/exceptions.py",
-          "target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "source_symbol": "airflow/api/auth/backend/basic_auth.py:function:auth_current_user@1530",
-          "target_file": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py",
-          "target_symbol": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py:function:auth_current_user@1480"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "source_symbol": "airflow/api/auth/backend/basic_auth.py:function:auth_current_user@1530",
-          "target_file": "airflow/providers/fab/auth_manager/models/__init__.py",
-          "target_symbol": "airflow/providers/fab/auth_manager/models/__init__.py:class:User@4203"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "source_symbol": "airflow/api/auth/backend/basic_auth.py:function:init_app@1480",
-          "target_file": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py",
-          "target_symbol": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py:function:init_app@1416"
-        },
-        {
-          "reference_count": 1,
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "source_symbol": "airflow/api/auth/backend/basic_auth.py:function:requires_authentication@1618",
-          "target_file": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py",
-          "target_symbol": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py:function:requires_authentication@2134"
-        },
-        {
-          "reference_count": 2,
-          "source_file": "airflow/api/auth/backend/default.py",
-          "source_symbol": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
-          "target_file": "airflow/api/auth/backend/default.py",
-          "target_symbol": "airflow/api/auth/backend/default.py:global_variable:T@1078"
-        },
-        {
-          "reference_count": 2,
-          "source_file": "airflow/api/auth/backend/deny_all.py",
-          "source_symbol": "airflow/api/auth/backend/deny_all.py:function:requires_authentication@1130",
-          "target_file": "airflow/api/auth/backend/deny_all.py",
-          "target_symbol": "airflow/api/auth/backend/deny_all.py:global_variable:T@1091"
-        },
-        {
-          "reference_count": 6,
-          "source_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_gssapi_authenticate@3989",
-          "target_file": "airflow/api/auth/backend/kerberos_auth.py",
-          "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:class:_KerberosAuth@2887"
-        }
-      ],
-      "sha256": "146b5245ee502672f1f67053e3f22b05497bb46e6974fd84d069b69b6681ef91"
-    },
-    "external_modules": {
-      "count": 19545,
-      "samples": [
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "import": "airflow/__init__.py:import::os:@847",
-          "key": "airflow/__init__.py:import::os:@847:os",
-          "module": null,
-          "name": "os",
-          "range": [
-            847,
-            856
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "import": "airflow/__init__.py:import::sys:@857",
-          "key": "airflow/__init__.py:import::sys:@857:sys",
-          "module": null,
-          "name": "sys",
-          "range": [
-            857,
-            867
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "import": "airflow/__init__.py:import::warnings:@868",
-          "key": "airflow/__init__.py:import::warnings:@868:warnings",
-          "module": null,
-          "name": "warnings",
-          "range": [
-            868,
-            883
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "import": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884",
-          "key": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884:TYPE_CHECKING",
-          "module": "typing",
-          "name": "TYPE_CHECKING",
-          "range": [
-            884,
-            916
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "import": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283",
-          "key": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283:patch_all",
-          "module": "gevent.monkey",
-          "name": "patch_all",
-          "range": [
-            1283,
-            1318
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "import": "airflow/__init__.py:import::importlib:@5066",
-          "key": "airflow/__init__.py:import::importlib:@5066:importlib",
-          "module": null,
-          "name": "importlib",
-          "range": [
-            5066,
-            5082
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "import": "airflow/__main__.py:import::os:@900",
-          "key": "airflow/__main__.py:import::os:@900:os",
-          "module": null,
-          "name": "os",
-          "range": [
-            900,
-            909
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "import": "airflow/__main__.py:from_import:argparse:Namespace:@910",
-          "key": "airflow/__main__.py:from_import:argparse:Namespace:@910:Namespace",
-          "module": "argparse",
-          "name": "Namespace",
-          "range": [
-            910,
-            940
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "import": "airflow/__main__.py:import::argcomplete:@942",
-          "key": "airflow/__main__.py:import::argcomplete:@942:argcomplete",
-          "module": null,
-          "name": "argcomplete",
-          "range": [
-            942,
-            960
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/__init__.py",
-          "import": "airflow/api/__init__.py:import::logging:@854",
-          "key": "airflow/api/__init__.py:import::logging:@854:logging",
-          "module": null,
-          "name": "logging",
-          "range": [
-            854,
-            868
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/__init__.py",
-          "import": "airflow/api/__init__.py:from_import:importlib:import_module:@869",
-          "key": "airflow/api/__init__.py:from_import:importlib:import_module:@869:import_module",
-          "module": "importlib",
-          "name": "import_module",
-          "range": [
-            869,
-            904
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "import": "airflow/api/auth/backend/basic_auth.py:import::warnings:@948",
-          "key": "airflow/api/auth/backend/basic_auth.py:import::warnings:@948:warnings",
-          "module": null,
-          "name": "warnings",
-          "range": [
-            948,
-            963
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964",
-          "key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964:Any",
-          "module": "typing",
-          "name": "Any",
-          "range": [
-            964,
-            1011
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Callable:@964",
-          "key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Callable:@964:Callable",
-          "module": "typing",
-          "name": "Callable",
-          "range": [
-            964,
-            1011
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964",
-          "key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964:TYPE_CHECKING",
-          "module": "typing",
-          "name": "TYPE_CHECKING",
-          "range": [
-            964,
-            1011
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/default.py",
-          "import": "airflow/api/auth/backend/default.py:from_import:functools:wraps:@886",
-          "key": "airflow/api/auth/backend/default.py:from_import:functools:wraps:@886:wraps",
-          "module": "functools",
-          "name": "wraps",
-          "range": [
-            886,
-            913
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/default.py",
-          "import": "airflow/api/auth/backend/default.py:from_import:typing:Any:@914",
-          "key": "airflow/api/auth/backend/default.py:from_import:typing:Any:@914:Any",
-          "module": "typing",
-          "name": "Any",
-          "range": [
-            914,
-            961
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/default.py",
-          "import": "airflow/api/auth/backend/default.py:from_import:typing:Callable:@914",
-          "key": "airflow/api/auth/backend/default.py:from_import:typing:Callable:@914:Callable",
-          "module": "typing",
-          "name": "Callable",
-          "range": [
-            914,
-            961
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/default.py",
-          "import": "airflow/api/auth/backend/default.py:from_import:typing:TypeVar:@914",
-          "key": "airflow/api/auth/backend/default.py:from_import:typing:TypeVar:@914:TypeVar",
-          "module": "typing",
-          "name": "TypeVar",
-          "range": [
-            914,
-            961
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/api/auth/backend/default.py",
-          "import": "airflow/api/auth/backend/default.py:from_import:typing:cast:@914",
-          "key": "airflow/api/auth/backend/default.py:from_import:typing:cast:@914:cast",
-          "module": "typing",
-          "name": "cast",
-          "range": [
-            914,
-            961
-          ]
-        }
-      ],
-      "sha256": "c08ebfc9435c207fa8bbcb89717cac4f22de84f4a116e7c86e8293bb257db3ce"
-    },
-    "external_references": {
-      "count": 79300,
-      "samples": [
-        {
-          "import": "airflow/__init__.py:import::os:@847",
-          "name": "os",
-          "range": [
-            921,
-            923
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283",
-          "name": "patch_all",
-          "range": [
-            1324,
-            1333
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:import::sys:@857",
-          "name": "sys",
-          "range": [
-            1340,
-            1343
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:import::warnings:@868",
-          "name": "warnings",
-          "range": [
-            1369,
-            1377
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:import::os:@847",
-          "name": "os",
-          "range": [
-            3196,
-            3198
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884",
-          "name": "TYPE_CHECKING",
-          "range": [
-            3702,
-            3715
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:import::warnings:@868",
-          "name": "warnings",
-          "range": [
-            4351,
-            4359
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": "airflow/__init__.py:function:__getattr__@4048"
-        },
-        {
-          "import": "airflow/__init__.py:import::sys:@857",
-          "name": "sys",
-          "range": [
-            4642,
-            4645
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": "airflow/__init__.py:function:__getattr__@4048"
-        },
-        {
-          "import": "airflow/__init__.py:import::warnings:@868",
-          "name": "warnings",
-          "range": [
-            4790,
-            4798
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": "airflow/__init__.py:function:__getattr__@4048"
-        },
-        {
-          "import": "airflow/__init__.py:import::importlib:@5066",
-          "name": "importlib",
-          "range": [
-            5094,
-            5103
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": "airflow/__init__.py:function:__getattr__@4048"
-        },
-        {
-          "import": "airflow/__main__.py:import::os:@900",
-          "name": "os",
-          "range": [
-            1911,
-            1913
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814"
-        },
-        {
-          "import": "airflow/__main__.py:import::os:@900",
-          "name": "os",
-          "range": [
-            1977,
-            1979
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814"
-        },
-        {
-          "import": "airflow/__main__.py:import::argcomplete:@942",
-          "name": "argcomplete",
-          "range": [
-            2077,
-            2088
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:argparse:Namespace:@910",
-          "name": "Namespace",
-          "range": [
-            2879,
-            2888
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
-        },
-        {
-          "import": "airflow/__main__.py:import::os:@900",
-          "name": "os",
-          "range": [
-            3165,
-            3167
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
-        },
-        {
-          "import": "airflow/__main__.py:import::os:@900",
-          "name": "os",
-          "range": [
-            3295,
-            3297
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
-        },
-        {
-          "import": "airflow/api/__init__.py:import::logging:@854",
-          "name": "logging",
-          "range": [
-            1024,
-            1031
-          ],
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:global_variable:log@1018"
-        },
-        {
-          "import": "airflow/api/__init__.py:from_import:importlib:import_module:@869",
-          "name": "import_module",
-          "range": [
-            1376,
-            1389
-          ],
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058"
-        },
-        {
-          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964",
-          "name": "TYPE_CHECKING",
-          "range": [
-            1161,
-            1174
-          ],
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "source_symbol": null
-        },
-        {
-          "import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964",
-          "name": "Any",
-          "range": [
-            1271,
-            1274
-          ],
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "source_symbol": "airflow/api/auth/backend/basic_auth.py:global_variable:CLIENT_AUTH@1240"
-        }
-      ],
-      "sha256": "687351e542f9927621ca3125adea6c226539e0d157285726d61b517606e558cb"
-    },
-    "files": {
-      "count": 4789,
-      "samples": [
-        {
-          "byte_len": 5673,
-          "has_error": false,
-          "line_count": 139,
-          "module_name": "airflow",
-          "path": "airflow/__init__.py"
-        },
-        {
-          "byte_len": 4273,
-          "has_error": false,
-          "line_count": 90,
-          "module_name": "airflow.__main__",
-          "path": "airflow/__main__.py"
-        },
-        {
-          "byte_len": 0,
-          "has_error": false,
-          "line_count": 0,
-          "module_name": "airflow._vendor",
-          "path": "airflow/_vendor/__init__.py"
-        },
-        {
-          "byte_len": 1678,
-          "has_error": false,
-          "line_count": 48,
-          "module_name": "airflow.api",
-          "path": "airflow/api/__init__.py"
-        },
-        {
-          "byte_len": 787,
-          "has_error": false,
-          "line_count": 17,
-          "module_name": "airflow.api.auth",
-          "path": "airflow/api/auth/__init__.py"
-        },
-        {
-          "byte_len": 787,
-          "has_error": false,
-          "line_count": 17,
-          "module_name": "airflow.api.auth.backend",
-          "path": "airflow/api/auth/backend/__init__.py"
-        },
-        {
-          "byte_len": 1723,
-          "has_error": false,
-          "line_count": 52,
-          "module_name": "airflow.api.auth.backend.basic_auth",
-          "path": "airflow/api/auth/backend/basic_auth.py"
-        },
-        {
-          "byte_len": 1343,
-          "has_error": false,
-          "line_count": 42,
-          "module_name": "airflow.api.auth.backend.default",
-          "path": "airflow/api/auth/backend/default.py"
-        },
-        {
-          "byte_len": 1357,
-          "has_error": false,
-          "line_count": 44,
-          "module_name": "airflow.api.auth.backend.deny_all",
-          "path": "airflow/api/auth/backend/deny_all.py"
-        },
-        {
-          "byte_len": 6542,
-          "has_error": false,
-          "line_count": 182,
-          "module_name": "airflow.api.auth.backend.kerberos_auth",
-          "path": "airflow/api/auth/backend/kerberos_auth.py"
-        },
-        {
-          "byte_len": 1773,
-          "has_error": false,
-          "line_count": 55,
-          "module_name": "airflow.api.auth.backend.session",
-          "path": "airflow/api/auth/backend/session.py"
-        },
-        {
-          "byte_len": 1730,
-          "has_error": false,
-          "line_count": 46,
-          "module_name": "airflow.api.client",
-          "path": "airflow/api/client/__init__.py"
-        },
-        {
-          "byte_len": 2731,
-          "has_error": false,
-          "line_count": 94,
-          "module_name": "airflow.api.client.api_client",
-          "path": "airflow/api/client/api_client.py"
-        },
-        {
-          "byte_len": 6616,
-          "has_error": false,
-          "line_count": 164,
-          "module_name": "airflow.api.client.json_client",
-          "path": "airflow/api/client/json_client.py"
-        },
-        {
-          "byte_len": 3788,
-          "has_error": false,
-          "line_count": 93,
-          "module_name": "airflow.api.client.local_client",
-          "path": "airflow/api/client/local_client.py"
-        },
-        {
-          "byte_len": 787,
-          "has_error": false,
-          "line_count": 17,
-          "module_name": "airflow.api.common",
-          "path": "airflow/api/common/__init__.py"
-        },
-        {
-          "byte_len": 3268,
-          "has_error": false,
-          "line_count": 89,
-          "module_name": "airflow.api.common.airflow_health",
-          "path": "airflow/api/common/airflow_health.py"
-        },
-        {
-          "byte_len": 4086,
-          "has_error": false,
-          "line_count": 108,
-          "module_name": "airflow.api.common.delete_dag",
-          "path": "airflow/api/common/delete_dag.py"
-        },
-        {
-          "byte_len": 2138,
-          "has_error": false,
-          "line_count": 56,
-          "module_name": "airflow.api.common.experimental",
-          "path": "airflow/api/common/experimental/__init__.py"
-        },
-        {
-          "byte_len": 1135,
-          "has_error": false,
-          "line_count": 30,
-          "module_name": "airflow.api.common.experimental.delete_dag",
-          "path": "airflow/api/common/experimental/delete_dag.py"
-        }
-      ],
-      "sha256": "226e8cb32dc0a23ec956e97b036e7c505037df979cce7182514f39a43b07cb80"
-    },
-    "import_resolutions": {
-      "count": 20887,
-      "samples": [
-        {
-          "import": "airflow/__init__.py:from_import:airflow.models.dag:DAG:@3912",
-          "source_file": "airflow/__init__.py",
-          "target_file": "airflow/models/dag.py",
-          "target_symbol": "airflow/models/dag.py:class:DAG@13203"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow.models.dataset:Dataset:@3951",
-          "source_file": "airflow/__init__.py",
-          "target_file": "airflow/models/dataset.py",
-          "target_symbol": "airflow/datasets/__init__.py:class:Dataset@7742"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow.models.xcom_arg:XComArg:@3998",
-          "source_file": "airflow/__init__.py",
-          "target_file": "airflow/models/xcom_arg.py",
-          "target_symbol": "airflow/models/xcom_arg.py:class:XComArg@2341"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow.providers_manager:ProvidersManager:@5336",
-          "source_file": "airflow/__init__.py",
-          "target_file": "airflow/providers_manager.py",
-          "target_symbol": "airflow/providers_manager.py:class:ProvidersManager@13734"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow:configuration:@2460",
-          "source_file": "airflow/__init__.py",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow:plugins_manager:@5592",
-          "source_file": "airflow/__init__.py",
-          "target_file": "airflow/plugins_manager.py",
-          "target_symbol": null
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow:settings:@2460",
-          "source_file": "airflow/__init__.py",
-          "target_file": "airflow/settings.py",
-          "target_symbol": null
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@3437",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/api_internal/internal_api_call.py",
-          "target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@4092",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/api_internal/internal_api_call.py",
-          "target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.cli:cli_parser:@1630",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/cli/cli_parser.py",
-          "target_symbol": null
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.configuration:AirflowConfigParser:@1665",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:class:AirflowConfigParser@6263"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.configuration:write_default_airflow_configuration_if_needed:@2511",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:function:write_default_airflow_configuration_if_needed@88783"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.configuration:write_webserver_configuration_if_needed:@1665",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:function:write_webserver_configuration_if_needed@93544"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.exceptions:AirflowException:@1760",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/exceptions.py",
-          "target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow:configuration:@1596",
-          "source_file": "airflow/__main__.py",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": null
-        },
-        {
-          "import": "airflow/api/__init__.py:from_import:airflow.configuration:conf:@906",
-          "source_file": "airflow/api/__init__.py",
-          "target_file": "airflow/configuration.py",
-          "target_symbol": "airflow/configuration.py:global_variable:conf@102463"
-        },
-        {
-          "import": "airflow/api/__init__.py:from_import:airflow.exceptions:AirflowConfigException:@945",
-          "source_file": "airflow/api/__init__.py",
-          "target_file": "airflow/exceptions.py",
-          "target_symbol": "airflow/exceptions.py:class:AirflowConfigException@1913"
-        },
-        {
-          "import": "airflow/api/__init__.py:from_import:airflow.exceptions:AirflowException:@945",
-          "source_file": "airflow/api/__init__.py",
-          "target_file": "airflow/exceptions.py",
-          "target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
-        },
-        {
-          "import": "airflow/api/auth/backend/basic_auth.py:from_import:airflow.exceptions:RemovedInAirflow3Warning:@1101",
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "target_file": "airflow/exceptions.py",
-          "target_symbol": "airflow/exceptions.py:class:RemovedInAirflow3Warning@16092"
-        },
-        {
-          "import": "airflow/api/auth/backend/basic_auth.py:from_import:airflow.providers.fab.auth_manager.models:User:@1180",
-          "source_file": "airflow/api/auth/backend/basic_auth.py",
-          "target_file": "airflow/providers/fab/auth_manager/models/__init__.py",
-          "target_symbol": "airflow/providers/fab/auth_manager/models/__init__.py:class:User@4203"
-        }
-      ],
-      "sha256": "89be1cc5471796bf624202e72af9b4d92326676ea64b2aeedd71f5382fe2ff1b"
-    },
-    "imports": {
-      "count": 44121,
-      "samples": [
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:future_import:__future__:annotations:@787",
-          "kind": "future_import",
-          "module": "__future__",
-          "name": "annotations",
-          "range": [
-            787,
-            821
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:import::os:@847",
-          "kind": "import",
-          "module": null,
-          "name": "os",
-          "range": [
-            847,
-            856
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:import::sys:@857",
-          "kind": "import",
-          "module": null,
-          "name": "sys",
-          "range": [
-            857,
-            867
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:import::warnings:@868",
-          "kind": "import",
-          "module": null,
-          "name": "warnings",
-          "range": [
-            868,
-            883
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884",
-          "kind": "from_import",
-          "module": "typing",
-          "name": "TYPE_CHECKING",
-          "range": [
-            884,
-            916
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283",
-          "kind": "from_import",
-          "module": "gevent.monkey",
-          "name": "patch_all",
-          "range": [
-            1283,
-            1318
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:airflow:configuration:@2460",
-          "kind": "from_import",
-          "module": "airflow",
-          "name": "configuration",
-          "range": [
-            2460,
-            2503
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:airflow:settings:@2460",
-          "kind": "from_import",
-          "module": "airflow",
-          "name": "settings",
-          "range": [
-            2460,
-            2503
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:airflow.models.dag:DAG:@3912",
-          "kind": "from_import",
-          "module": "airflow.models.dag",
-          "name": "DAG",
-          "range": [
-            3912,
-            3946
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:airflow.models.dataset:Dataset:@3951",
-          "kind": "from_import",
-          "module": "airflow.models.dataset",
-          "name": "Dataset",
-          "range": [
-            3951,
-            3993
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:airflow.models.xcom_arg:XComArg:@3998",
-          "kind": "from_import",
-          "module": "airflow.models.xcom_arg",
-          "name": "XComArg",
-          "range": [
-            3998,
-            4041
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:import::importlib:@5066",
-          "kind": "import",
-          "module": null,
-          "name": "importlib",
-          "range": [
-            5066,
-            5082
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:airflow.providers_manager:ProvidersManager:@5336",
-          "kind": "from_import",
-          "module": "airflow.providers_manager",
-          "name": "ProvidersManager",
-          "range": [
-            5336,
-            5390
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__init__.py",
-          "key": "airflow/__init__.py:from_import:airflow:plugins_manager:@5592",
-          "kind": "from_import",
-          "module": "airflow",
-          "name": "plugins_manager",
-          "range": [
-            5592,
-            5627
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "key": "airflow/__main__.py:future_import:__future__:annotations:@864",
-          "kind": "future_import",
-          "module": "__future__",
-          "name": "annotations",
-          "range": [
-            864,
-            898
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "key": "airflow/__main__.py:import::os:@900",
-          "kind": "import",
-          "module": null,
-          "name": "os",
-          "range": [
-            900,
-            909
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "key": "airflow/__main__.py:from_import:argparse:Namespace:@910",
-          "kind": "from_import",
-          "module": "argparse",
-          "name": "Namespace",
-          "range": [
-            910,
-            940
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "key": "airflow/__main__.py:import::argcomplete:@942",
-          "kind": "import",
-          "module": null,
-          "name": "argcomplete",
-          "range": [
-            942,
-            960
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "key": "airflow/__main__.py:from_import:airflow:configuration:@1596",
-          "kind": "from_import",
-          "module": "airflow",
-          "name": "configuration",
-          "range": [
-            1596,
-            1629
-          ]
-        },
-        {
-          "alias": null,
-          "file": "airflow/__main__.py",
-          "key": "airflow/__main__.py:from_import:airflow.cli:cli_parser:@1630",
-          "kind": "from_import",
-          "module": "airflow.cli",
-          "name": "cli_parser",
-          "range": [
-            1630,
-            1664
-          ]
-        }
-      ],
-      "sha256": "42b2f4b1ea694fe76c91e63623d6ea8a5e59fbfa194d18e8a8c32832cf767f1b"
-    },
-    "references": {
-      "count": 120770,
-      "samples": [
-        {
-          "import": "airflow/__init__.py:from_import:airflow:settings:@2460",
-          "name": "initialize",
-          "range": [
-            3255,
-            3265
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null,
-          "target_symbol": "airflow/settings.py:function:initialize@29763"
-        },
-        {
-          "import": null,
-          "name": "__lazy_imports",
-          "range": [
-            4169,
-            4183
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": "airflow/__init__.py:function:__getattr__@4048",
-          "target_symbol": "airflow/__init__.py:global_variable:__lazy_imports@3362"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow:settings:@2460",
-          "name": "LAZY_LOAD_PROVIDERS",
-          "range": [
-            5311,
-            5330
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null,
-          "target_symbol": "airflow/settings.py:global_variable:LAZY_LOAD_PROVIDERS@32556"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow.providers_manager:ProvidersManager:@5336",
-          "name": "ProvidersManager",
-          "range": [
-            5406,
-            5422
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null,
-          "target_symbol": "airflow/providers_manager.py:class:ProvidersManager@13734"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow:settings:@2460",
-          "name": "LAZY_LOAD_PLUGINS",
-          "range": [
-            5569,
-            5586
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null,
-          "target_symbol": "airflow/settings.py:global_variable:LAZY_LOAD_PLUGINS@32249"
-        },
-        {
-          "import": "airflow/__init__.py:from_import:airflow:plugins_manager:@5592",
-          "name": "ensure_plugins_loaded",
-          "range": [
-            5649,
-            5670
-          ],
-          "source_file": "airflow/__init__.py",
-          "source_symbol": null,
-          "target_symbol": "airflow/plugins_manager.py:function:ensure_plugins_loaded@11525"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow:configuration:@1596",
-          "name": "conf",
-          "range": [
-            1847,
-            1851
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_symbol": "airflow/configuration.py:global_variable:conf@102463"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.cli:cli_parser:@1630",
-          "name": "get_parser",
-          "range": [
-            2060,
-            2070
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_symbol": "airflow/cli/cli_parser.py:function:get_parser@4978"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.configuration:write_default_airflow_configuration_if_needed:@2511",
-          "name": "write_default_airflow_configuration_if_needed",
-          "range": [
-            2607,
-            2652
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_symbol": "airflow/configuration.py:function:write_default_airflow_configuration_if_needed@88783"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.configuration:write_webserver_configuration_if_needed:@1665",
-          "name": "write_webserver_configuration_if_needed",
-          "range": [
-            2738,
-            2777
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_symbol": "airflow/configuration.py:function:write_webserver_configuration_if_needed@93544"
-        },
-        {
-          "import": null,
-          "name": "configure_internal_api",
-          "range": [
-            2788,
-            2810
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:main@1814",
-          "target_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.configuration:AirflowConfigParser:@1665",
-          "name": "AirflowConfigParser",
-          "range": [
-            2896,
-            2915
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
-          "target_symbol": "airflow/configuration.py:class:AirflowConfigParser@6263"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@4092",
-          "name": "InternalApiConfig",
-          "range": [
-            3519,
-            3536
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
-          "target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.exceptions:AirflowException:@1760",
-          "name": "AirflowException",
-          "range": [
-            3863,
-            3879
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
-          "target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
-        },
-        {
-          "import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@4092",
-          "name": "InternalApiConfig",
-          "range": [
-            4174,
-            4191
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
-          "target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
-        },
-        {
-          "import": null,
-          "name": "main",
-          "range": [
-            4266,
-            4270
-          ],
-          "source_file": "airflow/__main__.py",
-          "source_symbol": null,
-          "target_symbol": "airflow/__main__.py:function:main@1814"
-        },
-        {
-          "import": "airflow/api/__init__.py:from_import:airflow.configuration:conf:@906",
-          "name": "conf",
-          "range": [
-            1199,
-            1203
-          ],
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_symbol": "airflow/configuration.py:global_variable:conf@102463"
-        },
-        {
-          "import": "airflow/api/__init__.py:from_import:airflow.exceptions:AirflowConfigException:@945",
-          "name": "AirflowConfigException",
-          "range": [
-            1243,
-            1265
-          ],
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_symbol": "airflow/exceptions.py:class:AirflowConfigException@1913"
-        },
-        {
-          "import": null,
-          "name": "log",
-          "range": [
-            1419,
-            1422
-          ],
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_symbol": "airflow/api/__init__.py:global_variable:log@1018"
-        },
-        {
-          "import": null,
-          "name": "log",
-          "range": [
-            1541,
-            1544
-          ],
-          "source_file": "airflow/api/__init__.py",
-          "source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
-          "target_symbol": "airflow/api/__init__.py:global_variable:log@1018"
-        }
-      ],
-      "sha256": "418d213614f67c09d7bee969779bdd1fd66ffa26d46c481b34d5207b119fb485"
-    },
-    "symbols": {
-      "count": 52339,
-      "samples": [
-        {
-          "file": "airflow/__init__.py",
-          "is_top_level": true,
-          "key": "airflow/__init__.py:function:__getattr__@4048",
-          "kind": "function",
-          "name": "__getattr__",
-          "name_range": [
-            4048,
-            4059
-          ],
-          "parent_symbol": null,
-          "range": [
-            4044,
-            5292
-          ]
-        },
-        {
-          "file": "airflow/__init__.py",
-          "is_top_level": true,
-          "key": "airflow/__init__.py:global_variable:__all__@2505",
-          "kind": "global_variable",
-          "name": "__all__",
-          "name_range": [
-            2505,
-            2512
-          ],
-          "parent_symbol": null,
-          "range": [
-            2505,
-            2578
-          ]
-        },
-        {
-          "file": "airflow/__init__.py",
-          "is_top_level": true,
-          "key": "airflow/__init__.py:global_variable:__lazy_imports@3362",
-          "kind": "global_variable",
-          "name": "__lazy_imports",
-          "name_range": [
-            3362,
-            3376
-          ],
-          "parent_symbol": null,
-          "range": [
-            3362,
-            3698
-          ]
-        },
-        {
-          "file": "airflow/__init__.py",
-          "is_top_level": true,
-          "key": "airflow/__init__.py:global_variable:__path__@2728",
-          "kind": "global_variable",
-          "name": "__path__",
-          "name_range": [
-            2728,
-            2736
-          ],
-          "parent_symbol": null,
-          "range": [
-            2728,
-            2792
-          ]
-        },
-        {
-          "file": "airflow/__init__.py",
-          "is_top_level": true,
-          "key": "airflow/__init__.py:global_variable:__version__@823",
-          "kind": "global_variable",
-          "name": "__version__",
-          "name_range": [
-            823,
-            834
-          ],
-          "parent_symbol": null,
-          "range": [
-            823,
-            845
-          ]
-        },
-        {
-          "file": "airflow/__main__.py",
-          "is_top_level": true,
-          "key": "airflow/__main__.py:function:configure_internal_api@2850",
-          "kind": "function",
-          "name": "configure_internal_api",
-          "name_range": [
-            2850,
-            2872
-          ],
-          "parent_symbol": null,
-          "range": [
-            2846,
-            4232
-          ]
-        },
-        {
-          "file": "airflow/__main__.py",
-          "is_top_level": true,
-          "key": "airflow/__main__.py:function:main@1814",
-          "kind": "function",
-          "name": "main",
-          "name_range": [
-            1814,
-            1818
-          ],
-          "parent_symbol": null,
-          "range": [
-            1810,
-            2843
-          ]
-        },
-        {
-          "file": "airflow/api/__init__.py",
-          "is_top_level": true,
-          "key": "airflow/api/__init__.py:function:load_auth@1058",
-          "kind": "function",
-          "name": "load_auth",
-          "name_range": [
-            1058,
-            1067
-          ],
-          "parent_symbol": null,
-          "range": [
-            1054,
-            1677
-          ]
-        },
-        {
-          "file": "airflow/api/__init__.py",
-          "is_top_level": true,
-          "key": "airflow/api/__init__.py:global_variable:log@1018",
-          "kind": "global_variable",
-          "name": "log",
-          "name_range": [
-            1018,
-            1021
-          ],
-          "parent_symbol": null,
-          "range": [
-            1018,
-            1051
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/basic_auth.py:function:auth_current_user@1530",
-          "kind": "function",
-          "name": "auth_current_user",
-          "name_range": [
-            1530,
-            1547
-          ],
-          "parent_symbol": null,
-          "range": [
-            1526,
-            1611
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/basic_auth.py:function:init_app@1480",
-          "kind": "function",
-          "name": "init_app",
-          "name_range": [
-            1480,
-            1488
-          ],
-          "parent_symbol": null,
-          "range": [
-            1476,
-            1523
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/basic_auth.py:function:requires_authentication@1618",
-          "kind": "function",
-          "name": "requires_authentication",
-          "name_range": [
-            1618,
-            1641
-          ],
-          "parent_symbol": null,
-          "range": [
-            1614,
-            1722
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/basic_auth.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/basic_auth.py:global_variable:CLIENT_AUTH@1240",
-          "kind": "global_variable",
-          "name": "CLIENT_AUTH",
-          "name_range": [
-            1240,
-            1251
-          ],
-          "parent_symbol": null,
-          "range": [
-            1240,
-            1288
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/default.py",
-          "is_top_level": false,
-          "key": "airflow/api/auth/backend/default.py:function:decorated@1243",
-          "kind": "function",
-          "name": "decorated",
-          "name_range": [
-            1243,
-            1252
-          ],
-          "parent_symbol": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
-          "range": [
-            1218,
-            1311
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/default.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/default.py:function:init_app@1018",
-          "kind": "function",
-          "name": "init_app",
-          "name_range": [
-            1018,
-            1026
-          ],
-          "parent_symbol": null,
-          "range": [
-            1014,
-            1075
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/default.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
-          "kind": "function",
-          "name": "requires_authentication",
-          "name_range": [
-            1117,
-            1140
-          ],
-          "parent_symbol": null,
-          "range": [
-            1113,
-            1342
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/default.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/default.py:global_variable:CLIENT_AUTH@963",
-          "kind": "global_variable",
-          "name": "CLIENT_AUTH",
-          "name_range": [
-            963,
-            974
-          ],
-          "parent_symbol": null,
-          "range": [
-            963,
-            1011
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/default.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/default.py:global_variable:T@1078",
-          "kind": "global_variable",
-          "name": "T",
-          "name_range": [
-            1078,
-            1079
-          ],
-          "parent_symbol": null,
-          "range": [
-            1078,
-            1110
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/deny_all.py",
-          "is_top_level": false,
-          "key": "airflow/api/auth/backend/deny_all.py:function:decorated@1256",
-          "kind": "function",
-          "name": "decorated",
-          "name_range": [
-            1256,
-            1265
-          ],
-          "parent_symbol": "airflow/api/auth/backend/deny_all.py:function:requires_authentication@1130",
-          "range": [
-            1231,
-            1325
-          ]
-        },
-        {
-          "file": "airflow/api/auth/backend/deny_all.py",
-          "is_top_level": true,
-          "key": "airflow/api/auth/backend/deny_all.py:function:init_app@1039",
-          "kind": "function",
-          "name": "init_app",
-          "name_range": [
-            1039,
-            1047
-          ],
-          "parent_symbol": null,
-          "range": [
-            1035,
-            1088
-          ]
-        }
-      ],
-      "sha256": "d4b75c9c6d82b1d30424845c86b88c9fb18ca7748fc088c16b4cfca00de30699"
-    }
-  },
-  "integrity": {
-    "bad_dependency_reference_counts": 0,
-    "bad_dependency_reference_targets": 0,
-    "missing_dependency_links": 0,
-    "missing_external_module_links": 0,
-    "missing_external_reference_links": 0,
-    "missing_import_resolution_links": 0,
-    "missing_reference_links": 0
-  },
-  "metadata": {
-    "commit": "b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf",
-    "name": "apache-airflow-2.10.5",
-    "ref": "refs/tags/2.10.5",
-    "repo_url": "https://github.com/apache/airflow.git"
-  },
-  "schema_version": 3,
-  "summary": {
-    "bytes": 36617627,
-    "classes": 5665,
-    "dependencies": 79737,
-    "external_modules": 19545,
-    "external_references": 79300,
-    "files": 4789,
-    "files_with_errors": 0,
-    "functions": 34535,
-    "global_variables": 12139,
-    "import_resolutions": 20887,
-    "imports": 44121,
-    "lines": 924514,
-    "references": 120770,
-    "symbols": 52339
-  }
+	"graphs": {
+		"dependencies": {
+			"count": 79737,
+			"samples": [
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__init__.py",
+					"source_symbol": "airflow/__init__.py:function:__getattr__@4048",
+					"target_file": "airflow/__init__.py",
+					"target_symbol": "airflow/__init__.py:global_variable:__lazy_imports@3362"
+				},
+				{
+					"reference_count": 2,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
+					"target_file": "airflow/api_internal/internal_api_call.py",
+					"target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:class:AirflowConfigParser@6263"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
+					"target_file": "airflow/exceptions.py",
+					"target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_file": "airflow/__main__.py",
+					"target_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_file": "airflow/cli/cli_parser.py",
+					"target_symbol": "airflow/cli/cli_parser.py:function:get_parser@4978"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:function:write_default_airflow_configuration_if_needed@88783"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:function:write_webserver_configuration_if_needed@93544"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:global_variable:conf@102463"
+				},
+				{
+					"reference_count": 2,
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_file": "airflow/api/__init__.py",
+					"target_symbol": "airflow/api/__init__.py:global_variable:log@1018"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:global_variable:conf@102463"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_file": "airflow/exceptions.py",
+					"target_symbol": "airflow/exceptions.py:class:AirflowConfigException@1913"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_file": "airflow/exceptions.py",
+					"target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"source_symbol": "airflow/api/auth/backend/basic_auth.py:function:auth_current_user@1530",
+					"target_file": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py",
+					"target_symbol": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py:function:auth_current_user@1480"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"source_symbol": "airflow/api/auth/backend/basic_auth.py:function:auth_current_user@1530",
+					"target_file": "airflow/providers/fab/auth_manager/models/__init__.py",
+					"target_symbol": "airflow/providers/fab/auth_manager/models/__init__.py:class:User@4203"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"source_symbol": "airflow/api/auth/backend/basic_auth.py:function:init_app@1480",
+					"target_file": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py",
+					"target_symbol": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py:function:init_app@1416"
+				},
+				{
+					"reference_count": 1,
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"source_symbol": "airflow/api/auth/backend/basic_auth.py:function:requires_authentication@1618",
+					"target_file": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py",
+					"target_symbol": "airflow/providers/fab/auth_manager/api/auth/backend/basic_auth.py:function:requires_authentication@2134"
+				},
+				{
+					"reference_count": 2,
+					"source_file": "airflow/api/auth/backend/default.py",
+					"source_symbol": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
+					"target_file": "airflow/api/auth/backend/default.py",
+					"target_symbol": "airflow/api/auth/backend/default.py:global_variable:T@1078"
+				},
+				{
+					"reference_count": 2,
+					"source_file": "airflow/api/auth/backend/deny_all.py",
+					"source_symbol": "airflow/api/auth/backend/deny_all.py:function:requires_authentication@1130",
+					"target_file": "airflow/api/auth/backend/deny_all.py",
+					"target_symbol": "airflow/api/auth/backend/deny_all.py:global_variable:T@1091"
+				},
+				{
+					"reference_count": 6,
+					"source_file": "airflow/api/auth/backend/kerberos_auth.py",
+					"source_symbol": "airflow/api/auth/backend/kerberos_auth.py:function:_gssapi_authenticate@3989",
+					"target_file": "airflow/api/auth/backend/kerberos_auth.py",
+					"target_symbol": "airflow/api/auth/backend/kerberos_auth.py:class:_KerberosAuth@2887"
+				}
+			],
+			"sha256": "146b5245ee502672f1f67053e3f22b05497bb46e6974fd84d069b69b6681ef91"
+		},
+		"external_modules": {
+			"count": 19545,
+			"samples": [
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"import": "airflow/__init__.py:import::os:@847",
+					"key": "airflow/__init__.py:import::os:@847:os",
+					"module": null,
+					"name": "os",
+					"range": [847, 856]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"import": "airflow/__init__.py:import::sys:@857",
+					"key": "airflow/__init__.py:import::sys:@857:sys",
+					"module": null,
+					"name": "sys",
+					"range": [857, 867]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"import": "airflow/__init__.py:import::warnings:@868",
+					"key": "airflow/__init__.py:import::warnings:@868:warnings",
+					"module": null,
+					"name": "warnings",
+					"range": [868, 883]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"import": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884",
+					"key": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884:TYPE_CHECKING",
+					"module": "typing",
+					"name": "TYPE_CHECKING",
+					"range": [884, 916]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"import": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283",
+					"key": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283:patch_all",
+					"module": "gevent.monkey",
+					"name": "patch_all",
+					"range": [1283, 1318]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"import": "airflow/__init__.py:import::importlib:@5066",
+					"key": "airflow/__init__.py:import::importlib:@5066:importlib",
+					"module": null,
+					"name": "importlib",
+					"range": [5066, 5082]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"import": "airflow/__main__.py:import::os:@900",
+					"key": "airflow/__main__.py:import::os:@900:os",
+					"module": null,
+					"name": "os",
+					"range": [900, 909]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"import": "airflow/__main__.py:from_import:argparse:Namespace:@910",
+					"key": "airflow/__main__.py:from_import:argparse:Namespace:@910:Namespace",
+					"module": "argparse",
+					"name": "Namespace",
+					"range": [910, 940]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"import": "airflow/__main__.py:import::argcomplete:@942",
+					"key": "airflow/__main__.py:import::argcomplete:@942:argcomplete",
+					"module": null,
+					"name": "argcomplete",
+					"range": [942, 960]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/__init__.py",
+					"import": "airflow/api/__init__.py:import::logging:@854",
+					"key": "airflow/api/__init__.py:import::logging:@854:logging",
+					"module": null,
+					"name": "logging",
+					"range": [854, 868]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/__init__.py",
+					"import": "airflow/api/__init__.py:from_import:importlib:import_module:@869",
+					"key": "airflow/api/__init__.py:from_import:importlib:import_module:@869:import_module",
+					"module": "importlib",
+					"name": "import_module",
+					"range": [869, 904]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"import": "airflow/api/auth/backend/basic_auth.py:import::warnings:@948",
+					"key": "airflow/api/auth/backend/basic_auth.py:import::warnings:@948:warnings",
+					"module": null,
+					"name": "warnings",
+					"range": [948, 963]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964",
+					"key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964:Any",
+					"module": "typing",
+					"name": "Any",
+					"range": [964, 1011]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Callable:@964",
+					"key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Callable:@964:Callable",
+					"module": "typing",
+					"name": "Callable",
+					"range": [964, 1011]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964",
+					"key": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964:TYPE_CHECKING",
+					"module": "typing",
+					"name": "TYPE_CHECKING",
+					"range": [964, 1011]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/default.py",
+					"import": "airflow/api/auth/backend/default.py:from_import:functools:wraps:@886",
+					"key": "airflow/api/auth/backend/default.py:from_import:functools:wraps:@886:wraps",
+					"module": "functools",
+					"name": "wraps",
+					"range": [886, 913]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/default.py",
+					"import": "airflow/api/auth/backend/default.py:from_import:typing:Any:@914",
+					"key": "airflow/api/auth/backend/default.py:from_import:typing:Any:@914:Any",
+					"module": "typing",
+					"name": "Any",
+					"range": [914, 961]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/default.py",
+					"import": "airflow/api/auth/backend/default.py:from_import:typing:Callable:@914",
+					"key": "airflow/api/auth/backend/default.py:from_import:typing:Callable:@914:Callable",
+					"module": "typing",
+					"name": "Callable",
+					"range": [914, 961]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/default.py",
+					"import": "airflow/api/auth/backend/default.py:from_import:typing:TypeVar:@914",
+					"key": "airflow/api/auth/backend/default.py:from_import:typing:TypeVar:@914:TypeVar",
+					"module": "typing",
+					"name": "TypeVar",
+					"range": [914, 961]
+				},
+				{
+					"alias": null,
+					"file": "airflow/api/auth/backend/default.py",
+					"import": "airflow/api/auth/backend/default.py:from_import:typing:cast:@914",
+					"key": "airflow/api/auth/backend/default.py:from_import:typing:cast:@914:cast",
+					"module": "typing",
+					"name": "cast",
+					"range": [914, 961]
+				}
+			],
+			"sha256": "c08ebfc9435c207fa8bbcb89717cac4f22de84f4a116e7c86e8293bb257db3ce"
+		},
+		"external_references": {
+			"count": 79300,
+			"samples": [
+				{
+					"import": "airflow/__init__.py:import::os:@847",
+					"name": "os",
+					"range": [921, 923],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283",
+					"name": "patch_all",
+					"range": [1324, 1333],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:import::sys:@857",
+					"name": "sys",
+					"range": [1340, 1343],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:import::warnings:@868",
+					"name": "warnings",
+					"range": [1369, 1377],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:import::os:@847",
+					"name": "os",
+					"range": [3196, 3198],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884",
+					"name": "TYPE_CHECKING",
+					"range": [3702, 3715],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:import::warnings:@868",
+					"name": "warnings",
+					"range": [4351, 4359],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": "airflow/__init__.py:function:__getattr__@4048"
+				},
+				{
+					"import": "airflow/__init__.py:import::sys:@857",
+					"name": "sys",
+					"range": [4642, 4645],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": "airflow/__init__.py:function:__getattr__@4048"
+				},
+				{
+					"import": "airflow/__init__.py:import::warnings:@868",
+					"name": "warnings",
+					"range": [4790, 4798],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": "airflow/__init__.py:function:__getattr__@4048"
+				},
+				{
+					"import": "airflow/__init__.py:import::importlib:@5066",
+					"name": "importlib",
+					"range": [5094, 5103],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": "airflow/__init__.py:function:__getattr__@4048"
+				},
+				{
+					"import": "airflow/__main__.py:import::os:@900",
+					"name": "os",
+					"range": [1911, 1913],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814"
+				},
+				{
+					"import": "airflow/__main__.py:import::os:@900",
+					"name": "os",
+					"range": [1977, 1979],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814"
+				},
+				{
+					"import": "airflow/__main__.py:import::argcomplete:@942",
+					"name": "argcomplete",
+					"range": [2077, 2088],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:argparse:Namespace:@910",
+					"name": "Namespace",
+					"range": [2879, 2888],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
+				},
+				{
+					"import": "airflow/__main__.py:import::os:@900",
+					"name": "os",
+					"range": [3165, 3167],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
+				},
+				{
+					"import": "airflow/__main__.py:import::os:@900",
+					"name": "os",
+					"range": [3295, 3297],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
+				},
+				{
+					"import": "airflow/api/__init__.py:import::logging:@854",
+					"name": "logging",
+					"range": [1024, 1031],
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:global_variable:log@1018"
+				},
+				{
+					"import": "airflow/api/__init__.py:from_import:importlib:import_module:@869",
+					"name": "import_module",
+					"range": [1376, 1389],
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058"
+				},
+				{
+					"import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:TYPE_CHECKING:@964",
+					"name": "TYPE_CHECKING",
+					"range": [1161, 1174],
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"source_symbol": null
+				},
+				{
+					"import": "airflow/api/auth/backend/basic_auth.py:from_import:typing:Any:@964",
+					"name": "Any",
+					"range": [1271, 1274],
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"source_symbol": "airflow/api/auth/backend/basic_auth.py:global_variable:CLIENT_AUTH@1240"
+				}
+			],
+			"sha256": "687351e542f9927621ca3125adea6c226539e0d157285726d61b517606e558cb"
+		},
+		"files": {
+			"count": 4789,
+			"samples": [
+				{
+					"byte_len": 5673,
+					"has_error": false,
+					"line_count": 139,
+					"module_name": "airflow",
+					"path": "airflow/__init__.py"
+				},
+				{
+					"byte_len": 4273,
+					"has_error": false,
+					"line_count": 90,
+					"module_name": "airflow.__main__",
+					"path": "airflow/__main__.py"
+				},
+				{
+					"byte_len": 0,
+					"has_error": false,
+					"line_count": 0,
+					"module_name": "airflow._vendor",
+					"path": "airflow/_vendor/__init__.py"
+				},
+				{
+					"byte_len": 1678,
+					"has_error": false,
+					"line_count": 48,
+					"module_name": "airflow.api",
+					"path": "airflow/api/__init__.py"
+				},
+				{
+					"byte_len": 787,
+					"has_error": false,
+					"line_count": 17,
+					"module_name": "airflow.api.auth",
+					"path": "airflow/api/auth/__init__.py"
+				},
+				{
+					"byte_len": 787,
+					"has_error": false,
+					"line_count": 17,
+					"module_name": "airflow.api.auth.backend",
+					"path": "airflow/api/auth/backend/__init__.py"
+				},
+				{
+					"byte_len": 1723,
+					"has_error": false,
+					"line_count": 52,
+					"module_name": "airflow.api.auth.backend.basic_auth",
+					"path": "airflow/api/auth/backend/basic_auth.py"
+				},
+				{
+					"byte_len": 1343,
+					"has_error": false,
+					"line_count": 42,
+					"module_name": "airflow.api.auth.backend.default",
+					"path": "airflow/api/auth/backend/default.py"
+				},
+				{
+					"byte_len": 1357,
+					"has_error": false,
+					"line_count": 44,
+					"module_name": "airflow.api.auth.backend.deny_all",
+					"path": "airflow/api/auth/backend/deny_all.py"
+				},
+				{
+					"byte_len": 6542,
+					"has_error": false,
+					"line_count": 182,
+					"module_name": "airflow.api.auth.backend.kerberos_auth",
+					"path": "airflow/api/auth/backend/kerberos_auth.py"
+				},
+				{
+					"byte_len": 1773,
+					"has_error": false,
+					"line_count": 55,
+					"module_name": "airflow.api.auth.backend.session",
+					"path": "airflow/api/auth/backend/session.py"
+				},
+				{
+					"byte_len": 1730,
+					"has_error": false,
+					"line_count": 46,
+					"module_name": "airflow.api.client",
+					"path": "airflow/api/client/__init__.py"
+				},
+				{
+					"byte_len": 2731,
+					"has_error": false,
+					"line_count": 94,
+					"module_name": "airflow.api.client.api_client",
+					"path": "airflow/api/client/api_client.py"
+				},
+				{
+					"byte_len": 6616,
+					"has_error": false,
+					"line_count": 164,
+					"module_name": "airflow.api.client.json_client",
+					"path": "airflow/api/client/json_client.py"
+				},
+				{
+					"byte_len": 3788,
+					"has_error": false,
+					"line_count": 93,
+					"module_name": "airflow.api.client.local_client",
+					"path": "airflow/api/client/local_client.py"
+				},
+				{
+					"byte_len": 787,
+					"has_error": false,
+					"line_count": 17,
+					"module_name": "airflow.api.common",
+					"path": "airflow/api/common/__init__.py"
+				},
+				{
+					"byte_len": 3268,
+					"has_error": false,
+					"line_count": 89,
+					"module_name": "airflow.api.common.airflow_health",
+					"path": "airflow/api/common/airflow_health.py"
+				},
+				{
+					"byte_len": 4086,
+					"has_error": false,
+					"line_count": 108,
+					"module_name": "airflow.api.common.delete_dag",
+					"path": "airflow/api/common/delete_dag.py"
+				},
+				{
+					"byte_len": 2138,
+					"has_error": false,
+					"line_count": 56,
+					"module_name": "airflow.api.common.experimental",
+					"path": "airflow/api/common/experimental/__init__.py"
+				},
+				{
+					"byte_len": 1135,
+					"has_error": false,
+					"line_count": 30,
+					"module_name": "airflow.api.common.experimental.delete_dag",
+					"path": "airflow/api/common/experimental/delete_dag.py"
+				}
+			],
+			"sha256": "226e8cb32dc0a23ec956e97b036e7c505037df979cce7182514f39a43b07cb80"
+		},
+		"import_resolutions": {
+			"count": 20887,
+			"samples": [
+				{
+					"import": "airflow/__init__.py:from_import:airflow.models.dag:DAG:@3912",
+					"source_file": "airflow/__init__.py",
+					"target_file": "airflow/models/dag.py",
+					"target_symbol": "airflow/models/dag.py:class:DAG@13203"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow.models.dataset:Dataset:@3951",
+					"source_file": "airflow/__init__.py",
+					"target_file": "airflow/models/dataset.py",
+					"target_symbol": "airflow/datasets/__init__.py:class:Dataset@7742"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow.models.xcom_arg:XComArg:@3998",
+					"source_file": "airflow/__init__.py",
+					"target_file": "airflow/models/xcom_arg.py",
+					"target_symbol": "airflow/models/xcom_arg.py:class:XComArg@2341"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow.providers_manager:ProvidersManager:@5336",
+					"source_file": "airflow/__init__.py",
+					"target_file": "airflow/providers_manager.py",
+					"target_symbol": "airflow/providers_manager.py:class:ProvidersManager@13734"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow:configuration:@2460",
+					"source_file": "airflow/__init__.py",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow:plugins_manager:@5592",
+					"source_file": "airflow/__init__.py",
+					"target_file": "airflow/plugins_manager.py",
+					"target_symbol": null
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow:settings:@2460",
+					"source_file": "airflow/__init__.py",
+					"target_file": "airflow/settings.py",
+					"target_symbol": null
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@3437",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/api_internal/internal_api_call.py",
+					"target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@4092",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/api_internal/internal_api_call.py",
+					"target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.cli:cli_parser:@1630",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/cli/cli_parser.py",
+					"target_symbol": null
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.configuration:AirflowConfigParser:@1665",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:class:AirflowConfigParser@6263"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.configuration:write_default_airflow_configuration_if_needed:@2511",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:function:write_default_airflow_configuration_if_needed@88783"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.configuration:write_webserver_configuration_if_needed:@1665",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:function:write_webserver_configuration_if_needed@93544"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.exceptions:AirflowException:@1760",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/exceptions.py",
+					"target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow:configuration:@1596",
+					"source_file": "airflow/__main__.py",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": null
+				},
+				{
+					"import": "airflow/api/__init__.py:from_import:airflow.configuration:conf:@906",
+					"source_file": "airflow/api/__init__.py",
+					"target_file": "airflow/configuration.py",
+					"target_symbol": "airflow/configuration.py:global_variable:conf@102463"
+				},
+				{
+					"import": "airflow/api/__init__.py:from_import:airflow.exceptions:AirflowConfigException:@945",
+					"source_file": "airflow/api/__init__.py",
+					"target_file": "airflow/exceptions.py",
+					"target_symbol": "airflow/exceptions.py:class:AirflowConfigException@1913"
+				},
+				{
+					"import": "airflow/api/__init__.py:from_import:airflow.exceptions:AirflowException:@945",
+					"source_file": "airflow/api/__init__.py",
+					"target_file": "airflow/exceptions.py",
+					"target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
+				},
+				{
+					"import": "airflow/api/auth/backend/basic_auth.py:from_import:airflow.exceptions:RemovedInAirflow3Warning:@1101",
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"target_file": "airflow/exceptions.py",
+					"target_symbol": "airflow/exceptions.py:class:RemovedInAirflow3Warning@16092"
+				},
+				{
+					"import": "airflow/api/auth/backend/basic_auth.py:from_import:airflow.providers.fab.auth_manager.models:User:@1180",
+					"source_file": "airflow/api/auth/backend/basic_auth.py",
+					"target_file": "airflow/providers/fab/auth_manager/models/__init__.py",
+					"target_symbol": "airflow/providers/fab/auth_manager/models/__init__.py:class:User@4203"
+				}
+			],
+			"sha256": "89be1cc5471796bf624202e72af9b4d92326676ea64b2aeedd71f5382fe2ff1b"
+		},
+		"imports": {
+			"count": 44121,
+			"samples": [
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:future_import:__future__:annotations:@787",
+					"kind": "future_import",
+					"module": "__future__",
+					"name": "annotations",
+					"range": [787, 821]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:import::os:@847",
+					"kind": "import",
+					"module": null,
+					"name": "os",
+					"range": [847, 856]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:import::sys:@857",
+					"kind": "import",
+					"module": null,
+					"name": "sys",
+					"range": [857, 867]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:import::warnings:@868",
+					"kind": "import",
+					"module": null,
+					"name": "warnings",
+					"range": [868, 883]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:typing:TYPE_CHECKING:@884",
+					"kind": "from_import",
+					"module": "typing",
+					"name": "TYPE_CHECKING",
+					"range": [884, 916]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:gevent.monkey:patch_all:@1283",
+					"kind": "from_import",
+					"module": "gevent.monkey",
+					"name": "patch_all",
+					"range": [1283, 1318]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:airflow:configuration:@2460",
+					"kind": "from_import",
+					"module": "airflow",
+					"name": "configuration",
+					"range": [2460, 2503]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:airflow:settings:@2460",
+					"kind": "from_import",
+					"module": "airflow",
+					"name": "settings",
+					"range": [2460, 2503]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:airflow.models.dag:DAG:@3912",
+					"kind": "from_import",
+					"module": "airflow.models.dag",
+					"name": "DAG",
+					"range": [3912, 3946]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:airflow.models.dataset:Dataset:@3951",
+					"kind": "from_import",
+					"module": "airflow.models.dataset",
+					"name": "Dataset",
+					"range": [3951, 3993]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:airflow.models.xcom_arg:XComArg:@3998",
+					"kind": "from_import",
+					"module": "airflow.models.xcom_arg",
+					"name": "XComArg",
+					"range": [3998, 4041]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:import::importlib:@5066",
+					"kind": "import",
+					"module": null,
+					"name": "importlib",
+					"range": [5066, 5082]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:airflow.providers_manager:ProvidersManager:@5336",
+					"kind": "from_import",
+					"module": "airflow.providers_manager",
+					"name": "ProvidersManager",
+					"range": [5336, 5390]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__init__.py",
+					"key": "airflow/__init__.py:from_import:airflow:plugins_manager:@5592",
+					"kind": "from_import",
+					"module": "airflow",
+					"name": "plugins_manager",
+					"range": [5592, 5627]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"key": "airflow/__main__.py:future_import:__future__:annotations:@864",
+					"kind": "future_import",
+					"module": "__future__",
+					"name": "annotations",
+					"range": [864, 898]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"key": "airflow/__main__.py:import::os:@900",
+					"kind": "import",
+					"module": null,
+					"name": "os",
+					"range": [900, 909]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"key": "airflow/__main__.py:from_import:argparse:Namespace:@910",
+					"kind": "from_import",
+					"module": "argparse",
+					"name": "Namespace",
+					"range": [910, 940]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"key": "airflow/__main__.py:import::argcomplete:@942",
+					"kind": "import",
+					"module": null,
+					"name": "argcomplete",
+					"range": [942, 960]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"key": "airflow/__main__.py:from_import:airflow:configuration:@1596",
+					"kind": "from_import",
+					"module": "airflow",
+					"name": "configuration",
+					"range": [1596, 1629]
+				},
+				{
+					"alias": null,
+					"file": "airflow/__main__.py",
+					"key": "airflow/__main__.py:from_import:airflow.cli:cli_parser:@1630",
+					"kind": "from_import",
+					"module": "airflow.cli",
+					"name": "cli_parser",
+					"range": [1630, 1664]
+				}
+			],
+			"sha256": "42b2f4b1ea694fe76c91e63623d6ea8a5e59fbfa194d18e8a8c32832cf767f1b"
+		},
+		"references": {
+			"count": 120770,
+			"samples": [
+				{
+					"import": "airflow/__init__.py:from_import:airflow:settings:@2460",
+					"name": "initialize",
+					"range": [3255, 3265],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null,
+					"target_symbol": "airflow/settings.py:function:initialize@29763"
+				},
+				{
+					"import": null,
+					"name": "__lazy_imports",
+					"range": [4169, 4183],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": "airflow/__init__.py:function:__getattr__@4048",
+					"target_symbol": "airflow/__init__.py:global_variable:__lazy_imports@3362"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow:settings:@2460",
+					"name": "LAZY_LOAD_PROVIDERS",
+					"range": [5311, 5330],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null,
+					"target_symbol": "airflow/settings.py:global_variable:LAZY_LOAD_PROVIDERS@32556"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow.providers_manager:ProvidersManager:@5336",
+					"name": "ProvidersManager",
+					"range": [5406, 5422],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null,
+					"target_symbol": "airflow/providers_manager.py:class:ProvidersManager@13734"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow:settings:@2460",
+					"name": "LAZY_LOAD_PLUGINS",
+					"range": [5569, 5586],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null,
+					"target_symbol": "airflow/settings.py:global_variable:LAZY_LOAD_PLUGINS@32249"
+				},
+				{
+					"import": "airflow/__init__.py:from_import:airflow:plugins_manager:@5592",
+					"name": "ensure_plugins_loaded",
+					"range": [5649, 5670],
+					"source_file": "airflow/__init__.py",
+					"source_symbol": null,
+					"target_symbol": "airflow/plugins_manager.py:function:ensure_plugins_loaded@11525"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow:configuration:@1596",
+					"name": "conf",
+					"range": [1847, 1851],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_symbol": "airflow/configuration.py:global_variable:conf@102463"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.cli:cli_parser:@1630",
+					"name": "get_parser",
+					"range": [2060, 2070],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_symbol": "airflow/cli/cli_parser.py:function:get_parser@4978"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.configuration:write_default_airflow_configuration_if_needed:@2511",
+					"name": "write_default_airflow_configuration_if_needed",
+					"range": [2607, 2652],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_symbol": "airflow/configuration.py:function:write_default_airflow_configuration_if_needed@88783"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.configuration:write_webserver_configuration_if_needed:@1665",
+					"name": "write_webserver_configuration_if_needed",
+					"range": [2738, 2777],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_symbol": "airflow/configuration.py:function:write_webserver_configuration_if_needed@93544"
+				},
+				{
+					"import": null,
+					"name": "configure_internal_api",
+					"range": [2788, 2810],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:main@1814",
+					"target_symbol": "airflow/__main__.py:function:configure_internal_api@2850"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.configuration:AirflowConfigParser:@1665",
+					"name": "AirflowConfigParser",
+					"range": [2896, 2915],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
+					"target_symbol": "airflow/configuration.py:class:AirflowConfigParser@6263"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@4092",
+					"name": "InternalApiConfig",
+					"range": [3519, 3536],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
+					"target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.exceptions:AirflowException:@1760",
+					"name": "AirflowException",
+					"range": [3863, 3879],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
+					"target_symbol": "airflow/exceptions.py:class:AirflowException@1246"
+				},
+				{
+					"import": "airflow/__main__.py:from_import:airflow.api_internal.internal_api_call:InternalApiConfig:@4092",
+					"name": "InternalApiConfig",
+					"range": [4174, 4191],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": "airflow/__main__.py:function:configure_internal_api@2850",
+					"target_symbol": "airflow/api_internal/internal_api_call.py:class:InternalApiConfig@1737"
+				},
+				{
+					"import": null,
+					"name": "main",
+					"range": [4266, 4270],
+					"source_file": "airflow/__main__.py",
+					"source_symbol": null,
+					"target_symbol": "airflow/__main__.py:function:main@1814"
+				},
+				{
+					"import": "airflow/api/__init__.py:from_import:airflow.configuration:conf:@906",
+					"name": "conf",
+					"range": [1199, 1203],
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_symbol": "airflow/configuration.py:global_variable:conf@102463"
+				},
+				{
+					"import": "airflow/api/__init__.py:from_import:airflow.exceptions:AirflowConfigException:@945",
+					"name": "AirflowConfigException",
+					"range": [1243, 1265],
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_symbol": "airflow/exceptions.py:class:AirflowConfigException@1913"
+				},
+				{
+					"import": null,
+					"name": "log",
+					"range": [1419, 1422],
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_symbol": "airflow/api/__init__.py:global_variable:log@1018"
+				},
+				{
+					"import": null,
+					"name": "log",
+					"range": [1541, 1544],
+					"source_file": "airflow/api/__init__.py",
+					"source_symbol": "airflow/api/__init__.py:function:load_auth@1058",
+					"target_symbol": "airflow/api/__init__.py:global_variable:log@1018"
+				}
+			],
+			"sha256": "418d213614f67c09d7bee969779bdd1fd66ffa26d46c481b34d5207b119fb485"
+		},
+		"symbols": {
+			"count": 52339,
+			"samples": [
+				{
+					"file": "airflow/__init__.py",
+					"is_top_level": true,
+					"key": "airflow/__init__.py:function:__getattr__@4048",
+					"kind": "function",
+					"name": "__getattr__",
+					"name_range": [4048, 4059],
+					"parent_symbol": null,
+					"range": [4044, 5292]
+				},
+				{
+					"file": "airflow/__init__.py",
+					"is_top_level": true,
+					"key": "airflow/__init__.py:global_variable:__all__@2505",
+					"kind": "global_variable",
+					"name": "__all__",
+					"name_range": [2505, 2512],
+					"parent_symbol": null,
+					"range": [2505, 2578]
+				},
+				{
+					"file": "airflow/__init__.py",
+					"is_top_level": true,
+					"key": "airflow/__init__.py:global_variable:__lazy_imports@3362",
+					"kind": "global_variable",
+					"name": "__lazy_imports",
+					"name_range": [3362, 3376],
+					"parent_symbol": null,
+					"range": [3362, 3698]
+				},
+				{
+					"file": "airflow/__init__.py",
+					"is_top_level": true,
+					"key": "airflow/__init__.py:global_variable:__path__@2728",
+					"kind": "global_variable",
+					"name": "__path__",
+					"name_range": [2728, 2736],
+					"parent_symbol": null,
+					"range": [2728, 2792]
+				},
+				{
+					"file": "airflow/__init__.py",
+					"is_top_level": true,
+					"key": "airflow/__init__.py:global_variable:__version__@823",
+					"kind": "global_variable",
+					"name": "__version__",
+					"name_range": [823, 834],
+					"parent_symbol": null,
+					"range": [823, 845]
+				},
+				{
+					"file": "airflow/__main__.py",
+					"is_top_level": true,
+					"key": "airflow/__main__.py:function:configure_internal_api@2850",
+					"kind": "function",
+					"name": "configure_internal_api",
+					"name_range": [2850, 2872],
+					"parent_symbol": null,
+					"range": [2846, 4232]
+				},
+				{
+					"file": "airflow/__main__.py",
+					"is_top_level": true,
+					"key": "airflow/__main__.py:function:main@1814",
+					"kind": "function",
+					"name": "main",
+					"name_range": [1814, 1818],
+					"parent_symbol": null,
+					"range": [1810, 2843]
+				},
+				{
+					"file": "airflow/api/__init__.py",
+					"is_top_level": true,
+					"key": "airflow/api/__init__.py:function:load_auth@1058",
+					"kind": "function",
+					"name": "load_auth",
+					"name_range": [1058, 1067],
+					"parent_symbol": null,
+					"range": [1054, 1677]
+				},
+				{
+					"file": "airflow/api/__init__.py",
+					"is_top_level": true,
+					"key": "airflow/api/__init__.py:global_variable:log@1018",
+					"kind": "global_variable",
+					"name": "log",
+					"name_range": [1018, 1021],
+					"parent_symbol": null,
+					"range": [1018, 1051]
+				},
+				{
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/basic_auth.py:function:auth_current_user@1530",
+					"kind": "function",
+					"name": "auth_current_user",
+					"name_range": [1530, 1547],
+					"parent_symbol": null,
+					"range": [1526, 1611]
+				},
+				{
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/basic_auth.py:function:init_app@1480",
+					"kind": "function",
+					"name": "init_app",
+					"name_range": [1480, 1488],
+					"parent_symbol": null,
+					"range": [1476, 1523]
+				},
+				{
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/basic_auth.py:function:requires_authentication@1618",
+					"kind": "function",
+					"name": "requires_authentication",
+					"name_range": [1618, 1641],
+					"parent_symbol": null,
+					"range": [1614, 1722]
+				},
+				{
+					"file": "airflow/api/auth/backend/basic_auth.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/basic_auth.py:global_variable:CLIENT_AUTH@1240",
+					"kind": "global_variable",
+					"name": "CLIENT_AUTH",
+					"name_range": [1240, 1251],
+					"parent_symbol": null,
+					"range": [1240, 1288]
+				},
+				{
+					"file": "airflow/api/auth/backend/default.py",
+					"is_top_level": false,
+					"key": "airflow/api/auth/backend/default.py:function:decorated@1243",
+					"kind": "function",
+					"name": "decorated",
+					"name_range": [1243, 1252],
+					"parent_symbol": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
+					"range": [1218, 1311]
+				},
+				{
+					"file": "airflow/api/auth/backend/default.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/default.py:function:init_app@1018",
+					"kind": "function",
+					"name": "init_app",
+					"name_range": [1018, 1026],
+					"parent_symbol": null,
+					"range": [1014, 1075]
+				},
+				{
+					"file": "airflow/api/auth/backend/default.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/default.py:function:requires_authentication@1117",
+					"kind": "function",
+					"name": "requires_authentication",
+					"name_range": [1117, 1140],
+					"parent_symbol": null,
+					"range": [1113, 1342]
+				},
+				{
+					"file": "airflow/api/auth/backend/default.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/default.py:global_variable:CLIENT_AUTH@963",
+					"kind": "global_variable",
+					"name": "CLIENT_AUTH",
+					"name_range": [963, 974],
+					"parent_symbol": null,
+					"range": [963, 1011]
+				},
+				{
+					"file": "airflow/api/auth/backend/default.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/default.py:global_variable:T@1078",
+					"kind": "global_variable",
+					"name": "T",
+					"name_range": [1078, 1079],
+					"parent_symbol": null,
+					"range": [1078, 1110]
+				},
+				{
+					"file": "airflow/api/auth/backend/deny_all.py",
+					"is_top_level": false,
+					"key": "airflow/api/auth/backend/deny_all.py:function:decorated@1256",
+					"kind": "function",
+					"name": "decorated",
+					"name_range": [1256, 1265],
+					"parent_symbol": "airflow/api/auth/backend/deny_all.py:function:requires_authentication@1130",
+					"range": [1231, 1325]
+				},
+				{
+					"file": "airflow/api/auth/backend/deny_all.py",
+					"is_top_level": true,
+					"key": "airflow/api/auth/backend/deny_all.py:function:init_app@1039",
+					"kind": "function",
+					"name": "init_app",
+					"name_range": [1039, 1047],
+					"parent_symbol": null,
+					"range": [1035, 1088]
+				}
+			],
+			"sha256": "d4b75c9c6d82b1d30424845c86b88c9fb18ca7748fc088c16b4cfca00de30699"
+		}
+	},
+	"integrity": {
+		"bad_dependency_reference_counts": 0,
+		"bad_dependency_reference_targets": 0,
+		"missing_dependency_links": 0,
+		"missing_external_module_links": 0,
+		"missing_external_reference_links": 0,
+		"missing_import_resolution_links": 0,
+		"missing_reference_links": 0
+	},
+	"metadata": {
+		"commit": "b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf",
+		"name": "apache-airflow-2.10.5",
+		"ref": "refs/tags/2.10.5",
+		"repo_url": "https://github.com/apache/airflow.git"
+	},
+	"schema_version": 3,
+	"summary": {
+		"bytes": 36617627,
+		"classes": 5665,
+		"dependencies": 79737,
+		"external_modules": 19545,
+		"external_references": 79300,
+		"files": 4789,
+		"files_with_errors": 0,
+		"functions": 34535,
+		"global_variables": 12139,
+		"import_resolutions": 20887,
+		"imports": 44121,
+		"lines": 924514,
+		"references": 120770,
+		"symbols": 52339
+	}
 }

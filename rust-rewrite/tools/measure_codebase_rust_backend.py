@@ -121,15 +121,9 @@ def print_human(report: dict) -> None:
     compat_handles = report["compat_handles"]
     print(f"repo: {report['metadata']['repo_path']}")
     print(f"language: {report['metadata']['language']}")
-    print(
-        f"rust Codebase: wall={totals['wall_seconds']:.3f}s "
-        f"max_rss={totals['max_rss_mb']:.1f} MB current_rss={totals['current_rss_mb']:.1f} MB"
-    )
+    print(f"rust Codebase: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB current_rss={totals['current_rss_mb']:.1f} MB")
     print(f"python graph blocked: {report['metadata']['python_graph_blocked']}")
-    print(
-        "rss samples: "
-        + " -> ".join(f"{sample['label']}={sample['rss_mb']:.1f} MB" for sample in report["rss_samples"])
-    )
+    print("rss samples: " + " -> ".join(f"{sample['label']}={sample['rss_mb']:.1f} MB" for sample in report["rss_samples"]))
     print(
         "summary: "
         f"files={summary['files']} "

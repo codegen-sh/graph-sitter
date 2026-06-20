@@ -51,16 +51,9 @@ MUTATION_FILES = {
 MUTATION_OUTPUT_PATHS = ["pkg/service.py"]
 
 TYPESCRIPT_FIXTURE_FILES = {
-    "src/base.ts": (
-        "export interface Animal {}\n"
-        "export interface Dog extends Animal {}\n"
-        "export class Labrador implements Dog {}\n"
-    ),
+    "src/base.ts": ("export interface Animal {}\nexport interface Dog extends Animal {}\nexport class Labrador implements Dog {}\n"),
     "src/util.ts": "export function helper(value: number) { return value; }\n",
-    "src/index.ts": (
-        "export { helper as publicHelper } from './util';\n"
-        "export * as utilNamespace from './util';\n"
-    ),
+    "src/index.ts": ("export { helper as publicHelper } from './util';\nexport * as utilNamespace from './util';\n"),
     "src/legacy.ts": "class Legacy {}\nexport = Legacy;\n",
     "src/objectExports.ts": "export function f1() { return 1; }\nexport function f2() { return 2; }\nexport = { f1, renamed: f2 };\n",
     "src/app.ts": (
@@ -188,9 +181,7 @@ def symbol_dependency_graph(symbols: list[Any]) -> list[dict[str, Any]]:
         [
             {
                 "symbol": node_signature(symbol),
-                "dependencies": unique_sorted_signatures(
-                    [node_signature(dependency) for dependency in symbol.dependencies]
-                ),
+                "dependencies": unique_sorted_signatures([node_signature(dependency) for dependency in symbol.dependencies]),
             }
             for symbol in symbols
         ]
@@ -202,9 +193,7 @@ def symbol_usage_graph(symbols: list[Any]) -> list[dict[str, Any]]:
         [
             {
                 "symbol": node_signature(symbol),
-                "symbol_usages": unique_sorted_signatures(
-                    [node_signature(usage) for usage in symbol.symbol_usages]
-                ),
+                "symbol_usages": unique_sorted_signatures([node_signature(usage) for usage in symbol.symbol_usages]),
             }
             for symbol in symbols
         ]
@@ -216,9 +205,7 @@ def import_usage_graph(imports: list[Any]) -> list[dict[str, Any]]:
         [
             {
                 "import": import_signature(imp),
-                "symbol_usages": unique_sorted_signatures(
-                    [node_signature(usage) for usage in imp.symbol_usages]
-                ),
+                "symbol_usages": unique_sorted_signatures([node_signature(usage) for usage in imp.symbol_usages]),
             }
             for imp in imports
         ]
@@ -258,20 +245,9 @@ def collect_report(codebase: Any, *, expect_blocked_graph: bool) -> dict[str, An
         msg = "missing expected symbols: " + ", ".join(missing)
         raise RuntimeError(msg)
 
-    helper_symbol_usages = [
-        usage
-        for usage in helper.symbol_usages
-        if node_type_name(getattr(usage, "node_type", None)) == "SYMBOL"
-    ]
+    helper_symbol_usages = [usage for usage in helper.symbol_usages if node_type_name(getattr(usage, "node_type", None)) == "SYMBOL"]
     run_dependencies = list(run.dependencies)
-    run_internal_dependencies = [
-        dependency
-        for dependency in run_dependencies
-        if not (
-            node_type_name(getattr(dependency, "node_type", None)) == "IMPORT"
-            and import_resolves_to_external(dependency)
-        )
-    ]
+    run_internal_dependencies = [dependency for dependency in run_dependencies if not (node_type_name(getattr(dependency, "node_type", None)) == "IMPORT" and import_resolves_to_external(dependency))]
 
     report = {
         "python_graph_blocked": python_graph_blocked,
@@ -374,19 +350,11 @@ def collect_typescript_report(codebase: Any, *, expect_blocked_graph: bool) -> d
     helper = get_symbol(codebase, "helper")
     run = get_symbol(codebase, "run")
     if helper is None or run is None:
-        missing = [
-            name
-            for name, symbol in (("helper", helper), ("run", run))
-            if symbol is None
-        ]
+        missing = [name for name, symbol in (("helper", helper), ("run", run)) if symbol is None]
         msg = "missing expected TypeScript symbols: " + ", ".join(missing)
         raise RuntimeError(msg)
 
-    helper_symbol_usages = [
-        usage
-        for usage in helper.symbol_usages
-        if node_type_name(getattr(usage, "node_type", None)) == "SYMBOL"
-    ]
+    helper_symbol_usages = [usage for usage in helper.symbol_usages if node_type_name(getattr(usage, "node_type", None)) == "SYMBOL"]
     report = {
         "python_graph_blocked": python_graph_blocked,
         "files": sorted(file.filepath for file in codebase.files),
@@ -404,9 +372,7 @@ def collect_typescript_report(codebase: Any, *, expect_blocked_graph: bool) -> d
         "symbol_usage_graph": symbol_usage_graph(codebase.symbols),
         "import_usage_graph": import_usage_graph(codebase.imports),
         "helper_symbol_usages_symbols_only": sorted_signatures(helper_symbol_usages),
-        "run_resolved_dependency_targets": unique_sorted_signatures(
-            [resolved_target_signature(dependency) for dependency in run.dependencies]
-        ),
+        "run_resolved_dependency_targets": unique_sorted_signatures([resolved_target_signature(dependency) for dependency in run.dependencies]),
         "typescript_heritage_graph": typescript_heritage_graph(codebase),
     }
     if expect_blocked_graph and not python_graph_blocked:
@@ -558,9 +524,7 @@ def compare_reports(python_report: dict[str, Any], rust_report: dict[str, Any]) 
         "run_dependencies",
         "load_plugin_dependencies",
     ]
-    mismatches = [
-        key for key in exact_keys if python_report.get(key) != rust_report.get(key)
-    ]
+    mismatches = [key for key in exact_keys if python_report.get(key) != rust_report.get(key)]
     known_deltas: dict[str, Any] = {}
     return {
         "exact_keys": exact_keys,
@@ -583,9 +547,7 @@ def compare_typescript_reports(python_report: dict[str, Any], rust_report: dict[
         "run_resolved_dependency_targets",
         "typescript_heritage_graph",
     ]
-    mismatches = [
-        key for key in exact_keys if python_report.get(key) != rust_report.get(key)
-    ]
+    mismatches = [key for key in exact_keys if python_report.get(key) != rust_report.get(key)]
     return {
         "exact_keys": exact_keys,
         "mismatches": mismatches,
@@ -632,14 +594,10 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         "typescript_comparison": typescript_comparison,
     }
     if comparison["mismatches"]:
-        msg = "Python/Rust parity fixture mismatches: " + ", ".join(
-            comparison["mismatches"]
-        )
+        msg = "Python/Rust parity fixture mismatches: " + ", ".join(comparison["mismatches"])
         raise RuntimeError(msg)
     if typescript_comparison["mismatches"]:
-        msg = "Python/Rust TypeScript parity fixture mismatches: " + ", ".join(
-            typescript_comparison["mismatches"]
-        )
+        msg = "Python/Rust TypeScript parity fixture mismatches: " + ", ".join(typescript_comparison["mismatches"])
         raise RuntimeError(msg)
     if mutation_mismatch:
         msg = "Python/Rust mutation parity fixture mismatched file outputs"
@@ -651,9 +609,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Compare a representative Python fixture through the Python backend and compact Rust backend."
-    )
+    parser = argparse.ArgumentParser(description="Compare a representative Python fixture through the Python backend and compact Rust backend.")
     parser.add_argument(
         "--extension-dir",
         type=Path,

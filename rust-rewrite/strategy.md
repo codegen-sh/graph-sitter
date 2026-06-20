@@ -11,15 +11,15 @@ The main problem to solve is not just CPU time. The current architecture eagerly
 Build a Rust core behind the existing Python API:
 
 1. Keep `Codebase`, `SourceFile`, `Symbol`, `Import`, `Export`, and related Python classes as compatibility handles.
-2. Move canonical storage into Rust:
+1. Move canonical storage into Rust:
    - interned paths, strings, import specifiers, symbol names
    - compact `FileId`, `NodeId`, `SymbolId`, `ImportId`, `ExportId`, `EdgeId`
    - arena/slotmap-backed records instead of Python objects
    - adjacency tables or compressed graph storage instead of `PyDiGraph` payloads
    - byte ranges and kind enums instead of persistent Python `tree_sitter.Node` wrappers for every node
-3. Create Python wrappers lazily only when user code asks for them.
-4. Run graph queries in Rust and return IDs or compact records; Python adapts those into existing objects/lists.
-5. Port incrementally behind a backend flag, keeping the Python backend available until parity is proven.
+1. Create Python wrappers lazily only when user code asks for them.
+1. Run graph queries in Rust and return IDs or compact records; Python adapts those into existing objects/lists.
+1. Port incrementally behind a backend flag, keeping the Python backend available until parity is proven.
 
 ## Non-Goals
 

@@ -81,10 +81,10 @@ Implementation split:
 Migration order:
 
 1. Add the config flag and facade with `PythonGraphBackend` only.
-2. Add PyO3 import smoke test and `RustGraphBackend.engine_version()`.
-3. Route only read/list APIs through the facade.
-4. Add Rust-backed query methods one family at a time.
-5. Keep graph mutation and transaction-heavy APIs on Python or explicit fallback until Rust patch intents exist.
+1. Add PyO3 import smoke test and `RustGraphBackend.engine_version()`.
+1. Route only read/list APIs through the facade.
+1. Add Rust-backed query methods one family at a time.
+1. Keep graph mutation and transaction-heavy APIs on Python or explicit fallback until Rust patch intents exist.
 
 ## PyO3 Surface
 
@@ -199,14 +199,14 @@ Properties that need `ts_node`, `code_block`, arbitrary parent traversal, format
 ## Lazy Object Lifecycle
 
 1. `Codebase` construction creates `CodebaseContext`.
-2. `CodebaseContext` resolves the backend from config.
-3. Python backend follows the existing eager graph path.
-4. Rust backend builds Rust indexes and records, but no Python `SourceFile`, `Symbol`, `Import`, or `Export` objects are created during build.
-5. Public list queries ask the engine for sorted IDs and wrap only those returned IDs in handles.
-6. Handle metadata is loaded on first property access and cached per handle.
-7. Nested queries are also ID based. For example, `file.symbols` asks Rust for symbol IDs in that file and wraps only those IDs.
-8. A handle records the backend generation. After `apply_diffs`, handles either rebind through stable IDs or become outdated and follow the existing stale-node semantics.
-9. If user code requests unsupported Python behavior, the handle uses the fallback policy below.
+1. `CodebaseContext` resolves the backend from config.
+1. Python backend follows the existing eager graph path.
+1. Rust backend builds Rust indexes and records, but no Python `SourceFile`, `Symbol`, `Import`, or `Export` objects are created during build.
+1. Public list queries ask the engine for sorted IDs and wrap only those returned IDs in handles.
+1. Handle metadata is loaded on first property access and cached per handle.
+1. Nested queries are also ID based. For example, `file.symbols` asks Rust for symbol IDs in that file and wraps only those IDs.
+1. A handle records the backend generation. After `apply_diffs`, handles either rebind through stable IDs or become outdated and follow the existing stale-node semantics.
+1. If user code requests unsupported Python behavior, the handle uses the fallback policy below.
 
 Avoiding full materialization:
 

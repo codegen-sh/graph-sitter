@@ -32,9 +32,7 @@ def max_rss_bytes() -> int:
 
 
 def discover_typescript_files(repo: Path) -> tuple[Path, list[str]]:
-    project = ProjectConfig.from_path(
-        str(repo), programming_language=ProgrammingLanguage.TYPESCRIPT
-    )
+    project = ProjectConfig.from_path(str(repo), programming_language=ProgrammingLanguage.TYPESCRIPT)
     node_classes = get_node_classes(ProgrammingLanguage.TYPESCRIPT)
     extensions = node_classes.file_cls.get_extensions()
     file_paths = [
@@ -100,9 +98,7 @@ def make_report(repo: Path, *, raw_rust_walk: bool) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Measure standalone compact Rust TypeScript/JavaScript indexing through PyO3."
-    )
+    parser = argparse.ArgumentParser(description="Measure standalone compact Rust TypeScript/JavaScript indexing through PyO3.")
     parser.add_argument(
         "repo",
         nargs="?",
@@ -115,9 +111,7 @@ def parse_args() -> argparse.Namespace:
         help="Use Rust's recursive file walk instead of Python RepoOperator file discovery.",
     )
     parser.add_argument("--output", type=Path, help="Optional path to write JSON report.")
-    parser.add_argument(
-        "--json", action="store_true", help="Print JSON report instead of a human summary."
-    )
+    parser.add_argument("--json", action="store_true", help="Print JSON report instead of a human summary.")
     return parser.parse_args()
 
 
@@ -129,10 +123,7 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"engine: {report['metadata']['engine_version']}")
     print(f"raw rust walk: {report['metadata']['raw_rust_walk']}")
     print(f"selected files: {report['metadata']['selected_file_count']}")
-    print(
-        f"rust TS index: wall={totals['wall_seconds']:.3f}s "
-        f"max_rss={totals['max_rss_mb']:.1f} MB"
-    )
+    print(f"rust TS index: wall={totals['wall_seconds']:.3f}s max_rss={totals['max_rss_mb']:.1f} MB")
     print(
         "summary: "
         f"files={summary['files']} symbols={summary['symbols']} "
@@ -147,14 +138,10 @@ def print_human(report: dict[str, Any]) -> None:
 
 def main() -> int:
     args = parse_args()
-    report = make_report(
-        Path(args.repo).expanduser().resolve(), raw_rust_walk=args.raw_rust_walk
-    )
+    report = make_report(Path(args.repo).expanduser().resolve(), raw_rust_walk=args.raw_rust_walk)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(
-            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
+        args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

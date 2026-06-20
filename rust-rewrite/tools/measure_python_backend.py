@@ -230,14 +230,7 @@ def create_python_fixture(base_dir: Path, file_count: int, functions_per_file: i
     (package / "__init__.py").write_text("from .module_0 import Class0\n", encoding="utf-8")
     for idx in range(file_count):
         previous_import = "" if idx == 0 else f"from .module_{idx - 1} import Class{idx - 1}, helper_{idx - 1}_0\n"
-        functions = "\n\n".join(
-            [
-                f"def helper_{idx}_{fn}(value: int) -> int:\n"
-                f"    total = value + {idx} + {fn}\n"
-                "    return total\n"
-                for fn in range(functions_per_file)
-            ]
-        )
+        functions = "\n\n".join([f"def helper_{idx}_{fn}(value: int) -> int:\n    total = value + {idx} + {fn}\n    return total\n" for fn in range(functions_per_file)])
         parent = f"Class{idx - 1}" if idx else "object"
         inherited_call = f"helper_{idx - 1}_0(value)" if idx else "value"
         content = (
@@ -365,10 +358,7 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"graph: nodes={graph['nodes']} edges={graph['edges']} files={graph['source_files']} file_nodes={graph['source_file_nodes_total']}")
     print("phases:")
     for phase in report["phases"]:
-        print(
-            f"  {phase['name']}: calls={phase['calls']} "
-            f"wall={phase['wall_seconds']:.3f}s rss_peak={phase['rss_peak_mb']:.1f} MB"
-        )
+        print(f"  {phase['name']}: calls={phase['calls']} wall={phase['wall_seconds']:.3f}s rss_peak={phase['rss_peak_mb']:.1f} MB")
 
 
 def parse_args() -> argparse.Namespace:

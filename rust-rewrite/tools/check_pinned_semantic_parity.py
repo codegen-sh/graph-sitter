@@ -49,11 +49,7 @@ def run(
     )
     if result.returncode != 0:
         command_text = " ".join(command)
-        msg = (
-            f"command failed with exit code {result.returncode}: {command_text}\n"
-            f"stdout:\n{result.stdout}\n"
-            f"stderr:\n{result.stderr}"
-        )
+        msg = f"command failed with exit code {result.returncode}: {command_text}\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         raise RuntimeError(msg)
     return result
 
@@ -195,11 +191,7 @@ def max_sample_rss_mb(report: dict[str, Any]) -> float | None:
     samples = report.get("rss_samples", [])
     if not isinstance(samples, list) or not samples:
         return None
-    values = [
-        float(sample["max_rss_mb"])
-        for sample in samples
-        if isinstance(sample, dict) and "max_rss_mb" in sample
-    ]
+    values = [float(sample["max_rss_mb"]) for sample in samples if isinstance(sample, dict) and "max_rss_mb" in sample]
     return max(values) if values else None
 
 
@@ -250,17 +242,11 @@ def collect_airflow_report(repo: Path, *, backend: str, extension_dir: Path) -> 
         },
         "global_function": node_signature(provider_validator),
         "airflow_init_import_os": import_signature(find_import(init_file, "import os")),
-        "airflow_init_resolve_getattr": sorted_signatures(
-            [node_signature(node) for node in init_file.resolve_name("__getattr__")]
-        ),
+        "airflow_init_resolve_getattr": sorted_signatures([node_signature(node) for node in init_file.resolve_name("__getattr__")]),
         "airflow_init_resolve_os": node_signature(init_file.resolve_attribute("os")),
         "airflow_init_get_node_os": node_signature(init_file.get_node_by_name("os")),
-        "module_import_attribute_resolution": node_signature(
-            airflow_models_import.resolve_attribute("DagModel")
-        ),
-        "getattr_dependencies": sorted_signatures(
-            [dependency_signature(handle) for handle in getattr_function.dependencies]
-        ),
+        "module_import_attribute_resolution": node_signature(airflow_models_import.resolve_attribute("DagModel")),
+        "getattr_dependencies": sorted_signatures([dependency_signature(handle) for handle in getattr_function.dependencies]),
     }
     if backend == "rust" and not python_graph_blocked:
         msg = "expected Rust Airflow semantic parity run to keep Python graph blocked"
@@ -294,19 +280,11 @@ def collect_nextjs_report(repo: Path, *, backend: str, extension_dir: Path) -> d
             (import_signature(imp) for imp in announcer_file.imports),
             key=lambda item: (item["source"], item["name"] or ""),
         ),
-        "announcer_dependencies": unique_sorted_signatures(
-            [dependency_signature(handle) for handle in announcer.dependencies]
-        ),
+        "announcer_dependencies": unique_sorted_signatures([dependency_signature(handle) for handle in announcer.dependencies]),
         "announcer_import_dependencies": unique_sorted_signatures(
-            [
-                dependency_signature(handle)
-                for handle in announcer.dependencies
-                if node_type_name(getattr(handle, "node_type", None)) == "IMPORT"
-            ]
+            [dependency_signature(handle) for handle in announcer.dependencies if node_type_name(getattr(handle, "node_type", None)) == "IMPORT"]
         ),
-        "announcer_symbol_usages": unique_sorted_signatures(
-            [node_signature(handle) for handle in announcer.symbol_usages]
-        ),
+        "announcer_symbol_usages": unique_sorted_signatures([node_signature(handle) for handle in announcer.symbol_usages]),
     }
     if backend == "rust" and not python_graph_blocked:
         msg = "expected Rust Next.js semantic parity run to keep Python graph blocked"
@@ -451,9 +429,7 @@ def run_suite(args: argparse.Namespace, suite: str) -> dict[str, Any]:
     performance = comparison["performance"]
     failures = []
     if not ratio_at_least(performance["wall_ratio"], args.min_wall_ratio):
-        failures.append(
-            f"wall ratio {performance['wall_ratio']}x is below {args.min_wall_ratio}x"
-        )
+        failures.append(f"wall ratio {performance['wall_ratio']}x is below {args.min_wall_ratio}x")
     if not ratio_at_least(performance["rss_ratio"], args.min_rss_ratio):
         failures.append(f"RSS ratio {performance['rss_ratio']}x is below {args.min_rss_ratio}x")
     if failures:
@@ -514,9 +490,7 @@ def print_human(report: dict[str, Any]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Compare selected pinned Airflow and Next.js graph semantics between Python and compact Rust backends."
-    )
+    parser = argparse.ArgumentParser(description="Compare selected pinned Airflow and Next.js graph semantics between Python and compact Rust backends.")
     parser.add_argument("--suite", choices=["all", "python", "typescript"], default="all")
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR, help="Directory for reusable pinned checkouts.")
     parser.add_argument("--extension-dir", type=Path, default=DEFAULT_EXTENSION_DIR, help="Directory for the built PyO3 extension module.")

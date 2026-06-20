@@ -211,40 +211,16 @@ class FakeIndex:
         return json.dumps(next((symbol for symbol in json.loads(self.symbols_json()) if symbol["id"] == symbol_id), None))
 
     def top_level_symbols_by_name_json(self, name: str):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["is_top_level"] and symbol["name"] == name
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["is_top_level"] and symbol["name"] == name])
 
     def symbols_for_parent_json(self, parent_symbol_id: int):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["parent_symbol_id"] == parent_symbol_id
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["parent_symbol_id"] == parent_symbol_id])
 
     def symbols_for_file_by_name_json(self, file_id: int, name: str):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["file_id"] == file_id and symbol["name"] == name
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id and symbol["name"] == name])
 
     def symbols_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["file_id"] == file_id and fake_range_overlaps(symbol["range"], start_byte, end_byte)
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id and fake_range_overlaps(symbol["range"], start_byte, end_byte)])
 
     def imports_json(self):
         return json.dumps(
@@ -280,7 +256,7 @@ class FakeIndex:
                         "end_row": 1,
                         "end_column": 18,
                     },
-                }
+                },
             ]
         )
 
@@ -303,11 +279,7 @@ class FakeIndex:
 
     def imports_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
         return json.dumps(
-            [
-                import_record
-                for import_record in json.loads(self.imports_json())
-                if import_record["file_id"] == file_id and fake_range_overlaps(import_record["range"], start_byte, end_byte)
-            ]
+            [import_record for import_record in json.loads(self.imports_json()) if import_record["file_id"] == file_id and fake_range_overlaps(import_record["range"], start_byte, end_byte)]
         )
 
     def import_resolutions_json(self):
@@ -326,7 +298,7 @@ class FakeIndex:
                     "source_file_id": 0,
                     "target_file_id": 0,
                     "target_symbol_id": None,
-                }
+                },
             ]
         )
 
@@ -334,13 +306,7 @@ class FakeIndex:
         return json.dumps(next((resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["import_id"] == import_id), None))
 
     def import_resolutions_to_symbol_json(self, symbol_id: int):
-        return json.dumps(
-            [
-                resolution
-                for resolution in json.loads(self.import_resolutions_json())
-                if resolution["target_symbol_id"] == symbol_id
-            ]
-        )
+        return json.dumps([resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["target_symbol_id"] == symbol_id])
 
     def external_modules_json(self):
         return json.dumps([])
@@ -529,13 +495,7 @@ class FakeOrderingIndex:
         )
 
     def symbols_for_file_json(self, file_id: int):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["file_id"] == file_id
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id])
 
     def imports_json(self):
         return json.dumps([])
@@ -1130,22 +1090,10 @@ class FakeTypeScriptIndex:
         return json.dumps(next((symbol for symbol in json.loads(self.symbols_json()) if symbol["id"] == symbol_id), None))
 
     def top_level_symbols_by_name_json(self, name: str):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["is_top_level"] and symbol["name"] == name
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["is_top_level"] and symbol["name"] == name])
 
     def symbols_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["file_id"] == file_id and fake_range_overlaps(symbol["range"], start_byte, end_byte)
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id and fake_range_overlaps(symbol["range"], start_byte, end_byte)])
 
     def imports_json(self):
         return json.dumps(
@@ -1167,11 +1115,7 @@ class FakeTypeScriptIndex:
 
     def imports_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
         return json.dumps(
-            [
-                import_record
-                for import_record in json.loads(self.imports_json())
-                if import_record["file_id"] == file_id and fake_range_overlaps(import_record["range"], start_byte, end_byte)
-            ]
+            [import_record for import_record in json.loads(self.imports_json()) if import_record["file_id"] == file_id and fake_range_overlaps(import_record["range"], start_byte, end_byte)]
         )
 
     def import_resolutions_json(self):
@@ -1191,13 +1135,7 @@ class FakeTypeScriptIndex:
         return json.dumps(next((resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["import_id"] == import_id), None))
 
     def import_resolutions_to_symbol_json(self, symbol_id: int):
-        return json.dumps(
-            [
-                resolution
-                for resolution in json.loads(self.import_resolutions_json())
-                if resolution["target_symbol_id"] == symbol_id
-            ]
-        )
+        return json.dumps([resolution for resolution in json.loads(self.import_resolutions_json()) if resolution["target_symbol_id"] == symbol_id])
 
     def external_modules_json(self):
         return json.dumps([])
@@ -1234,31 +1172,13 @@ class FakeTypeScriptIndex:
         return json.dumps(next((export for export in json.loads(self.exports_json()) if export["id"] == export_id), None))
 
     def exports_for_file_by_name_json(self, file_id: int, name: str):
-        return json.dumps(
-            [
-                export
-                for export in json.loads(self.exports_json())
-                if export["file_id"] == file_id and export["name"] == name
-            ]
-        )
+        return json.dumps([export for export in json.loads(self.exports_json()) if export["file_id"] == file_id and export["name"] == name])
 
     def exports_for_file_by_byte_range_json(self, file_id: int, start_byte: int, end_byte: int):
-        return json.dumps(
-            [
-                export
-                for export in json.loads(self.exports_json())
-                if export["file_id"] == file_id and fake_range_overlaps(export["range"], start_byte, end_byte)
-            ]
-        )
+        return json.dumps([export for export in json.loads(self.exports_json()) if export["file_id"] == file_id and fake_range_overlaps(export["range"], start_byte, end_byte)])
 
     def exports_for_symbol_json(self, symbol_id: int):
-        return json.dumps(
-            [
-                export
-                for export in json.loads(self.exports_json())
-                if export["symbol_id"] == symbol_id
-            ]
-        )
+        return json.dumps([export for export in json.loads(self.exports_json()) if export["symbol_id"] == symbol_id])
 
     def references_json(self):
         return json.dumps(
@@ -1276,13 +1196,7 @@ class FakeTypeScriptIndex:
         )
 
     def references_to_symbol_json(self, symbol_id: int):
-        return json.dumps(
-            [
-                reference
-                for reference in json.loads(self.references_json())
-                if reference["target_symbol_id"] == symbol_id
-            ]
-        )
+        return json.dumps([reference for reference in json.loads(self.references_json()) if reference["target_symbol_id"] == symbol_id])
 
     def function_calls_json(self):
         return json.dumps(
@@ -1304,22 +1218,10 @@ class FakeTypeScriptIndex:
         return json.dumps(next((call for call in json.loads(self.function_calls_json()) if call["id"] == call_id), None))
 
     def function_calls_for_file_json(self, file_id: int):
-        return json.dumps(
-            [
-                call
-                for call in json.loads(self.function_calls_json())
-                if call["source_file_id"] == file_id
-            ]
-        )
+        return json.dumps([call for call in json.loads(self.function_calls_json()) if call["source_file_id"] == file_id])
 
     def function_calls_for_symbol_json(self, symbol_id: int):
-        return json.dumps(
-            [
-                call
-                for call in json.loads(self.function_calls_json())
-                if call["source_symbol_id"] == symbol_id
-            ]
-        )
+        return json.dumps([call for call in json.loads(self.function_calls_json()) if call["source_symbol_id"] == symbol_id])
 
     def dependencies_json(self):
         return json.dumps(
@@ -1581,12 +1483,7 @@ class FakeTypeScriptImportPredicateIndex:
 
 
 FAKE_TYPESCRIPT_PROMISE_CONTENT = (
-    "export function first() {\n"
-    "  return Promise.resolve(1).then(value => value + 1);\n"
-    "}\n\n"
-    "export function second() {\n"
-    "  return fetchUser().then(user => user.name).catch(error => 'default');\n"
-    "}\n"
+    "export function first() {\n  return Promise.resolve(1).then(value => value + 1);\n}\n\nexport function second() {\n  return fetchUser().then(user => user.name).catch(error => 'default');\n}\n"
 )
 
 
@@ -1673,13 +1570,7 @@ class FakeTypeScriptPromiseChainIndex:
         return json.dumps(next((symbol for symbol in json.loads(self.symbols_json()) if symbol["id"] == symbol_id), None))
 
     def symbols_for_file_by_name_json(self, file_id: int, name: str):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["file_id"] == file_id and symbol["name"] == name
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id and symbol["name"] == name])
 
     def imports_json(self):
         return json.dumps([])
@@ -1728,22 +1619,10 @@ class FakeTypeScriptPromiseChainIndex:
         return json.dumps(next((chain for chain in json.loads(self.promise_chains_json()) if chain["id"] == chain_id), None))
 
     def promise_chains_for_file_json(self, file_id: int):
-        return json.dumps(
-            [
-                chain
-                for chain in json.loads(self.promise_chains_json())
-                if chain["source_file_id"] == file_id
-            ]
-        )
+        return json.dumps([chain for chain in json.loads(self.promise_chains_json()) if chain["source_file_id"] == file_id])
 
     def promise_chains_for_symbol_json(self, symbol_id: int):
-        return json.dumps(
-            [
-                chain
-                for chain in json.loads(self.promise_chains_json())
-                if chain["source_symbol_id"] == symbol_id
-            ]
-        )
+        return json.dumps([chain for chain in json.loads(self.promise_chains_json()) if chain["source_symbol_id"] == symbol_id])
 
     def dependencies_json(self):
         return json.dumps([])
@@ -1752,14 +1631,7 @@ class FakeTypeScriptPromiseChainIndex:
         return json.dumps([])
 
 
-FAKE_TYPESCRIPT_JSX_CONTENT = (
-    "export function App() {\n"
-    "  return <div><Header /><UI.Card><span /></UI.Card></div>;\n"
-    "}\n\n"
-    "export function helper() {\n"
-    "  return 1;\n"
-    "}\n"
-)
+FAKE_TYPESCRIPT_JSX_CONTENT = "export function App() {\n  return <div><Header /><UI.Card><span /></UI.Card></div>;\n}\n\nexport function helper() {\n  return 1;\n}\n"
 
 
 class FakeTypeScriptJSXSummary(FakeSummary):
@@ -1850,13 +1722,7 @@ class FakeTypeScriptJSXIndex:
         return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id])
 
     def symbols_for_file_by_name_json(self, file_id: int, name: str):
-        return json.dumps(
-            [
-                symbol
-                for symbol in json.loads(self.symbols_json())
-                if symbol["file_id"] == file_id and symbol["name"] == name
-            ]
-        )
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id and symbol["name"] == name])
 
     def imports_json(self):
         return json.dumps([])
@@ -3885,9 +3751,7 @@ def test_rust_compact_symbol_rename_and_add_import_commit_without_python_graph(m
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -3944,9 +3808,7 @@ def test_rust_compact_symbol_and_import_remove_commit_without_python_graph(monke
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -3971,9 +3833,7 @@ def test_rust_compact_import_mutators_commit_without_python_graph(monkeypatch, t
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -3997,9 +3857,7 @@ def test_rust_compact_repeated_incremental_edits_without_python_graph(monkeypatc
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -4030,18 +3888,7 @@ def test_rust_compact_repeated_incremental_edits_without_python_graph(monkeypatc
         os_import.set_import_symbol_alias("pathlib")
         codebase.commit(sync_graph=False)
 
-        expected = (
-            "from typing import Any\n"
-            "import pathlib\n"
-            "import pkg.service\n"
-            "\n"
-            "class Runner:\n"
-            "    def run(self):\n"
-            "        return pathlib.getcwd()\n"
-            "\n"
-            "def helper():\n"
-            "    return Runner()\n"
-        )
+        expected = "from typing import Any\nimport pathlib\nimport pkg.service\n\nclass Runner:\n    def run(self):\n        return pathlib.getcwd()\n\ndef helper():\n    return Runner()\n"
         assert (tmp_path / "pkg/service.py").read_text() == expected
         assert service_file.content == expected
         assert service.name == "Runner"
@@ -4057,9 +3904,7 @@ def test_rust_compact_add_decorator_commit_without_python_graph(monkeypatch, tmp
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -4089,9 +3934,7 @@ def test_rust_compact_decorator_read_and_remove_commit_without_python_graph(monk
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\n@old\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\n@old\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -4120,9 +3963,7 @@ def test_rust_compact_move_function_to_created_file_commit_without_python_graph(
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -4149,9 +3990,7 @@ def test_rust_compact_move_class_adds_back_edge_commit_without_python_graph(monk
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,
@@ -4203,9 +4042,7 @@ def test_rust_compact_move_updates_imported_usages_commit_without_python_graph(m
 
 
 def test_rust_compact_codemod_symbol_import_edits_match_python_backend(monkeypatch, tmp_path):
-    files = {
-        "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-    }
+    files = {"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"}
     output_paths = ["pkg/service.py"]
 
     def execute(codebase):
@@ -4261,9 +4098,7 @@ def test_rust_compact_codemod_execute_symbol_import_edits_without_python_graph(m
 
     with get_codebase_session(
         tmpdir=tmp_path,
-        files={
-            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"
-        },
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        return os.getcwd()\n\ndef helper():\n    return Service()\n"},
         config=config,
         sync_graph=False,
         verify_input=False,

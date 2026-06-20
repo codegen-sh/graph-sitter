@@ -220,12 +220,7 @@ def print_human(report: dict[str, Any]) -> None:
         f"import_resolutions={comparison['rust_import_resolutions']} external_modules={comparison['rust_external_modules']} "
         f"references={comparison['rust_references']} dependencies={comparison['rust_dependencies']}"
     )
-    print(
-        "ratios: "
-        f"wall={comparison['python_to_rust_wall_ratio']}x "
-        f"rss={comparison['python_to_rust_rss_ratio']}x "
-        f"file_count_match={comparison['file_count_match']}"
-    )
+    print(f"ratios: wall={comparison['python_to_rust_wall_ratio']}x rss={comparison['python_to_rust_rss_ratio']}x file_count_match={comparison['file_count_match']}")
 
 
 def parse_args() -> argparse.Namespace:

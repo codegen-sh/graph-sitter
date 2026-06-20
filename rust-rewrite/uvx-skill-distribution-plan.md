@@ -355,5 +355,4 @@ Skill validation expectations:
   until published-package smokes, correctness gates, codemod gates, and
   large-repo benchmark gates pass.
 - [ ] Skill install path: decide whether the skill ships inside the repository,
-  as a release asset, through a marketplace, or through a future `uvx
-  graph-sitter skill install` helper.
+  as a release asset, through a marketplace, or through a future `uvx graph-sitter skill install` helper.

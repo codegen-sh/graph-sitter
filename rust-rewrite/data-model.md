@@ -558,10 +558,10 @@ Expected record sizes should be in the tens of bytes for edges/usages and under 
 Implement the Rust data model in this order:
 
 1. Interners, typed IDs, arenas, node table, and file records.
-2. Symbol/import/export/external records for Python and TypeScript top-level extraction.
-3. Graph edge table with import/export/subclass/symbol usage edge kinds and debug dumps.
-4. Per-file query indexes for files, symbols, imports, and exports.
-5. Lazy Python handles returning source/ranges and ID-backed relationships.
-6. Optional full range index for debug/LSP parity.
+1. Symbol/import/export/external records for Python and TypeScript top-level extraction.
+1. Graph edge table with import/export/subclass/symbol usage edge kinds and debug dumps.
+1. Per-file query indexes for files, symbols, imports, and exports.
+1. Lazy Python handles returning source/ranges and ID-backed relationships.
+1. Optional full range index for debug/LSP parity.
 
 This gives the resolver and PyO3 agents a stable contract while keeping the first engine slice focused on compact canonical state rather than Python object emulation.

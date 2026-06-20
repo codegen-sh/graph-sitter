@@ -11,7 +11,10 @@ await mkdir(publicRoot, { recursive: true });
 
 await rm(path.join(publicRoot, "images"), { recursive: true, force: true });
 await cp(path.join(docsRoot, "images"), path.join(publicRoot, "images"), {
-  recursive: true
+	recursive: true,
 });
 
-await cp(path.join(docsRoot, "favicon.svg"), path.join(publicRoot, "favicon.svg"));
+await cp(
+	path.join(docsRoot, "favicon.svg"),
+	path.join(publicRoot, "favicon.svg"),
+);

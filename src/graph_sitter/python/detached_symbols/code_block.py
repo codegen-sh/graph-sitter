@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Self, TypeVar
 
 from graph_sitter.core.autocommit import reader
 from graph_sitter.core.detached_symbols.code_block import CodeBlock
@@ -20,7 +20,7 @@ Parent = TypeVar("Parent", bound="PyHasBlock")
 
 
 @py_apidoc
-class PyCodeBlock(CodeBlock[Parent, "PyAssignment"], Generic[Parent]):
+class PyCodeBlock[Parent: "PyHasBlock"](CodeBlock[Parent, "PyAssignment"]):
     """Extends CodeBlock for Python codebases."""
 
     @noapidoc

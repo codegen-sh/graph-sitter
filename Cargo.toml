@@ -1,8 +1,5 @@
 [workspace]
-members = [
-    "crates/graph-sitter-engine",
-    "crates/graph-sitter-py",
-]
+members = ["crates/graph-sitter-engine", "crates/graph-sitter-py"]
 resolver = "2"
 
 [workspace.package]

@@ -149,9 +149,7 @@ def assert_snapshot_contract(
 ) -> None:
     schema_version = snapshot.get("schema_version")
     if schema_version != expected_schema_version:
-        failures.append(
-            f"{name}: schema_version expected {expected_schema_version}, got {schema_version}"
-        )
+        failures.append(f"{name}: schema_version expected {expected_schema_version}, got {schema_version}")
     assert_metadata(name, snapshot.get("metadata", {}), expected_metadata, failures)
     assert_exact_counts(f"{name}.summary", snapshot.get("summary", {}), expected_summary, failures)
     assert_no_integrity_failures(name, snapshot, failures)
@@ -163,9 +161,7 @@ def assert_snapshot_contract(
             summary_count = expected_summary.get(graph_name)
             graph_count = graph.get("count") if isinstance(graph, dict) else None
             if summary_count is not None and graph_count != summary_count:
-                failures.append(
-                    f"{name}: graph {graph_name} count expected {summary_count}, got {graph_count}"
-                )
+                failures.append(f"{name}: graph {graph_name} count expected {summary_count}, got {graph_count}")
 
 
 def assert_codebase_report(
@@ -357,17 +353,13 @@ def assert_codemods(report: dict[str, Any], failures: list[str]) -> list[dict[st
     summaries = []
     for suite in report.get("suites", []):
         suite_name = suite.get("suite", "<unknown>")
-        failed_assertions = [
-            name for name, passed in suite.get("assertions", {}).items() if not passed
-        ]
+        failed_assertions = [name for name, passed in suite.get("assertions", {}).items() if not passed]
         if failed_assertions:
             failures.append(f"codemods.{suite_name}: failed assertions: {', '.join(failed_assertions)}")
         caches = suite.get("large_cache_materialization", {})
         materialized = [name for name, value in caches.items() if value]
         if materialized:
-            failures.append(
-                f"codemods.{suite_name}: large Rust caches were materialized: {', '.join(materialized)}"
-            )
+            failures.append(f"codemods.{suite_name}: large Rust caches were materialized: {', '.join(materialized)}")
         timings = suite.get("timings", {})
         max_rss = max((float(sample["max_rss_mb"]) for sample in suite.get("rss_samples", [])), default=None)
         summaries.append(
@@ -419,13 +411,9 @@ def assert_semantic_parity(
         wall_ratio = wall_ratio if wall_ratio is not None else ratio(python_timing, rust_timing)
         rss_ratio = rss_ratio if rss_ratio is not None else ratio(python_rss, rust_rss)
         if not ratio_at_least(wall_ratio, min_wall_ratio):
-            failures.append(
-                f"semantic_parity.{suite_name}: wall ratio {wall_ratio}x is below {min_wall_ratio}x"
-            )
+            failures.append(f"semantic_parity.{suite_name}: wall ratio {wall_ratio}x is below {min_wall_ratio}x")
         if not ratio_at_least(rss_ratio, min_rss_ratio):
-            failures.append(
-                f"semantic_parity.{suite_name}: RSS ratio {rss_ratio}x is below {min_rss_ratio}x"
-            )
+            failures.append(f"semantic_parity.{suite_name}: RSS ratio {rss_ratio}x is below {min_rss_ratio}x")
         summaries.append(
             {
                 "suite": suite_name,
@@ -463,10 +451,7 @@ def make_report(args: argparse.Namespace) -> dict[str, Any]:
         DEFAULT_MIN_SEMANTIC_WALL_RATIO,
     )
     min_rss_ratio = getattr(args, "min_rss_ratio", DEFAULT_MIN_RSS_RATIO)
-    reports = {
-        key: load_json(report_dir / filename)
-        for key, filename in REQUIRED_REPORTS.items()
-    }
+    reports = {key: load_json(report_dir / filename) for key, filename in REQUIRED_REPORTS.items()}
 
     failures: list[str] = []
     assert_snapshot_contract(
@@ -569,17 +554,9 @@ def print_human(report: dict[str, Any]) -> None:
         f"rss>={thresholds['min_rss_ratio']}x"
     )
     for name, summary in report["codebase"].items():
-        print(
-            f"{name}: wall={summary['wall_seconds']:.3f}s "
-            f"rss={summary['max_rss_mb']:.1f} MB "
-            f"ratios={summary['wall_ratio']}x/{summary['rss_ratio']}x"
-        )
+        print(f"{name}: wall={summary['wall_seconds']:.3f}s rss={summary['max_rss_mb']:.1f} MB ratios={summary['wall_ratio']}x/{summary['rss_ratio']}x")
     for summary in report["codemods"]:
-        print(
-            f"codemod {summary['suite']}: construct={summary['construct_wall_seconds']:.3f}s "
-            f"commit={summary['codemod_commit_wall_seconds']:.3f}s "
-            f"max_rss={summary['max_rss_mb']:.1f} MB"
-        )
+        print(f"codemod {summary['suite']}: construct={summary['construct_wall_seconds']:.3f}s commit={summary['codemod_commit_wall_seconds']:.3f}s max_rss={summary['max_rss_mb']:.1f} MB")
     for summary in report["semantic_parity"]:
         print(
             f"semantic {summary['suite']}: exact={len(summary['exact_keys'])} "
@@ -591,9 +568,7 @@ def print_human(report: dict[str, Any]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Aggregate rust-rewrite large-repo reports into a single rollout readiness gate."
-    )
+    parser = argparse.ArgumentParser(description="Aggregate rust-rewrite large-repo reports into a single rollout readiness gate.")
     parser.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR)
     parser.add_argument(
         "--min-wall-ratio",

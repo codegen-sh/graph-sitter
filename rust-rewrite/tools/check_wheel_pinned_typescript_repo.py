@@ -23,9 +23,7 @@ from benchmark_pinned_python_repo import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_EXPECTED_SNAPSHOT = (
-    REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
-)
+DEFAULT_EXPECTED_SNAPSHOT = REPO_ROOT / "rust-rewrite/golden/next.js-v15.0.0-rust-compact-typescript.json"
 
 SUMMARY_KEYS = (
     "files",
@@ -181,11 +179,7 @@ def run_sampled(
     rss_peak = max(rss_peak, process_tree_rss(ps_process))
     wall_seconds = time.perf_counter() - started
     if process.returncode != 0:
-        msg = (
-            f"command failed with exit {process.returncode}: {' '.join(command)}\n"
-            f"stdout:\n{stdout}\n"
-            f"stderr:\n{stderr}"
-        )
+        msg = f"command failed with exit {process.returncode}: {' '.join(command)}\nstdout:\n{stdout}\nstderr:\n{stderr}"
         raise RuntimeError(msg)
     return SampledRun(
         command=command,
@@ -303,10 +297,7 @@ def validate_transform(checkout: Path, sampled: SampledRun, args: argparse.Names
     }
     failed = [name for name, passed in assertions.items() if not passed]
     if failed:
-        msg = (
-            f"installed-wheel Next.js transform assertions failed: {', '.join(failed)}; "
-            f"git_status={status!r}"
-        )
+        msg = f"installed-wheel Next.js transform assertions failed: {', '.join(failed)}; git_status={status!r}"
         raise RuntimeError(msg)
     return {
         "status": "passed",
@@ -338,11 +329,7 @@ def validate_payload(
         failures.append(f"expected no rust_backend_error, got {payload.get('rust_backend_error')}")
 
     actual_summary = {key: payload.get(key) for key in SUMMARY_KEYS}
-    count_mismatches = {
-        key: {"expected": expected, "actual": actual_summary[key]}
-        for key, expected in expected_summary.items()
-        if actual_summary[key] != expected
-    }
+    count_mismatches = {key: {"expected": expected, "actual": actual_summary[key]} for key, expected in expected_summary.items() if actual_summary[key] != expected}
     if count_mismatches:
         failures.append(f"summary count mismatches: {count_mismatches}")
 
@@ -406,24 +393,10 @@ def make_comparison(
         "min_sampled_rss_ratio": args.min_sampled_rss_ratio,
     }
     failures = []
-    if (
-        comparison["python_to_rust_parse_elapsed_ratio"] is None
-        or comparison["python_to_rust_parse_elapsed_ratio"] < args.min_parse_elapsed_ratio
-    ):
-        failures.append(
-            "parse elapsed ratio "
-            f"{comparison['python_to_rust_parse_elapsed_ratio']}x is below required "
-            f"{args.min_parse_elapsed_ratio}x"
-        )
-    if (
-        comparison["python_to_rust_sampled_rss_ratio"] is None
-        or comparison["python_to_rust_sampled_rss_ratio"] < args.min_sampled_rss_ratio
-    ):
-        failures.append(
-            "sampled RSS ratio "
-            f"{comparison['python_to_rust_sampled_rss_ratio']}x is below required "
-            f"{args.min_sampled_rss_ratio}x"
-        )
+    if comparison["python_to_rust_parse_elapsed_ratio"] is None or comparison["python_to_rust_parse_elapsed_ratio"] < args.min_parse_elapsed_ratio:
+        failures.append(f"parse elapsed ratio {comparison['python_to_rust_parse_elapsed_ratio']}x is below required {args.min_parse_elapsed_ratio}x")
+    if comparison["python_to_rust_sampled_rss_ratio"] is None or comparison["python_to_rust_sampled_rss_ratio"] < args.min_sampled_rss_ratio:
+        failures.append(f"sampled RSS ratio {comparison['python_to_rust_sampled_rss_ratio']}x is below required {args.min_sampled_rss_ratio}x")
     if failures:
         raise RuntimeError("; ".join(failures))
     comparison["status"] = "passed"
@@ -549,12 +522,7 @@ def print_human(report: dict[str, Any]) -> None:
     print(f"repo: {metadata['name']} {metadata['commit']}")
     print(f"checkout: {metadata['checkout']}")
     print(f"wheel: {metadata['wheel']}")
-    print(
-        "uvx parse: "
-        f"elapsed={timings['parse_elapsed_seconds']:.3f}s "
-        f"outer_wall={timings['uvx_outer_wall_seconds']:.3f}s "
-        f"rss_peak={timings['uvx_sampled_rss_peak_mb']:.1f} MB"
-    )
+    print(f"uvx parse: elapsed={timings['parse_elapsed_seconds']:.3f}s outer_wall={timings['uvx_outer_wall_seconds']:.3f}s rss_peak={timings['uvx_sampled_rss_peak_mb']:.1f} MB")
     print(
         "counts: "
         f"files={summary['files']} symbols={summary['symbols']} "
@@ -575,21 +543,12 @@ def print_human(report: dict[str, Any]) -> None:
     if transform is not None:
         process = transform["process"]
         validation = transform["validation"]
-        print(
-            "uvx transform: "
-            f"wall={process['wall_seconds']:.3f}s "
-            f"rss_peak={process['rss_peak_mb']:.1f} MB "
-            f"modified={', '.join(validation['git_status'])}"
-        )
+        print(f"uvx transform: wall={process['wall_seconds']:.3f}s rss_peak={process['rss_peak_mb']:.1f} MB modified={', '.join(validation['git_status'])}")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description=(
-            "Build or reuse a graph-sitter wheel, run it through uvx against "
-            "pinned Next.js, and compare strict Rust parse counts with the "
-            "committed TypeScript golden snapshot."
-        )
+        description=("Build or reuse a graph-sitter wheel, run it through uvx against pinned Next.js, and compare strict Rust parse counts with the committed TypeScript golden snapshot.")
     )
     parser.add_argument("--name", default=typescript_benchmark.DEFAULT_REPO_NAME)
     parser.add_argument("--repo-url", default=typescript_benchmark.DEFAULT_REPO_URL)

@@ -64,20 +64,20 @@ The skill body should include:
    - code transformation/codemod
    - large-repo benchmark or parity proof
    - docs/setup troubleshooting
-2. Prefer the CLI for simple command-line workflows once available:
+1. Prefer the CLI for simple command-line workflows once available:
    - `uvx graph-sitter parse <path> --language auto --backend python --format json`
    - `uvx graph-sitter parse <path> --language auto --backend rust --format json` for wheels built from rust-rewrite; published-package availability still depends on release
    - `uvx graph-sitter transform MODULE:OBJECT <path> --check`
    - `uvx graph-sitter transform MODULE:OBJECT <path> --write`
-3. Prefer the Python API for custom analyses:
+1. Prefer the Python API for custom analyses:
    - `from graph_sitter import Codebase`
    - `Codebase(path, config=CodebaseConfig(graph_backend=GraphBackend.RUST, rust_fallback=RustFallbackMode.ERROR))`
    - fall back to the Python backend only when strict Rust mode reports an unsupported surface and compatibility matters more than memory.
-4. For transformations:
+1. For transformations:
    - run or create codemods under `.codegen/codemods`
    - inspect diffs before applying broad changes
    - run the target repo's tests or focused checks after edits
-5. For large repos:
+1. For large repos:
    - avoid broad APIs that intentionally materialize all records unless the user asks for them
    - prefer targeted lookups (`get_file`, `get_function`, `get_import`, `find_by_byte_range`, known symbol dependency probes)
    - record wall time and RSS when making performance claims
