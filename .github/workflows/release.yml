@@ -27,6 +27,9 @@ permissions:
 jobs:
   build:
     name: Build 3.${{ matrix.python }} ${{ matrix.os }}
+    # Keep Intel macOS wheels in release/tag builds, but avoid queue-heavy
+    # macos-13 jobs as PR gates. macos-latest still covers macOS smoke on PRs.
+    if: ${{ github.event_name != 'pull_request' || matrix.os != 'macos-13' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
