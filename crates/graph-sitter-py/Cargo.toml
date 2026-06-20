@@ -19,4 +19,5 @@ extension-module = ["pyo3-bindings", "pyo3/extension-module"]
 [dependencies]
 graph-sitter-engine.workspace = true
 pyo3 = { workspace = true, optional = true }
+serde.workspace = true
 serde_json.workspace = true

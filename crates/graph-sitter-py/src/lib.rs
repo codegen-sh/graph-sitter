@@ -16,6 +16,10 @@ mod bindings {
     };
     use pyo3::exceptions::{PyRuntimeError, PyValueError};
     use pyo3::prelude::*;
+    use serde::{
+        ser::{SerializeSeq, Serializer},
+        Serialize,
+    };
     use std::path::Path;
 
     #[pyclass(name = "EngineInfo", module = "graph_sitter_py")]
@@ -482,36 +486,30 @@ mod bindings {
         }
 
         fn dependencies_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .dependencies
-                .iter()
-                .filter(|dependency| dependency.source_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .dependencies
+                    .iter()
+                    .filter(|dependency| dependency.source_symbol_id == symbol_id),
+            )
         }
 
         fn dependencies_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .dependencies
-                .iter()
-                .filter(|dependency| dependency.source_file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .dependencies
+                    .iter()
+                    .filter(|dependency| dependency.source_file_id == file_id),
+            )
         }
 
         fn dependencies_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .dependencies
-                .iter()
-                .filter(|dependency| dependency.target_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .dependencies
+                    .iter()
+                    .filter(|dependency| dependency.target_symbol_id == symbol_id),
+            )
         }
 
         fn reference_by_id_json(&self, reference_id: u32) -> PyResult<String> {
@@ -1141,36 +1139,30 @@ mod bindings {
         }
 
         fn dependencies_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .dependencies
-                .iter()
-                .filter(|dependency| dependency.source_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .dependencies
+                    .iter()
+                    .filter(|dependency| dependency.source_symbol_id == symbol_id),
+            )
         }
 
         fn dependencies_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .dependencies
-                .iter()
-                .filter(|dependency| dependency.source_file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .dependencies
+                    .iter()
+                    .filter(|dependency| dependency.source_file_id == file_id),
+            )
         }
 
         fn dependencies_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .dependencies
-                .iter()
-                .filter(|dependency| dependency.target_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .dependencies
+                    .iter()
+                    .filter(|dependency| dependency.target_symbol_id == symbol_id),
+            )
         }
 
         fn reference_by_id_json(&self, reference_id: u32) -> PyResult<String> {
@@ -1730,6 +1722,29 @@ mod bindings {
         serde_json::to_string(&records).map_err(|error| PyRuntimeError::new_err(error.to_string()))
     }
 
+    fn records_to_json<'a, T, I>(records: I) -> PyResult<String>
+    where
+        T: Serialize + 'a,
+        I: IntoIterator<Item = &'a T>,
+    {
+        let mut bytes = Vec::new();
+        {
+            let mut serializer = serde_json::Serializer::new(&mut bytes);
+            let mut sequence = serializer
+                .serialize_seq(None)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
+            for record in records {
+                sequence
+                    .serialize_element(record)
+                    .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
+            }
+            sequence
+                .end()
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
+        }
+        String::from_utf8(bytes).map_err(|error| PyRuntimeError::new_err(error.to_string()))
+    }
+
     fn import_lookup_candidates(
         module: Option<&str>,
         name: Option<&str>,
@@ -1916,6 +1931,30 @@ mod bindings {
                 .dependencies_json()
                 .unwrap()
                 .contains("reference_count"));
+            let service_dependencies: serde_json::Value =
+                serde_json::from_str(&index.dependencies_for_file_json(2).unwrap()).unwrap();
+            assert_eq!(service_dependencies.as_array().unwrap().len(), 1);
+            assert_eq!(
+                service_dependencies[0]["source_file_id"],
+                serde_json::json!(2)
+            );
+            assert_eq!(
+                service_dependencies[0]["source_symbol_id"],
+                serde_json::json!(2)
+            );
+            assert_eq!(
+                service_dependencies[0]["target_symbol_id"],
+                serde_json::json!(1)
+            );
+            assert_eq!(index.dependencies_for_file_json(0).unwrap(), "[]");
+            assert_eq!(
+                index.dependencies_from_symbol_json(2).unwrap(),
+                index.dependencies_for_file_json(2).unwrap()
+            );
+            assert_eq!(
+                index.dependencies_to_symbol_json(1).unwrap(),
+                index.dependencies_for_file_json(2).unwrap()
+            );
             assert!(index.to_json().unwrap().contains("import_resolutions"));
             assert!(index.to_json().unwrap().contains("references"));
             assert!(index.to_json().unwrap().contains("dependencies"));

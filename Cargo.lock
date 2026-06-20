@@ -94,6 +94,7 @@ version = "0.1.0"
 dependencies = [
  "graph-sitter-engine",
  "pyo3",
+ "serde",
  "serde_json",
 ]
 

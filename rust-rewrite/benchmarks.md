@@ -335,6 +335,8 @@ Measured with a generated git repo containing one Python file with 1,000 top-lev
 
 The query is about 1.87x faster on this synthetic high-fanout file and, more importantly, removes 999 Python/Rust boundary crossings for a single public file-ordering query.
 
+Follow-up on 2026-06-20: the PyO3 dependency endpoints now stream filtered dependency records into JSON instead of first collecting matching records into a temporary Rust `Vec`. This keeps the same public JSON contract while trimming transient allocation for `dependencies_from_symbol_json(...)`, `dependencies_for_file_json(...)`, and `dependencies_to_symbol_json(...)` on both Python and TypeScript indexes. Binding coverage asserts the filtered dependency endpoints return the expected single-record and empty-array payloads.
+
 ## Standalone TypeScript/JavaScript Rust Index Evidence
 
 These measurements capture the first syntax-only Rust TypeScript/JavaScript index exposed through PyO3. The Rust path uses Python-selected file discovery for a fair file-list comparison. The later `Codebase` measurement below includes the current relative-import resolution, reference/dependency rows, and lazy Python shell handles.
