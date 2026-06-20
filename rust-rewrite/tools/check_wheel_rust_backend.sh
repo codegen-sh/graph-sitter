@@ -128,6 +128,116 @@ if ! grep -q "def renamed():" "$REPO/pkg/service.py"; then
   exit 1
 fi
 
+REGISTERED_REPO="$SCRATCH/registered-repo"
+git init "$REGISTERED_REPO" >/dev/null
+git -C "$REGISTERED_REPO" config user.email test@example.com
+git -C "$REGISTERED_REPO" config user.name "Test User"
+mkdir -p "$REGISTERED_REPO/pkg" "$REGISTERED_REPO/.codegen/codemods/rename"
+printf '' > "$REGISTERED_REPO/pkg/__init__.py"
+cat > "$REGISTERED_REPO/pkg/app.py" <<'PY'
+def target():
+    return 1
+PY
+cat > "$REGISTERED_REPO/.codegen/codemods/rename/rename.py" <<'PY'
+import graph_sitter
+
+
+@graph_sitter.function("rename-target")
+def run(codebase):
+    function = codebase.get_function("target")
+    function.rename("renamed_target")
+    codebase.commit()
+PY
+git -C "$REGISTERED_REPO" add .
+git -C "$REGISTERED_REPO" commit -m initial >/dev/null
+
+set +e
+RUN_CHECK_OUTPUT="$(run_graph_sitter run rename-target "$REGISTERED_REPO" --language python --backend rust --fallback error --check 2>&1)"
+RUN_CHECK_STATUS=$?
+set -e
+if [[ "$RUN_CHECK_STATUS" -ne 1 ]]; then
+  echo "Expected registered run --check to exit 1 when changes would be produced; got $RUN_CHECK_STATUS" >&2
+  echo "$RUN_CHECK_OUTPUT" >&2
+  exit 1
+fi
+if [[ "$RUN_CHECK_OUTPUT" != *"Codemod would produce changes"* ]]; then
+  echo "Expected registered run --check output to mention produced changes" >&2
+  echo "$RUN_CHECK_OUTPUT" >&2
+  exit 1
+fi
+if ! grep -q "def target():" "$REGISTERED_REPO/pkg/app.py"; then
+  echo "registered run --check mutated the target repository" >&2
+  exit 1
+fi
+
+RUN_WRITE_OUTPUT="$(run_graph_sitter run rename-target "$REGISTERED_REPO" --language python --backend rust --fallback error --write)"
+if [[ "$RUN_WRITE_OUTPUT" != *"Changes have been applied"* ]]; then
+  echo "Expected registered run --write output to mention applied changes" >&2
+  echo "$RUN_WRITE_OUTPUT" >&2
+  exit 1
+fi
+if ! grep -q "def renamed_target():" "$REGISTERED_REPO/pkg/app.py"; then
+  echo "registered run --write did not update the target repository" >&2
+  exit 1
+fi
+
+REGISTERED_SUBDIR_REPO="$SCRATCH/registered-subdir-repo"
+git init "$REGISTERED_SUBDIR_REPO" >/dev/null
+git -C "$REGISTERED_SUBDIR_REPO" config user.email test@example.com
+git -C "$REGISTERED_SUBDIR_REPO" config user.name "Test User"
+mkdir -p "$REGISTERED_SUBDIR_REPO/src" "$REGISTERED_SUBDIR_REPO/tests" "$REGISTERED_SUBDIR_REPO/.codegen/codemods/scoped"
+cat > "$REGISTERED_SUBDIR_REPO/src/app.py" <<'PY'
+def target():
+    return 1
+PY
+cat > "$REGISTERED_SUBDIR_REPO/tests/test_app.py" <<'PY'
+def target():
+    return 2
+PY
+cat > "$REGISTERED_SUBDIR_REPO/.codegen/codemods/scoped/scoped.py" <<'PY'
+import graph_sitter
+
+
+@graph_sitter.function("assert-scoped")
+def run(codebase):
+    filepaths = [file.filepath for file in codebase.files]
+    if any(filepath.endswith("tests/test_app.py") for filepath in filepaths):
+        raise AssertionError(f"unscoped parse: {filepaths}")
+    function = codebase.get_function("target")
+    function.rename("renamed_target")
+    codebase.commit()
+PY
+git -C "$REGISTERED_SUBDIR_REPO" add .
+git -C "$REGISTERED_SUBDIR_REPO" commit -m initial >/dev/null
+
+set +e
+RUN_SUBDIR_CHECK_OUTPUT="$(run_graph_sitter run assert-scoped "$REGISTERED_SUBDIR_REPO" --language python --backend rust --fallback error --subdir src --check 2>&1)"
+RUN_SUBDIR_CHECK_STATUS=$?
+set -e
+if [[ "$RUN_SUBDIR_CHECK_STATUS" -ne 1 ]]; then
+  echo "Expected registered run --subdir --check to exit 1 when changes would be produced; got $RUN_SUBDIR_CHECK_STATUS" >&2
+  echo "$RUN_SUBDIR_CHECK_OUTPUT" >&2
+  exit 1
+fi
+if [[ "$RUN_SUBDIR_CHECK_OUTPUT" != *"Codemod would produce changes"* ]]; then
+  echo "Expected registered run --subdir --check output to mention produced changes" >&2
+  echo "$RUN_SUBDIR_CHECK_OUTPUT" >&2
+  exit 1
+fi
+if [[ "$RUN_SUBDIR_CHECK_OUTPUT" == *"unscoped parse"* ]]; then
+  echo "registered run --subdir --check did not preserve scoped parsing in the sandbox" >&2
+  echo "$RUN_SUBDIR_CHECK_OUTPUT" >&2
+  exit 1
+fi
+if ! grep -q "def target():" "$REGISTERED_SUBDIR_REPO/src/app.py"; then
+  echo "registered run --subdir --check mutated the selected target file" >&2
+  exit 1
+fi
+if ! grep -q "def target():" "$REGISTERED_SUBDIR_REPO/tests/test_app.py"; then
+  echo "registered run --subdir --check mutated the unselected target file" >&2
+  exit 1
+fi
+
 TS_REPO="$SCRATCH/typescript-repo"
 git init "$TS_REPO" >/dev/null
 git -C "$TS_REPO" config user.email test@example.com
@@ -206,5 +316,5 @@ if ! grep -q "export function renamedRun()" "$TS_REPO/src/app.ts"; then
   exit 1
 fi
 
-print_message="wheel Rust backend Python/TypeScript parse and transform smoke passed"
+print_message="wheel Rust backend Python/TypeScript parse, transform, and registered run smoke passed"
 echo "$print_message"

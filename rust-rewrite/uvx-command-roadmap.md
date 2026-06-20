@@ -420,6 +420,12 @@ Already proven on the `rust-rewrite` branch:
   target repo unchanged.
 - The installed wheel runs the same transform in strict Rust mode with
   `--write`, reports applied changes, and mutates the target repo.
+- The installed wheel resolves registered codemods from a target repository's
+  `.codegen/codemods`, runs `graph-sitter run LABEL ... --check` in strict Rust
+  mode without mutating the target, runs the same codemod with `--write`, and
+  mutates the target.
+- The installed wheel preserves `run --subdir ... --check` scoping in the
+  copied-repo sandbox for registered codemods.
 - The installed wheel runs a TypeScript import-path transform in strict Rust
   mode with `--check` and `--write`, proving a tiny exported function rename
   from the packaged artifact.
@@ -464,8 +470,6 @@ Not yet proven by the branch-built wheel smokes:
 - `uvx graph-sitter ...` with no `--from` after upload to the package index.
 - `uvx --from graph-sitter==<version> graph-sitter ...` against an uploaded
   release or pre-release artifact.
-- `graph-sitter run LABEL` from an installed wheel against a target repository
-  that owns `.codegen/codemods`.
 - Full codemod diff parity between Python and Rust backends from an installed
   wheel.
 - Skill installation and invocation against the published package.
@@ -533,10 +537,14 @@ Required clean-environment assertions:
   leaves the target repo untouched.
 - [ ] Assert `transform --write` applies the expected diff and no unrelated
   files change.
-- [ ] Assert registered `run --check` resolves `.codegen/codemods` from the
-  target repository after installation through `uvx --from`.
-- [ ] Assert registered `run --subdir --check` preserves scoped parsing in the
-  temporary sandbox.
+- [x] Assert registered `run --check` resolves `.codegen/codemods` from the
+  target repository after installation through `uvx --from`. Result:
+  `check_wheel_rust_backend.sh` runs a target-owned registered codemod through
+  a built wheel in strict Rust check and write modes.
+- [x] Assert registered `run --subdir --check` preserves scoped parsing in the
+  temporary sandbox. Result: `check_wheel_rust_backend.sh` runs a scoped
+  target-owned registered codemod that fails if an unselected test file is
+  parsed.
 - [ ] Repeat the smoke matrix for Python 3.12 and 3.13 before final release
   notes claim both interpreters.
 
@@ -711,8 +719,10 @@ Skill rules:
   override survives sandbox resolution, and missing subdirectories fail clearly.
 - [ ] Decide whether `run` should eventually require explicit `--check` or
   `--write` in a major release. owner: CLI/contracts agent.
-- [ ] Add installed-wheel registered `run` smokes for `--check`, `--write`, and
-  `--subdir --check`. owner: distribution-test agent.
+- [x] Add installed-wheel registered `run` smokes for `--check`, `--write`, and
+  `--subdir --check`. owner: codex. Result: `check_wheel_rust_backend.sh`
+  now proves registered codemod resolution and scoped sandbox behavior through
+  `uvx --from dist/<wheel>.whl`.
 
 ### Packaging And Release
 
@@ -785,8 +795,9 @@ Skill rules:
   by codemods either work through Rust handles or fall back according to
   `--fallback`.
 - Registered `run` has local tests for path, arguments, check/write, and
-  subdirectory scoping, but still needs installed-wheel and published-package
-  proof from clean `uvx` environments.
+  subdirectory scoping, plus branch-built installed-wheel proof from
+  `uvx --from dist/<wheel>.whl`. Published-package proof from a release
+  artifact remains open.
 - Defaulting to `--backend auto` should wait until P0 parity, published-package
   artifact smokes, and large-repo gates prove the Rust backend is the safer
   default for supported languages.
