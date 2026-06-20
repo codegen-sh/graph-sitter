@@ -483,9 +483,13 @@ pass against uploaded artifacts, not just branch-built wheels.
 
 - [ ] Build CPython 3.12 and 3.13 wheels for the supported release platforms.
 - [ ] Build and inspect the sdist, if one will be published.
-- [ ] Verify every wheel contains `graph_sitter_py` and `codemods/codemod.py`.
-- [ ] Verify wheel tags are platform-specific when `graph_sitter_py` is present
-  and never publish a misleading pure-Python Rust-backed wheel.
+- [x] Verify every wheel contains `graph_sitter_py` and `codemods/codemod.py`.
+  owner: codex. Result: `check_wheel_rust_backend.sh` asserts both files for
+  branch-built and release-built wheels.
+- [x] Verify wheel tags are platform-specific when `graph_sitter_py` is present
+  and never publish a misleading pure-Python Rust-backed wheel. owner: codex.
+  Result: the Hatch custom wheel hook marks wheels non-pure, and the release
+  workflow smokes each `cibuildwheel` artifact before upload.
 - [ ] Verify `graph-sitter = graph_sitter.cli.cli:main` and
   `gs = graph_sitter.cli.cli:main` are present in the built wheel metadata.
 - [ ] Verify Python-backend imports remain optional-Rust safe.
@@ -545,8 +549,10 @@ Required clean-environment assertions:
   temporary sandbox. Result: `check_wheel_rust_backend.sh` runs a scoped
   target-owned registered codemod that fails if an unselected test file is
   parsed.
-- [ ] Repeat the smoke matrix for Python 3.12 and 3.13 before final release
-  notes claim both interpreters.
+- [x] Repeat the smoke matrix for Python 3.12 and 3.13 before final release
+  notes claim both interpreters. owner: codex. Result:
+  `.github/workflows/release.yml` runs the wheel smoke against every CPython
+  3.12 and 3.13 `cibuildwheel` artifact before uploading release artifacts.
 
 ### Large-Repo Gates
 
@@ -739,7 +745,8 @@ Skill rules:
   artifact.
 - [ ] Add published-package release checklist requiring `uvx graph-sitter
   --help`, parse, and transform against the uploaded artifact. owner: release
-  agent.
+  agent. Notes: pre-upload release-built wheel smoke now exists; uploaded PyPI
+  artifact validation remains open.
 - [ ] Convert the published-package smoke commands in this roadmap into a
   reusable release script parameterized by `GRAPH_SITTER_VERSION`. owner:
   release-test agent.

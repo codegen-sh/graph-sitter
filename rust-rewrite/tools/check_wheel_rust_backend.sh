@@ -5,10 +5,50 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 PYTHON_VERSION="${PYTHON_VERSION:-3.13}"
-rm -f dist/graph_sitter-*.whl
-uv build --wheel
 
-WHEEL="$(ls -t dist/graph_sitter-*.whl | head -n 1)"
+run_python() {
+  if command -v python >/dev/null 2>&1; then
+    python "$@"
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 "$@"
+  else
+    uv run python "$@"
+  fi
+}
+
+usage() {
+  echo "usage: $0 [--wheel PATH]" >&2
+}
+
+WHEEL="${GRAPH_SITTER_WHEEL:-}"
+if [[ "$#" -gt 0 ]]; then
+  case "$1" in
+    --wheel)
+      if [[ "$#" -ne 2 ]]; then
+        usage
+        exit 2
+      fi
+      WHEEL="$2"
+      ;;
+    *)
+      usage
+      exit 2
+      ;;
+  esac
+fi
+
+if [[ -n "$WHEEL" ]]; then
+  if [[ ! -f "$WHEEL" ]]; then
+    echo "Wheel does not exist: $WHEEL" >&2
+    exit 1
+  fi
+  WHEEL="$(run_python -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve())' "$WHEEL")"
+else
+  rm -f dist/graph_sitter-*.whl
+  uv build --wheel
+  WHEEL="$(ls -t dist/graph_sitter-*.whl | head -n 1)"
+fi
+
 if [[ -z "$WHEEL" ]]; then
   echo "No graph-sitter wheel was built" >&2
   exit 1
@@ -25,7 +65,8 @@ run_graph_sitter() {
   uvx --python "$PYTHON_VERSION" --from "$WHEEL" graph-sitter "$@"
 }
 
-uv run python - "$WHEEL" <<'PY'
+run_python - "$WHEEL" <<'PY'
+from pathlib import Path
 import sys
 import zipfile
 
@@ -37,6 +78,25 @@ with zipfile.ZipFile(wheel) as archive:
         raise AssertionError(msg)
     if "codemods/codemod.py" not in names:
         msg = f"wheel does not include codemods package: {wheel}"
+        raise AssertionError(msg)
+    wheel_metadata_names = [name for name in names if name.endswith(".dist-info/WHEEL")]
+    if len(wheel_metadata_names) != 1:
+        msg = f"wheel does not include exactly one WHEEL metadata file: {wheel}"
+        raise AssertionError(msg)
+    wheel_metadata = archive.read(wheel_metadata_names[0]).decode()
+    tags = [
+        line.removeprefix("Tag: ").strip()
+        for line in wheel_metadata.splitlines()
+        if line.startswith("Tag: ")
+    ]
+    if "Root-Is-Purelib: false" not in wheel_metadata:
+        msg = f"wheel metadata still marks the Rust-backed artifact pure: {wheel}"
+        raise AssertionError(msg)
+    if not tags or any(tag.endswith("-none-any") for tag in tags):
+        msg = f"wheel metadata includes misleading pure-Python tags {tags}: {wheel}"
+        raise AssertionError(msg)
+    if Path(wheel).name.endswith("-none-any.whl"):
+        msg = f"wheel filename includes a pure-Python tag despite graph_sitter_py: {wheel}"
         raise AssertionError(msg)
 PY
 
@@ -63,7 +123,7 @@ git -C "$REPO" commit -m initial >/dev/null
 run_graph_sitter --help >/dev/null
 
 PYTHON_OUTPUT="$(run_graph_sitter parse "$REPO" --language python --backend python --format json)"
-uv run python - "$PYTHON_OUTPUT" <<'PY'
+run_python - "$PYTHON_OUTPUT" <<'PY'
 import json
 import sys
 
@@ -77,7 +137,7 @@ assert payload["imports"] == 1, payload
 PY
 
 OUTPUT="$(run_graph_sitter parse "$REPO" --language python --backend rust --fallback error --format json)"
-uv run python - "$OUTPUT" <<'PY'
+run_python - "$OUTPUT" <<'PY'
 import json
 import sys
 
@@ -259,7 +319,7 @@ git -C "$TS_REPO" add .
 git -C "$TS_REPO" commit -m initial >/dev/null
 
 TS_OUTPUT="$(run_graph_sitter parse "$TS_REPO" --language typescript --backend rust --fallback error --format json)"
-uv run python - "$TS_OUTPUT" <<'PY'
+run_python - "$TS_OUTPUT" <<'PY'
 import json
 import sys
 

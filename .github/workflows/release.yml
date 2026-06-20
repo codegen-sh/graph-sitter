@@ -73,6 +73,17 @@ jobs:
         env:
           CIBW_BUILD: "*cp3${{ matrix.python }}*"
 
+      - name: Smoke test built wheel through uvx
+        env:
+          PYTHON_VERSION: 3.${{ matrix.python }}
+        run: |
+          WHEEL="$(ls -t wheelhouse/graph_sitter-*.whl | head -n 1)"
+          if [ -z "$WHEEL" ]; then
+            echo "No graph-sitter wheel found in wheelhouse" >&2
+            exit 1
+          fi
+          rust-rewrite/tools/check_wheel_rust_backend.sh --wheel "$WHEEL"
+
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}-3.${{ matrix.python }}
