@@ -573,9 +573,7 @@ class RustIndexBackend:
     def _source_file_records_by_path(self) -> dict[str, RustFileRecord]:
         if self._source_file_records_by_path_cache is None:
             self._source_file_records_by_path_cache = {
-                record.path: record
-                for record in (RustFileRecord.from_dict(record_data) for record_data in json.loads(self.index.files_json()))
-                if record.id not in self._removed_file_ids
+                record.path: record for record in (RustFileRecord.from_dict(record_data) for record_data in json.loads(self.index.files_json())) if record.id not in self._removed_file_ids
             }
         return self._source_file_records_by_path_cache
 
