@@ -539,17 +539,28 @@ Required clean-environment assertions:
 - [x] Assert `graph-sitter --help` works without importing from the source
   checkout. owner: codex. Result: wheel smokes invoke `graph-sitter --help`
   and `gs --help` from a temporary working directory with `PYTHONPATH` unset.
-- [ ] Assert `doctor --backend rust` exits zero for Python and TypeScript on
-  supported wheel platforms.
-- [ ] Assert parse JSON includes `schema_version`, requested backend, actual
+- [x] Assert `doctor --backend rust` exits zero for Python and TypeScript on
+  supported wheel platforms. owner: codex. Result: wheel smokes now run
+  `doctor --backend rust --language python --json` and
+  `doctor --backend rust --language typescript --json`; branch extension CI
+  executes that smoke on Python 3.12 and 3.13 for macOS and Ubuntu.
+- [x] Assert parse JSON includes `schema_version`, requested backend, actual
   backend, language, elapsed time, selected subdirectories, graph counts, and no
-  unexpected Rust fallback in strict mode.
-- [ ] Assert `parse --output` writes newline-terminated JSON and leaves stdout
-  empty enough for machine workflows.
-- [ ] Assert `transform --check` exits `1` when changes would be produced and
-  leaves the target repo untouched.
-- [ ] Assert `transform --write` applies the expected diff and no unrelated
-  files change.
+  unexpected Rust fallback in strict mode. owner: codex. Result:
+  `check_wheel_rust_backend.sh` asserts those fields for strict Rust Python and
+  TypeScript parse JSON, including `--subdir pkg` output.
+- [x] Assert `parse --output` writes newline-terminated JSON and leaves stdout
+  empty enough for machine workflows. owner: codex. Result: wheel smokes run
+  strict Rust Python parse with `--output`, assert empty stdout, and parse the
+  newline-terminated output file.
+- [x] Assert `transform --check` exits `1` when changes would be produced and
+  leaves the target repo untouched. owner: codex. Result: wheel smokes now
+  assert exit code, output text, and `git diff --quiet` after Python,
+  TypeScript, registered, and scoped registered check-mode runs.
+- [x] Assert `transform --write` applies the expected diff and no unrelated
+  files change. owner: codex. Result: wheel smokes now assert exact
+  `git diff --name-only` results for Python, TypeScript, and registered
+  write-mode codemods.
 - [x] Assert registered `run --check` resolves `.codegen/codemods` from the
   target repository after installation through `uvx --from`. Result:
   `check_wheel_rust_backend.sh` runs a target-owned registered codemod through

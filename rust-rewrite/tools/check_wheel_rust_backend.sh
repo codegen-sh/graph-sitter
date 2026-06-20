@@ -142,6 +142,46 @@ git -C "$REPO" commit -m initial >/dev/null
 run_graph_sitter --help >/dev/null
 run_gs --help >/dev/null
 
+DOCTOR_PYTHON_OUTPUT="$(run_graph_sitter doctor --backend rust --language python --json)"
+run_python - "$DOCTOR_PYTHON_OUTPUT" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+assert payload["ok"] is True, payload
+assert payload["backend_requested"] == "rust", payload
+assert payload["language_requested"] == "python", payload
+assert payload["rust_extension"]["ok"] is True, payload
+smoke = payload["rust_parse_smoke"]
+assert smoke["ok"] is True, payload
+assert smoke["backend"] == "rust", payload
+assert smoke["language"] == "python", payload
+assert smoke["files"] == 1, payload
+assert smoke["symbols"] == 1, payload
+assert smoke["files_with_errors"] == 0, payload
+assert smoke["rust_backend_error"] in (None, ""), payload
+PY
+
+DOCTOR_TYPESCRIPT_OUTPUT="$(run_graph_sitter doctor --backend rust --language typescript --json)"
+run_python - "$DOCTOR_TYPESCRIPT_OUTPUT" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1])
+assert payload["ok"] is True, payload
+assert payload["backend_requested"] == "rust", payload
+assert payload["language_requested"] == "typescript", payload
+assert payload["rust_extension"]["ok"] is True, payload
+smoke = payload["rust_parse_smoke"]
+assert smoke["ok"] is True, payload
+assert smoke["backend"] == "rust", payload
+assert smoke["language"] == "typescript", payload
+assert smoke["files"] == 1, payload
+assert smoke["symbols"] == 1, payload
+assert smoke["files_with_errors"] == 0, payload
+assert smoke["rust_backend_error"] in (None, ""), payload
+PY
+
 PYTHON_OUTPUT="$(run_graph_sitter parse "$REPO" --language python --backend python --format json)"
 run_python - "$PYTHON_OUTPUT" <<'PY'
 import json
@@ -157,17 +197,58 @@ assert payload["imports"] == 1, payload
 PY
 
 OUTPUT="$(run_graph_sitter parse "$REPO" --language python --backend rust --fallback error --format json)"
-run_python - "$OUTPUT" <<'PY'
+run_python - "$OUTPUT" "$REPO" <<'PY'
 import json
+from pathlib import Path
 import sys
 
 payload = json.loads(sys.argv[1])
+repo = Path(sys.argv[2]).resolve()
+assert payload["schema_version"] == 1, payload
+assert Path(payload["path"]).resolve() == repo, payload
 assert payload["backend"] == "rust", payload
 assert payload["backend_requested"] == "rust", payload
+assert payload["language"] == "python", payload
+assert isinstance(payload["elapsed_seconds"], float), payload
+assert payload["elapsed_seconds"] >= 0, payload
+assert payload["subdirectories"] is None, payload
 assert payload["files"] == 2, payload
 assert payload["classes"] == 1, payload
 assert payload["functions"] == 1, payload
 assert payload["imports"] == 1, payload
+assert payload["rust_backend_error"] in (None, ""), payload
+PY
+
+PARSE_OUTPUT_FILE="$SCRATCH/python-rust-parse.json"
+PARSE_STDOUT="$(run_graph_sitter parse "$REPO" --language python --backend rust --fallback error --format json --subdir pkg --output "$PARSE_OUTPUT_FILE")"
+if [[ -n "$PARSE_STDOUT" ]]; then
+  echo "Expected parse --output stdout to be empty" >&2
+  echo "$PARSE_STDOUT" >&2
+  exit 1
+fi
+run_python - "$PARSE_OUTPUT_FILE" "$REPO" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+output_path = Path(sys.argv[1])
+repo = Path(sys.argv[2]).resolve()
+raw = output_path.read_bytes()
+assert raw.endswith(b"\n"), raw
+payload = json.loads(raw)
+assert payload["schema_version"] == 1, payload
+assert Path(payload["path"]).resolve() == repo, payload
+assert payload["backend_requested"] == "rust", payload
+assert payload["backend"] == "rust", payload
+assert payload["language"] == "python", payload
+assert isinstance(payload["elapsed_seconds"], float), payload
+assert payload["elapsed_seconds"] >= 0, payload
+assert payload["subdirectories"] == ["pkg/"], payload
+assert payload["files"] == 2, payload
+assert payload["classes"] == 1, payload
+assert payload["functions"] == 1, payload
+assert payload["imports"] == 1, payload
+assert payload["rust_backend_error"] in (None, ""), payload
 PY
 
 TRANSFORM="$SCRATCH/rename_transform.py"
@@ -192,6 +273,11 @@ if [[ "$CHECK_OUTPUT" != *"Codemod would produce changes"* ]]; then
   echo "$CHECK_OUTPUT" >&2
   exit 1
 fi
+if ! git -C "$REPO" diff --quiet; then
+  echo "transform --check mutated the target repository" >&2
+  git -C "$REPO" diff --name-only >&2
+  exit 1
+fi
 if ! grep -q "def run():" "$REPO/pkg/service.py"; then
   echo "transform --check mutated the target repository" >&2
   exit 1
@@ -205,6 +291,12 @@ if [[ "$WRITE_OUTPUT" != *"Changes have been applied"* ]]; then
 fi
 if ! grep -q "def renamed():" "$REPO/pkg/service.py"; then
   echo "transform --write did not update the target repository" >&2
+  exit 1
+fi
+WRITE_CHANGED_FILES="$(git -C "$REPO" diff --name-only)"
+if [[ "$WRITE_CHANGED_FILES" != "pkg/service.py" ]]; then
+  echo "transform --write changed unexpected files" >&2
+  echo "$WRITE_CHANGED_FILES" >&2
   exit 1
 fi
 
@@ -245,6 +337,11 @@ if [[ "$RUN_CHECK_OUTPUT" != *"Codemod would produce changes"* ]]; then
   echo "$RUN_CHECK_OUTPUT" >&2
   exit 1
 fi
+if ! git -C "$REGISTERED_REPO" diff --quiet; then
+  echo "registered run --check mutated the target repository" >&2
+  git -C "$REGISTERED_REPO" diff --name-only >&2
+  exit 1
+fi
 if ! grep -q "def target():" "$REGISTERED_REPO/pkg/app.py"; then
   echo "registered run --check mutated the target repository" >&2
   exit 1
@@ -258,6 +355,12 @@ if [[ "$RUN_WRITE_OUTPUT" != *"Changes have been applied"* ]]; then
 fi
 if ! grep -q "def renamed_target():" "$REGISTERED_REPO/pkg/app.py"; then
   echo "registered run --write did not update the target repository" >&2
+  exit 1
+fi
+RUN_WRITE_CHANGED_FILES="$(git -C "$REGISTERED_REPO" diff --name-only)"
+if [[ "$RUN_WRITE_CHANGED_FILES" != "pkg/app.py" ]]; then
+  echo "registered run --write changed unexpected files" >&2
+  echo "$RUN_WRITE_CHANGED_FILES" >&2
   exit 1
 fi
 
@@ -309,6 +412,11 @@ if [[ "$RUN_SUBDIR_CHECK_OUTPUT" == *"unscoped parse"* ]]; then
   echo "$RUN_SUBDIR_CHECK_OUTPUT" >&2
   exit 1
 fi
+if ! git -C "$REGISTERED_SUBDIR_REPO" diff --quiet; then
+  echo "registered run --subdir --check mutated the target repository" >&2
+  git -C "$REGISTERED_SUBDIR_REPO" diff --name-only >&2
+  exit 1
+fi
 if ! grep -q "def target():" "$REGISTERED_SUBDIR_REPO/src/app.py"; then
   echo "registered run --subdir --check mutated the selected target file" >&2
   exit 1
@@ -339,14 +447,21 @@ git -C "$TS_REPO" add .
 git -C "$TS_REPO" commit -m initial >/dev/null
 
 TS_OUTPUT="$(run_graph_sitter parse "$TS_REPO" --language typescript --backend rust --fallback error --format json)"
-run_python - "$TS_OUTPUT" <<'PY'
+run_python - "$TS_OUTPUT" "$TS_REPO" <<'PY'
 import json
+from pathlib import Path
 import sys
 
 payload = json.loads(sys.argv[1])
+repo = Path(sys.argv[2]).resolve()
+assert payload["schema_version"] == 1, payload
+assert Path(payload["path"]).resolve() == repo, payload
 assert payload["backend"] == "rust", payload
 assert payload["backend_requested"] == "rust", payload
 assert payload["language"] == "typescript", payload
+assert isinstance(payload["elapsed_seconds"], float), payload
+assert payload["elapsed_seconds"] >= 0, payload
+assert payload["subdirectories"] is None, payload
 assert payload["files"] == 2, payload
 assert payload["symbols"] == 2, payload
 assert payload["classes"] == 0, payload
@@ -356,6 +471,7 @@ assert payload["exports"] == 2, payload
 assert payload["references"] == 1, payload
 assert payload["dependencies"] == 1, payload
 assert payload["files_with_errors"] == 0, payload
+assert payload["rust_backend_error"] in (None, ""), payload
 PY
 
 TS_TRANSFORM="$SCRATCH/rename_ts_transform.py"
@@ -380,6 +496,11 @@ if [[ "$TS_CHECK_OUTPUT" != *"Codemod would produce changes"* ]]; then
   echo "$TS_CHECK_OUTPUT" >&2
   exit 1
 fi
+if ! git -C "$TS_REPO" diff --quiet; then
+  echo "TypeScript transform --check mutated the target repository" >&2
+  git -C "$TS_REPO" diff --name-only >&2
+  exit 1
+fi
 if ! grep -q "export function run()" "$TS_REPO/src/app.ts"; then
   echo "TypeScript transform --check mutated the target repository" >&2
   exit 1
@@ -393,6 +514,12 @@ if [[ "$TS_WRITE_OUTPUT" != *"Changes have been applied"* ]]; then
 fi
 if ! grep -q "export function renamedRun()" "$TS_REPO/src/app.ts"; then
   echo "TypeScript transform --write did not update the target repository" >&2
+  exit 1
+fi
+TS_WRITE_CHANGED_FILES="$(git -C "$TS_REPO" diff --name-only)"
+if [[ "$TS_WRITE_CHANGED_FILES" != "src/app.ts" ]]; then
+  echo "TypeScript transform --write changed unexpected files" >&2
+  echo "$TS_WRITE_CHANGED_FILES" >&2
   exit 1
 fi
 
