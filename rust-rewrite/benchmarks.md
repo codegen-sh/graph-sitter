@@ -249,6 +249,26 @@ Discovery-only old-vs-new measurements were run in the same process to isolate t
 
 The Airflow discovery slice is now about 5.9x faster before Rust parsing begins, while selecting the same 4,789 Python source files and 7,765 total repo files.
 
+### Source-File Listing Batch Optimization
+
+On 2026-06-20, the Rust Python shell changed default source-file listing to hydrate source file records from one compact `files_json()` batch instead of calling `file_by_path_json(...)` once per selected source file. The public `codebase.files` query still avoids the broad `_files` and `_file_handles` caches; it only fills the source-record cache plus the requested file handles.
+
+Regression coverage:
+
+```bash
+uv run pytest tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_source_files_batch_file_records -q
+```
+
+The test installs a fake extension that raises if source listing falls back to per-path `file_by_path_json(...)`.
+
+Measured on the cached Apache Airflow `2.10.5` checkout (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`:
+
+| Query path             | Before wall | After wall | Broad `_files` cache | Broad `_file_handles` cache | Result count |
+| ---------------------- | ----------: | ---------: | -------------------- | --------------------------- | -----------: |
+| First `codebase.files` |      0.061s |     0.032s | no                   | no                          |        4,789 |
+
+The default source-file list is now about 1.9x faster for Airflow while preserving lazy all-file materialization.
+
 ### All-File Listing Optimization
 
 On 2026-06-20, the Rust Python shell changed synthetic non-source file records so `codebase.files(extensions="*")` no longer rereads every non-source file to compute eager content hashes and exact line counts. Non-source file content remains lazy through `file.content` and `file.content_bytes`; listing now uses path metadata, cached non-source path indexes, and a small binary-detection sample.

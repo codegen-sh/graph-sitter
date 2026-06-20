@@ -392,6 +392,12 @@ class FakeTopLevelSymbolIndex(FakeIndex):
         return "[]"
 
 
+class FakeBatchSourceFileIndex(FakeIndex):
+    def file_by_path_json(self, path: str):
+        msg = "default source-file listing should batch compact file records"
+        raise AssertionError(msg)
+
+
 class FakeOrderingSummary(FakeSummary):
     def as_dict(self):
         data = super().as_dict()
@@ -2610,6 +2616,27 @@ def test_rust_compact_all_files_reuses_non_source_path_index(monkeypatch, tmp_pa
         assert read_bytes_calls == []
 
     assert calls <= 2
+
+
+def test_rust_compact_source_files_batch_file_records(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, index_cls=FakeBatchSourceFileIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        assert [file.filepath for file in codebase.files] == ["pkg/service.py"]
+        assert codebase.get_file("pkg/service.py") == codebase.files[0]
+        assert backend._files is None
+        assert backend._file_handles is None
+        assert sorted(backend._source_file_records_by_path_cache or {}) == ["pkg/service.py"]
 
 
 def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_path):

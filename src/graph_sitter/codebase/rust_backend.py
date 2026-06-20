@@ -483,6 +483,7 @@ class RustIndexBackend:
     _added_file_records_by_path: dict[str, RustFileRecord] = field(default_factory=dict)
     _synthetic_file_records_by_id: dict[int, RustFileRecord] = field(default_factory=dict)
     _synthetic_file_records_by_path: dict[str, RustFileRecord] = field(default_factory=dict)
+    _source_file_records_by_path_cache: dict[str, RustFileRecord] | None = None
     _source_file_paths: tuple[str, ...] = ()
     _all_file_paths: tuple[str, ...] = ()
     _source_file_path_set_cache: set[str] | None = None
@@ -569,6 +570,15 @@ class RustIndexBackend:
             return None
         return [factory(record) for record in json.loads(method(*args))]
 
+    def _source_file_records_by_path(self) -> dict[str, RustFileRecord]:
+        if self._source_file_records_by_path_cache is None:
+            self._source_file_records_by_path_cache = {
+                record.path: record
+                for record in (RustFileRecord.from_dict(record_data) for record_data in json.loads(self.index.files_json()))
+                if record.id not in self._removed_file_ids
+            }
+        return self._source_file_records_by_path_cache
+
     def _bind_handle(self, handle: Any) -> Any:
         if self._ctx is not None:
             handle.ctx = self._ctx
@@ -590,6 +600,8 @@ class RustIndexBackend:
             return self._added_file_records_by_path[filepath]
         if filepath in self._synthetic_file_records_by_path:
             return self._synthetic_file_records_by_path[filepath]
+        if self._source_file_records_by_path_cache is not None and filepath in self._source_file_records_by_path_cache:
+            return self._source_file_records_by_path_cache[filepath]
         record = self._record_from_json_method("file_by_path_json", RustFileRecord.from_dict, filepath)
         if record is not None:
             return record
@@ -787,7 +799,8 @@ class RustIndexBackend:
     @property
     def source_files(self) -> list[RustFileRecord]:
         if self._source_file_paths:
-            source_files = [record for filepath in self._source_file_paths if (record := self._file_record_by_path(filepath)) is not None and record.id not in self._removed_file_ids]
+            source_records_by_path = self._source_file_records_by_path()
+            source_files = [record for filepath in self._source_file_paths if (record := source_records_by_path.get(filepath)) is not None and record.id not in self._removed_file_ids]
             source_files.extend(record for record in self._added_file_records_by_id.values() if record.id not in self._removed_file_ids and record.language)
             return source_files
         return [record for record in self.files if record.language]
@@ -901,8 +914,7 @@ class RustIndexBackend:
     @property
     def source_file_handles(self) -> list[RustCompactFile]:
         if self._source_file_paths:
-            source_files = [file for filepath in self._source_file_paths if (file := self.get_file_handle(filepath)) is not None]
-            source_files.extend(self._file_handle_from_record(record) for record in self._added_file_records_by_id.values() if record.id not in self._removed_file_ids and record.language)
+            source_files = [self._file_handle_from_record(record) for record in self.source_files]
             return source_files
         return [file for file in self.file_handles if file.record.language]
 
