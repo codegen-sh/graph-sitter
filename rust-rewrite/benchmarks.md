@@ -263,10 +263,10 @@ The test asserts that all-file listing reuses the derived non-source path index 
 
 Measured on the cached Apache Airflow `2.10.5` checkout (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`:
 
-| Query path | Before wall | Path-cache-only wall | After lazy metadata wall | Result count |
-| ---------- | ----------: | -------------------: | -----------------------: | -----------: |
-| First `codebase.files` | 0.060s | 0.064s | 0.059s | 4,789 |
-| First `codebase.files(extensions="*")` | 4.299s | 2.989s | 0.174s | 7,765 |
+| Query path                             | Before wall | Path-cache-only wall | After lazy metadata wall | Result count |
+| -------------------------------------- | ----------: | -------------------: | -----------------------: | -----------: |
+| First `codebase.files`                 |      0.060s |               0.064s |                   0.059s |        4,789 |
+| First `codebase.files(extensions="*")` |      4.299s |               2.989s |                   0.174s |        7,765 |
 
 The all-file listing path is now about 24.8x faster for Airflow and no longer reads full content for 2,976 non-source files just to return file handles.
 
