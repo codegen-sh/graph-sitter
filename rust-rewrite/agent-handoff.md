@@ -89,6 +89,7 @@ Keep each agent in a separate worktree. Integrator responsibilities:
 ## Useful Files
 
 - `rust-rewrite/strategy.md`: shared checklist and implementation history.
+- `rust-rewrite/future-agent-brief.md`: concise merge posture, deletion gates, and fanout lanes for the next wave of agents.
 - `rust-rewrite/supported-subset.json`: support contract validated by fast checks.
 - `rust-rewrite/p0-parity-coverage.json`: P0 surface audit and open gaps.
 - `rust-rewrite/benchmarks.md`: benchmark context and current numbers.

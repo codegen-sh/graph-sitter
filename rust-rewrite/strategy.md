@@ -411,6 +411,7 @@ Default-backend promotion criteria:
 - Pinned large-repo graph snapshots cover files, imports, exports, references, external references, dependencies, and subclass edges where applicable.
 - Packaging proves the PyO3 extension on supported Python versions and target OSes.
 - Python backend remains available for at least one release after any default flip.
+- The Python backend deletion plan in `rust-rewrite/future-agent-brief.md` is complete.
 
 ## Acceptance Targets
 
@@ -423,6 +424,7 @@ Default-backend promotion criteria:
 - [x] Docs site accurately explains setup, Rust backend status, and CLI usage. owner: codex. Result: installation plus CLI docs cover local install, `doctor`, `parse`, `run`, `transform`, `uvx`, strict Rust mode, Python fallback, and branch-built wheel caveats.
 - [x] `uvx graph-sitter ...` is documented and backed by tested parse and transformation entry points. owner: codex. Result: docs now cover `uvx graph-sitter parse`, `run`, and `transform`; wheel-distributed Rust parse/transform/run proofs exist, while published-package validation remains a separate release gate.
 - [x] A graph-sitter agent skill distribution plan exists. owner: codex. Result: see `rust-rewrite/skill-distribution-plan.md`; the actual discoverable skill folder remains pending install-location and CLI finalization.
+- [ ] Python backend deletion gates are complete. owner: future integrator. Notes: see `rust-rewrite/future-agent-brief.md`; this remains blocked until Rust is default, P0 parity is complete, graph-wide parity passes, release-package `uvx` is proven, and normal type-check expectations are restored.
 
 ## Agent Log
 
