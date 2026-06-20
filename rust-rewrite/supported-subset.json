@@ -57,6 +57,7 @@
         "TypeScript import type/default/namespace predicates",
         "relative and alias import resolution",
         "qualified namespace member references through namespace imports and re-exports",
+        "JSX component tag references without intrinsic tag or prop-name false positives",
         "external import dependencies",
         "subclass and implementation traversal"
       ],

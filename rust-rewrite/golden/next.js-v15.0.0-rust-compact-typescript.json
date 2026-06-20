@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 49287,
+      "count": 49285,
       "samples": [
         {
           "reference_count": 2,
@@ -210,7 +210,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
         }
       ],
-      "sha256": "2b4504dada98ee8d1c67f44555c126db3afb6995cbe9d3a3fd8ef98a90486da3"
+      "sha256": "72d6c7c2ee1ec459b47b109e4bfdef8b935a0446ea0ca5c8c3990e088185da2d"
     },
     "exports": {
       "count": 16027,
@@ -905,7 +905,7 @@
       "sha256": "75176bcfeb2ad12c09a7dfddc5de0f357b3f760e0b16b6cd05c9cf8260113b33"
     },
     "external_references": {
-      "count": 25317,
+      "count": 22427,
       "samples": [
         {
           "import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
@@ -1208,7 +1208,7 @@
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615"
         }
       ],
-      "sha256": "30bdfc999d06a7b426261e850bdbec296db2b5dac2ad482c73fd87f06181579f"
+      "sha256": "911fa8cb79987fc29b94fd6d6fe19b3d188af26dc834a37faaf685690db8a768"
     },
     "files": {
       "count": 13688,
@@ -1969,7 +1969,7 @@
       "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
     },
     "references": {
-      "count": 114465,
+      "count": 113809,
       "samples": [
         {
           "import": null,
@@ -2292,7 +2292,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
         }
       ],
-      "sha256": "51ecfc2eab6601e947f7f64944f162c63e304c0e00c256c2ac497fc28dd95202"
+      "sha256": "273b2c2b48d09aa7fabdc027ba0bc6f9d2124ce1003ff0b359f31209a00fc4ca"
     },
     "subclass_edges": {
       "count": 160,
@@ -2991,10 +2991,10 @@
   "summary": {
     "bytes": 25421217,
     "classes": 502,
-    "dependencies": 49287,
+    "dependencies": 49285,
     "exports": 16027,
     "external_modules": 13525,
-    "external_references": 25317,
+    "external_references": 22427,
     "files": 13688,
     "files_with_errors": 113,
     "functions": 13497,
@@ -3002,7 +3002,7 @@
     "import_resolutions": 13462,
     "imports": 28210,
     "lines": 634891,
-    "references": 114465,
+    "references": 113809,
     "subclass_edges": 160,
     "symbols": 44871
   }

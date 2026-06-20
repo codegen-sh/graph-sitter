@@ -257,9 +257,9 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
 
 | Input | Rust `Codebase` wall | Rust `Codebase` max RSS | Files | Symbols | Imports | Exports | Import resolutions | References | Dependencies | Function calls | Promise chains | Python graph blocked |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 10.861s | 439.8 MB | 13688 | 44871 | 28210 | 16027 | 13462 | 114465 | 49287 | 197581 | 878 | yes |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 10.771s | 435.2 MB | 13688 | 44871 | 28210 | 16027 | 13462 | 113809 | 49285 | 197581 | 878 | yes |
 
-Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 2.298x faster and about 7.049x lower max RSS while exposing compact export, call, and Promise-chain handles and keeping the eager Python graph unbuilt. The pinned proof also validates a real `packages/next/src/cli/next-lint.ts` file/symbol lookup for 27 file-local call records, 16 `nextLint` symbol call records, and one `.then/.catch` Promise chain without materializing the full call or chain caches. A parser fallback now tries the TS grammar for `.ts`/`.js` files and keeps the lower-error parse, reducing pinned Next.js parser-error files from 114 to 113 by recovering `test/integration/typescript/components/angle-bracket-type-assertions.ts`.
+Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 2.317x faster and about 7.123x lower max RSS while exposing compact export, call, and Promise-chain handles and keeping the eager Python graph unbuilt. The pinned proof also validates a real `packages/next/src/cli/next-lint.ts` file/symbol lookup for 27 file-local call records, 16 `nextLint` symbol call records, and one `.then/.catch` Promise chain without materializing the full call or chain caches. JSX traversal now records component tag references while skipping lowercase intrinsic tags and prop-name false positives. A parser fallback tries the TS grammar for `.ts`/`.js` files and keeps the lower-error parse, reducing pinned Next.js parser-error files from 114 to 113 by recovering `test/integration/typescript/components/angle-bracket-type-assertions.ts`.
 
 The same proof is now available as an opt-in test gate:
 
@@ -269,7 +269,7 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
   --skip-fetch
 ```
 
-On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.861s wall / 439.8 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.298x faster wall time and 7.049x lower max RSS with conservative CI-style ceilings.
+On 2026-06-19, the full pinned large-repo gate validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.771s wall / 435.2 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.317x faster wall time and 7.123x lower max RSS with conservative CI-style ceilings.
 
 ## Installed-Wheel `uvx` Airflow Evidence
 

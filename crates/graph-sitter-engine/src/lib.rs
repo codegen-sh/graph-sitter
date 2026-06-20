@@ -3168,6 +3168,86 @@ fn collect_typescript_identifier_candidates(
             }
             return;
         }
+        "jsx_element" => {
+            if let Some(open_tag) = node.child_by_field_name("open_tag") {
+                collect_typescript_jsx_tag_candidates(
+                    file_id,
+                    source,
+                    open_tag,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+            let open_range = node
+                .child_by_field_name("open_tag")
+                .map(|tag| SourceRange::from(tag.range()));
+            let close_range = node
+                .child_by_field_name("close_tag")
+                .map(|tag| SourceRange::from(tag.range()));
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                let child_range = SourceRange::from(child.range());
+                if open_range.is_some_and(|range| range == child_range)
+                    || close_range.is_some_and(|range| range == child_range)
+                {
+                    continue;
+                }
+                collect_typescript_identifier_candidates(
+                    file_id,
+                    source,
+                    child,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+            return;
+        }
+        "jsx_opening_element" | "jsx_self_closing_element" => {
+            collect_typescript_jsx_tag_candidates(
+                file_id,
+                source,
+                node,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                indexed_local_symbols,
+                out,
+            );
+            return;
+        }
+        "jsx_closing_element" => return,
+        "jsx_attribute" => {
+            let mut cursor = node.walk();
+            for child in node.named_children(&mut cursor) {
+                if matches!(
+                    child.kind(),
+                    "property_identifier" | "jsx_namespace_name" | "string"
+                ) {
+                    continue;
+                }
+                collect_typescript_identifier_candidates(
+                    file_id,
+                    source,
+                    child,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+            return;
+        }
         "member_expression" => {
             if let (Some(object), Some(property)) = (
                 node.child_by_field_name("object"),
@@ -3260,6 +3340,92 @@ fn collect_typescript_identifier_candidates(
             out,
         );
     }
+}
+
+fn collect_typescript_jsx_tag_candidates(
+    file_id: u32,
+    source: &str,
+    tag_node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    local_bindings_by_symbol_id: &HashMap<u32, HashSet<String>>,
+    local_binding_scopes: &[LocalBindingScope],
+    excluded_ranges: &[SourceRange],
+    indexed_local_symbols: &IndexedLocalSymbols,
+    out: &mut Vec<ReferenceCandidate>,
+) {
+    let Some(name_node) = tag_node.child_by_field_name("name") else {
+        return;
+    };
+
+    match name_node.kind() {
+        "identifier" => {
+            let range = SourceRange::from(name_node.range());
+            if !range_matches_any(range, excluded_ranges) {
+                if let Ok(name) = name_node.utf8_text(source.as_bytes()) {
+                    if typescript_jsx_tag_identifier_can_reference(name) {
+                        let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+                        if !typescript_reference_is_shadowed(
+                            source_symbol_id,
+                            name,
+                            range,
+                            local_bindings_by_symbol_id,
+                            local_binding_scopes,
+                            indexed_local_symbols,
+                        ) {
+                            out.push(ReferenceCandidate {
+                                source_file_id: file_id,
+                                source_symbol_id,
+                                name: name.to_owned(),
+                                qualifier: None,
+                                range,
+                                is_subclass: false,
+                                call_range: None,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        "member_expression" => {
+            collect_typescript_identifier_candidates(
+                file_id,
+                source,
+                name_node,
+                symbol_ranges,
+                local_bindings_by_symbol_id,
+                local_binding_scopes,
+                excluded_ranges,
+                indexed_local_symbols,
+                out,
+            );
+        }
+        _ => {}
+    }
+
+    let name_range = SourceRange::from(name_node.range());
+    let mut cursor = tag_node.walk();
+    for child in tag_node.named_children(&mut cursor) {
+        if SourceRange::from(child.range()) == name_range || child.kind() == "type_arguments" {
+            continue;
+        }
+        collect_typescript_identifier_candidates(
+            file_id,
+            source,
+            child,
+            symbol_ranges,
+            local_bindings_by_symbol_id,
+            local_binding_scopes,
+            excluded_ranges,
+            indexed_local_symbols,
+            out,
+        );
+    }
+}
+
+fn typescript_jsx_tag_identifier_can_reference(name: &str) -> bool {
+    name.chars()
+        .next()
+        .is_some_and(|first| first == '_' || first == '$' || first.is_ascii_uppercase())
 }
 
 fn collect_typescript_call_function_operands(
@@ -8638,6 +8804,101 @@ export function run() {\n  local(helper(1));\n  return run();\n}\n",
             reference.source_symbol_id == Some(run.id)
                 && reference.target_symbol_id == run.id
                 && reference.name == "run"
+        }));
+    }
+
+    #[test]
+    fn resolves_jsx_component_tag_references_without_intrinsic_or_prop_false_edges() {
+        let repo = temp_repo_path("resolve-typescript-jsx-tag-references");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/components.tsx"),
+            "export function Button() { return null; }\n\
+export function div() { return null; }\n\
+export namespace UI { export function Card() { return null; } }\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/app.tsx"),
+            "import { Button, UI, div } from './components';\n\n\
+export function App() {\n\
+  const local = Button;\n\
+  return <main Button={Button}><Button /><UI.Card /><div /></main>;\n\
+}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.tsx")
+            .unwrap()
+            .id;
+        let components_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/components.tsx")
+            .unwrap()
+            .id;
+        let app_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "App")
+            .unwrap()
+            .id;
+        let button_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == components_file_id && symbol.name == "Button")
+            .unwrap()
+            .id;
+        let div_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == components_file_id && symbol.name == "div")
+            .unwrap()
+            .id;
+        let ui_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == components_file_id && symbol.name == "UI")
+            .unwrap()
+            .id;
+        let card_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == components_file_id && symbol.name == "Card")
+            .unwrap()
+            .id;
+
+        let button_references = index
+            .references
+            .iter()
+            .filter(|reference| {
+                reference.source_symbol_id == Some(app_symbol_id)
+                    && reference.target_symbol_id == button_symbol_id
+            })
+            .count();
+        assert_eq!(
+            button_references, 3,
+            "local assignment, prop expression, and component tag should resolve without counting the prop name"
+        );
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(app_symbol_id)
+                && reference.target_symbol_id == ui_symbol_id
+                && reference.name == "UI"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(app_symbol_id)
+                && reference.target_symbol_id == card_symbol_id
+                && reference.name == "Card"
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(app_symbol_id)
+                && reference.target_symbol_id == div_symbol_id
         }));
     }
 

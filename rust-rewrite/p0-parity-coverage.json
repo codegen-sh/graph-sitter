@@ -73,6 +73,7 @@
         "TypeScript interface/class heritage dependencies and traversal",
         "TypeScript named namespace re-export member dependencies",
         "TypeScript qualified namespace member references through namespace imports and re-exports",
+        "TypeScript JSX component tag references without intrinsic tag or prop-name false positives",
         "TypeScript file.get_namespace and namespace member lookups",
         "TypeScript subclass and implementation traversal"
       ],
@@ -162,11 +163,12 @@
       "api_inventory": [
         "full namespace export/private/member semantics beyond direct member lookup",
         "promise-chain async conversion and mutable expression-object semantics beyond compact read-only file/symbol.promise_chains",
+        "mutable JSX element/prop object semantics beyond compact reference/dependency extraction",
         "full mutable FunctionCall expression object semantics beyond compact read-only file/symbol.function_calls",
         "full TypeScript lexical/type/interface/reference coverage",
         "complete namespace and expression dependency parity"
       ],
-      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, qualified namespace member references through namespace imports and re-exports, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, and read-only compact file/symbol.promise_chains, but broader namespace export/private semantics, mutable expression nodes, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
+      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, qualified namespace member references through namespace imports and re-exports, JSX component tag references without intrinsic tag or prop-name false positives, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, and read-only compact file/symbol.promise_chains, but broader namespace export/private semantics, mutable JSX/expression nodes, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
     },
     {
       "name": "Full graph-wide large-repo semantic parity",

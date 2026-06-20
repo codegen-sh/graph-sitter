@@ -32,13 +32,14 @@ mode, the old eager Python graph is blocked after the compact Rust index builds.
 | Repository | Python wall | Python max RSS | Rust wall | Rust max RSS | Wall improvement | RSS improvement |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Apache Airflow `2.10.5` | 18.940s | 3469.5 MB | 4.085s | 266.2 MB | 4.637x | 13.031x |
-| Next.js `v15.0.0` | 24.959s | 3100.1 MB | 10.861s | 439.8 MB | 2.298x | 7.049x |
+| Next.js `v15.0.0` | 24.959s | 3100.1 MB | 10.771s | 435.2 MB | 2.317x | 7.123x |
 
 The Airflow row exercises compact Python files, symbols, imports, import
 resolution, references, dependencies, and Python compatibility handles. The
 Next.js row exercises TypeScript/JavaScript files, symbols, imports, exports,
-relative and tsconfig path resolution, references, dependencies, subclass edges,
-read-only function call records, and read-only Promise-chain records.
+relative and tsconfig path resolution, JSX component tag references,
+dependencies, subclass edges, read-only function call records, and read-only
+Promise-chain records.
 
 ## Installed-Wheel uvx Proof
 
