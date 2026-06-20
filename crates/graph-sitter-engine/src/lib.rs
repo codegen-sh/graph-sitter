@@ -5581,12 +5581,8 @@ fn push_from_import_statement(file_id: u32, source: &str, node: Node<'_>, index:
         return;
     };
 
-    for import in names
-        .split(',')
-        .map(str::trim)
-        .filter(|part| !part.is_empty())
-    {
-        let (name, alias) = split_alias(import);
+    for import in python_from_import_names(names) {
+        let (name, alias) = split_alias(&import);
         let module = index.intern(module.trim());
         let name = index.intern(name);
         let alias = alias.map(|value| index.intern(value));
@@ -5600,6 +5596,32 @@ fn push_from_import_statement(file_id: u32, source: &str, node: Node<'_>, index:
             range: node.range().into(),
         });
     }
+}
+
+fn python_from_import_names(names: &str) -> Vec<String> {
+    let mut cleaned = String::with_capacity(names.len());
+    for line in names.lines() {
+        let line = line
+            .split_once('#')
+            .map_or(line, |(before_comment, _)| before_comment);
+        cleaned.push_str(line);
+        cleaned.push('\n');
+    }
+
+    let mut trimmed = cleaned.trim();
+    if let Some(without_open) = trimmed.strip_prefix('(') {
+        trimmed = without_open.trim();
+    }
+    if let Some(without_close) = trimmed.strip_suffix(')') {
+        trimmed = without_close.trim();
+    }
+
+    trimmed
+        .split(',')
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .map(ToOwned::to_owned)
+        .collect()
 }
 
 fn first_child_of_kind<'tree>(node: Node<'tree>, kinds: &[&str]) -> Option<Node<'tree>> {
@@ -8213,6 +8235,64 @@ export interface Other {}\n",
             dependency.target_symbol_id == base_symbol_id
                 && dependency.reference_count == 1
                 && dependency.reference_ids == vec![0]
+        }));
+    }
+
+    #[test]
+    fn extracts_parenthesized_python_from_import_names() {
+        let repo = temp_repo_path("python-parenthesized-from-imports");
+        fs::create_dir_all(repo.join("pkg")).unwrap();
+        fs::write(repo.join("pkg/__init__.py"), "").unwrap();
+        fs::write(
+            repo.join("pkg/base.py"),
+            "CONSTANT = 1\nclass Base:\n    pass\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("pkg/service.py"),
+            "from pkg.base import (  # noqa: F401\n    Base,\n    CONSTANT as RENAMED,\n)\nfrom pkg.base import *\n",
+        )
+        .unwrap();
+
+        let index = index_python_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let service_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "pkg/service.py")
+            .unwrap()
+            .id;
+        let service_imports = index
+            .imports
+            .iter()
+            .filter(|import| import.file_id == service_file_id)
+            .collect::<Vec<_>>();
+
+        assert_eq!(service_imports.len(), 3);
+        assert!(service_imports.iter().all(|import| {
+            import
+                .name
+                .as_deref()
+                .map_or(true, |name| !name.contains('(') && !name.contains(')'))
+        }));
+        assert!(service_imports.iter().any(|import| {
+            import.kind == ImportKind::FromImport
+                && import.module.as_deref() == Some("pkg.base")
+                && import.name.as_deref() == Some("Base")
+                && import.alias.is_none()
+        }));
+        assert!(service_imports.iter().any(|import| {
+            import.kind == ImportKind::FromImport
+                && import.module.as_deref() == Some("pkg.base")
+                && import.name.as_deref() == Some("CONSTANT")
+                && import.alias.as_deref() == Some("RENAMED")
+        }));
+        assert!(service_imports.iter().any(|import| {
+            import.kind == ImportKind::FromImport
+                && import.module.as_deref() == Some("pkg.base")
+                && import.name.as_deref() == Some("*")
+                && import.alias.is_none()
         }));
     }
 

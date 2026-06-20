@@ -295,11 +295,13 @@ uv run python rust-rewrite/tools/check_wheel_pinned_python_repo.py \
 | Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | Python | 48.242s | 77.649s | 5429.3 MB | 4789 | 27728 | 44100 | n/a | n/a | 1099202 |
 
 The installed-wheel strict Rust path matched the committed compact Python golden
-summary exactly, including 4,789 files, 52,339 symbols, 45,404 imports,
-117,799 references, 78,784 external references, 77,570 dependencies, and zero
-files with parse errors. Compared with the installed-wheel Python backend on the
-same checkout and wheel, the Rust path was 9.818x faster by CLI parse elapsed
-and 11.148x lower by sampled process-tree RSS.
+summary at the time that wheel was built, including 4,789 files, 52,339 symbols,
+45,404 imports, 117,799 references, 78,784 external references, 77,570
+dependencies, and zero files with parse errors. A later source fix for
+parenthesized Python `from ... import (...)` extraction updates the committed
+golden counts. Compared with the installed-wheel Python backend on the same
+checkout and wheel, the Rust path was 9.818x faster by CLI parse elapsed and
+11.148x lower by sampled process-tree RSS.
 
 The same branch-built wheel gate also proves a real pinned Airflow transform
 through the distributed CLI:

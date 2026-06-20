@@ -1,7 +1,7 @@
 {
   "graphs": {
     "dependencies": {
-      "count": 77570,
+      "count": 79737,
       "samples": [
         {
           "reference_count": 1,
@@ -144,10 +144,10 @@
           "target_symbol": "airflow/api/auth/backend/kerberos_auth.py:class:_KerberosAuth@2887"
         }
       ],
-      "sha256": "2ed10d37e6a1fe5017466f2e81af04883a264c45927d4b0bd524cd80b5aac148"
+      "sha256": "146b5245ee502672f1f67053e3f22b05497bb46e6974fd84d069b69b6681ef91"
     },
     "external_modules": {
-      "count": 19785,
+      "count": 19545,
       "samples": [
         {
           "alias": null,
@@ -390,10 +390,10 @@
           ]
         }
       ],
-      "sha256": "73a420dac977944aefe97287e901af5913ea6be6b0e2a2f0dd0bc9dc0febf7e5"
+      "sha256": "c08ebfc9435c207fa8bbcb89717cac4f22de84f4a116e7c86e8293bb257db3ce"
     },
     "external_references": {
-      "count": 78784,
+      "count": 79300,
       "samples": [
         {
           "import": "airflow/__init__.py:import::os:@847",
@@ -596,7 +596,7 @@
           "source_symbol": "airflow/api/auth/backend/basic_auth.py:global_variable:CLIENT_AUTH@1240"
         }
       ],
-      "sha256": "49504616ec1531fd70593f671ce312c0b607737eb57d975d7349a9d14d7af4a1"
+      "sha256": "687351e542f9927621ca3125adea6c226539e0d157285726d61b517606e558cb"
     },
     "files": {
       "count": 4789,
@@ -745,7 +745,7 @@
       "sha256": "226e8cb32dc0a23ec956e97b036e7c505037df979cce7182514f39a43b07cb80"
     },
     "import_resolutions": {
-      "count": 21930,
+      "count": 20887,
       "samples": [
         {
           "import": "airflow/__init__.py:from_import:airflow.models.dag:DAG:@3912",
@@ -868,10 +868,10 @@
           "target_symbol": "airflow/providers/fab/auth_manager/models/__init__.py:class:User@4203"
         }
       ],
-      "sha256": "304572e40ccabd2e5bca82a314ff4d1757a0d097d3a4272c561a2a9904113eab"
+      "sha256": "89be1cc5471796bf624202e72af9b4d92326676ea64b2aeedd71f5382fe2ff1b"
     },
     "imports": {
-      "count": 45404,
+      "count": 44121,
       "samples": [
         {
           "alias": null,
@@ -1114,10 +1114,10 @@
           ]
         }
       ],
-      "sha256": "accf3febe1d73b906af1eaaa5ee032f8309b065c53fae8c52ad4ac5cecb64b49"
+      "sha256": "42b2f4b1ea694fe76c91e63623d6ea8a5e59fbfa194d18e8a8c32832cf767f1b"
     },
     "references": {
-      "count": 117799,
+      "count": 120770,
       "samples": [
         {
           "import": "airflow/__init__.py:from_import:airflow:settings:@2460",
@@ -1340,7 +1340,7 @@
           "target_symbol": "airflow/api/__init__.py:global_variable:log@1018"
         }
       ],
-      "sha256": "ce3e0b730b703050c02bec998e425f3842f4e811cab21efb0c0f3e7bf65b6bb9"
+      "sha256": "418d213614f67c09d7bee969779bdd1fd66ffa26d46c481b34d5207b119fb485"
     },
     "symbols": {
       "count": 52339,
@@ -1688,17 +1688,17 @@
   "summary": {
     "bytes": 36617627,
     "classes": 5665,
-    "dependencies": 77570,
-    "external_modules": 19785,
-    "external_references": 78784,
+    "dependencies": 79737,
+    "external_modules": 19545,
+    "external_references": 79300,
     "files": 4789,
     "files_with_errors": 0,
     "functions": 34535,
     "global_variables": 12139,
-    "import_resolutions": 21930,
-    "imports": 45404,
+    "import_resolutions": 20887,
+    "imports": 44121,
     "lines": 924514,
-    "references": 117799,
+    "references": 120770,
     "symbols": 52339
   }
 }
