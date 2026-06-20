@@ -266,25 +266,21 @@ mod bindings {
         }
 
         fn symbols_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.file_id == file_id),
+            )
         }
 
         fn symbols_for_file_by_name_json(&self, file_id: u32, name: &str) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.file_id == file_id && symbol.name.as_ref() == name)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.file_id == file_id && symbol.name.as_ref() == name),
+            )
         }
 
         fn symbols_for_file_by_byte_range_json(
@@ -293,33 +289,24 @@ mod bindings {
             start_byte: usize,
             end_byte: usize,
         ) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| {
-                    symbol.file_id == file_id
-                        && ranges_overlap(
-                            symbol.range.start_byte,
-                            symbol.range.end_byte,
-                            start_byte,
-                            end_byte,
-                        )
-                })
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(self.inner.symbols.iter().filter(|symbol| {
+                symbol.file_id == file_id
+                    && ranges_overlap(
+                        symbol.range.start_byte,
+                        symbol.range.end_byte,
+                        start_byte,
+                        end_byte,
+                    )
+            }))
         }
 
         fn symbols_for_parent_json(&self, parent_symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.parent_symbol_id == Some(parent_symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.parent_symbol_id == Some(parent_symbol_id)),
+            )
         }
 
         fn symbol_by_id_json(&self, symbol_id: u32) -> PyResult<String> {
@@ -334,14 +321,12 @@ mod bindings {
         }
 
         fn top_level_symbols_by_name_json(&self, name: &str) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.is_top_level && symbol.name.as_ref() == name)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.is_top_level && symbol.name.as_ref() == name),
+            )
         }
 
         fn top_level_symbols_json(&self) -> PyResult<String> {
@@ -377,33 +362,24 @@ mod bindings {
         }
 
         fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .imports
-                .iter()
-                .filter(|import| import.file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .imports
+                    .iter()
+                    .filter(|import| import.file_id == file_id),
+            )
         }
 
         fn imports_for_file_by_lookup_json(&self, file_id: u32, lookup: &str) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .imports
-                .iter()
-                .filter(|import| {
-                    import.file_id == file_id
-                        && import_lookup_candidates(
-                            import.module.as_ref().map(|value| value.as_ref()),
-                            import.name.as_ref().map(|value| value.as_ref()),
-                            import.alias.as_ref().map(|value| value.as_ref()),
-                            lookup,
-                        )
-                })
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(self.inner.imports.iter().filter(|import| {
+                import.file_id == file_id
+                    && import_lookup_candidates(
+                        import.module.as_ref().map(|value| value.as_ref()),
+                        import.name.as_ref().map(|value| value.as_ref()),
+                        import.alias.as_ref().map(|value| value.as_ref()),
+                        lookup,
+                    )
+            }))
         }
 
         fn imports_for_file_by_byte_range_json(
@@ -412,22 +388,15 @@ mod bindings {
             start_byte: usize,
             end_byte: usize,
         ) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .imports
-                .iter()
-                .filter(|import| {
-                    import.file_id == file_id
-                        && ranges_overlap(
-                            import.range.start_byte,
-                            import.range.end_byte,
-                            start_byte,
-                            end_byte,
-                        )
-                })
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(self.inner.imports.iter().filter(|import| {
+                import.file_id == file_id
+                    && ranges_overlap(
+                        import.range.start_byte,
+                        import.range.end_byte,
+                        start_byte,
+                        end_byte,
+                    )
+            }))
         }
 
         fn import_by_id_json(&self, import_id: u32) -> PyResult<String> {
@@ -453,25 +422,21 @@ mod bindings {
         }
 
         fn import_resolutions_to_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .import_resolutions
-                .iter()
-                .filter(|resolution| resolution.target_file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .import_resolutions
+                    .iter()
+                    .filter(|resolution| resolution.target_file_id == file_id),
+            )
         }
 
         fn import_resolutions_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .import_resolutions
-                .iter()
-                .filter(|resolution| resolution.target_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .import_resolutions
+                    .iter()
+                    .filter(|resolution| resolution.target_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn external_module_for_import_json(&self, import_id: u32) -> PyResult<String> {
@@ -841,25 +806,21 @@ mod bindings {
         }
 
         fn symbols_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.file_id == file_id),
+            )
         }
 
         fn symbols_for_file_by_name_json(&self, file_id: u32, name: &str) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.file_id == file_id && symbol.name.as_ref() == name)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.file_id == file_id && symbol.name.as_ref() == name),
+            )
         }
 
         fn symbols_for_file_by_byte_range_json(
@@ -868,33 +829,24 @@ mod bindings {
             start_byte: usize,
             end_byte: usize,
         ) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| {
-                    symbol.file_id == file_id
-                        && ranges_overlap(
-                            symbol.range.start_byte,
-                            symbol.range.end_byte,
-                            start_byte,
-                            end_byte,
-                        )
-                })
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(self.inner.symbols.iter().filter(|symbol| {
+                symbol.file_id == file_id
+                    && ranges_overlap(
+                        symbol.range.start_byte,
+                        symbol.range.end_byte,
+                        start_byte,
+                        end_byte,
+                    )
+            }))
         }
 
         fn symbols_for_parent_json(&self, parent_symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.parent_symbol_id == Some(parent_symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.parent_symbol_id == Some(parent_symbol_id)),
+            )
         }
 
         fn symbol_by_id_json(&self, symbol_id: u32) -> PyResult<String> {
@@ -909,14 +861,12 @@ mod bindings {
         }
 
         fn top_level_symbols_by_name_json(&self, name: &str) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .symbols
-                .iter()
-                .filter(|symbol| symbol.is_top_level && symbol.name.as_ref() == name)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .symbols
+                    .iter()
+                    .filter(|symbol| symbol.is_top_level && symbol.name.as_ref() == name),
+            )
         }
 
         fn top_level_symbols_json(&self) -> PyResult<String> {
@@ -952,33 +902,24 @@ mod bindings {
         }
 
         fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .imports
-                .iter()
-                .filter(|import| import.file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .imports
+                    .iter()
+                    .filter(|import| import.file_id == file_id),
+            )
         }
 
         fn imports_for_file_by_lookup_json(&self, file_id: u32, lookup: &str) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .imports
-                .iter()
-                .filter(|import| {
-                    import.file_id == file_id
-                        && import_lookup_candidates(
-                            import.module.as_ref().map(|value| value.as_ref()),
-                            import.name.as_ref().map(|value| value.as_ref()),
-                            import.alias.as_ref().map(|value| value.as_ref()),
-                            lookup,
-                        )
-                })
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(self.inner.imports.iter().filter(|import| {
+                import.file_id == file_id
+                    && import_lookup_candidates(
+                        import.module.as_ref().map(|value| value.as_ref()),
+                        import.name.as_ref().map(|value| value.as_ref()),
+                        import.alias.as_ref().map(|value| value.as_ref()),
+                        lookup,
+                    )
+            }))
         }
 
         fn imports_for_file_by_byte_range_json(
@@ -987,22 +928,15 @@ mod bindings {
             start_byte: usize,
             end_byte: usize,
         ) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .imports
-                .iter()
-                .filter(|import| {
-                    import.file_id == file_id
-                        && ranges_overlap(
-                            import.range.start_byte,
-                            import.range.end_byte,
-                            start_byte,
-                            end_byte,
-                        )
-                })
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(self.inner.imports.iter().filter(|import| {
+                import.file_id == file_id
+                    && ranges_overlap(
+                        import.range.start_byte,
+                        import.range.end_byte,
+                        start_byte,
+                        end_byte,
+                    )
+            }))
         }
 
         fn import_by_id_json(&self, import_id: u32) -> PyResult<String> {
@@ -1017,25 +951,20 @@ mod bindings {
         }
 
         fn exports_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .exports
-                .iter()
-                .filter(|export| export.file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .exports
+                    .iter()
+                    .filter(|export| export.file_id == file_id),
+            )
         }
 
         fn exports_for_file_by_name_json(&self, file_id: u32, name: &str) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .exports
-                .iter()
-                .filter(|export| export.file_id == file_id && export.name.as_deref() == Some(name))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner.exports.iter().filter(|export| {
+                    export.file_id == file_id && export.name.as_deref() == Some(name)
+                }),
+            )
         }
 
         fn exports_for_file_by_byte_range_json(
@@ -1044,33 +973,24 @@ mod bindings {
             start_byte: usize,
             end_byte: usize,
         ) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .exports
-                .iter()
-                .filter(|export| {
-                    export.file_id == file_id
-                        && ranges_overlap(
-                            export.range.start_byte,
-                            export.range.end_byte,
-                            start_byte,
-                            end_byte,
-                        )
-                })
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(self.inner.exports.iter().filter(|export| {
+                export.file_id == file_id
+                    && ranges_overlap(
+                        export.range.start_byte,
+                        export.range.end_byte,
+                        start_byte,
+                        end_byte,
+                    )
+            }))
         }
 
         fn exports_for_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .exports
-                .iter()
-                .filter(|export| export.symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .exports
+                    .iter()
+                    .filter(|export| export.symbol_id == Some(symbol_id)),
+            )
         }
 
         fn export_by_id_json(&self, export_id: u32) -> PyResult<String> {
@@ -1096,25 +1016,21 @@ mod bindings {
         }
 
         fn import_resolutions_to_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .import_resolutions
-                .iter()
-                .filter(|resolution| resolution.target_file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .import_resolutions
+                    .iter()
+                    .filter(|resolution| resolution.target_file_id == file_id),
+            )
         }
 
         fn import_resolutions_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .import_resolutions
-                .iter()
-                .filter(|resolution| resolution.target_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .import_resolutions
+                    .iter()
+                    .filter(|resolution| resolution.target_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn external_module_for_import_json(&self, import_id: u32) -> PyResult<String> {
@@ -1677,11 +1593,11 @@ mod bindings {
         symbols: &[SymbolRecord],
         kind: Option<SymbolKind>,
     ) -> PyResult<String> {
-        let records: Vec<_> = symbols
-            .iter()
-            .filter(|symbol| symbol.is_top_level && kind.map_or(true, |kind| symbol.kind == kind))
-            .collect();
-        serde_json::to_string(&records).map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        records_to_json(
+            symbols.iter().filter(|symbol| {
+                symbol.is_top_level && kind.map_or(true, |kind| symbol.kind == kind)
+            }),
+        )
     }
 
     fn records_to_json<'a, T, I>(records: I) -> PyResult<String>
@@ -1883,10 +1799,48 @@ mod bindings {
             assert!(index.symbols_json().unwrap().contains("\"CONSTANT\""));
             assert!(index.symbols_json().unwrap().contains("\"Base\""));
             assert!(index.imports_json().unwrap().contains("\".base\""));
+            let base_symbols: serde_json::Value =
+                serde_json::from_str(&index.symbols_for_file_json(1).unwrap()).unwrap();
+            assert_eq!(base_symbols.as_array().unwrap().len(), 2);
+            let base_named_symbols: serde_json::Value =
+                serde_json::from_str(&index.symbols_for_file_by_name_json(1, "Base").unwrap())
+                    .unwrap();
+            assert_eq!(base_named_symbols.as_array().unwrap().len(), 1);
+            assert_eq!(base_named_symbols[0]["id"], serde_json::json!(1));
+            assert_eq!(
+                index.top_level_symbols_by_name_json("Service").unwrap(),
+                index.symbols_for_file_by_name_json(2, "Service").unwrap()
+            );
+            assert_eq!(index.symbols_for_parent_json(2).unwrap(), "[]");
+            let service_imports: serde_json::Value =
+                serde_json::from_str(&index.imports_for_file_json(2).unwrap()).unwrap();
+            assert_eq!(service_imports.as_array().unwrap().len(), 2);
+            let service_base_imports: serde_json::Value =
+                serde_json::from_str(&index.imports_for_file_by_lookup_json(2, "Base").unwrap())
+                    .unwrap();
+            assert_eq!(service_base_imports.as_array().unwrap().len(), 1);
+            assert_eq!(service_base_imports[0]["name"], serde_json::json!("Base"));
+            let service_range_imports: serde_json::Value = serde_json::from_str(
+                &index
+                    .imports_for_file_by_byte_range_json(2, 0, 200)
+                    .unwrap(),
+            )
+            .unwrap();
+            assert_eq!(service_range_imports.as_array().unwrap().len(), 2);
             assert!(index
                 .import_resolutions_json()
                 .unwrap()
                 .contains("target_symbol_id"));
+            let base_resolutions: serde_json::Value =
+                serde_json::from_str(&index.import_resolutions_to_file_json(1).unwrap()).unwrap();
+            assert_eq!(base_resolutions.as_array().unwrap().len(), 2);
+            let base_symbol_resolutions: serde_json::Value =
+                serde_json::from_str(&index.import_resolutions_to_symbol_json(1).unwrap()).unwrap();
+            assert_eq!(base_symbol_resolutions.as_array().unwrap().len(), 1);
+            assert_eq!(
+                base_symbol_resolutions[0]["target_symbol_id"],
+                serde_json::json!(1)
+            );
             assert_eq!(index.external_modules_json().unwrap(), "[]");
             assert!(index.references_json().unwrap().contains("\"Base\""));
             let service_references: serde_json::Value =
@@ -2026,12 +1980,43 @@ mod bindings {
             assert!(index.files_json().unwrap().contains("\"content_hash\""));
             assert!(index.symbols_json().unwrap().contains("\"Page\""));
             assert!(index.imports_json().unwrap().contains("\"default_import\""));
+            let app_symbols: serde_json::Value =
+                serde_json::from_str(&index.symbols_for_file_json(0).unwrap()).unwrap();
+            assert_eq!(app_symbols.as_array().unwrap().len(), 1);
+            assert_eq!(app_symbols[0]["name"], serde_json::json!("Page"));
+            assert_eq!(
+                index.symbols_for_file_by_name_json(0, "Page").unwrap(),
+                index.top_level_symbols_by_name_json("Page").unwrap()
+            );
+            assert_eq!(index.symbols_for_parent_json(0).unwrap(), "[]");
+            let app_imports: serde_json::Value =
+                serde_json::from_str(&index.imports_for_file_json(0).unwrap()).unwrap();
+            assert_eq!(app_imports.as_array().unwrap().len(), 2);
+            let app_helper_imports: serde_json::Value =
+                serde_json::from_str(&index.imports_for_file_by_lookup_json(0, "helper").unwrap())
+                    .unwrap();
+            assert_eq!(app_helper_imports.as_array().unwrap().len(), 1);
             assert!(index
                 .import_resolutions_json()
                 .unwrap()
                 .contains("target_symbol_id"));
+            let util_resolutions: serde_json::Value =
+                serde_json::from_str(&index.import_resolutions_to_file_json(1).unwrap()).unwrap();
+            assert_eq!(util_resolutions.as_array().unwrap().len(), 1);
+            assert_eq!(
+                index.import_resolutions_to_symbol_json(1).unwrap(),
+                index.import_resolutions_to_file_json(1).unwrap()
+            );
             assert!(index.external_modules_json().unwrap().contains("\"React\""));
             assert!(index.exports_json().unwrap().contains("\"Page\""));
+            let app_exports: serde_json::Value =
+                serde_json::from_str(&index.exports_for_file_json(0).unwrap()).unwrap();
+            assert_eq!(app_exports.as_array().unwrap().len(), 1);
+            assert_eq!(app_exports[0]["name"], serde_json::json!("Page"));
+            assert_eq!(
+                index.exports_for_file_by_name_json(0, "Page").unwrap(),
+                index.exports_for_symbol_json(0).unwrap()
+            );
             assert!(index.references_json().unwrap().contains("\"helper\""));
             let page_references: serde_json::Value =
                 serde_json::from_str(&index.references_from_symbol_json(0).unwrap()).unwrap();

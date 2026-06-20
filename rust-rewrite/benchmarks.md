@@ -341,6 +341,8 @@ Second follow-up on 2026-06-20: the same streaming helper now covers high-volume
 
 Third follow-up on 2026-06-20: targeted TypeScript relation endpoints for function calls, Promise chains, JSX elements, and subclass/implementation edges now also stream filtered records directly into JSON. The current pinned Next.js proof includes 197,581 compact function-call records, 878 Promise-chain records, and JSX/subclass query coverage, so file-local and symbol-local call/JSX lookups avoid allocating a temporary Rust `Vec` before crossing the PyO3 boundary. Binding coverage asserts representative single-record and empty-array payloads for the converted endpoints.
 
+Fourth follow-up on 2026-06-20: the remaining filtered PyO3 symbol/import/export/import-resolution endpoints now use the same streaming serializer, including file/name/range symbol lookups, file/lookup/range import lookups, TypeScript export lookups, top-level symbol lists, and import-resolution target queries. This removes the last temporary result-vector allocation patterns from `crates/graph-sitter-py/src/lib.rs` while preserving the existing JSON array contract and record order.
+
 ## Standalone TypeScript/JavaScript Rust Index Evidence
 
 These measurements capture the first syntax-only Rust TypeScript/JavaScript index exposed through PyO3. The Rust path uses Python-selected file discovery for a fair file-list comparison. The later `Codebase` measurement below includes the current relative-import resolution, reference/dependency rows, and lazy Python shell handles.
