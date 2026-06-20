@@ -378,7 +378,7 @@ export const mdxComponents = {
 	Warning: (props: ChildrenProps) => <Admonition kind="warning" {...props} />,
 	img: ({ alt = "", ...props }: ComponentProps<"img">) => (
 		// eslint-disable-next-line @next/next/no-img-element
-		<img alt={alt} loading="lazy" {...props} />
+		<img {...props} alt={alt} loading="lazy" />
 	),
 	ChevronRight,
 	Code2,

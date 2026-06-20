@@ -300,9 +300,7 @@ function buildDocsNavGroups(): DocsNavGroup[] {
 				items: buildDocsNavItems(sectionSlug, sectionSlugs, title),
 			};
 		})
-		.filter((group): group is DocsNavGroup =>
-			Boolean(group && group.items.length),
-		);
+		.filter((group): group is DocsNavGroup => Boolean(group?.items.length));
 }
 
 function buildDocsNavItems(

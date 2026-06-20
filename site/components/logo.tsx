@@ -10,6 +10,7 @@ export function Logo({ className }: { className?: string }) {
 			aria-hidden="true"
 		>
 			<svg
+				aria-hidden="true"
 				viewBox="0 0 24 24"
 				className="size-[1.05rem]"
 				fill="none"

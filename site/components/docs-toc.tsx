@@ -30,7 +30,9 @@ export function DocsToc({ headings }: { headings: DocsHeading[] }) {
 			{ rootMargin: "-88px 0px -68% 0px", threshold: [0, 1] },
 		);
 
-		elements.forEach((el) => observer.observe(el));
+		for (const element of elements) {
+			observer.observe(element);
+		}
 		return () => observer.disconnect();
 	}, [headings]);
 
