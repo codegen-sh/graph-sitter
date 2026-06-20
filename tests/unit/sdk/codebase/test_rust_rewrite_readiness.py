@@ -267,7 +267,7 @@ def test_rollout_readiness_uses_nextjs_hosted_ci_wall_floor_by_default(tmp_path:
 
     assert report["status"] == "passed"
     assert report["thresholds"]["min_airflow_wall_ratio"] == 2.0
-    assert report["thresholds"]["min_nextjs_wall_ratio"] == 1.5
+    assert report["thresholds"]["min_nextjs_wall_ratio"] == 1.2
     assert report["thresholds"]["min_semantic_wall_ratio"] == 2.0
     assert report["codebase"]["nextjs"]["wall_ratio"] == 1.7
 
