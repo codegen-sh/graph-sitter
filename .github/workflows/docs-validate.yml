@@ -1,0 +1,45 @@
+name: Docs Validate
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+    paths:
+      - ".github/workflows/docs-validate.yml"
+      - "docs/**"
+      - "rust-rewrite/docs-site-strategy.md"
+      - "rust-rewrite/docs-site-vercel-plan.md"
+  push:
+    branches:
+      - "develop"
+      - "rust-rewrite"
+    paths:
+      - ".github/workflows/docs-validate.yml"
+      - "docs/**"
+      - "rust-rewrite/docs-site-strategy.md"
+      - "rust-rewrite/docs-site-vercel-plan.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mintlify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate Mintlify build
+        working-directory: docs
+        run: npx --yes mintlify@latest validate
+
+      - name: Check Mintlify links
+        working-directory: docs
+        run: npx --yes mintlify@latest broken-links
