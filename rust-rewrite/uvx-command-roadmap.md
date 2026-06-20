@@ -595,10 +595,16 @@ Skill rules:
   target repo, then proves `--write` mutates the target repo.
 - [x] Prove `transform` requires explicit mode and rejects `--check --write`.
   owner: codex. Result: focused transform CLI tests cover both errors.
-- [ ] Add Rust-backend transform tests that either pass fully or fail/fallback
-  according to `--fallback`. owner: parity/test agent.
-- [ ] Add a no-op transform test for `--check` returning exit zero and
-  "No changes would be produced". owner: CLI test agent.
+- [x] Add Rust-backend transform tests that either pass fully or fail/fallback
+  according to `--fallback`. owner: codex. Result: focused transform CLI tests
+  force an unavailable `graph_sitter_py` extension, prove
+  `--backend rust --fallback python --write` still applies the transform via
+  the Python graph, and prove `--backend rust --fallback error --write` fails
+  without mutating the target repo.
+- [x] Add a no-op transform test for `--check` returning exit zero and
+  "No changes would be produced". owner: codex. Result: transform CLI coverage
+  now runs a no-op import-path transform in `--check` mode, asserts exit zero,
+  asserts the no-change message, and verifies the target repo is unchanged.
 - [x] Add TypeScript installed-wheel transform smoke. owner: codex. Result:
   `check_wheel_rust_backend.sh` now proves a tiny TypeScript function rename
   through `transform --check` and `transform --write` from the installed wheel.

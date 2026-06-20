@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 
 from click.testing import CliRunner
@@ -124,6 +125,76 @@ def rename(codebase):
     assert "def renamed()" in (repo_path / "app.py").read_text()
 
 
+def test_transform_rust_backend_fallback_python_write_modifies_target_repo(monkeypatch, tmp_path):
+    monkeypatch.setitem(sys.modules, "graph_sitter_py", None)
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def target():\n    return 1\n")
+    transform_file = tmp_path / "rename_transform.py"
+    transform_file.write_text(
+        """
+def rename(codebase):
+    function = codebase.get_function("target")
+    function.rename("renamed")
+    codebase.commit()
+""".lstrip()
+    )
+    _commit_all(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "transform",
+            f"{transform_file}:rename",
+            str(tmp_path),
+            "--backend",
+            "rust",
+            "--fallback",
+            "python",
+            "--write",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "def renamed()" in (tmp_path / "app.py").read_text()
+    assert "Changes have been applied" in result.output
+
+
+def test_transform_rust_backend_strict_error_fails_without_writing_target_repo(monkeypatch, tmp_path):
+    monkeypatch.setitem(sys.modules, "graph_sitter_py", None)
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def target():\n    return 1\n")
+    transform_file = tmp_path / "rename_transform.py"
+    transform_file.write_text(
+        """
+def rename(codebase):
+    function = codebase.get_function("target")
+    function.rename("renamed")
+    codebase.commit()
+""".lstrip()
+    )
+    _commit_all(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "transform",
+            f"{transform_file}:rename",
+            str(tmp_path),
+            "--backend",
+            "rust",
+            "--fallback",
+            "error",
+            "--write",
+        ],
+    )
+
+    assert result.exit_code != 0
+    output = strip_ansi(result.output)
+    exception_text = "" if result.exception is None else str(result.exception)
+    assert "graph_sitter_py" in output or "graph_sitter_py" in exception_text
+    assert (tmp_path / "app.py").read_text() == "def target():\n    return 1\n"
+
+
 def test_transform_rejects_arguments_for_target_without_arguments_parameter(tmp_path):
     _init_repo(tmp_path)
     (tmp_path / "app.py").write_text("def target():\n    return 1\n")
@@ -168,6 +239,25 @@ def noop(codebase):
 
     assert result.exit_code != 0
     assert "Choose either --check to preview changes or --write to apply them." in strip_ansi(result.output)
+
+
+def test_transform_noop_check_exits_zero_without_writing_target_repo(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def target():\n    return 1\n")
+    transform_file = tmp_path / "noop_transform.py"
+    transform_file.write_text(
+        """
+def noop(codebase):
+    return None
+""".lstrip()
+    )
+    _commit_all(tmp_path)
+
+    result = CliRunner().invoke(main, ["transform", f"{transform_file}:noop", str(tmp_path), "--check"])
+
+    assert result.exit_code == 0, result.output
+    assert "No changes would be produced" in strip_ansi(result.output)
+    assert (tmp_path / "app.py").read_text() == "def target():\n    return 1\n"
 
 
 def test_transform_rejects_check_and_write_together(tmp_path):
