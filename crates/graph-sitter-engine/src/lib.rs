@@ -2347,20 +2347,80 @@ fn push_typescript_export_statement(
     }
 
     if node_text(source, node).trim_start().starts_with("export =") {
-        let local_name =
-            last_identifier_child(node).map(|identifier| node_text(source, identifier).to_owned());
-        push_typescript_export(
-            file_id,
-            ExportKind::ExportEquals,
-            local_name.clone(),
-            local_name,
-            None,
-            None,
-            None,
-            node.range().into(),
-            index,
-        );
+        push_typescript_export_equals_statement(file_id, source, node, index);
     }
+}
+
+fn push_typescript_export_equals_statement(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    if let Some(object) = first_child_of_kind(node, &["object"]) {
+        let mut pushed_member = false;
+        let mut cursor = object.walk();
+        for child in object.named_children(&mut cursor) {
+            match child.kind() {
+                "shorthand_property_identifier" => {
+                    push_typescript_export(
+                        file_id,
+                        ExportKind::ExportEquals,
+                        Some(node_text(source, child).to_owned()),
+                        None,
+                        None,
+                        None,
+                        None,
+                        node.range().into(),
+                        index,
+                    );
+                    pushed_member = true;
+                }
+                "pair" => {
+                    let Some(key) = child.child_by_field_name("key") else {
+                        continue;
+                    };
+                    let Some(value) = child.child_by_field_name("value") else {
+                        continue;
+                    };
+                    let local_name = typescript_identifier_text(source, value).map(str::to_owned);
+                    if local_name.is_none() {
+                        continue;
+                    }
+                    push_typescript_export(
+                        file_id,
+                        ExportKind::ExportEquals,
+                        Some(typescript_property_name(source, key)),
+                        local_name,
+                        None,
+                        None,
+                        None,
+                        node.range().into(),
+                        index,
+                    );
+                    pushed_member = true;
+                }
+                _ => {}
+            }
+        }
+        if pushed_member {
+            return;
+        }
+    }
+
+    let local_name =
+        last_identifier_child(node).map(|identifier| node_text(source, identifier).to_owned());
+    push_typescript_export(
+        file_id,
+        ExportKind::ExportEquals,
+        local_name.clone(),
+        local_name,
+        None,
+        None,
+        None,
+        node.range().into(),
+        index,
+    );
 }
 
 fn push_typescript_export_declaration(
@@ -3890,6 +3950,7 @@ fn resolve_typescript_imports(index: &mut TypeScriptIndex, ts_configs: &[TypeScr
         .filter(|symbol| symbol.is_top_level)
         .map(|symbol| ((symbol.file_id, symbol.name.to_string()), symbol.id))
         .collect();
+    link_typescript_local_export_symbols(index, &symbol_by_file_and_name);
     let mut resolutions = Vec::new();
     for import in &index.imports {
         let Some(module) = import.module.as_deref() else {
@@ -3967,6 +4028,26 @@ fn external_module_name(import: &ImportRecord) -> Option<InternedString> {
     import.name.clone().or_else(|| import.module.clone())
 }
 
+fn link_typescript_local_export_symbols(
+    index: &mut TypeScriptIndex,
+    symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+) {
+    for export in &mut index.exports {
+        if export.kind != ExportKind::ExportEquals
+            || export.source_module.is_some()
+            || export.symbol_id.is_some()
+        {
+            continue;
+        }
+        let Some(local_name) = export.local_name.as_deref().or(export.name.as_deref()) else {
+            continue;
+        };
+        export.symbol_id = symbol_by_file_and_name
+            .get(&(export.file_id, local_name.to_owned()))
+            .copied();
+    }
+}
+
 fn typescript_local_exported_symbol_map(
     index: &TypeScriptIndex,
     symbol_by_file_and_name: &HashMap<(u32, String), u32>,
@@ -3980,15 +4061,20 @@ fn typescript_local_exported_symbol_map(
             continue;
         };
         let symbol_id = export.symbol_id.or_else(|| {
-            export.local_name.as_deref().and_then(|local_name| {
-                symbol_by_file_and_name
-                    .get(&(export.file_id, local_name.to_owned()))
-                    .copied()
-            })
+            export
+                .local_name
+                .as_deref()
+                .or(export.name.as_deref())
+                .and_then(|local_name| {
+                    symbol_by_file_and_name
+                        .get(&(export.file_id, local_name.to_owned()))
+                        .copied()
+                })
         });
         if let Some(symbol_id) = symbol_id {
             exported_symbols.insert((export.file_id, name.to_owned()), symbol_id);
-            if export.kind == ExportKind::ExportEquals {
+            if export.kind == ExportKind::ExportEquals && export.local_name.as_deref() == Some(name)
+            {
                 exported_symbols.insert((export.file_id, "default".to_owned()), symbol_id);
             }
         }
@@ -4556,6 +4642,28 @@ fn first_identifier_child(node: Node<'_>) -> Option<Node<'_>> {
         .named_children(&mut cursor)
         .find(|child| matches!(child.kind(), "identifier" | "type_identifier"));
     child
+}
+
+fn typescript_identifier_text<'source>(
+    source: &'source str,
+    node: Node<'_>,
+) -> Option<&'source str> {
+    if matches!(
+        node.kind(),
+        "identifier" | "type_identifier" | "property_identifier" | "shorthand_property_identifier"
+    ) {
+        return node.utf8_text(source.as_bytes()).ok();
+    }
+    None
+}
+
+fn typescript_property_name(source: &str, node: Node<'_>) -> String {
+    if node.kind() == "string" {
+        typescript_string_literal_value(node_text(source, node))
+            .unwrap_or_else(|| node_text(source, node).to_owned())
+    } else {
+        node_text(source, node).to_owned()
+    }
 }
 
 fn last_identifier_child(node: Node<'_>) -> Option<Node<'_>> {
@@ -8077,6 +8185,106 @@ export function shadow(localHelper: number) {\n\
                 && call.source_symbol_id.is_none()
                 && call.target_symbol_id == Some(make_legacy_symbol_id)
                 && call.name == "makeLegacy"
+        }));
+    }
+
+    #[test]
+    fn resolves_typescript_export_equals_object_member_imports() {
+        let repo = temp_repo_path("resolve-typescript-export-equals-object-members");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/legacy.ts"),
+            "export function f1() { return 1; }\n\
+export function f2() { return 2; }\n\
+export = { f1, renamed: f2 };\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import { f1, renamed } from './legacy';\n\n\
+export function run() {\n  return f1() + renamed();\n}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let legacy_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/legacy.ts")
+            .unwrap()
+            .id;
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.ts")
+            .unwrap()
+            .id;
+        let f1_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == legacy_file_id && symbol.name == "f1")
+            .unwrap()
+            .id;
+        let f2_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == legacy_file_id && symbol.name == "f2")
+            .unwrap()
+            .id;
+        let run_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "run")
+            .unwrap()
+            .id;
+        let f1_import = index
+            .imports
+            .iter()
+            .find(|import| import.name.as_deref() == Some("f1"))
+            .unwrap();
+        let renamed_import = index
+            .imports
+            .iter()
+            .find(|import| import.name.as_deref() == Some("renamed"))
+            .unwrap();
+
+        assert!(index.exports.iter().any(|export| {
+            export.file_id == legacy_file_id
+                && export.kind == ExportKind::ExportEquals
+                && export.name.as_deref() == Some("f1")
+                && export.local_name.is_none()
+                && export.symbol_id == Some(f1_symbol_id)
+        }));
+        assert!(index.exports.iter().any(|export| {
+            export.file_id == legacy_file_id
+                && export.kind == ExportKind::ExportEquals
+                && export.name.as_deref() == Some("renamed")
+                && export.local_name.as_deref() == Some("f2")
+                && export.symbol_id == Some(f2_symbol_id)
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == f1_import.id
+                && resolution.target_file_id == legacy_file_id
+                && resolution.target_symbol_id == Some(f1_symbol_id)
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == renamed_import.id
+                && resolution.target_file_id == legacy_file_id
+                && resolution.target_symbol_id == Some(f2_symbol_id)
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == f1_symbol_id
+                && reference.import_id == Some(f1_import.id)
+                && reference.name == "f1"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == f2_symbol_id
+                && reference.import_id == Some(renamed_import.id)
+                && reference.name == "renamed"
         }));
     }
 

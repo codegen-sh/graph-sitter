@@ -638,6 +638,13 @@ class RustIndexBackend:
         self._export_handles_by_id[record.id] = handle
         return handle
 
+    def _set_export_handles(self, handles: list[RustCompactExport]) -> None:
+        self._export_handles = handles
+        self._exports_by_file_id = None
+        self._exports_by_file_id_and_name = None
+        self._exports_by_file_id_and_byte_range = None
+        self._exports_by_symbol_id = None
+
     def _function_call_handle_from_record(self, record: RustFunctionCallRecord) -> RustCompactFunctionCall:
         if self._function_call_handles_by_id is None:
             self._function_call_handles_by_id = {}
@@ -884,7 +891,7 @@ class RustIndexBackend:
     @property
     def export_handles(self) -> list[RustCompactExport]:
         if self._export_handles is None:
-            self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+            self._set_export_handles([self._export_handle_from_record(record) for record in self.exports])
         return self._export_handles
 
     @property
@@ -1417,7 +1424,7 @@ class RustIndexBackend:
                 if records is not None:
                     self._exports_by_file_id[file_id] = [self._export_handle_from_record(record) for record in records]
                 else:
-                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+                    self._set_export_handles([self._export_handle_from_record(record) for record in self.exports])
             if file_id in self._exports_by_file_id:
                 return self._exports_by_file_id[file_id]
         if self._exports_by_file_id is None:
@@ -1437,7 +1444,7 @@ class RustIndexBackend:
                 if records is not None:
                     self._exports_by_file_id_and_name[key] = [self._export_handle_from_record(record) for record in records]
                 else:
-                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+                    self._set_export_handles([self._export_handle_from_record(record) for record in self.exports])
             if key in self._exports_by_file_id_and_name:
                 return self._exports_by_file_id_and_name[key]
         return [export_handle for export_handle in self.exports_for_file(file_id) if export_handle.name == name]
@@ -1454,7 +1461,7 @@ class RustIndexBackend:
                 if records is not None:
                     self._exports_by_file_id_and_byte_range[key] = [self._export_handle_from_record(record) for record in records]
                 else:
-                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+                    self._set_export_handles([self._export_handle_from_record(record) for record in self.exports])
             if key in self._exports_by_file_id_and_byte_range:
                 return self._exports_by_file_id_and_byte_range[key]
         return [export_handle for export_handle in self.exports_for_file(file_id) if _ranges_overlap(export_handle.range, start_byte, end_byte)]
@@ -1470,7 +1477,7 @@ class RustIndexBackend:
                 if records is not None:
                     self._exports_by_symbol_id[symbol_id] = [self._export_handle_from_record(record) for record in records]
                 else:
-                    self._export_handles = [self._export_handle_from_record(record) for record in self.exports]
+                    self._set_export_handles([self._export_handle_from_record(record) for record in self.exports])
             if symbol_id in self._exports_by_symbol_id:
                 return self._exports_by_symbol_id[symbol_id]
         if self._exports_by_symbol_id is None:
@@ -4350,6 +4357,8 @@ class RustCompactExport(RustCompactHandle):
 
     @property
     def declared_symbol(self) -> RustCompactSymbol | RustCompactImport | None:
+        if self.record.kind == "export_equals":
+            return None
         if self.record.symbol_id is not None:
             return self.backend.symbol_handle_by_id(self.record.symbol_id)
         if self.record.import_id is not None:
@@ -4361,11 +4370,16 @@ class RustCompactExport(RustCompactHandle):
         declared = self.declared_symbol
         if declared is not None:
             return declared
-        if self.record.kind == "export_equals" and self.record.local_name is not None:
+        if self.record.kind == "export_equals":
+            if self.record.symbol_id is not None:
+                return self.backend.symbol_handle_by_id(self.record.symbol_id)
+            symbol_name = self.record.local_name or self.record.name
+            if symbol_name is None:
+                return None
             return next(
                 (
                     symbol
-                    for symbol in self.backend.symbols_for_file_by_name(self.record.file_id, self.record.local_name)
+                    for symbol in self.backend.symbols_for_file_by_name(self.record.file_id, symbol_name)
                     if symbol.is_top_level
                 ),
                 None,

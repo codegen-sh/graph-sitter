@@ -62,14 +62,16 @@ TYPESCRIPT_FIXTURE_FILES = {
         "export * as utilNamespace from './util';\n"
     ),
     "src/legacy.ts": "class Legacy {}\nexport = Legacy;\n",
+    "src/objectExports.ts": "export function f1() { return 1; }\nexport function f2() { return 2; }\nexport = { f1, renamed: f2 };\n",
     "src/app.ts": (
         "import { helper } from './util';\n"
         "import { publicHelper, utilNamespace } from './index';\n"
         "import Legacy from './legacy';\n"
+        "import { f1, renamed } from './objectExports';\n"
         "\n"
         "export function run() {\n"
         "  const legacy = Legacy;\n"
-        "  return helper(publicHelper(1)) + utilNamespace.helper(2);\n"
+        "  return helper(publicHelper(1)) + utilNamespace.helper(2) + f1() + renamed();\n"
         "}\n"
     ),
 }
