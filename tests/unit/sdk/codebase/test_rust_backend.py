@@ -25,6 +25,24 @@ def fake_range(start_byte: int, end_byte: int, start_row: int = 0, start_column:
     }
 
 
+def fake_range_for_text(content: str, text: str, occurrence: int = 0):
+    start = -1
+    search_from = 0
+    for _ in range(occurrence + 1):
+        start = content.index(text, search_from)
+        search_from = start + len(text)
+    end = start + len(text)
+    prefix = content[:start]
+    start_row = prefix.count("\n")
+    last_newline = prefix.rfind("\n")
+    start_column = start if last_newline == -1 else start - last_newline - 1
+    end_prefix = content[:end]
+    end_row = end_prefix.count("\n")
+    end_last_newline = end_prefix.rfind("\n")
+    end_column = end if end_last_newline == -1 else end - end_last_newline - 1
+    return fake_range(start, end, start_row, start_column, end_row, end_column)
+
+
 def fake_range_overlaps(record: dict[str, int], start_byte: int, end_byte: int) -> bool:
     if start_byte == end_byte:
         return record["start_byte"] <= start_byte < record["end_byte"]
@@ -1734,6 +1752,198 @@ class FakeTypeScriptPromiseChainIndex:
         return json.dumps([])
 
 
+FAKE_TYPESCRIPT_JSX_CONTENT = (
+    "export function App() {\n"
+    "  return <div><Header /><UI.Card><span /></UI.Card></div>;\n"
+    "}\n\n"
+    "export function helper() {\n"
+    "  return 1;\n"
+    "}\n"
+)
+
+
+class FakeTypeScriptJSXSummary(FakeSummary):
+    def as_dict(self):
+        data = super().as_dict()
+        data.update(
+            {
+                "files": 1,
+                "symbols": 2,
+                "classes": 0,
+                "functions": 2,
+                "global_variables": 0,
+                "imports": 0,
+                "import_resolutions": 0,
+                "external_modules": 0,
+                "exports": 0,
+                "references": 0,
+                "external_references": 0,
+                "dependencies": 0,
+                "subclass_edges": 0,
+                "bytes": len(FAKE_TYPESCRIPT_JSX_CONTENT),
+                "lines": FAKE_TYPESCRIPT_JSX_CONTENT.count("\n"),
+            }
+        )
+        return data
+
+
+class FakeTypeScriptJSXIndex:
+    def summary(self):
+        return FakeTypeScriptJSXSummary()
+
+    def to_json(self):
+        return '{"files":[],"symbols":[],"imports":[],"jsx_elements":[]}'
+
+    def files_json(self):
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "path": "src/app.tsx",
+                    "module_name": None,
+                    "language": "tsx",
+                    "byte_len": len(FAKE_TYPESCRIPT_JSX_CONTENT),
+                    "line_count": FAKE_TYPESCRIPT_JSX_CONTENT.count("\n"),
+                    "has_error": False,
+                    "root_range": fake_range(0, len(FAKE_TYPESCRIPT_JSX_CONTENT), 0, 0, FAKE_TYPESCRIPT_JSX_CONTENT.count("\n"), 0),
+                }
+            ]
+        )
+
+    def file_by_id_json(self, file_id: int):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["id"] == file_id), None))
+
+    def file_by_path_json(self, path: str):
+        return json.dumps(next((file for file in json.loads(self.files_json()) if file["path"] == path), None))
+
+    def symbols_json(self):
+        content = FAKE_TYPESCRIPT_JSX_CONTENT
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "App",
+                    "kind": "function",
+                    "range": fake_range_for_text(content, "export function App() {\n  return <div><Header /><UI.Card><span /></UI.Card></div>;\n}"),
+                    "name_range": fake_range_for_text(content, "App"),
+                },
+                {
+                    "id": 1,
+                    "file_id": 0,
+                    "parent_symbol_id": None,
+                    "is_top_level": True,
+                    "name": "helper",
+                    "kind": "function",
+                    "range": fake_range_for_text(content, "export function helper() {\n  return 1;\n}"),
+                    "name_range": fake_range_for_text(content, "helper"),
+                },
+            ]
+        )
+
+    def symbol_by_id_json(self, symbol_id: int):
+        return json.dumps(next((symbol for symbol in json.loads(self.symbols_json()) if symbol["id"] == symbol_id), None))
+
+    def symbols_for_file_json(self, file_id: int):
+        return json.dumps([symbol for symbol in json.loads(self.symbols_json()) if symbol["file_id"] == file_id])
+
+    def symbols_for_file_by_name_json(self, file_id: int, name: str):
+        return json.dumps(
+            [
+                symbol
+                for symbol in json.loads(self.symbols_json())
+                if symbol["file_id"] == file_id and symbol["name"] == name
+            ]
+        )
+
+    def imports_json(self):
+        return json.dumps([])
+
+    def import_resolutions_json(self):
+        return json.dumps([])
+
+    def external_modules_json(self):
+        return json.dumps([])
+
+    def exports_json(self):
+        return json.dumps([])
+
+    def references_json(self):
+        return json.dumps([])
+
+    def external_references_json(self):
+        return json.dumps([])
+
+    def function_calls_json(self):
+        return json.dumps([])
+
+    def promise_chains_json(self):
+        return json.dumps([])
+
+    def jsx_elements_json(self):
+        content = FAKE_TYPESCRIPT_JSX_CONTENT
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": None,
+                    "name": "div",
+                    "range": fake_range_for_text(content, "<div><Header /><UI.Card><span /></UI.Card></div>"),
+                    "name_range": fake_range_for_text(content, "div"),
+                },
+                {
+                    "id": 1,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": 0,
+                    "name": "Header",
+                    "range": fake_range_for_text(content, "<Header />"),
+                    "name_range": fake_range_for_text(content, "Header"),
+                },
+                {
+                    "id": 2,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": 0,
+                    "name": "UI.Card",
+                    "range": fake_range_for_text(content, "<UI.Card><span /></UI.Card>"),
+                    "name_range": fake_range_for_text(content, "UI.Card"),
+                },
+                {
+                    "id": 3,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": 2,
+                    "name": "span",
+                    "range": fake_range_for_text(content, "<span />"),
+                    "name_range": fake_range_for_text(content, "span"),
+                },
+            ]
+        )
+
+    def jsx_element_by_id_json(self, element_id: int):
+        return json.dumps(next((element for element in json.loads(self.jsx_elements_json()) if element["id"] == element_id), None))
+
+    def jsx_elements_for_file_json(self, file_id: int):
+        return json.dumps([element for element in json.loads(self.jsx_elements_json()) if element["source_file_id"] == file_id])
+
+    def jsx_elements_for_symbol_json(self, symbol_id: int):
+        return json.dumps([element for element in json.loads(self.jsx_elements_json()) if element["source_symbol_id"] == symbol_id])
+
+    def jsx_elements_for_parent_json(self, parent_element_id: int):
+        return json.dumps([element for element in json.loads(self.jsx_elements_json()) if element["parent_jsx_element_id"] == parent_element_id])
+
+    def dependencies_json(self):
+        return json.dumps([])
+
+    def subclass_edges_json(self):
+        return json.dumps([])
+
+
 class FakeTypeScriptMoveUpdateSummary(FakeSummary):
     def as_dict(self):
         data = super().as_dict()
@@ -2856,6 +3066,60 @@ def test_rust_compact_typescript_promise_chains_do_not_materialize_python_graph(
         assert backend._promise_chain_handles is None
         assert backend._promise_chains_by_file_id == {0: chains}
         assert backend._promise_chains_by_source_symbol_id == {0: [first_chain], 1: [second_chain]}
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+
+
+def test_rust_compact_typescript_jsx_elements_do_not_materialize_python_graph(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, typescript_index_cls=FakeTypeScriptJSXIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"src/app.tsx": FAKE_TYPESCRIPT_JSX_CONTENT},
+        programming_language=ProgrammingLanguage.TYPESCRIPT,
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        file = codebase.get_file("src/app.tsx")
+        app = file.get_function("App")
+        helper = file.get_function("helper")
+        assert app is not None
+        assert helper is not None
+
+        elements = file.jsx_elements
+        assert [element.name for element in elements] == ["div", "Header", "UI.Card", "span"]
+        root = elements[0]
+        assert root.source == "<div><Header /><UI.Card><span /></UI.Card></div>"
+        assert root.file == file
+        assert root.parent_symbol == app
+        assert root.parent == app
+        assert [element.name for element in root.jsx_elements] == ["Header", "UI.Card", "span"]
+        assert root.get_component("span").name == "span"
+
+        card = root.get_component("UI.Card")
+        assert card is not None
+        span = card.get_component("span")
+        assert span is not None
+        assert span.parent == card
+        assert backend.jsx_element_by_id(span.record.id) == span
+
+        assert app.is_jsx
+        assert [element.name for element in app.jsx_elements] == ["div", "Header", "UI.Card", "span"]
+        assert app.get_component("Header").name == "Header"
+        assert not helper.is_jsx
+        with pytest.raises(RustBackendUnsupportedError):
+            root.props
+
+        assert backend._jsx_elements is None
+        assert backend._jsx_element_handles is None
+        assert backend._jsx_elements_by_file_id == {0: elements}
+        assert backend._jsx_elements_by_source_symbol_id == {0: elements, 1: []}
+        assert backend._jsx_elements_by_parent_id == {0: [elements[1], elements[2]], 1: [], 2: [elements[3]], 3: []}
         assert backend._symbols is None
         assert backend._symbol_handles is None
 

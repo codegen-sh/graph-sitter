@@ -304,6 +304,31 @@ class RustPromiseChainRecord:
 
 
 @dataclass(frozen=True)
+class RustJsxElementRecord:
+    id: int
+    source_file_id: int
+    source_symbol_id: int | None
+    parent_jsx_element_id: int | None
+    name: str
+    range: RustSourceRange
+    name_range: RustSourceRange
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustJsxElementRecord:
+        source_symbol_id = data["source_symbol_id"]
+        parent_jsx_element_id = data["parent_jsx_element_id"]
+        return cls(
+            id=int(data["id"]),
+            source_file_id=int(data["source_file_id"]),
+            source_symbol_id=None if source_symbol_id is None else int(source_symbol_id),
+            parent_jsx_element_id=None if parent_jsx_element_id is None else int(parent_jsx_element_id),
+            name=str(data["name"]),
+            range=RustSourceRange.from_dict(data["range"]),
+            name_range=RustSourceRange.from_dict(data["name_range"]),
+        )
+
+
+@dataclass(frozen=True)
 class RustDependencyRecord:
     id: int
     source_symbol_id: int
@@ -399,6 +424,7 @@ class RustIndexBackend:
     _external_references: list[RustExternalReferenceRecord] | None = None
     _function_calls: list[RustFunctionCallRecord] | None = None
     _promise_chains: list[RustPromiseChainRecord] | None = None
+    _jsx_elements: list[RustJsxElementRecord] | None = None
     _dependencies: list[RustDependencyRecord] | None = None
     _subclass_edges: list[RustSubclassRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
@@ -408,6 +434,7 @@ class RustIndexBackend:
     _export_handles: list[RustCompactExport] | None = None
     _function_call_handles: list[RustCompactFunctionCall] | None = None
     _promise_chain_handles: list[RustCompactPromiseChain] | None = None
+    _jsx_element_handles: list[RustCompactJSXElement] | None = None
     _file_handles_by_id: dict[int, RustCompactFile] | None = None
     _file_handles_by_path: dict[str, RustCompactFile] | None = None
     _symbol_handles_by_id: dict[int, RustCompactSymbol] | None = None
@@ -416,6 +443,7 @@ class RustIndexBackend:
     _export_handles_by_id: dict[int, RustCompactExport] | None = None
     _function_call_handles_by_id: dict[int, RustCompactFunctionCall] | None = None
     _promise_chain_handles_by_id: dict[int, RustCompactPromiseChain] | None = None
+    _jsx_element_handles_by_id: dict[int, RustCompactJSXElement] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
     _symbols_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactSymbol]] | None = None
     _imports_by_file_id_and_lookup: dict[tuple[int, str], list[RustCompactImport]] | None = None
@@ -439,6 +467,9 @@ class RustIndexBackend:
     _function_calls_by_source_symbol_id: dict[int, list[RustCompactFunctionCall]] | None = None
     _promise_chains_by_file_id: dict[int, list[RustCompactPromiseChain]] | None = None
     _promise_chains_by_source_symbol_id: dict[int, list[RustCompactPromiseChain]] | None = None
+    _jsx_elements_by_file_id: dict[int, list[RustCompactJSXElement]] | None = None
+    _jsx_elements_by_source_symbol_id: dict[int, list[RustCompactJSXElement]] | None = None
+    _jsx_elements_by_parent_id: dict[int, list[RustCompactJSXElement]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
@@ -665,6 +696,16 @@ class RustIndexBackend:
         self._promise_chain_handles_by_id[record.id] = handle
         return handle
 
+    def _jsx_element_handle_from_record(self, record: RustJsxElementRecord) -> RustCompactJSXElement:
+        if self._jsx_element_handles_by_id is None:
+            self._jsx_element_handles_by_id = {}
+        handle = self._jsx_element_handles_by_id.get(record.id)
+        if handle is None:
+            handle = RustCompactJSXElement(self, record)
+        self._bind_handle(handle)
+        self._jsx_element_handles_by_id[record.id] = handle
+        return handle
+
     def compact_record_counts(self) -> dict[str, int]:
         def count_attr(name: str, fallback: int) -> int:
             value = getattr(self.index, name, None)
@@ -688,6 +729,7 @@ class RustIndexBackend:
             "rust_external_references": self.summary.external_references,
             "rust_function_calls": count_attr("function_call_count", 0),
             "rust_promise_chains": count_attr("promise_chain_count", 0),
+            "rust_jsx_elements": count_attr("jsx_element_count", 0),
             "rust_dependencies": self.summary.dependencies,
             "rust_subclass_edges": self.summary.subclass_edges,
         }
@@ -833,6 +875,16 @@ class RustIndexBackend:
         return self._promise_chains
 
     @property
+    def jsx_elements(self) -> list[RustJsxElementRecord]:
+        if self._jsx_elements is None:
+            jsx_elements_json = getattr(self.index, "jsx_elements_json", None)
+            if jsx_elements_json is None:
+                self._jsx_elements = []
+            else:
+                self._jsx_elements = [RustJsxElementRecord.from_dict(record) for record in json.loads(jsx_elements_json())]
+        return self._jsx_elements
+
+    @property
     def dependencies(self) -> list[RustDependencyRecord]:
         if self._dependencies is None:
             self._dependencies = [RustDependencyRecord.from_dict(record) for record in json.loads(self.index.dependencies_json())]
@@ -906,6 +958,12 @@ class RustIndexBackend:
             self._promise_chain_handles = [self._promise_chain_handle_from_record(record) for record in self.promise_chains]
         return self._promise_chain_handles
 
+    @property
+    def jsx_element_handles(self) -> list[RustCompactJSXElement]:
+        if self._jsx_element_handles is None:
+            self._jsx_element_handles = [self._jsx_element_handle_from_record(record) for record in self.jsx_elements]
+        return self._jsx_element_handles
+
     def bind_context(self, ctx: CodebaseContext) -> None:
         self._ctx = ctx
         directory_handles = list(self._directory_handles_by_path.values()) if self._directory_handles_by_path is not None else None
@@ -917,6 +975,7 @@ class RustIndexBackend:
             self._export_handles,
             self._function_call_handles,
             self._promise_chain_handles,
+            self._jsx_element_handles,
             directory_handles,
         ):
             if handles is None:
@@ -932,6 +991,7 @@ class RustIndexBackend:
             self._export_handles_by_id,
             self._function_call_handles_by_id,
             self._promise_chain_handles_by_id,
+            self._jsx_element_handles_by_id,
         ):
             if handles_by_key is None:
                 continue
@@ -1045,6 +1105,8 @@ class RustIndexBackend:
             self._function_calls_by_file_id[record.id] = []
         if self._promise_chains_by_file_id is not None:
             self._promise_chains_by_file_id[record.id] = []
+        if self._jsx_elements_by_file_id is not None:
+            self._jsx_elements_by_file_id[record.id] = []
         self._invalidate_directory_handles()
         return file
 
@@ -1098,6 +1160,8 @@ class RustIndexBackend:
             self._function_calls = [call for call in self._function_calls if call.source_file_id != file_id]
         if self._promise_chains is not None:
             self._promise_chains = [chain for chain in self._promise_chains if chain.source_file_id != file_id]
+        if self._jsx_elements is not None:
+            self._jsx_elements = [element for element in self._jsx_elements if element.source_file_id != file_id]
         if self._dependencies is not None:
             self._dependencies = [dependency for dependency in self._dependencies if dependency.source_file_id != file_id and dependency.target_file_id != file_id]
         if self._subclass_edges is not None:
@@ -1110,10 +1174,12 @@ class RustIndexBackend:
         self._export_handles = None
         self._function_call_handles = None
         self._promise_chain_handles = None
+        self._jsx_element_handles = None
         self._external_module_handles_by_import_id = None
         self._export_handles_by_id = None
         self._function_call_handles_by_id = None
         self._promise_chain_handles_by_id = None
+        self._jsx_element_handles_by_id = None
         self._symbols_by_file_id = None
         self._symbols_by_file_id_and_byte_range = None
         self._imports_by_file_id_and_lookup = None
@@ -1137,6 +1203,9 @@ class RustIndexBackend:
         self._function_calls_by_source_symbol_id = None
         self._promise_chains_by_file_id = None
         self._promise_chains_by_source_symbol_id = None
+        self._jsx_elements_by_file_id = None
+        self._jsx_elements_by_source_symbol_id = None
+        self._jsx_elements_by_parent_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
         self._subclass_edges_by_source_symbol_id = None
@@ -1827,6 +1896,74 @@ class RustIndexBackend:
                     chains_by_source_symbol_id.setdefault(chain.record.source_symbol_id, []).append(chain)
             self._promise_chains_by_source_symbol_id = chains_by_source_symbol_id
         return self._promise_chains_by_source_symbol_id.get(symbol_id, [])
+
+    def jsx_element_by_id(self, element_id: int) -> RustCompactJSXElement | None:
+        if self._jsx_element_handles is None and hasattr(self.index, "jsx_element_by_id_json"):
+            if self._jsx_element_handles_by_id is None:
+                self._jsx_element_handles_by_id = {}
+            if element_id not in self._jsx_element_handles_by_id:
+                record = self._record_from_json_method("jsx_element_by_id_json", RustJsxElementRecord.from_dict, element_id)
+                if record is not None:
+                    return self._jsx_element_handle_from_record(record)
+                return None
+            if element_id in self._jsx_element_handles_by_id:
+                return self._jsx_element_handles_by_id[element_id]
+        if self._jsx_element_handles_by_id is None:
+            self._jsx_element_handles_by_id = {element.record.id: element for element in self.jsx_element_handles}
+        return self._jsx_element_handles_by_id.get(element_id)
+
+    def jsx_elements_for_file(self, file_id: int) -> list[RustCompactJSXElement]:
+        if self._jsx_element_handles is None and hasattr(self.index, "jsx_elements_for_file_json"):
+            if self._jsx_elements_by_file_id is None:
+                self._jsx_elements_by_file_id = {}
+            if file_id not in self._jsx_elements_by_file_id:
+                records = self._records_from_json_method("jsx_elements_for_file_json", RustJsxElementRecord.from_dict, file_id)
+                if records is not None:
+                    self._jsx_elements_by_file_id[file_id] = [self._jsx_element_handle_from_record(record) for record in records]
+            if file_id in self._jsx_elements_by_file_id:
+                return self._jsx_elements_by_file_id[file_id]
+        if self._jsx_elements_by_file_id is None:
+            elements_by_file_id: dict[int, list[RustCompactJSXElement]] = {}
+            for element in self.jsx_element_handles:
+                elements_by_file_id.setdefault(element.record.source_file_id, []).append(element)
+            self._jsx_elements_by_file_id = elements_by_file_id
+        return self._jsx_elements_by_file_id.get(file_id, [])
+
+    def jsx_elements_for_symbol(self, symbol_id: int) -> list[RustCompactJSXElement]:
+        if self._jsx_element_handles is None and hasattr(self.index, "jsx_elements_for_symbol_json"):
+            if self._jsx_elements_by_source_symbol_id is None:
+                self._jsx_elements_by_source_symbol_id = {}
+            if symbol_id not in self._jsx_elements_by_source_symbol_id:
+                records = self._records_from_json_method("jsx_elements_for_symbol_json", RustJsxElementRecord.from_dict, symbol_id)
+                if records is not None:
+                    self._jsx_elements_by_source_symbol_id[symbol_id] = [self._jsx_element_handle_from_record(record) for record in records]
+            if symbol_id in self._jsx_elements_by_source_symbol_id:
+                return self._jsx_elements_by_source_symbol_id[symbol_id]
+        if self._jsx_elements_by_source_symbol_id is None:
+            elements_by_source_symbol_id: dict[int, list[RustCompactJSXElement]] = {}
+            for element in self.jsx_element_handles:
+                if element.record.source_symbol_id is not None:
+                    elements_by_source_symbol_id.setdefault(element.record.source_symbol_id, []).append(element)
+            self._jsx_elements_by_source_symbol_id = elements_by_source_symbol_id
+        return self._jsx_elements_by_source_symbol_id.get(symbol_id, [])
+
+    def jsx_elements_for_parent(self, parent_element_id: int) -> list[RustCompactJSXElement]:
+        if self._jsx_element_handles is None and hasattr(self.index, "jsx_elements_for_parent_json"):
+            if self._jsx_elements_by_parent_id is None:
+                self._jsx_elements_by_parent_id = {}
+            if parent_element_id not in self._jsx_elements_by_parent_id:
+                records = self._records_from_json_method("jsx_elements_for_parent_json", RustJsxElementRecord.from_dict, parent_element_id)
+                if records is not None:
+                    self._jsx_elements_by_parent_id[parent_element_id] = [self._jsx_element_handle_from_record(record) for record in records]
+            if parent_element_id in self._jsx_elements_by_parent_id:
+                return self._jsx_elements_by_parent_id[parent_element_id]
+        if self._jsx_elements_by_parent_id is None:
+            elements_by_parent_id: dict[int, list[RustCompactJSXElement]] = {}
+            for element in self.jsx_element_handles:
+                if element.record.parent_jsx_element_id is not None:
+                    elements_by_parent_id.setdefault(element.record.parent_jsx_element_id, []).append(element)
+            self._jsx_elements_by_parent_id = elements_by_parent_id
+        return self._jsx_elements_by_parent_id.get(parent_element_id, [])
 
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies is None and hasattr(self.index, "dependencies_from_symbol_json"):
@@ -2544,6 +2681,100 @@ class RustCompactPromiseChain(RustCompactHandle):
         raise self._unsupported(method)
 
 
+class RustCompactJSXElement(RustCompactHandle):
+    node_type = NodeType.EXPRESSION
+
+    def __init__(self, backend: RustIndexBackend, record: RustJsxElementRecord) -> None:
+        self.record = record
+        self.name = record.name
+        self._name_node = RustCompactName(record.name)
+        super().__init__(backend, record.id, record.range)
+
+    def __repr__(self) -> str:
+        return f"RustCompactJSXElement(name={self.name!r}, filepath={self.filepath!r})"
+
+    @property
+    def file(self) -> RustCompactFile:
+        file = self.backend.file_handle_by_id(self.record.source_file_id)
+        if file is None:
+            msg = f"Rust compact JSX element {self.record.id} references missing file {self.record.source_file_id}"
+            raise RuntimeError(msg)
+        return file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def source(self) -> str:
+        return self.file.content_bytes[self.start_byte : self.end_byte].decode("utf-8")
+
+    @property
+    def full_name(self) -> str:
+        return self.name
+
+    @property
+    def parent_symbol(self) -> RustCompactSymbol | RustCompactFile:
+        if self.record.source_symbol_id is not None:
+            symbol = self.backend.symbol_handle_by_id(self.record.source_symbol_id)
+            if symbol is not None:
+                return symbol
+        return self.file
+
+    @property
+    def parent(self) -> RustCompactJSXElement | RustCompactSymbol | RustCompactFile:
+        if self.record.parent_jsx_element_id is not None:
+            parent = self.backend.jsx_element_by_id(self.record.parent_jsx_element_id)
+            if parent is not None:
+                return parent
+        return self.parent_symbol
+
+    @property
+    def jsx_elements(self) -> list[RustCompactJSXElement]:
+        descendants: list[RustCompactJSXElement] = []
+        for child in self.backend.jsx_elements_for_parent(self.record.id):
+            descendants.append(child)
+            descendants.extend(child.jsx_elements)
+        return descendants
+
+    def get_component(self, component_name: str) -> RustCompactJSXElement | None:
+        return next((component for component in self.jsx_elements if component.name == component_name), None)
+
+    def get_name(self) -> RustCompactName:
+        return self._name_node
+
+    @property
+    def props(self) -> list[object]:
+        method = "RustCompactJSXElement.props"
+        raise self._unsupported(method)
+
+    @property
+    def attributes(self) -> list[object]:
+        method = "RustCompactJSXElement.attributes"
+        raise self._unsupported(method)
+
+    @property
+    def expressions(self) -> list[object]:
+        method = "RustCompactJSXElement.expressions"
+        raise self._unsupported(method)
+
+    def get_prop(self, name: str) -> object | None:
+        method = "RustCompactJSXElement.get_prop"
+        raise self._unsupported(method)
+
+    def set_name(self, name: str) -> None:
+        method = "RustCompactJSXElement.set_name"
+        raise self._unsupported(method)
+
+    def add_prop(self, prop_name: str, prop_value: str) -> None:
+        method = "RustCompactJSXElement.add_prop"
+        raise self._unsupported(method)
+
+    def wrap(self, opening_tag: str, closing_tag: str) -> None:
+        method = "RustCompactJSXElement.wrap"
+        raise self._unsupported(method)
+
+
 class RustCompactDirectory:
     def __init__(self, backend: RustIndexBackend, record: RustDirectoryRecord) -> None:
         self.backend = backend
@@ -2942,6 +3173,13 @@ class RustCompactFile(RustCompactHandle):
     @property
     def promise_chains(self) -> list[RustCompactPromiseChain]:
         return self.backend.promise_chains_for_file(self.record.id)
+
+    @property
+    def jsx_elements(self) -> list[RustCompactJSXElement]:
+        return self.backend.jsx_elements_for_file(self.record.id)
+
+    def get_component(self, component_name: str) -> RustCompactJSXElement | None:
+        return next((component for component in self.jsx_elements if component.name == component_name), None)
 
     @property
     def import_statements(self) -> list[RustCompactImport]:
@@ -3547,6 +3785,23 @@ class RustCompactSymbol(RustCompactHandle):
     @property
     def promise_chains(self) -> list[RustCompactPromiseChain]:
         return self.backend.promise_chains_for_symbol(self.record.id)
+
+    @property
+    def jsx_elements(self) -> list[RustCompactJSXElement]:
+        return self.backend.jsx_elements_for_symbol(self.record.id)
+
+    def get_component(self, component_name: str) -> RustCompactJSXElement | None:
+        return next((component for component in self.jsx_elements if component.name == component_name), None)
+
+    @property
+    def is_jsx(self) -> bool:
+        if not self.jsx_elements:
+            if self.symbol_type == SymbolType.Class:
+                return any("React" in parent_name for parent_name in (self.parent_classes or []))
+            return False
+        if self.symbol_type == SymbolType.Function:
+            return not self.name or self.name[0].isupper()
+        return True
 
     @property
     def is_exported(self) -> bool:

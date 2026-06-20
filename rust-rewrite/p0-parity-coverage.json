@@ -74,6 +74,7 @@
         "TypeScript named namespace re-export member dependencies",
         "TypeScript qualified namespace member references through namespace imports and re-exports",
         "TypeScript JSX component tag references without intrinsic tag or prop-name false positives",
+        "TypeScript read-only file/symbol JSX element records and symbol.is_jsx",
         "TypeScript file.get_namespace and namespace member lookups",
         "TypeScript subclass and implementation traversal"
       ],
@@ -83,7 +84,8 @@
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_usages_include_import_export_wrappers_without_materializing_indexes",
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_import_predicates_do_not_materialize_python_graph",
           "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_external_import_dependencies",
-          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal"
+          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal",
+          "tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_jsx_elements_do_not_materialize_python_graph"
         ],
         "tools": [
           "rust-rewrite/tools/check_python_rust_parity_fixture.py",
@@ -163,12 +165,12 @@
       "api_inventory": [
         "full namespace export/private/member semantics beyond direct member lookup",
         "promise-chain async conversion and mutable expression-object semantics beyond compact read-only file/symbol.promise_chains",
-        "mutable JSX element/prop object semantics beyond compact reference/dependency extraction",
+        "mutable JSX element/prop object semantics beyond compact read-only file/symbol.jsx_elements and reference/dependency extraction",
         "full mutable FunctionCall expression object semantics beyond compact read-only file/symbol.function_calls",
         "full TypeScript lexical/type/interface/reference coverage",
         "complete namespace and expression dependency parity"
       ],
-      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, qualified namespace member references through namespace imports and re-exports, JSX component tag references without intrinsic tag or prop-name false positives, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, and read-only compact file/symbol.promise_chains, but broader namespace export/private semantics, mutable JSX/expression nodes, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
+      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, qualified namespace member references through namespace imports and re-exports, JSX component tag references without intrinsic tag or prop-name false positives, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, read-only compact file/symbol.promise_chains, and read-only compact file/symbol.jsx_elements plus symbol.is_jsx, but broader namespace export/private semantics, mutable JSX/expression nodes and props, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
     },
     {
       "name": "Full graph-wide large-repo semantic parity",

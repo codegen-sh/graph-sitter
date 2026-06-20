@@ -354,6 +354,7 @@ pub struct TypeScriptIndex {
     pub external_references: Vec<ExternalReferenceRecord>,
     pub function_calls: Vec<FunctionCallRecord>,
     pub promise_chains: Vec<PromiseChainRecord>,
+    pub jsx_elements: Vec<JsxElementRecord>,
     pub dependencies: Vec<DependencyRecord>,
     pub subclass_edges: Vec<SubclassRecord>,
     #[serde(skip)]
@@ -663,6 +664,17 @@ pub struct PromiseChainRecord {
     pub stage_names: Vec<InternedString>,
     pub range: SourceRange,
     pub base_range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct JsxElementRecord {
+    pub id: u32,
+    pub source_file_id: u32,
+    pub source_symbol_id: Option<u32>,
+    pub parent_jsx_element_id: Option<u32>,
+    pub name: InternedString,
+    pub range: SourceRange,
+    pub name_range: SourceRange,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -1203,6 +1215,7 @@ impl TypeScriptIndexer {
             external_references: Vec::new(),
             function_calls: Vec::new(),
             promise_chains: Vec::new(),
+            jsx_elements: Vec::new(),
             dependencies: Vec::new(),
             subclass_edges: Vec::new(),
             strings: StringInterner::default(),
@@ -1657,6 +1670,7 @@ fn extract_typescript_file(
     extract_typescript_nested_local_symbols(file_id, source, root, index);
     collect_typescript_reference_candidates(file_id, source, root, index, reference_candidates);
     collect_typescript_promise_chains(file_id, source, root, index);
+    collect_typescript_jsx_elements(file_id, source, root, index);
 }
 
 fn extract_typescript_top_level_node(
@@ -2714,6 +2728,89 @@ fn typescript_promise_stage_name(source: &str, node: Node<'_>) -> Option<String>
     }
     let name = node.utf8_text(source.as_bytes()).ok()?;
     matches!(name, "then" | "catch" | "finally").then(|| name.to_owned())
+}
+
+fn collect_typescript_jsx_elements(
+    file_id: u32,
+    source: &str,
+    root: Node<'_>,
+    index: &mut TypeScriptIndex,
+) {
+    let symbol_ranges = index
+        .symbols
+        .iter()
+        .filter(|symbol| symbol.file_id == file_id)
+        .map(|symbol| (symbol.id, symbol.range))
+        .collect::<Vec<_>>();
+    let mut parent_stack = Vec::new();
+    collect_typescript_jsx_elements_from_node(
+        file_id,
+        source,
+        root,
+        &symbol_ranges,
+        &mut parent_stack,
+        index,
+    );
+}
+
+fn collect_typescript_jsx_elements_from_node(
+    file_id: u32,
+    source: &str,
+    node: Node<'_>,
+    symbol_ranges: &[(u32, SourceRange)],
+    parent_stack: &mut Vec<u32>,
+    index: &mut TypeScriptIndex,
+) {
+    let mut pushed_parent = false;
+    if matches!(node.kind(), "jsx_element" | "jsx_self_closing_element") {
+        if let Some(name_node) = typescript_jsx_element_name_node(node) {
+            if let Ok(name) = name_node.utf8_text(source.as_bytes()) {
+                let range = SourceRange::from(node.range());
+                let name_range = SourceRange::from(name_node.range());
+                let record_id = index.jsx_elements.len() as u32;
+                let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
+                let parent_jsx_element_id = parent_stack.last().copied();
+                let name = index.intern(name);
+                index.jsx_elements.push(JsxElementRecord {
+                    id: record_id,
+                    source_file_id: file_id,
+                    source_symbol_id,
+                    parent_jsx_element_id,
+                    name,
+                    range,
+                    name_range,
+                });
+                parent_stack.push(record_id);
+                pushed_parent = true;
+            }
+        }
+    }
+
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_typescript_jsx_elements_from_node(
+            file_id,
+            source,
+            child,
+            symbol_ranges,
+            parent_stack,
+            index,
+        );
+    }
+
+    if pushed_parent {
+        parent_stack.pop();
+    }
+}
+
+fn typescript_jsx_element_name_node(node: Node<'_>) -> Option<Node<'_>> {
+    match node.kind() {
+        "jsx_element" => node
+            .child_by_field_name("open_tag")?
+            .child_by_field_name("name"),
+        "jsx_self_closing_element" => node.child_by_field_name("name"),
+        _ => None,
+    }
 }
 
 fn collect_typescript_local_bindings(
@@ -7178,6 +7275,54 @@ const Component = () => <div />;
                 && export.local_name.as_deref() == Some("Page")
                 && export.symbol_id.is_some()
         }));
+    }
+
+    #[test]
+    fn indexes_typescript_jsx_element_records_with_symbol_and_parent_links() {
+        let repo = temp_repo_path("index-typescript-jsx-elements");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/app.tsx"),
+            "export function App() {\n\
+  return <div><Header /><UI.Card><span /></UI.Card></div>;\n\
+}\n\
+\n\
+export function helper() {\n\
+  return 1;\n\
+}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let app = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "App")
+            .unwrap();
+        let helper = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.name == "helper")
+            .unwrap();
+        let elements = &index.jsx_elements;
+        let element_names = elements
+            .iter()
+            .map(|element| element.name.as_ref())
+            .collect::<Vec<_>>();
+
+        assert_eq!(element_names, vec!["div", "Header", "UI.Card", "span"]);
+        assert!(elements
+            .iter()
+            .all(|element| element.source_symbol_id == Some(app.id)));
+        assert!(elements
+            .iter()
+            .all(|element| element.source_symbol_id != Some(helper.id)));
+        assert_eq!(elements[0].parent_jsx_element_id, None);
+        assert_eq!(elements[1].parent_jsx_element_id, Some(elements[0].id));
+        assert_eq!(elements[2].parent_jsx_element_id, Some(elements[0].id));
+        assert_eq!(elements[3].parent_jsx_element_id, Some(elements[2].id));
     }
 
     #[test]

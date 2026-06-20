@@ -765,6 +765,11 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn jsx_elements_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.jsx_elements)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn dependencies_json(&self) -> PyResult<String> {
             serde_json::to_string(&self.inner.dependencies)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
@@ -1213,6 +1218,50 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn jsx_element_by_id_json(&self, element_id: u32) -> PyResult<String> {
+            serde_json::to_string(
+                &self
+                    .inner
+                    .jsx_elements
+                    .iter()
+                    .find(|element| element.id == element_id),
+            )
+            .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn jsx_elements_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .jsx_elements
+                .iter()
+                .filter(|element| element.source_file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn jsx_elements_for_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .jsx_elements
+                .iter()
+                .filter(|element| element.source_symbol_id == Some(symbol_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn jsx_elements_for_parent_json(&self, parent_element_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .jsx_elements
+                .iter()
+                .filter(|element| element.parent_jsx_element_id == Some(parent_element_id))
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn subclass_edges_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
             let records: Vec<_> = self
                 .inner
@@ -1380,6 +1429,11 @@ mod bindings {
         #[getter]
         fn promise_chain_count(&self) -> usize {
             self.inner.promise_chains.len()
+        }
+
+        #[getter]
+        fn jsx_element_count(&self) -> usize {
+            self.inner.jsx_elements.len()
         }
 
         #[getter]
