@@ -44,6 +44,7 @@ Minimum public examples:
 uvx --python 3.13 graph-sitter doctor --json
 uvx --python 3.13 graph-sitter parse . --language python --backend auto --fallback python --format json
 uvx --python 3.13 graph-sitter run rename-symbol . --arguments '{"new_name":"renamed"}' --check
+uvx --python 3.13 graph-sitter run rename-symbol . --subdir src --arguments '{"new_name":"renamed"}' --check
 uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --arguments '{"new_name":"renamed"}' --check
 ```
 
@@ -61,6 +62,14 @@ uvx --python 3.13 --from dist/<wheel>.whl graph-sitter transform ./codemods/rena
   console script must resolve to `graph_sitter.cli.cli:main`.
 - Keep `gs` as a compatibility script, but do not use it as the primary
   published-package or skill-facing command.
+- `pyproject.toml` must keep both scripts in `[project.scripts]` until a
+  deliberate compatibility removal:
+
+  ```toml
+  gs = "graph_sitter.cli.cli:main"
+  graph-sitter = "graph_sitter.cli.cli:main"
+  ```
+
 - Public examples should pin `--python 3.13` while package metadata remains
   constrained to Python `>=3.12,<3.14`.
 - Rust-backed `uvx` requires wheels that include the platform-specific
@@ -68,6 +77,13 @@ uvx --python 3.13 --from dist/<wheel>.whl graph-sitter transform ./codemods/rena
   extension is absent.
 - Clean `uvx` environments must include `codemods/codemod.py`, parser runtime
   dependencies, and compatible tree-sitter grammar wheels.
+- Wheel builds currently use `hatchling.build`, `hatch.toml`, and the custom
+  hook at `src/gsbuild/build.py`. The hook must continue to build the PyO3
+  crate, force-include `graph_sitter_py{EXT_SUFFIX}`, mark wheels
+  platform-specific, and include `src/codemods` beside `src/graph_sitter`.
+- `cibuildwheel` must keep producing CPython 3.12 and 3.13 wheels for the
+  supported Linux and macOS targets. First-release Windows support is an open
+  decision, not an implicit promise.
 - Branch proof uses `uvx --from dist/<wheel>.whl graph-sitter ...`; release
   proof must use uploaded artifacts with
   `uvx --from graph-sitter==<version> graph-sitter ...`, then the default
@@ -106,9 +122,9 @@ Observed command options from the current Click implementations:
 
 | Command | Required args | Shared options | Mode/output options |
 | --- | --- | --- | --- |
-| `parse` | optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--format summary|json` |
-| `run` | `LABEL`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write`, `--daemon` |
-| `transform` | `MODULE:OBJECT`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write` |
+| `parse` | optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--format summary|json`, `--output FILE`, `--subdir PATH` |
+| `run` | `LABEL`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write`, `--subdir PATH`, `--daemon` |
+| `transform` | `MODULE:OBJECT`, optional `PATH` | `--backend python|rust|auto`, `--fallback python|error`, `--language auto|python|typescript` | `--arguments JSON`, `--diff-preview N`, `--check`, `--write`, `--subdir PATH` |
 | `doctor` | none | `--backend python|rust`, `--language python|typescript` | `--json` |
 
 Current defaults:
@@ -135,6 +151,7 @@ Focused local tests cover:
 - clean strict Rust failure behavior when the Rust extension is unavailable
 - `run LABEL PATH` with typed arguments and codemod file mutation
 - `run LABEL PATH --check` sandbox behavior
+- `run LABEL PATH --subdir` scoping in write mode and check-mode sandboxes
 - import-path `transform` function mutation
 - import-path `transform` `Codemod` subclass mutation
 - import-path `transform --check` sandbox behavior
@@ -253,6 +270,7 @@ uvx graph-sitter run LABEL [PATH] --diff-preview 200
 uvx graph-sitter run LABEL [PATH] --backend python|rust|auto
 uvx graph-sitter run LABEL [PATH] --fallback python|error
 uvx graph-sitter run LABEL [PATH] --language auto|python|typescript
+uvx graph-sitter run LABEL [PATH] --subdir src --subdir packages/app
 uvx graph-sitter run LABEL [PATH] --check
 uvx graph-sitter run LABEL [PATH] --write
 ```
@@ -262,6 +280,7 @@ Python registered-codemod examples:
 ```bash
 uvx --python 3.13 graph-sitter run rename-target ./service --language python --backend auto --fallback python --arguments '{"new_name":"renamed"}' --check
 uvx --python 3.13 graph-sitter run rename-target ./service --language python --backend auto --fallback python --arguments '{"new_name":"renamed"}' --write
+uvx --python 3.13 graph-sitter run rename-target ./service --language python --subdir src --arguments '{"new_name":"renamed"}' --check
 ```
 
 TypeScript registered-codemod examples:
@@ -278,6 +297,9 @@ Contract:
 - Omitting `PATH` may keep the historical active-session behavior.
 - `--arguments` accepts a JSON object and validates typed Pydantic argument
   models when present.
+- `--subdir` may be passed more than once for local codemod runs. It overrides
+  codemod-declared subdirectory filters for the invocation, is normalized
+  relative to `PATH`, and must be preserved in `--check` sandbox runs.
 - `--check` runs against a temporary copied repository, prints the produced
   diff, leaves the target unchanged, and exits non-zero when changes would be
   produced.
@@ -286,6 +308,7 @@ Contract:
   skills should always show explicit `--check` or `--write`.
 - `--daemon` is compatibility-only and should not be part of the core `uvx`
   story because it requires initialized session state.
+- Public CLI docs include `run --subdir` examples for large-repo scoping.
 
 ### Import-Path Transforms
 
@@ -441,6 +464,8 @@ Not yet proven by the branch-built wheel smokes:
 - `uvx graph-sitter ...` with no `--from` after upload to the package index.
 - `uvx --from graph-sitter==<version> graph-sitter ...` against an uploaded
   release or pre-release artifact.
+- `graph-sitter run LABEL` from an installed wheel against a target repository
+  that owns `.codegen/codemods`.
 - Full codemod diff parity between Python and Rust backends from an installed
   wheel.
 - Skill installation and invocation against the published package.
@@ -455,7 +480,13 @@ pass against uploaded artifacts, not just branch-built wheels.
 - [ ] Build CPython 3.12 and 3.13 wheels for the supported release platforms.
 - [ ] Build and inspect the sdist, if one will be published.
 - [ ] Verify every wheel contains `graph_sitter_py` and `codemods/codemod.py`.
+- [ ] Verify wheel tags are platform-specific when `graph_sitter_py` is present
+  and never publish a misleading pure-Python Rust-backed wheel.
+- [ ] Verify `graph-sitter = graph_sitter.cli.cli:main` and
+  `gs = graph_sitter.cli.cli:main` are present in the built wheel metadata.
 - [ ] Verify Python-backend imports remain optional-Rust safe.
+- [ ] Verify `graph-sitter --help` imports no checkout-local modules in a clean
+  `UV_CACHE_DIR`.
 - [ ] Upload to a pre-release index or publish a pre-release version.
 
 ### Published-Package Smokes
@@ -464,11 +495,19 @@ Use exact-version commands for release gates:
 
 ```bash
 uvx --python 3.13 --from graph-sitter==<version> graph-sitter --help
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter doctor --json
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter doctor --backend rust --language python --json
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter doctor --backend rust --language typescript --json
 uvx --python 3.13 --from graph-sitter==<version> graph-sitter parse ./tiny-python --language python --backend python --format json
 uvx --python 3.13 --from graph-sitter==<version> graph-sitter parse ./tiny-python --language python --backend rust --fallback error --format json
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter parse ./tiny-python --language python --backend rust --fallback error --format json --output graph-sitter-index.json
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter parse ./tiny-python --language python --backend rust --fallback error --format json --subdir src
 uvx --python 3.13 --from graph-sitter==<version> graph-sitter parse ./tiny-ts --language typescript --backend rust --fallback error --format json
 uvx --python 3.13 --from graph-sitter==<version> graph-sitter transform ./rename.py:rename ./tiny-python --language python --backend rust --fallback error --check
 uvx --python 3.13 --from graph-sitter==<version> graph-sitter transform ./rename.py:rename ./tiny-python --language python --backend rust --fallback error --write
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter transform ./rename.py:rename ./tiny-python --language python --backend rust --fallback error --subdir src --check
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter run rename-target ./tiny-registered-python --language python --backend rust --fallback error --check
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter run rename-target ./tiny-registered-python --language python --backend rust --fallback error --subdir src --check
 ```
 
 Then verify the default user-facing spelling:
@@ -477,6 +516,29 @@ Then verify the default user-facing spelling:
 uvx --python 3.13 graph-sitter --help
 uvx --python 3.13 graph-sitter parse ./tiny-python --language python --backend auto --fallback python --format summary
 ```
+
+Required clean-environment assertions:
+
+- [ ] Use a fresh temporary `UV_CACHE_DIR` for every release smoke job.
+- [ ] Assert `graph-sitter --help` works without importing from the source
+  checkout.
+- [ ] Assert `doctor --backend rust` exits zero for Python and TypeScript on
+  supported wheel platforms.
+- [ ] Assert parse JSON includes `schema_version`, requested backend, actual
+  backend, language, elapsed time, selected subdirectories, graph counts, and no
+  unexpected Rust fallback in strict mode.
+- [ ] Assert `parse --output` writes newline-terminated JSON and leaves stdout
+  empty enough for machine workflows.
+- [ ] Assert `transform --check` exits `1` when changes would be produced and
+  leaves the target repo untouched.
+- [ ] Assert `transform --write` applies the expected diff and no unrelated
+  files change.
+- [ ] Assert registered `run --check` resolves `.codegen/codemods` from the
+  target repository after installation through `uvx --from`.
+- [ ] Assert registered `run --subdir --check` preserves scoped parsing in the
+  temporary sandbox.
+- [ ] Repeat the smoke matrix for Python 3.12 and 3.13 before final release
+  notes claim both interpreters.
 
 ### Large-Repo Gates
 
@@ -499,6 +561,7 @@ uvx --python 3.13 graph-sitter parse ./tiny-python --language python --backend a
 - [ ] Document when to use `--backend rust --fallback error` versus
   `--backend auto --fallback python`.
 - [ ] Document that `transform` requires explicit `--check` or `--write`.
+- [ ] Update public `run` docs with `--subdir` examples and the daemon caveat.
 
 ## Skill-Facing Invocation Guidance
 
@@ -523,6 +586,13 @@ uvx --python 3.13 --from graph-sitter==<version> graph-sitter transform <transfo
 uvx --python 3.13 --from graph-sitter==<version> graph-sitter transform <transform.py>:<object> <repo> --language <python|typescript> --backend auto --fallback python --arguments '<json-object>' --write
 ```
 
+Recommended registered-codemod pattern:
+
+```bash
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter run <label> <repo> --language <python|typescript> --backend auto --fallback python --arguments '<json-object>' --check
+uvx --python 3.13 --from graph-sitter==<version> graph-sitter run <label> <repo> --language <python|typescript> --backend auto --fallback python --subdir <path> --arguments '<json-object>' --check
+```
+
 Skill rules:
 
 - Use `--format json` for parse commands and parse JSON fields instead of
@@ -542,6 +612,9 @@ Skill rules:
   `.codegen/codemods`.
 - Treat non-zero `--check` exit status as expected when a transform would
   produce changes.
+- Treat registered `run` as target-repo dependent: the package provides the
+  runner, while `.codegen/codemods` must come from the repository being
+  transformed.
 
 ## Multi-Agent Checklist
 
@@ -567,6 +640,19 @@ Skill rules:
   Result: `doctor --json` reports Python/package/platform/parser dependency
   readiness, Rust extension status, and an optional generated strict Rust parse
   smoke for Python or TypeScript.
+- [x] Re-audit the uvx roadmap against current package metadata, CLI
+  entrypoints, docs, and wheel smoke scripts. owner: uvx-command subagent.
+  Result: the roadmap now records the canonical console entry point, current
+  `parse`/`run`/`transform` command options, Hatch/cibuildwheel packaging
+  requirements, published-package smoke commands, and clean-environment
+  assertions.
+- [x] Update `docs/cli/run.mdx` to document `--subdir` and the current
+  registered-codemod `uvx` examples. owner: codex. Result: run docs now list
+  `--subdir`, explain the codemod override behavior, and show large-repo plus
+  `uvx` scoped run examples.
+- [ ] Add a release note or docs warning that `uvx graph-sitter ...` without
+  `--from` is only true after uploaded package validation. owner: release/docs
+  agent.
 
 ### Parse Implementation
 
@@ -619,8 +705,14 @@ Skill rules:
 - [x] Add TypeScript installed-wheel transform smoke. owner: codex. Result:
   `check_wheel_rust_backend.sh` now proves a tiny TypeScript function rename
   through `transform --check` and `transform --write` from the installed wheel.
+- [x] Add repeatable `--subdir` support to `graph-sitter run`. owner: codex.
+  Result: the current Click implementation exposes `--subdir`, write-mode tests
+  prove unselected files remain untouched, check-mode tests prove the scoped
+  override survives sandbox resolution, and missing subdirectories fail clearly.
 - [ ] Decide whether `run` should eventually require explicit `--check` or
   `--write` in a major release. owner: CLI/contracts agent.
+- [ ] Add installed-wheel registered `run` smokes for `--check`, `--write`, and
+  `--subdir --check`. owner: distribution-test agent.
 
 ### Packaging And Release
 
@@ -638,6 +730,9 @@ Skill rules:
 - [ ] Add published-package release checklist requiring `uvx graph-sitter
   --help`, parse, and transform against the uploaded artifact. owner: release
   agent.
+- [ ] Convert the published-package smoke commands in this roadmap into a
+  reusable release script parameterized by `GRAPH_SITTER_VERSION`. owner:
+  release-test agent.
 - [ ] Decide long-term Rust extension import namespace: keep top-level
   `graph_sitter_py` or move to `graph_sitter._rust`. owner: packaging/API
   agent.
@@ -670,6 +765,12 @@ Skill rules:
   enough for the initial release?
 - Should `parse --format json` be versioned before docs and skills depend on
   it?
+- Should the first public docs show unpinned `uvx graph-sitter ...` or keep
+  `uvx --from graph-sitter==<version> graph-sitter ...` until several releases
+  have passed?
+- Should registered `run` receive the same installed-wheel and published-package
+  release gates as import-path `transform`, or should first public guidance
+  steer agents to `transform` and treat `run` as repo-owned compatibility?
 
 ## Blockers
 
@@ -683,6 +784,9 @@ Skill rules:
 - Rust-backed transformations are only fully ready when the transform APIs used
   by codemods either work through Rust handles or fall back according to
   `--fallback`.
+- Registered `run` has local tests for path, arguments, check/write, and
+  subdirectory scoping, but still needs installed-wheel and published-package
+  proof from clean `uvx` environments.
 - Defaulting to `--backend auto` should wait until P0 parity, published-package
   artifact smokes, and large-repo gates prove the Rust backend is the safer
   default for supported languages.

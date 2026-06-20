@@ -1,12 +1,15 @@
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 
 import rich_click as click
 
 from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.utils.codemod_manager import CodemodManager
+from graph_sitter.cli.utils.function_finder import DecoratedFunction
 from graph_sitter.cli.utils.json_schema import validate_json
+from graph_sitter.cli.utils.subdirectories import normalize_subdirectories
 from graph_sitter.cli.workspace.venv_manager import VenvManager
 from graph_sitter.configs.models.codebase import GraphBackend, RustFallbackMode
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
@@ -48,6 +51,7 @@ def _parse_arguments(raw_arguments: str | None) -> dict | None:
 @click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")
 @click.option("--check", is_flag=True, help="Run in a temporary sandbox and exit non-zero if changes would be produced.")
 @click.option("--write", is_flag=True, help="Apply changes to the target repo. This remains the default for compatibility.")
+@click.option("--subdir", "subdirectories", multiple=True, help="Limit parsing to a repository-relative subdirectory or file. Can be passed more than once.")
 def run_command(
     label: str,
     path: Path | None = None,
@@ -59,10 +63,14 @@ def run_command(
     language: str = "auto",
     check: bool = False,
     write: bool = False,
+    subdirectories: tuple[str, ...] = (),
 ):
     """Run a registered codemod by label."""
     if check and write:
         msg = "--check and --write cannot be used together"
+        raise click.ClickException(msg)
+    if daemon and subdirectories:
+        msg = "--subdir is only supported for local codemod runs"
         raise click.ClickException(msg)
 
     session = None if path is not None else CliSession.from_active_session()
@@ -85,6 +93,9 @@ def run_command(
 
     # Get and validate the codemod
     codemod = CodemodManager.get_codemod(label, start_path=repo_path)
+    normalized_subdirectories = normalize_subdirectories(repo_path, subdirectories)
+    if normalized_subdirectories is not None:
+        codemod = replace(codemod, subdirectories=normalized_subdirectories)
     arguments_json = _parse_arguments(arguments)
 
     # Handle arguments if needed
@@ -115,6 +126,12 @@ def run_command(
     else:
         from graph_sitter.cli.commands.run.run_local import run_local
 
+        def check_function_resolver(sandbox_repo_path: Path) -> DecoratedFunction:
+            sandbox_codemod = CodemodManager.get_codemod(codemod.name, start_path=sandbox_repo_path)
+            if normalized_subdirectories is None:
+                return sandbox_codemod
+            return replace(sandbox_codemod, subdirectories=normalized_subdirectories)
+
         run_local(
             session,
             codemod,
@@ -125,4 +142,5 @@ def run_command(
             fallback=RustFallbackMode(fallback),
             language=_parse_language(language),
             check=check,
+            check_function_resolver=check_function_resolver if normalized_subdirectories is not None else None,
         )

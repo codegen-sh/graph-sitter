@@ -11,6 +11,7 @@ import rich_click as click
 from codemods.codemod import Codemod
 from graph_sitter.cli.commands.run.main import _parse_arguments, _parse_language
 from graph_sitter.cli.commands.run.run_local import run_local
+from graph_sitter.cli.utils.subdirectories import normalize_subdirectories
 from graph_sitter.configs.models.codebase import GraphBackend, RustFallbackMode
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
@@ -123,38 +124,6 @@ def _build_call_arguments(callable_target: Any, arguments: dict[str, Any] | None
     return [arguments]
 
 
-def _normalize_subdirectories(repo_path: Path, raw_subdirectories: tuple[str, ...]) -> list[str] | None:
-    if not raw_subdirectories:
-        return None
-
-    repo_root = repo_path.resolve()
-    subdirectories: list[str] = []
-    for raw_subdirectory in raw_subdirectories:
-        raw_path = Path(raw_subdirectory).expanduser()
-        if raw_path.is_absolute():
-            try:
-                relative_path = raw_path.resolve().relative_to(repo_root)
-            except ValueError as error:
-                msg = f"--subdir must be inside the target repository: {raw_subdirectory}"
-                raise click.ClickException(msg) from error
-        else:
-            relative_path = raw_path
-
-        normalized = relative_path.as_posix().removeprefix("./").rstrip("/")
-        if normalized in {"", "."}:
-            continue
-
-        full_path = repo_root / normalized
-        if not full_path.exists():
-            msg = f"--subdir path does not exist: {normalized}"
-            raise click.ClickException(msg)
-        if full_path.is_dir():
-            normalized = f"{normalized}/"
-        subdirectories.append(normalized)
-
-    return subdirectories or None
-
-
 @click.command(name="transform")
 @click.argument("specifier", required=True)
 @click.argument("path", required=False, type=click.Path(path_type=Path, exists=True, file_okay=False), default=Path("."))
@@ -190,7 +159,7 @@ def transform_command(
     transform = ImportPathTransform(
         name=specifier,
         target=_load_object(specifier),
-        subdirectories=_normalize_subdirectories(repo_path, subdirectories),
+        subdirectories=normalize_subdirectories(repo_path, subdirectories),
     )
     run_local(
         None,

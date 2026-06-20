@@ -32,6 +32,9 @@ explicitly for repeatable `uvx` and CI usage.
 - `--fallback python|error`: Choose fallback behavior when the Rust backend is
   unavailable or unsupported for the requested API.
 - `--language auto|python|typescript`: Choose the repository language.
+- `--subdir PATH`: Limit parsing to a repository-relative subdirectory or file.
+  Repeat to include multiple paths. This overrides any subdirectories declared
+  by the registered codemod for this invocation.
 - `--arguments JSON`: Pass arguments to the codemod as a JSON object. Typed
   Pydantic argument models are validated when present.
 - `--diff-preview N`: Show the first N lines of the produced diff.
@@ -59,6 +62,12 @@ Run with arguments:
 graph-sitter run rename-function . --arguments '{"old_name":"getUserData","new_name":"fetchUserProfile"}' --check
 ```
 
+Run against only part of a large repository:
+
+```bash
+graph-sitter run rename-function ./airflow --subdir airflow/providers --subdir tests/providers --check
+```
+
 Run against a TypeScript repository:
 
 ```bash
@@ -71,6 +80,7 @@ Published package form after release:
 
 ```bash
 uvx --python 3.13 graph-sitter run rename-function . --arguments '{"old_name":"getUserData","new_name":"fetchUserProfile"}' --check
+uvx --python 3.13 graph-sitter run rename-function ./airflow --subdir airflow/providers --check
 ```
 
 Branch-built wheel validation form before release:
