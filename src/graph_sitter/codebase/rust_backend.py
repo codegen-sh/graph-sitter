@@ -485,6 +485,10 @@ class RustIndexBackend:
     _synthetic_file_records_by_path: dict[str, RustFileRecord] = field(default_factory=dict)
     _source_file_paths: tuple[str, ...] = ()
     _all_file_paths: tuple[str, ...] = ()
+    _source_file_path_set_cache: set[str] | None = None
+    _all_file_path_set_cache: set[str] | None = None
+    _non_source_file_paths_cache: tuple[str, ...] | None = None
+    _non_source_file_id_by_path_cache: dict[str, int] | None = None
     _explicit_directory_paths: set[str] = field(default_factory=set)
     _next_added_file_id: int | None = None
     _ctx: CodebaseContext | None = None
@@ -991,11 +995,32 @@ class RustIndexBackend:
         self._next_added_file_id += 1
         return file_id
 
-    def _non_source_file_paths(self) -> list[str]:
+    def _source_file_path_set(self) -> set[str]:
+        if self._source_file_path_set_cache is None:
+            self._source_file_path_set_cache = set(self._source_file_paths)
+        return self._source_file_path_set_cache
+
+    def _all_file_path_set(self) -> set[str]:
+        if self._all_file_path_set_cache is None:
+            self._all_file_path_set_cache = set(self._all_file_paths)
+        return self._all_file_path_set_cache
+
+    def _non_source_file_paths(self) -> tuple[str, ...]:
         if not self._all_file_paths:
-            return []
-        source_paths = set(self._source_file_paths)
-        return sorted(path for path in self._all_file_paths if path not in source_paths and path not in self._removed_file_paths)
+            return ()
+        if self._non_source_file_paths_cache is None:
+            source_paths = self._source_file_path_set()
+            self._non_source_file_paths_cache = tuple(sorted(path for path in self._all_file_paths if path not in source_paths and path not in self._removed_file_paths))
+        return self._non_source_file_paths_cache
+
+    def _non_source_file_id_by_path(self) -> dict[str, int]:
+        if self._non_source_file_id_by_path_cache is None:
+            self._non_source_file_id_by_path_cache = {path: self.summary.files + index for index, path in enumerate(self._non_source_file_paths())}
+        return self._non_source_file_id_by_path_cache
+
+    def _invalidate_file_path_caches(self) -> None:
+        self._non_source_file_paths_cache = None
+        self._non_source_file_id_by_path_cache = None
 
     def _synthetic_file_records(self) -> list[RustFileRecord]:
         return [record for path in self._non_source_file_paths() if (record := self._synthetic_file_record_by_path(path)) is not None]
@@ -1004,41 +1029,32 @@ class RustIndexBackend:
         normalized = self._normalize_relative_path(filepath)
         if normalized in self._removed_file_paths:
             return None
-        if normalized in self._source_file_paths:
+        if normalized in self._source_file_path_set():
             return None
-        if normalized not in set(self._all_file_paths):
+        if normalized not in self._all_file_path_set():
             return None
         if normalized in self._synthetic_file_records_by_path:
             return self._synthetic_file_records_by_path[normalized]
 
-        absolute_path = self.repo_path / normalized
         try:
-            content_bytes = absolute_path.read_bytes()
+            byte_len = (self.repo_path / normalized).stat().st_size
         except OSError:
             return None
 
-        try:
-            content = content_bytes.decode("utf-8")
-            line_count = _line_count(content)
-            root_range = _source_range_for_content(content)
-            is_binary = False
-        except UnicodeDecodeError:
-            line_count = 0
-            root_range = _source_range_for_bytes(content_bytes)
-            is_binary = True
-
-        file_id = self.summary.files + self._non_source_file_paths().index(normalized)
+        file_id = self._non_source_file_id_by_path().get(normalized)
+        if file_id is None:
+            return None
         record = RustFileRecord(
             id=file_id,
             path=normalized,
             module_name=None,
             language="",
-            content_hash=_stable_content_hash(content_bytes),
-            byte_len=len(content_bytes),
-            line_count=line_count,
+            content_hash="",
+            byte_len=byte_len,
+            line_count=0,
             has_error=False,
-            root_range=root_range,
-            is_binary=is_binary,
+            root_range=_source_range_for_bytes_len(byte_len),
+            is_binary=_is_likely_binary_file(self.repo_path / normalized),
         )
         self._synthetic_file_records_by_path[record.path] = record
         self._synthetic_file_records_by_id[record.id] = record
@@ -1075,6 +1091,7 @@ class RustIndexBackend:
             self._file_handles.append(file)
         self._removed_file_ids.discard(record.id)
         self._removed_file_paths.discard(record.path)
+        self._invalidate_file_path_caches()
         if self._symbols_by_file_id is not None:
             self._symbols_by_file_id[record.id] = []
         if self._imports_by_file_id is not None:
@@ -1114,6 +1131,7 @@ class RustIndexBackend:
         self._removed_file_ids.add(file_id)
         if filepath is not None:
             self._removed_file_paths.add(filepath)
+            self._invalidate_file_path_caches()
         self._added_file_records_by_id.pop(file_id, None)
         if filepath is not None:
             self._added_file_records_by_path.pop(filepath, None)
@@ -2440,14 +2458,33 @@ def _source_range_for_content(source: str) -> RustSourceRange:
 
 
 def _source_range_for_bytes(content: bytes) -> RustSourceRange:
+    return _source_range_for_bytes_len(len(content))
+
+
+def _source_range_for_bytes_len(byte_len: int) -> RustSourceRange:
     return RustSourceRange(
         start_byte=0,
-        end_byte=len(content),
+        end_byte=byte_len,
         start_row=0,
         start_column=0,
         end_row=0,
-        end_column=len(content),
+        end_column=byte_len,
     )
+
+
+def _is_likely_binary_file(path: Path, sample_size: int = 1024) -> bool:
+    try:
+        with path.open("rb") as file:
+            sample = file.read(sample_size)
+    except OSError:
+        return False
+    if b"\0" in sample:
+        return True
+    try:
+        sample.decode("utf-8")
+    except UnicodeDecodeError:
+        return True
+    return False
 
 
 def _line_byte_offsets(source: str) -> list[int]:

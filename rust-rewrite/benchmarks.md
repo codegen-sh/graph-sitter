@@ -249,6 +249,27 @@ Discovery-only old-vs-new measurements were run in the same process to isolate t
 
 The Airflow discovery slice is now about 5.9x faster before Rust parsing begins, while selecting the same 4,789 Python source files and 7,765 total repo files.
 
+### All-File Listing Optimization
+
+On 2026-06-20, the Rust Python shell changed synthetic non-source file records so `codebase.files(extensions="*")` no longer rereads every non-source file to compute eager content hashes and exact line counts. Non-source file content remains lazy through `file.content` and `file.content_bytes`; listing now uses path metadata, cached non-source path indexes, and a small binary-detection sample.
+
+Regression coverage:
+
+```bash
+uv run pytest tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_all_files_reuses_non_source_path_index -q
+```
+
+The test asserts that all-file listing reuses the derived non-source path index and does not call `Path.read_bytes()` while materializing file handles.
+
+Measured on the cached Apache Airflow `2.10.5` checkout (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`:
+
+| Query path | Before wall | Path-cache-only wall | After lazy metadata wall | Result count |
+| ---------- | ----------: | -------------------: | -----------------------: | -----------: |
+| First `codebase.files` | 0.060s | 0.064s | 0.059s | 4,789 |
+| First `codebase.files(extensions="*")` | 4.299s | 2.989s | 0.174s | 7,765 |
+
+The all-file listing path is now about 24.8x faster for Airflow and no longer reads full content for 2,976 non-source files just to return file handles.
+
 ### Top-Level Symbol Query Optimization
 
 On 2026-06-20, the Rust PyO3 extension added top-level symbol-list methods so common public `Codebase` queries no longer deserialize every compact symbol into Python handles. Before this change, `codebase.functions`, `codebase.classes`, and similar top-level lists routed through `RustIndexBackend.symbol_handles`, materializing all compact symbols even when the caller only needed one top-level subset.

@@ -11,6 +11,7 @@
 			"scope": [
 				"path-only compact Rust setup file discovery",
 				"deterministic public query ordering",
+				"all-file listing without full non-source content reads",
 				"global and file-local exact symbol lookup",
 				"case-insensitive file lookup",
 				"file-local byte-range lookup",
@@ -23,6 +24,7 @@
 			],
 			"tests": [
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_discovers_paths_without_python_source_reads",
+				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_all_files_reuses_non_source_path_index",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_public_queries_preserve_python_sorting",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_queries_do_not_materialize_python_graph",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_all_file_queries_include_non_source_files",

@@ -7,7 +7,7 @@ import pytest
 
 from codemods.codemod import Codemod
 from graph_sitter.codebase.factory.get_session import get_codebase_session
-from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError
+from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError, RustIndexBackend
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
@@ -2559,6 +2559,57 @@ def test_rust_compact_top_level_symbol_lists_do_not_materialize_all_symbols(monk
         assert backend._symbols is None
         assert backend._symbol_handles is None
         assert sorted(backend._symbol_handles_by_id or {}) == [0, 2]
+
+
+def test_rust_compact_all_files_reuses_non_source_path_index(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    calls = 0
+    original_non_source_file_paths = RustIndexBackend._non_source_file_paths
+
+    def non_source_file_paths_wrapper(self):
+        nonlocal calls
+        calls += 1
+        return original_non_source_file_paths(self)
+
+    monkeypatch.setattr(RustIndexBackend, "_non_source_file_paths", non_source_file_paths_wrapper)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n",
+            "README.md": "# docs\n",
+            "notes/usage.md": "usage\n",
+            "assets/blob.bin": "blob\n",
+        },
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+        read_bytes_calls: list[Path] = []
+        original_read_bytes = Path.read_bytes
+
+        def read_bytes_wrapper(self):
+            read_bytes_calls.append(self)
+            return original_read_bytes(self)
+
+        monkeypatch.setattr(Path, "read_bytes", read_bytes_wrapper)
+
+        all_files = codebase.files(extensions="*")
+        assert sorted(file.filepath for file in all_files) == [
+            "README.md",
+            "assets/blob.bin",
+            "notes/usage.md",
+            "pkg/service.py",
+        ]
+        assert next(file for file in all_files if file.filepath == "README.md").record.content_hash == ""
+        assert backend._files is not None
+        assert backend._file_handles is not None
+        assert read_bytes_calls == []
+
+    assert calls <= 2
 
 
 def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_path):
