@@ -1223,25 +1223,21 @@ mod bindings {
         }
 
         fn function_calls_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .function_calls
-                .iter()
-                .filter(|call| call.source_file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .function_calls
+                    .iter()
+                    .filter(|call| call.source_file_id == file_id),
+            )
         }
 
         fn function_calls_for_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .function_calls
-                .iter()
-                .filter(|call| call.source_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .function_calls
+                    .iter()
+                    .filter(|call| call.source_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn promise_chain_by_id_json(&self, chain_id: u32) -> PyResult<String> {
@@ -1256,25 +1252,21 @@ mod bindings {
         }
 
         fn promise_chains_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .promise_chains
-                .iter()
-                .filter(|chain| chain.source_file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .promise_chains
+                    .iter()
+                    .filter(|chain| chain.source_file_id == file_id),
+            )
         }
 
         fn promise_chains_for_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .promise_chains
-                .iter()
-                .filter(|chain| chain.source_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .promise_chains
+                    .iter()
+                    .filter(|chain| chain.source_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn jsx_element_by_id_json(&self, element_id: u32) -> PyResult<String> {
@@ -1289,58 +1281,48 @@ mod bindings {
         }
 
         fn jsx_elements_for_file_json(&self, file_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .jsx_elements
-                .iter()
-                .filter(|element| element.source_file_id == file_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .jsx_elements
+                    .iter()
+                    .filter(|element| element.source_file_id == file_id),
+            )
         }
 
         fn jsx_elements_for_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .jsx_elements
-                .iter()
-                .filter(|element| element.source_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .jsx_elements
+                    .iter()
+                    .filter(|element| element.source_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn jsx_elements_for_parent_json(&self, parent_element_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .jsx_elements
-                .iter()
-                .filter(|element| element.parent_jsx_element_id == Some(parent_element_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .jsx_elements
+                    .iter()
+                    .filter(|element| element.parent_jsx_element_id == Some(parent_element_id)),
+            )
         }
 
         fn subclass_edges_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .subclass_edges
-                .iter()
-                .filter(|edge| edge.source_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .subclass_edges
+                    .iter()
+                    .filter(|edge| edge.source_symbol_id == symbol_id),
+            )
         }
 
         fn subclass_edges_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .subclass_edges
-                .iter()
-                .filter(|edge| edge.target_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .subclass_edges
+                    .iter()
+                    .filter(|edge| edge.target_symbol_id == symbol_id),
+            )
         }
 
         fn file_ids(&self) -> Vec<u32> {
@@ -2065,6 +2047,33 @@ mod bindings {
                 index.references_from_symbol_json(0).unwrap()
             );
             assert_eq!(index.references_to_symbol_json(0).unwrap(), "[]");
+            let page_calls: serde_json::Value =
+                serde_json::from_str(&index.function_calls_for_file_json(0).unwrap()).unwrap();
+            assert_eq!(page_calls.as_array().unwrap().len(), 1);
+            assert_eq!(page_calls[0]["source_file_id"], serde_json::json!(0));
+            assert_eq!(page_calls[0]["source_symbol_id"], serde_json::json!(0));
+            assert_eq!(page_calls[0]["target_symbol_id"], serde_json::json!(1));
+            assert_eq!(
+                index.function_calls_for_symbol_json(0).unwrap(),
+                index.function_calls_for_file_json(0).unwrap()
+            );
+            assert_eq!(index.function_calls_for_symbol_json(1).unwrap(), "[]");
+            assert_eq!(index.promise_chains_for_file_json(0).unwrap(), "[]");
+            assert_eq!(index.promise_chains_for_symbol_json(0).unwrap(), "[]");
+            let page_jsx_elements: serde_json::Value =
+                serde_json::from_str(&index.jsx_elements_for_file_json(0).unwrap()).unwrap();
+            assert_eq!(page_jsx_elements.as_array().unwrap().len(), 1);
+            assert_eq!(page_jsx_elements[0]["source_file_id"], serde_json::json!(0));
+            assert_eq!(
+                page_jsx_elements[0]["source_symbol_id"],
+                serde_json::json!(0)
+            );
+            assert_eq!(page_jsx_elements[0]["name"], serde_json::json!("div"));
+            assert_eq!(
+                index.jsx_elements_for_symbol_json(0).unwrap(),
+                index.jsx_elements_for_file_json(0).unwrap()
+            );
+            assert_eq!(index.jsx_elements_for_parent_json(0).unwrap(), "[]");
             assert!(index
                 .dependencies_json()
                 .unwrap()
@@ -2082,6 +2091,8 @@ mod bindings {
                 .unwrap()
                 .contains("\"Page\""));
             assert_eq!(index.subclass_edges_json().unwrap(), "[]");
+            assert_eq!(index.subclass_edges_from_symbol_json(0).unwrap(), "[]");
+            assert_eq!(index.subclass_edges_to_symbol_json(1).unwrap(), "[]");
             assert!(index.to_json().unwrap().contains("\"import_resolutions\""));
             assert!(index.to_json().unwrap().contains("\"external_modules\""));
             assert!(index.to_json().unwrap().contains("\"exports\""));
