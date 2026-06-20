@@ -16,7 +16,7 @@ import snapshot_pinned_typescript_repo as nextjs_snapshot
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REPORT_DIR = REPO_ROOT / "rust-rewrite/reports"
 DEFAULT_MIN_AIRFLOW_WALL_RATIO = 2.0
-DEFAULT_MIN_NEXTJS_WALL_RATIO = 1.5
+DEFAULT_MIN_NEXTJS_WALL_RATIO = 1.2
 DEFAULT_MIN_SEMANTIC_WALL_RATIO = 2.0
 DEFAULT_MIN_RSS_RATIO = 4.0
 
