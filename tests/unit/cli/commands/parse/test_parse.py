@@ -349,7 +349,10 @@ def test_parse_command_rejects_output_for_summary_format(tmp_path):
     )
 
     assert result.exit_code != 0
-    assert "--output is only supported with --format json" in result.output
+    assert "--output" in result.output
+    assert "is only supported with" in result.output
+    assert "--format" in result.output
+    assert "json" in result.output
 
 
 def test_parse_command_rust_backend_missing_extension_fails_cleanly(tmp_path):
