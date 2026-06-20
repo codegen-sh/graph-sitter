@@ -1,13 +1,12 @@
 # Graph-sitter Site
 
-Next.js landing page scaffold for the Vercel project that will own the
-`graph-sitter.com` apex after review. The product docs remain a separate
-Mintlify project in `../docs`.
+Next.js landing page and docs app for the Vercel project that will own the
+Graph-sitter public site after review. The app renders documentation from
+`../docs`.
 
-The landing page is intentionally small: it explains the product, points to the
-docs, and sets expectations for the Rust rewrite and future
-`uvx graph-sitter ...` command surface. It should not try to render or replace
-the Mintlify docs tree.
+The first screen explains the product, and the `/docs` routes statically render
+the MD/MDX documentation tree. Navigation is derived by `site/lib/docs.ts`, so
+docs changes should be validated with the site build.
 
 ## Prerequisites
 
@@ -95,12 +94,11 @@ npx vercel deploy --cwd site --prebuilt --yes
 ```
 
 Vercel should use Node.js 22.x. No runtime environment variables are required
-for the current static landing page.
+for the current static landing/docs app.
 
 ## Production Cutover Sequence
 
-1. Keep the current docs production site untouched.
 1. Review a Vercel preview deployment for `site/`.
-1. Move or confirm docs at `docs.graph-sitter.com`.
-1. Attach `graph-sitter.com` and `www.graph-sitter.com` to the Vercel landing
-   project only after explicit approval.
+1. Confirm `/docs` renders the expected setup, CLI, benchmark, correctness, and
+   API pages.
+1. Attach the approved production domains only after explicit approval.

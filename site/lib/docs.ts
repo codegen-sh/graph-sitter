@@ -49,19 +49,11 @@ export type DocsPage =
 			children: DocsMeta[];
 	  };
 
-type MintPage = string | { group: string; pages?: MintPage[] };
-
-type MintConfig = {
-	tabs?: { name: string; url: string }[];
-	navigation?: { group: string; pages?: MintPage[] }[];
-};
-
 const siteRoot = process.cwd().endsWith("site")
 	? process.cwd()
 	: path.join(process.cwd(), "site");
 const repoRoot = path.resolve(siteRoot, "..");
 const docsRoot = path.join(repoRoot, "docs");
-const mintPath = path.join(docsRoot, "mint.json");
 
 const linkConstants: Record<string, string> = {
 	COMMUNITY_SLACK_URL: "https://community.codegen.com",
@@ -72,7 +64,6 @@ const linkConstants: Record<string, string> = {
 		"https://raw.githubusercontent.com/codegen-sh/graph-sitter/refs/heads/develop/src/codegen/sdk/system-prompt.txt",
 };
 
-let mintConfigCache: MintConfig | undefined;
 let fileSlugCache: string[] | undefined;
 let routeSlugCache: string[] | undefined;
 let navCache: DocsNavGroup[] | undefined;
@@ -115,14 +106,7 @@ export function getDocsNav() {
 		return navCache;
 	}
 
-	navCache = (getMintConfig().navigation ?? [])
-		.map((group) => ({
-			title: group.group,
-			items: (group.pages ?? [])
-				.map((page) => toNavItem(page, group.group))
-				.filter((item): item is DocsNavItem => Boolean(item)),
-		}))
-		.filter((group) => group.items.length > 0);
+	navCache = buildDocsNavGroups();
 
 	return navCache;
 }
@@ -268,46 +252,118 @@ function cleanHeadingText(value: string) {
 		.trim();
 }
 
-function getMintConfig() {
-	if (!mintConfigCache) {
-		mintConfigCache = JSON.parse(
-			fs.readFileSync(mintPath, "utf8"),
-		) as MintConfig;
+const docsSectionOrder = [
+	["introduction", "Introduction"],
+	["tutorials", "Tutorials"],
+	["building-with-graph-sitter", "Building with Graph-sitter"],
+	["cli", "CLI"],
+	["benchmarks", "Benchmarks"],
+	["correctness", "Correctness"],
+	["changelog", "Changelog"],
+	["blog", "Blog"],
+	["api-reference", "API Reference"],
+	["graph-sitter", "Graph-sitter"],
+	["use-cases", "Use Cases"],
+	["organizations", "Organizations"],
+	["users", "Users"],
+] as const;
+
+const sectionTitleBySlug = new Map<string, string>(docsSectionOrder);
+
+function buildDocsNavGroups(): DocsNavGroup[] {
+	const slugs = getFileSlugs().filter((slug) => slug !== "README");
+	const grouped = new Map<string, string[]>();
+
+	for (const slug of slugs) {
+		const sectionSlug = slug.split("/")[0] ?? slug;
+		const sectionSlugs = grouped.get(sectionSlug) ?? [];
+		sectionSlugs.push(slug);
+		grouped.set(sectionSlug, sectionSlugs);
 	}
 
-	return mintConfigCache;
+	const orderedSections = [
+		...docsSectionOrder.map(([slug]) => slug),
+		...[...grouped.keys()].sort((a, b) => a.localeCompare(b)),
+	].filter((slug, index, all) => all.indexOf(slug) === index);
+
+	return orderedSections
+		.map((sectionSlug) => {
+			const sectionSlugs = grouped.get(sectionSlug);
+			if (!sectionSlugs) {
+				return null;
+			}
+
+			const title = sectionTitleBySlug.get(sectionSlug) ?? titleize(sectionSlug);
+			return {
+				title,
+				items: buildDocsNavItems(sectionSlug, sectionSlugs, title),
+			};
+		})
+		.filter(
+			(group): group is DocsNavGroup => Boolean(group && group.items.length),
+		);
 }
 
-function toNavItem(page: MintPage, section: string): DocsNavItem | null {
-	if (typeof page === "string") {
-		const slug = normalizeDocSlug(page);
-		if (!hasDocsRoute(slug)) {
-			return null;
-		}
+function buildDocsNavItems(
+	parentSlug: string,
+	slugs: string[],
+	section: string,
+): DocsNavItem[] {
+	const bySegment = new Map<string, string[]>();
 
-		const meta = getDocsMeta(slug, section);
-		return {
-			slug,
-			title: meta.navTitle,
-			href: meta.href,
-		};
+	for (const slug of slugs) {
+		const relative = slug === parentSlug ? "" : slug.slice(parentSlug.length + 1);
+		const segment = relative.split("/")[0] ?? "";
+		const segmentSlugs = bySegment.get(segment) ?? [];
+		segmentSlugs.push(slug);
+		bySegment.set(segment, segmentSlugs);
 	}
 
-	const children = (page.pages ?? [])
-		.map((child) => toNavItem(child, section))
-		.filter((item): item is DocsNavItem => Boolean(item));
+	return [...bySegment.entries()]
+		.sort(([left], [right]) => sortNavSegments(left, right))
+		.map(([segment, segmentSlugs]) => {
+			if (!segment) {
+				return navLeaf(parentSlug, section);
+			}
 
-	if (children.length === 0) {
-		return null;
-	}
+			const slug = `${parentSlug}/${segment}`;
+			const exactRoute = segmentSlugs.includes(slug);
+			const childSlugs = segmentSlugs.filter((childSlug) => childSlug !== slug);
+			const children = childSlugs.length
+				? buildDocsNavItems(slug, childSlugs, section)
+				: undefined;
 
-	const slug = commonSlugPrefix(children.map((child) => child.slug));
+			if (!children?.length) {
+				return navLeaf(slug, section);
+			}
+
+			const meta = exactRoute ? getDocsMeta(slug, section) : undefined;
+			return {
+				slug,
+				title: meta?.navTitle ?? titleize(segment),
+				href: exactRoute ? docsHref(slug) : children[0].href,
+				children,
+			};
+		});
+}
+
+function navLeaf(slug: string, section: string): DocsNavItem {
+	const meta = getDocsMeta(slug, section);
 	return {
-		slug: slug || children[0].slug,
-		title: page.group,
-		href: slug && hasDocsRoute(slug) ? docsHref(slug) : children[0].href,
-		children,
+		slug,
+		title: meta.navTitle,
+		href: meta.href,
 	};
+}
+
+function sortNavSegments(left: string, right: string) {
+	if (!left) {
+		return -1;
+	}
+	if (!right) {
+		return 1;
+	}
+	return left.localeCompare(right);
 }
 
 function getDocsMeta(slug: string, section?: string): DocsMeta {
@@ -390,10 +446,6 @@ function findDocFile(slug: string) {
 function isDocsDirectory(slug: string) {
 	const directory = path.join(docsRoot, slug);
 	return fs.existsSync(directory) && fs.statSync(directory).isDirectory();
-}
-
-function hasDocsRoute(slug: string) {
-	return Boolean(findDocFile(slug)) || isDocsDirectory(slug);
 }
 
 function getDirectoryChildren(slug: string): DocsMeta[] {
@@ -499,23 +551,4 @@ function titleize(value: string) {
 	return value
 		.replace(/[-_]/gu, " ")
 		.replace(/\b\w/gu, (match) => match.toUpperCase());
-}
-
-function commonSlugPrefix(slugs: string[]) {
-	if (slugs.length === 0) {
-		return "";
-	}
-
-	const splitSlugs = slugs.map((slug) => slug.split("/"));
-	const prefix: string[] = [];
-	for (let index = 0; index < splitSlugs[0].length; index += 1) {
-		const part = splitSlugs[0][index];
-		if (splitSlugs.every((slug) => slug[index] === part)) {
-			prefix.push(part);
-		} else {
-			break;
-		}
-	}
-
-	return prefix.join("/");
 }

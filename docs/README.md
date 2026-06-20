@@ -1,43 +1,40 @@
 # Graph-sitter Docs
 
-The checked-in docs are a Mintlify project. Keep them separate from the Vercel
-landing app in `../site`; the repo does not currently contain a Vercel-buildable
-static export of these docs.
+The checked-in docs are MD/MDX content rendered by the custom Next.js app in
+`../site`. The docs are available under `/docs` in that app.
 
 ## Local Development
 
-From this directory:
+From the repository root:
 
 ```bash
-npx --yes mintlify@latest dev --port 3333
+npm --prefix site ci
+npm --prefix site run dev
 ```
 
-Open the printed localhost URL. The `MDX` editor extension is useful when
-editing these pages.
+Open the printed localhost URL and navigate to `/docs`.
 
 ## Validation
 
+Run the production site build before changing navigation-sensitive files,
+renaming pages, or editing MDX components:
+
 ```bash
-npx --yes mintlify@latest validate
-npx --yes mintlify@latest broken-links
+npm --prefix site run build
 ```
 
-Run these before moving navigation entries or changing page slugs.
-
-The current CLI may print a legacy-config warning and generate `docs.json` from
-`mint.json`. Treat `mint.json` as the checked-in source of truth until a docs
-config migration is explicitly approved.
+The CI gate for docs changes is `.github/workflows/site-build.yml`.
 
 ## Adding New Pages
 
-- Edit the page as a `.mdx` doc.
-- Add the page path to `mint.json` so it appears in the navigation.
+- Add or edit a `.mdx` or `.md` file under `docs/`.
+- Navigation is derived from the content tree by `site/lib/docs.ts`.
 - Keep generated API reference pages under `api-reference/` in sync with the
   docs generation workflow.
+- If you add app-specific components or MDX behavior, implement them in `site/`
+  and validate with the Next build.
 
 ## Hosting
 
-Mintlify should continue to host the docs tree. The recommended launch sequence
-is to keep the current docs production domain untouched, review the Vercel
-landing preview from `../site`, then move or confirm docs at
-`docs.graph-sitter.com` before the apex domain moves to Vercel.
+The Vercel project should use `site` as its root directory. Do not attach
+production domains or run a production deployment without explicit approval.

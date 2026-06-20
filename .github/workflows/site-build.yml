@@ -6,6 +6,7 @@ on:
       - "develop"
     paths:
       - ".github/workflows/site-build.yml"
+      - "docs/**"
       - "site/**"
   push:
     branches:
@@ -13,6 +14,7 @@ on:
       - "rust-rewrite"
     paths:
       - ".github/workflows/site-build.yml"
+      - "docs/**"
       - "site/**"
   workflow_dispatch:
 
@@ -38,6 +40,6 @@ jobs:
         working-directory: site
         run: npm ci
 
-      - name: Build landing site
+      - name: Build Next.js site
         working-directory: site
         run: npm run build

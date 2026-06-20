@@ -49,7 +49,7 @@ The Python backend can be removed only after these are complete:
 - [ ] JSX codemod agent. Add compact JSX prop records, prop reads, prop mutation, wrapper edits, and exact mutation parity tests.
 - [ ] Codemod scale agent. Run real codemods against pinned large repos and assert exact diffs plus latency/RSS.
 - [ ] CI debt agent. Keep fast PR checks under a few minutes, move expensive checks to scheduled/manual lanes, and restore type checking.
-- [ ] Docs/release agent. Keep Mintlify docs, Vercel landing copy, `uvx` docs, and skill packaging aligned with what is actually tested.
+- [ ] Docs/release agent. Keep the Next.js docs site, Vercel deployment notes, `uvx` docs, and skill packaging aligned with what is actually tested.
 - [ ] Deletion planning agent. Inventory every Python backend module, classify keep/replace/delete, and produce a stepwise removal PR plan.
 
 ## Integrator Rules
