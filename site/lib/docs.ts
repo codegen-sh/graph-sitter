@@ -293,14 +293,15 @@ function buildDocsNavGroups(): DocsNavGroup[] {
 				return null;
 			}
 
-			const title = sectionTitleBySlug.get(sectionSlug) ?? titleize(sectionSlug);
+			const title =
+				sectionTitleBySlug.get(sectionSlug) ?? titleize(sectionSlug);
 			return {
 				title,
 				items: buildDocsNavItems(sectionSlug, sectionSlugs, title),
 			};
 		})
-		.filter(
-			(group): group is DocsNavGroup => Boolean(group && group.items.length),
+		.filter((group): group is DocsNavGroup =>
+			Boolean(group && group.items.length),
 		);
 }
 
@@ -312,7 +313,8 @@ function buildDocsNavItems(
 	const bySegment = new Map<string, string[]>();
 
 	for (const slug of slugs) {
-		const relative = slug === parentSlug ? "" : slug.slice(parentSlug.length + 1);
+		const relative =
+			slug === parentSlug ? "" : slug.slice(parentSlug.length + 1);
 		const segment = relative.split("/")[0] ?? "";
 		const segmentSlugs = bySegment.get(segment) ?? [];
 		segmentSlugs.push(slug);

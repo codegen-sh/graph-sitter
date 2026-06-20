@@ -62,13 +62,13 @@ build.
 
 - [ ] Confirm the Vercel project points at `site/`.
 - [ ] Confirm `/`, `/docs`, `/docs/cli/uvx`, `/docs/benchmarks/large-repos`,
-      `/docs/correctness/parity`, and representative API pages render in a
-      preview deployment.
+  `/docs/correctness/parity`, and representative API pages render in a
+  preview deployment.
 - [ ] Confirm docs search JSON builds at `/docs/search.json`.
 - [ ] Add redirects for any old public docs URLs before domain cutover.
 - [ ] Attach production domains only after explicit approval.
 - [ ] Validate a released package path before public docs claim
-      `uvx graph-sitter ...` works from PyPI.
+  `uvx graph-sitter ...` works from PyPI.
 
 ## Notes For Future Agents
 

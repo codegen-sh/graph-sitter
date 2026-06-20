@@ -48,13 +48,13 @@ npx vercel deploy --cwd site --prebuilt --yes
 ## Open Work
 
 - [ ] Add redirects for any old public docs slugs before domain cutover. owner:
-      docs/site agent. Notes: verify from access logs or the previous host's URL
-      map if available.
+  docs/site agent. Notes: verify from access logs or the previous host's URL
+  map if available.
 - [ ] Add a TypeScript transform/codemod docs example with `--check` and
-      `--write`. owner: docs/site agent.
+  `--write`. owner: docs/site agent.
 - [ ] Forward-test the repository-local skill with a fresh-agent codemod task
-      using `--check` before `--write`. owner: skill/docs agent.
+  using `--check` before `--write`. owner: skill/docs agent.
 - [ ] Add published-package `uvx graph-sitter` validation transcript after a
-      real release artifact exists. owner: release/docs agent.
+  real release artifact exists. owner: release/docs agent.
 - [ ] Add docs search quality checks once the content tree stabilizes. owner:
-      docs/site agent.
+  docs/site agent.
