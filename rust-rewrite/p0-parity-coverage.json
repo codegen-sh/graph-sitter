@@ -72,6 +72,7 @@
         "TypeScript import type/default/namespace predicates",
         "TypeScript interface/class heritage dependencies and traversal",
         "TypeScript named namespace re-export member dependencies",
+        "TypeScript qualified namespace member references through namespace imports and re-exports",
         "TypeScript file.get_namespace and namespace member lookups",
         "TypeScript subclass and implementation traversal"
       ],
@@ -165,7 +166,7 @@
         "full TypeScript lexical/type/interface/reference coverage",
         "complete namespace and expression dependency parity"
       ],
-      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, and read-only compact file/symbol.promise_chains, but broader namespace export/private semantics, mutable expression nodes, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
+      "gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, qualified namespace member references through namespace imports and re-exports, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, and read-only compact file/symbol.promise_chains, but broader namespace export/private semantics, mutable expression nodes, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
     },
     {
       "name": "Full graph-wide large-repo semantic parity",

@@ -3595,11 +3595,12 @@ fn push_typescript_nested_type_reference_candidate(
     let Ok(module) = module_node.utf8_text(source.as_bytes()) else {
         return;
     };
-    let qualifier = module.split('.').next().unwrap_or(module);
+    let qualifier = module;
+    let shadow_name = typescript_qualifier_root(qualifier);
     let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
     if !typescript_reference_is_shadowed(
         source_symbol_id,
-        qualifier,
+        shadow_name,
         range,
         local_bindings_by_symbol_id,
         local_binding_scopes,
@@ -3741,11 +3742,11 @@ fn push_typescript_heritage_expression_reference_candidate(
             let Ok(qualifier) = object.utf8_text(source.as_bytes()) else {
                 return;
             };
-            let qualifier = qualifier.split('.').next().unwrap_or(qualifier);
+            let shadow_name = typescript_qualifier_root(qualifier);
             let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
             if !typescript_reference_is_shadowed(
                 source_symbol_id,
-                qualifier,
+                shadow_name,
                 range,
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
@@ -3838,11 +3839,12 @@ fn push_typescript_heritage_type_reference_candidate(
             let Ok(module) = module_node.utf8_text(source.as_bytes()) else {
                 return;
             };
-            let qualifier = module.split('.').next().unwrap_or(module);
+            let qualifier = module;
+            let shadow_name = typescript_qualifier_root(qualifier);
             let source_symbol_id = innermost_symbol_for_range(symbol_ranges, range);
             if !typescript_reference_is_shadowed(
                 source_symbol_id,
-                qualifier,
+                shadow_name,
                 range,
                 local_bindings_by_symbol_id,
                 local_binding_scopes,
@@ -3904,6 +3906,10 @@ fn typescript_reference_is_shadowed(
         local_bindings_by_symbol_id,
         local_binding_scopes,
     )
+}
+
+fn typescript_qualifier_root(qualifier: &str) -> &str {
+    qualifier.split('.').next().unwrap_or(qualifier)
 }
 
 fn typescript_indexed_local_symbol_for_reference(
@@ -4371,6 +4377,15 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
         &local_exported_symbols,
         &index.import_resolutions,
     );
+    let child_symbol_by_parent_and_name: HashMap<(u32, String), u32> = index
+        .symbols
+        .iter()
+        .filter_map(|symbol| {
+            symbol
+                .parent_symbol_id
+                .map(|parent_symbol_id| ((parent_symbol_id, symbol.name.to_string()), symbol.id))
+        })
+        .collect();
     let namespace_export_file_by_file_and_name =
         typescript_namespace_export_file_map(index, &index.import_resolutions);
     let resolution_by_import_id: HashMap<u32, &ImportResolutionRecord> = index
@@ -4439,17 +4454,16 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
     let mut subclass_edge_pairs = HashSet::new();
     for candidate in candidates {
         let resolved_target = if let Some(qualifier) = candidate.qualifier.as_ref() {
-            imported_module_by_qualifier
-                .get(&(candidate.source_file_id, qualifier.clone()))
-                .and_then(|(target_file_id, import_id)| {
-                    exported_symbol_by_file_and_name
-                        .get(&(*target_file_id, candidate.name.clone()))
-                        .or_else(|| {
-                            symbol_by_file_and_name.get(&(*target_file_id, candidate.name.clone()))
-                        })
-                        .copied()
-                        .map(|symbol_id| (symbol_id, Some(*import_id)))
-                })
+            resolve_typescript_qualified_reference(
+                candidate.source_file_id,
+                qualifier,
+                &candidate.name,
+                &imported_module_by_qualifier,
+                &imported_symbol_by_binding,
+                &exported_symbol_by_file_and_name,
+                &symbol_by_file_and_name,
+                &child_symbol_by_parent_and_name,
+            )
         } else {
             let local_target = typescript_indexed_local_symbol_for_reference(
                 candidate.source_symbol_id,
@@ -4562,6 +4576,129 @@ fn resolve_typescript_references(index: &mut TypeScriptIndex, candidates: Vec<Re
     index.function_calls = function_calls;
     index.subclass_edges = subclass_edges;
     index.strings = strings;
+}
+
+fn resolve_typescript_qualified_reference(
+    source_file_id: u32,
+    qualifier: &str,
+    name: &str,
+    imported_module_by_qualifier: &HashMap<(u32, String), (u32, u32)>,
+    imported_symbol_by_binding: &HashMap<(u32, String), (u32, u32)>,
+    exported_symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+    symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+    child_symbol_by_parent_and_name: &HashMap<(u32, String), u32>,
+) -> Option<(u32, Option<u32>)> {
+    let qualifier_segments = qualifier
+        .split('.')
+        .filter(|segment| !segment.is_empty())
+        .collect::<Vec<_>>();
+    let (first_segment, remaining_segments) = qualifier_segments.split_first()?;
+
+    if let Some((target_file_id, import_id)) =
+        imported_module_by_qualifier.get(&(source_file_id, (*first_segment).to_owned()))
+    {
+        return resolve_typescript_symbol_from_module_namespace(
+            *target_file_id,
+            remaining_segments,
+            name,
+            exported_symbol_by_file_and_name,
+            symbol_by_file_and_name,
+            child_symbol_by_parent_and_name,
+        )
+        .map(|symbol_id| (symbol_id, Some(*import_id)));
+    }
+
+    if let Some((target_symbol_id, import_id)) =
+        imported_symbol_by_binding.get(&(source_file_id, (*first_segment).to_owned()))
+    {
+        return resolve_typescript_child_symbol_path(
+            *target_symbol_id,
+            remaining_segments,
+            name,
+            child_symbol_by_parent_and_name,
+        )
+        .map(|symbol_id| (symbol_id, Some(*import_id)));
+    }
+
+    resolve_typescript_symbol_from_local_namespace(
+        source_file_id,
+        &qualifier_segments,
+        name,
+        symbol_by_file_and_name,
+        child_symbol_by_parent_and_name,
+    )
+    .map(|symbol_id| (symbol_id, None))
+}
+
+fn resolve_typescript_symbol_from_module_namespace(
+    target_file_id: u32,
+    namespace_segments: &[&str],
+    name: &str,
+    exported_symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+    symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+    child_symbol_by_parent_and_name: &HashMap<(u32, String), u32>,
+) -> Option<u32> {
+    if namespace_segments.is_empty() {
+        return exported_symbol_by_file_and_name
+            .get(&(target_file_id, name.to_owned()))
+            .copied()
+            .or_else(|| {
+                symbol_by_file_and_name
+                    .get(&(target_file_id, name.to_owned()))
+                    .copied()
+            });
+    }
+
+    let (first_namespace, remaining_segments) = namespace_segments.split_first()?;
+    let parent_symbol_id = exported_symbol_by_file_and_name
+        .get(&(target_file_id, (*first_namespace).to_owned()))
+        .copied()
+        .or_else(|| {
+            symbol_by_file_and_name
+                .get(&(target_file_id, (*first_namespace).to_owned()))
+                .copied()
+        })?;
+    resolve_typescript_child_symbol_path(
+        parent_symbol_id,
+        remaining_segments,
+        name,
+        child_symbol_by_parent_and_name,
+    )
+}
+
+fn resolve_typescript_symbol_from_local_namespace(
+    source_file_id: u32,
+    namespace_segments: &[&str],
+    name: &str,
+    symbol_by_file_and_name: &HashMap<(u32, String), u32>,
+    child_symbol_by_parent_and_name: &HashMap<(u32, String), u32>,
+) -> Option<u32> {
+    let (first_namespace, remaining_segments) = namespace_segments.split_first()?;
+    let parent_symbol_id = symbol_by_file_and_name
+        .get(&(source_file_id, (*first_namespace).to_owned()))
+        .copied()?;
+    resolve_typescript_child_symbol_path(
+        parent_symbol_id,
+        remaining_segments,
+        name,
+        child_symbol_by_parent_and_name,
+    )
+}
+
+fn resolve_typescript_child_symbol_path(
+    mut parent_symbol_id: u32,
+    namespace_segments: &[&str],
+    name: &str,
+    child_symbol_by_parent_and_name: &HashMap<(u32, String), u32>,
+) -> Option<u32> {
+    for segment in namespace_segments {
+        parent_symbol_id = child_symbol_by_parent_and_name
+            .get(&(parent_symbol_id, (*segment).to_owned()))
+            .copied()?;
+    }
+    child_symbol_by_parent_and_name
+        .get(&(parent_symbol_id, name.to_owned()))
+        .copied()
 }
 
 fn typescript_import_binding_name(import: &ImportRecord) -> Option<String> {
@@ -7260,6 +7397,156 @@ export function run() {\n\
             dependency.source_symbol_id == run_symbol_id
                 && dependency.target_symbol_id == helper_symbol_id
                 && dependency.reference_count == 1
+        }));
+    }
+
+    #[test]
+    fn resolves_typescript_qualified_namespace_member_references() {
+        let repo = temp_repo_path("resolve-typescript-qualified-namespace-members");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/api.ts"),
+            "export namespace Inner {\n\
+  export function helper() { return 1; }\n\
+  export type Payload = { value: number };\n\
+  export class Base {}\n\
+  export namespace Deep {\n\
+    export function call() { return 2; }\n\
+    export interface Contract {}\n\
+  }\n\
+}\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/barrel.ts"),
+            "export * as api from './api';\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import * as direct from './api';\n\
+import { api as barrelApi } from './barrel';\n\
+\n\
+type One = direct.Inner.Payload;\n\
+interface UsesContract extends direct.Inner.Deep.Contract {}\n\
+export class Child extends direct.Inner.Base {}\n\
+export function run(input: barrelApi.Inner.Payload) {\n\
+  direct.Inner.helper();\n\
+  barrelApi.Inner.Deep.call();\n\
+}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let api_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/api.ts")
+            .unwrap()
+            .id;
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.ts")
+            .unwrap()
+            .id;
+        let app_symbol = |name: &str| {
+            index
+                .symbols
+                .iter()
+                .find(|symbol| symbol.file_id == app_file_id && symbol.name == name)
+                .unwrap()
+                .id
+        };
+        let api_symbol = |name: &str, parent_symbol_id: Option<u32>| {
+            index
+                .symbols
+                .iter()
+                .find(|symbol| {
+                    symbol.file_id == api_file_id
+                        && symbol.name == name
+                        && symbol.parent_symbol_id == parent_symbol_id
+                })
+                .unwrap()
+                .id
+        };
+        let inner_symbol_id = api_symbol("Inner", None);
+        let deep_symbol_id = api_symbol("Deep", Some(inner_symbol_id));
+        let helper_symbol_id = api_symbol("helper", Some(inner_symbol_id));
+        let payload_symbol_id = api_symbol("Payload", Some(inner_symbol_id));
+        let base_symbol_id = api_symbol("Base", Some(inner_symbol_id));
+        let call_symbol_id = api_symbol("call", Some(deep_symbol_id));
+        let contract_symbol_id = api_symbol("Contract", Some(deep_symbol_id));
+        let one_symbol_id = app_symbol("One");
+        let uses_contract_symbol_id = app_symbol("UsesContract");
+        let child_symbol_id = app_symbol("Child");
+        let run_symbol_id = app_symbol("run");
+        let direct_import_id = index
+            .imports
+            .iter()
+            .find(|import| {
+                import.file_id == app_file_id
+                    && import.kind == ImportKind::NamespaceImport
+                    && import.alias.as_deref() == Some("direct")
+            })
+            .unwrap()
+            .id;
+        let barrel_api_import_id = index
+            .imports
+            .iter()
+            .find(|import| {
+                import.file_id == app_file_id
+                    && import.kind == ImportKind::NamedImport
+                    && import.name.as_deref() == Some("api")
+                    && import.alias.as_deref() == Some("barrelApi")
+            })
+            .unwrap()
+            .id;
+
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(one_symbol_id)
+                && reference.target_symbol_id == payload_symbol_id
+                && reference.import_id == Some(direct_import_id)
+                && reference.name == "Payload"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == payload_symbol_id
+                && reference.import_id == Some(barrel_api_import_id)
+                && reference.name == "Payload"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == helper_symbol_id
+                && reference.import_id == Some(direct_import_id)
+                && reference.name == "helper"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == call_symbol_id
+                && reference.import_id == Some(barrel_api_import_id)
+                && reference.name == "call"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(child_symbol_id)
+                && reference.target_symbol_id == base_symbol_id
+                && reference.import_id == Some(direct_import_id)
+                && reference.name == "Base"
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(uses_contract_symbol_id)
+                && reference.target_symbol_id == contract_symbol_id
+                && reference.import_id == Some(direct_import_id)
+                && reference.name == "Contract"
+        }));
+        assert!(index.subclass_edges.iter().any(|edge| {
+            edge.source_symbol_id == child_symbol_id && edge.target_symbol_id == base_symbol_id
+        }));
+        assert!(index.subclass_edges.iter().any(|edge| {
+            edge.source_symbol_id == uses_contract_symbol_id
+                && edge.target_symbol_id == contract_symbol_id
         }));
     }
 

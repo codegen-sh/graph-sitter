@@ -56,6 +56,7 @@
         "read-only file/symbol.promise_chains",
         "TypeScript import type/default/namespace predicates",
         "relative and alias import resolution",
+        "qualified namespace member references through namespace imports and re-exports",
         "external import dependencies",
         "subclass and implementation traversal"
       ],

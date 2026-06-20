@@ -1969,7 +1969,7 @@
       "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
     },
     "references": {
-      "count": 114464,
+      "count": 114465,
       "samples": [
         {
           "import": null,
@@ -2292,7 +2292,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
         }
       ],
-      "sha256": "63de55ea49061819ec173bade3316163bd113dd6e04e408bab70436738804769"
+      "sha256": "51ecfc2eab6601e947f7f64944f162c63e304c0e00c256c2ac497fc28dd95202"
     },
     "subclass_edges": {
       "count": 160,
@@ -3002,7 +3002,7 @@
     "import_resolutions": 13462,
     "imports": 28210,
     "lines": 634891,
-    "references": 114464,
+    "references": 114465,
     "subclass_edges": 160,
     "symbols": 44871
   }
