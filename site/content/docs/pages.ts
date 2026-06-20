@@ -27,6 +27,15 @@ export type DocsPage = {
   sections: DocsSection[];
 };
 
+export type DocsSearchRecord = {
+  slug: string;
+  href: string;
+  title: string;
+  description: string;
+  status: string;
+  text: string;
+};
+
 export const docsPages = [
   {
     slug: "overview",
@@ -329,4 +338,27 @@ export function docsStaticParams() {
   return docsPages.map((page) => ({
     slug: page.slug === "overview" ? [] : page.slug.split("/")
   }));
+}
+
+export function docsSearchRecords(): DocsSearchRecord[] {
+  return docsPages.map((page) => {
+    const sectionText = page.sections.flatMap((section) => [
+      section.title,
+      ...section.blocks.flatMap((block) => {
+        if (block.type === "list") {
+          return block.items;
+        }
+        return block.text ?? block.code;
+      })
+    ]);
+
+    return {
+      slug: page.slug,
+      href: docsHref(page.slug),
+      title: page.title,
+      description: page.description,
+      status: page.status,
+      text: [page.title, page.description, page.status, ...sectionText].join(" ")
+    };
+  });
 }

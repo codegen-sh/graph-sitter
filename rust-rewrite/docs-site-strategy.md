@@ -266,7 +266,7 @@ Rules:
 - [ ] Build local MDX component shims for the migrated docs renderer. owner: unclaimed.
 - [ ] Convert `docs/mint.json` navigation into a Vercel docs nav source. owner: unclaimed.
 - [x] Create a static docs route in the Next app with `generateStaticParams`. owner: codex. Result: `site/app/docs/[[...slug]]/page.tsx` prerenders `/docs` plus setup, uvx, Rust status, parity, benchmark, and TypeScript support pages with `dynamicParams = false`.
-- [ ] Generate a static client-side search manifest for docs pages. owner: unclaimed.
+- [x] Generate a static client-side search manifest for docs pages. owner: codex. Result: added `docsSearchRecords()`, a static `/docs/search.json` route, and sidebar client search over the Vercel docs seed pages.
 - [ ] Port or regenerate API reference pages into Vercel-compatible MDX. owner: unclaimed.
 - [ ] Add redirects for old Mintlify docs slugs before domain cutover. owner: unclaimed.
 - [ ] Add a docs release gate checklist to `rust-rewrite/strategy.md` or keep this file as the docs ledger. owner: unclaimed.

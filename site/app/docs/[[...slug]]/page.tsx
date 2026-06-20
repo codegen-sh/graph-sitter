@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DocsSearchBox } from "../../../components/docs/search-box";
 import { docsNav } from "../../../content/nav";
 import {
   docsHref,
   docsPages,
+  docsSearchRecords,
   docsStaticParams,
   getDocsPage,
   type DocsBlock
@@ -66,6 +68,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
 
       <div className="docs-layout">
         <aside className="docs-sidebar" aria-label="Docs navigation">
+          <DocsSearchBox records={docsSearchRecords()} />
           {docsNav.map((group) => (
             <section className="docs-nav-group" key={group.title}>
               <h2>{group.title}</h2>
