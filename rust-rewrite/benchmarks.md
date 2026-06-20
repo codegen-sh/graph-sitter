@@ -257,9 +257,9 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
 
 | Input | Rust `Codebase` wall | Rust `Codebase` max RSS | Files | Symbols | Imports | Exports | Import resolutions | References | Dependencies | Function calls | Promise chains | Python graph blocked |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 10.465s | 435.9 MB | 13688 | 44870 | 28210 | 16026 | 13462 | 114463 | 49287 | 197581 | 878 | yes |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | 10.726s | 437.8 MB | 13688 | 44871 | 28210 | 16027 | 13462 | 114464 | 49287 | 197581 | 878 | yes |
 
-Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 2.385x faster and about 7.112x lower max RSS while exposing compact export, call, and Promise-chain handles and keeping the eager Python graph unbuilt. The pinned proof also validates a real `packages/next/src/cli/next-lint.ts` file/symbol lookup for 27 file-local call records, 16 `nextLint` symbol call records, and one `.then/.catch` Promise chain without materializing the full call or chain caches.
+Compared with the Python TypeScript parse/object-materialization baseline above, the current Rust `Codebase` TypeScript shell is about 2.327x faster and about 7.082x lower max RSS while exposing compact export, call, and Promise-chain handles and keeping the eager Python graph unbuilt. The pinned proof also validates a real `packages/next/src/cli/next-lint.ts` file/symbol lookup for 27 file-local call records, 16 `nextLint` symbol call records, and one `.then/.catch` Promise chain without materializing the full call or chain caches. A parser fallback now tries the TS grammar for `.ts`/`.js` files and keeps the lower-error parse, reducing pinned Next.js parser-error files from 114 to 113 by recovering `test/integration/typescript/components/angle-bracket-type-assertions.ts`.
 
 The same proof is now available as an opt-in test gate:
 
@@ -269,7 +269,7 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
   --skip-fetch
 ```
 
-On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.465s wall / 435.9 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.385x faster wall time and 7.112x lower max RSS with conservative CI-style ceilings.
+On 2026-06-19, that checker validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.726s wall / 437.8 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.327x faster wall time and 7.082x lower max RSS with conservative CI-style ceilings.
 
 ## Installed-Wheel `uvx` Airflow Evidence
 
@@ -349,14 +349,16 @@ uv run python rust-rewrite/tools/check_wheel_pinned_typescript_repo.py \
 | Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`) | Python | 57.956s | 78.107s | 4505.6 MB | 13679 | 25364 | 28723 | 17878 | n/a | 811914 |
 
 The installed-wheel strict Rust path matched the committed compact TypeScript
-golden summary exactly, including 13,688 files, 44,870 symbols, 28,210 imports,
-16,026 exports, 114,463 references, 49,287 dependencies, 25,318 external
-references, 160 subclass edges, and 114 files with parse errors. Compared with
-the installed-wheel Python backend on the same checkout and wheel, the Rust path
-was 5.598x faster by CLI parse elapsed and 8.383x lower by sampled process-tree
-RSS. The Python backend materialized 9 fewer file objects than Rust selected
-files, matching the known selected-file versus materialized-file delta for this
-repo's broken fixture files.
+golden summary at the time that wheel was built, including 13,688 files, 44,870
+symbols, 28,210 imports, 16,026 exports, 114,463 references, 49,287
+dependencies, 25,318 external references, 160 subclass edges, and 114 files with
+parse errors. A later source fix for TS angle-bracket assertion parsing updates
+the committed golden counts. Compared with the installed-wheel Python backend
+on the same checkout and wheel, the Rust path was 5.598x faster by CLI parse
+elapsed and 8.383x lower by sampled process-tree RSS. The Python backend
+materialized 9 fewer file objects than Rust selected files, matching the known
+selected-file versus materialized-file delta for this repo's broken fixture
+files.
 
 The same branch-built wheel gate also proves a real pinned Next.js transform
 through the distributed CLI:

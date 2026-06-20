@@ -32,31 +32,31 @@ from benchmark_pinned_typescript_repo import (  # noqa: E402
 
 EXPECTED_SUMMARY = {
     "files": 13688,
-    "symbols": 44870,
+    "symbols": 44871,
     "classes": 502,
     "functions": 13497,
-    "global_variables": 28741,
+    "global_variables": 28742,
     "imports": 28210,
     "import_resolutions": 13462,
     "external_modules": 13525,
-    "references": 114463,
+    "references": 114464,
     "dependencies": 49287,
     "bytes": 25421217,
     "lines": 634891,
-    "files_with_errors": 114,
+    "files_with_errors": 113,
 }
 
 EXPECTED_RECORDS = {
     "rust_files": 13688,
-    "rust_symbols": 44870,
+    "rust_symbols": 44871,
     "rust_classes": 502,
     "rust_functions": 13497,
-    "rust_global_vars": 28741,
+    "rust_global_vars": 28742,
     "rust_imports": 28210,
     "rust_import_resolutions": 13462,
     "rust_external_modules": 13525,
-    "rust_exports": 16026,
-    "rust_references": 114463,
+    "rust_exports": 16027,
+    "rust_references": 114464,
     "rust_external_references": 25318,
     "rust_function_calls": 197581,
     "rust_promise_chains": 878,
@@ -66,15 +66,15 @@ EXPECTED_RECORDS = {
 
 EXPECTED_COMPAT_HANDLES = {
     "files": 13688,
-    "symbols": 23980,
+    "symbols": 23981,
     "classes": 502,
     "functions": 13497,
-    "global_vars": 7866,
+    "global_vars": 7867,
     "interfaces": 516,
     "types": 1570,
     "imports": 28210,
     "external_modules": 13525,
-    "exports": 16026,
+    "exports": 16027,
 }
 
 EXPECTED_KNOWN_GLOBAL_LOOKUPS = {

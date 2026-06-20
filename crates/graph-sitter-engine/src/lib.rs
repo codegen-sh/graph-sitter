@@ -1139,14 +1139,20 @@ impl PythonIndexer {
 }
 
 struct TypeScriptIndexer {
-    parser: Parser,
+    typescript_parser: Parser,
+    tsx_parser: Parser,
 }
 
 impl TypeScriptIndexer {
     fn new() -> Result<Self, IndexError> {
-        let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_typescript::LANGUAGE_TSX.into())?;
-        Ok(Self { parser })
+        let mut typescript_parser = Parser::new();
+        typescript_parser.set_language(&tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into())?;
+        let mut tsx_parser = Parser::new();
+        tsx_parser.set_language(&tree_sitter_typescript::LANGUAGE_TSX.into())?;
+        Ok(Self {
+            typescript_parser,
+            tsx_parser,
+        })
     }
 
     fn index_path(mut self, repo_path: impl AsRef<Path>) -> Result<TypeScriptIndex, IndexError> {
@@ -1208,10 +1214,8 @@ impl TypeScriptIndexer {
         for path in paths {
             let file_id = index.files.len() as u32;
             let (content, byte_len, content_hash) = read_source_lossy(&path)?;
-            let tree = self
-                .parser
-                .parse(&content, None)
-                .ok_or_else(|| IndexError::ParseFailed { path: path.clone() })?;
+            let language = file_language_for_typescript_path(&path);
+            let tree = self.parse_typescript_tree(language, &content, &path)?;
             let root = tree.root_node();
             let relative_path = path
                 .strip_prefix(repo_path)
@@ -1223,7 +1227,7 @@ impl TypeScriptIndexer {
             index.files.push(FileRecord {
                 id: file_id,
                 module_name: None,
-                language: file_language_for_typescript_path(&path),
+                language,
                 content_hash,
                 path: relative_path,
                 byte_len,
@@ -1244,6 +1248,42 @@ impl TypeScriptIndexer {
         resolve_typescript_references(&mut index, reference_candidates);
         build_typescript_dependencies(&mut index);
         Ok(index.finish())
+    }
+
+    fn parse_typescript_tree(
+        &mut self,
+        language: FileLanguage,
+        content: &str,
+        path: &Path,
+    ) -> Result<Tree, IndexError> {
+        let primary_is_tsx = matches!(language, FileLanguage::Tsx | FileLanguage::Jsx);
+        let primary_tree = if primary_is_tsx {
+            self.tsx_parser.parse(content, None)
+        } else {
+            self.typescript_parser.parse(content, None)
+        }
+        .ok_or_else(|| IndexError::ParseFailed {
+            path: path.to_path_buf(),
+        })?;
+        if !primary_tree.root_node().has_error() {
+            return Ok(primary_tree);
+        }
+
+        let fallback_tree = if primary_is_tsx {
+            self.typescript_parser.parse(content, None)
+        } else {
+            self.tsx_parser.parse(content, None)
+        }
+        .ok_or_else(|| IndexError::ParseFailed {
+            path: path.to_path_buf(),
+        })?;
+
+        if syntax_error_count(fallback_tree.root_node())
+            < syntax_error_count(primary_tree.root_node())
+        {
+            return Ok(fallback_tree);
+        }
+        Ok(primary_tree)
     }
 }
 
@@ -3741,6 +3781,18 @@ fn push_typescript_heritage_type_reference_candidate(
         }
         _ => {}
     }
+}
+
+fn syntax_error_count(node: Node<'_>) -> usize {
+    let mut count = usize::from(node.is_error() || node.is_missing());
+    if !node.has_error() {
+        return count;
+    }
+    let mut cursor = node.walk();
+    for child in node.children(&mut cursor) {
+        count += syntax_error_count(child);
+    }
+    count
 }
 
 fn ranges_overlap(left: SourceRange, right: SourceRange) -> bool {
@@ -8162,6 +8214,45 @@ export interface Other {}\n",
                     })
             }));
         }
+    }
+
+    #[test]
+    fn parses_typescript_angle_bracket_assertions_without_tsx_errors() {
+        let repo = temp_repo_path("typescript-angle-bracket-assertions");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/assertions.ts"),
+            "// eslint-disable-next-line\nconst myVar = <any>'test'\n\nexport default myVar\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let file = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/assertions.ts")
+            .unwrap();
+        let symbol = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == file.id && symbol.name == "myVar")
+            .unwrap();
+
+        assert!(!file.has_error);
+        assert_eq!(index.summary().symbols, 1);
+        assert!(index.exports.iter().any(|export| {
+            export.file_id == file.id
+                && export.kind == ExportKind::Default
+                && export.name.as_deref() == Some("default")
+                && export.local_name.as_deref() == Some("myVar")
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_file_id == file.id
+                && reference.target_symbol_id == symbol.id
+                && reference.name == "myVar"
+        }));
     }
 
     #[test]

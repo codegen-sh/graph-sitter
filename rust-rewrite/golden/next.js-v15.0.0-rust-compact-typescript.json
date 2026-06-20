@@ -210,10 +210,10 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
         }
       ],
-      "sha256": "1cd86a9e68f44e7b66be3b374864f6ff89b496cc53c38d9b659a02cb585aa0e1"
+      "sha256": "2b4504dada98ee8d1c67f44555c126db3afb6995cbe9d3a3fd8ef98a90486da3"
     },
     "exports": {
-      "count": 16026,
+      "count": 16027,
       "samples": [
         {
           "file": "bench/app-router-server/app/layout.js",
@@ -576,7 +576,7 @@
           "symbol": "bench/nested-deps-app-router/app/layout.js:global_variable:metadata@40"
         }
       ],
-      "sha256": "5a88b8e63c7e9fd52e305199fbdf61c3cd2abc40c85031db233f4247a126a9ef"
+      "sha256": "d3952dc6951104f04bc1e184f61e85eb1218089a07c294e3be675285d36dba4c"
     },
     "external_modules": {
       "count": 13525,
@@ -1494,7 +1494,7 @@
           ]
         }
       ],
-      "sha256": "caf02ccc4d64cb10b5db5432e3a3e0edc363d0901bb53191e2ef8d8cee2768f8"
+      "sha256": "10185cca51023d11ccfd72c255e2fd0eac8146ab3768a974f2b6e93c428d0f93"
     },
     "import_resolutions": {
       "count": 13462,
@@ -1640,7 +1640,7 @@
           "target_symbol": null
         }
       ],
-      "sha256": "c65322a912577df93bd61eab217455ad1177033cb7cd211455df6a35564efb83"
+      "sha256": "59a2edf479c3dd84f34df1c789b36c629c74c98c941d3de685f8acd2cbe86f82"
     },
     "imports": {
       "count": 28210,
@@ -1969,7 +1969,7 @@
       "sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
     },
     "references": {
-      "count": 114463,
+      "count": 114464,
       "samples": [
         {
           "import": null,
@@ -2292,7 +2292,7 @@
           "target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
         }
       ],
-      "sha256": "1cbb225c0f15d83eba1f4512a68fce0cddd1d057e7743fafe195812bdba046ce"
+      "sha256": "63de55ea49061819ec173bade3316163bd113dd6e04e408bab70436738804769"
     },
     "subclass_edges": {
       "count": 160,
@@ -2461,7 +2461,7 @@
       "sha256": "b55a1570991c33ad18f55ba9f3e56595d759091893a685e8ada69598b45ac8a7"
     },
     "symbols": {
-      "count": 44870,
+      "count": 44871,
       "samples": [
         {
           "file": ".github/actions/needs-triage/src/index.ts",
@@ -2944,7 +2944,7 @@
           ]
         }
       ],
-      "sha256": "2c6e773e9e6108d671c37449fd95a52f1ed510246eb980540ae875ad903159eb"
+      "sha256": "01a2355f2b5ee684cfa2c100ec231ebc756e7b655565b9d0829f9381e0a471e1"
     }
   },
   "integrity": {
@@ -2992,18 +2992,18 @@
     "bytes": 25421217,
     "classes": 502,
     "dependencies": 49287,
-    "exports": 16026,
+    "exports": 16027,
     "external_modules": 13525,
     "external_references": 25318,
     "files": 13688,
-    "files_with_errors": 114,
+    "files_with_errors": 113,
     "functions": 13497,
-    "global_variables": 28741,
+    "global_variables": 28742,
     "import_resolutions": 13462,
     "imports": 28210,
     "lines": 634891,
-    "references": 114463,
+    "references": 114464,
     "subclass_edges": 160,
-    "symbols": 44870
+    "symbols": 44871
   }
 }
