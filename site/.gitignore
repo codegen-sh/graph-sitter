@@ -2,5 +2,7 @@
 node_modules
 out
 .vercel
+public/favicon.svg
+public/images
 *.tsbuildinfo
 .env*.local
