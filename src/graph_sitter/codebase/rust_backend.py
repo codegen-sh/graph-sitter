@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import heapq
 import json
 import posixpath
 from dataclasses import dataclass, field
@@ -472,6 +473,7 @@ class RustIndexBackend:
     _jsx_elements_by_parent_id: dict[int, list[RustCompactJSXElement]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
+    _dependencies_by_source_file_id: dict[int, list[RustDependencyRecord]] | None = None
     _subclass_edges_by_source_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
     _subclass_edges_by_target_symbol_id: dict[int, list[RustSubclassRecord]] | None = None
     _symbols_by_parent_symbol_id: dict[int, list[RustCompactSymbol]] | None = None
@@ -1216,6 +1218,7 @@ class RustIndexBackend:
         self._jsx_elements_by_parent_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
+        self._dependencies_by_source_file_id = None
         self._subclass_edges_by_source_symbol_id = None
         self._subclass_edges_by_target_symbol_id = None
         self._symbols_by_parent_symbol_id = None
@@ -2005,6 +2008,23 @@ class RustIndexBackend:
                 dependencies_by_source_symbol_id.setdefault(dependency.source_symbol_id, []).append(dependency)
             self._dependencies_by_source_symbol_id = dependencies_by_source_symbol_id
         return self._dependencies_by_source_symbol_id.get(symbol_id, [])
+
+    def dependencies_for_file(self, file_id: int) -> list[RustDependencyRecord]:
+        if self._dependencies is None and hasattr(self.index, "dependencies_for_file_json"):
+            if self._dependencies_by_source_file_id is None:
+                self._dependencies_by_source_file_id = {}
+            if file_id not in self._dependencies_by_source_file_id:
+                records = self._records_from_json_method("dependencies_for_file_json", RustDependencyRecord.from_dict, file_id)
+                if records is not None:
+                    self._dependencies_by_source_file_id[file_id] = records
+            if file_id in self._dependencies_by_source_file_id:
+                return self._dependencies_by_source_file_id[file_id]
+        if self._dependencies_by_source_file_id is None:
+            dependencies_by_source_file_id: dict[int, list[RustDependencyRecord]] = {}
+            for dependency in self.dependencies:
+                dependencies_by_source_file_id.setdefault(dependency.source_file_id, []).append(dependency)
+            self._dependencies_by_source_file_id = dependencies_by_source_file_id
+        return self._dependencies_by_source_file_id.get(file_id, [])
 
     def dependencies_to_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies is None and hasattr(self.index, "dependencies_to_symbol_json"):
@@ -3360,23 +3380,22 @@ class RustCompactFile(RustCompactHandle):
         outgoing: dict[int, list[int]] = {symbol.record.id: [] for symbol in symbols}
         indegrees: dict[int, int] = {symbol.record.id: 0 for symbol in symbols}
 
-        for symbol in symbols:
-            for dependency in self.backend.dependencies_from_symbol(symbol.record.id):
-                if dependency.target_symbol_id not in symbols_by_id:
-                    continue
-                outgoing[symbol.record.id].append(dependency.target_symbol_id)
-                indegrees[dependency.target_symbol_id] += 1
+        for dependency in self.backend.dependencies_for_file(self.record.id):
+            if dependency.source_symbol_id not in symbols_by_id or dependency.target_symbol_id not in symbols_by_id:
+                continue
+            outgoing[dependency.source_symbol_id].append(dependency.target_symbol_id)
+            indegrees[dependency.target_symbol_id] += 1
 
-        ready = sorted((symbol_id for symbol_id, indegree in indegrees.items() if indegree == 0), key=original_index.__getitem__)
+        ready = [(original_index[symbol_id], symbol_id) for symbol_id, indegree in indegrees.items() if indegree == 0]
+        heapq.heapify(ready)
         ordered_ids: list[int] = []
         while ready:
-            symbol_id = ready.pop(0)
+            _, symbol_id = heapq.heappop(ready)
             ordered_ids.append(symbol_id)
             for target_symbol_id in sorted(outgoing[symbol_id], key=original_index.__getitem__):
                 indegrees[target_symbol_id] -= 1
                 if indegrees[target_symbol_id] == 0:
-                    ready.append(target_symbol_id)
-                    ready.sort(key=original_index.__getitem__)
+                    heapq.heappush(ready, (original_index[target_symbol_id], target_symbol_id))
 
         if len(ordered_ids) != len(symbols):
             ordered_set = set(ordered_ids)

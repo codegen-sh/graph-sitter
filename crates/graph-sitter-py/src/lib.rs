@@ -492,6 +492,17 @@ mod bindings {
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
         }
 
+        fn dependencies_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .dependencies
+                .iter()
+                .filter(|dependency| dependency.source_file_id == file_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
         fn dependencies_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
             let records: Vec<_> = self
                 .inner
@@ -1135,6 +1146,17 @@ mod bindings {
                 .dependencies
                 .iter()
                 .filter(|dependency| dependency.source_symbol_id == symbol_id)
+                .collect();
+            serde_json::to_string(&records)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn dependencies_for_file_json(&self, file_id: u32) -> PyResult<String> {
+            let records: Vec<_> = self
+                .inner
+                .dependencies
+                .iter()
+                .filter(|dependency| dependency.source_file_id == file_id)
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))

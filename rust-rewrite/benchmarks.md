@@ -314,6 +314,27 @@ Measured on the cached Apache Airflow `2.10.5` checkout (`b93c3db6b1641b0840bd15
 
 The first high-value public query is now about 10x faster and avoids the previous 105 MB Python-side RSS spike. The follow-on subset calls do their own compact JSON round trip instead of reusing a fully hydrated all-symbol cache, which is an intentional tradeoff for large repos where memory pressure dominates. The aggregate `_symbol_handles_by_id` cache only contains handles actually requested by the public query path.
 
+### File Topology Dependency Query Optimization
+
+On 2026-06-20, `RustCompactFile.symbols_sorted_topologically` changed from calling `dependencies_from_symbol_json(...)` once per top-level symbol to one `dependencies_for_file_json(file_id)` batch. The Python shell still preserves original file-local ordering for ready symbols, but now uses a heap instead of repeated list `pop(0)` and re-sort operations.
+
+Regression coverage:
+
+```bash
+uv run pytest tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_file_topology_batches_file_dependencies -q
+```
+
+The test asserts that file-local topology reads dependencies through the file-scoped compact endpoint, does not populate the broad dependency cache, and does not call per-symbol dependency methods.
+
+Measured with a generated git repo containing one Python file with 1,000 top-level functions and 999 internal dependencies, using a freshly built `graph_sitter_py` extension from this branch:
+
+| Query implementation | Dependency JSON calls | Median wall | Min wall |
+| -------------------- | --------------------: | ----------: | -------: |
+| Previous per-symbol  |                 1,000 |     0.0102s |  0.0100s |
+| File-scoped batch    |                     1 |     0.0055s |  0.0052s |
+
+The query is about 1.87x faster on this synthetic high-fanout file and, more importantly, removes 999 Python/Rust boundary crossings for a single public file-ordering query.
+
 ## Standalone TypeScript/JavaScript Rust Index Evidence
 
 These measurements capture the first syntax-only Rust TypeScript/JavaScript index exposed through PyO3. The Rust path uses Python-selected file discovery for a fair file-list comparison. The later `Codebase` measurement below includes the current relative-import resolution, reference/dependency rows, and lazy Python shell handles.

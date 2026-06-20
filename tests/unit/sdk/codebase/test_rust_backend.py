@@ -398,6 +398,25 @@ class FakeBatchSourceFileIndex(FakeIndex):
         raise AssertionError(msg)
 
 
+class FakeFileDependencyBatchIndex(FakeIndex):
+    dependencies_for_file_calls = 0
+
+    def symbols_for_file_json(self, file_id: int):
+        return json.dumps([symbol for symbol in json.loads(FakeIndex.symbols_json(self)) if symbol["file_id"] == file_id])
+
+    def dependencies_for_file_json(self, file_id: int):
+        type(self).dependencies_for_file_calls += 1
+        return json.dumps([dependency for dependency in json.loads(FakeIndex.dependencies_json(self)) if dependency["source_file_id"] == file_id])
+
+    def dependencies_from_symbol_json(self, symbol_id: int):
+        msg = "file topological ordering should batch compact dependencies by file"
+        raise AssertionError(msg)
+
+    def dependencies_json(self):
+        msg = "file topological ordering should not materialize every compact dependency"
+        raise AssertionError(msg)
+
+
 class FakeOrderingSummary(FakeSummary):
     def as_dict(self):
         data = super().as_dict()
@@ -2649,6 +2668,28 @@ def test_rust_compact_source_files_batch_file_records(monkeypatch, tmp_path):
         assert backend._files is None
         assert backend._file_handles is None
         assert sorted(backend._source_file_records_by_path_cache or {}) == ["pkg/service.py"]
+
+
+def test_rust_compact_file_topology_batches_file_dependencies(monkeypatch, tmp_path):
+    FakeFileDependencyBatchIndex.dependencies_for_file_calls = 0
+    install_fake_rust_extension(monkeypatch, index_cls=FakeFileDependencyBatchIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    def run(self):\n        pass\n\ndef helper():\n    return Service\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        assert [symbol.name for symbol in codebase.files[0].symbols_sorted_topologically] == ["helper", "Service"]
+        assert FakeFileDependencyBatchIndex.dependencies_for_file_calls == 1
+        assert backend._dependencies is None
+        assert sorted((backend._dependencies_by_source_file_id or {}).keys()) == [0]
+        assert backend._dependencies_by_source_symbol_id is None
 
 
 def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_path):
