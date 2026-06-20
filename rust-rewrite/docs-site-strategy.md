@@ -2,15 +2,16 @@
 
 ## Recommendation
 
-Keep the product docs and the landing page as separate surfaces:
+Build the product docs and landing page as one Vercel-hosted Next.js site:
 
-- `docs/`: Mintlify documentation source of truth.
-- `site/`: Vercel-hosted Next.js landing page.
+- `site/`: Vercel-hosted Next.js app for the landing page and statically rendered docs.
+- `site/content/docs/`: target long-term docs content source, migrated from the current `docs/` tree.
+- `site/lib/docs/` and `site/components/docs/`: target docs loader, navigation, search index generation, and MDX component shims.
 - `rust-rewrite/skill-prototype/graph-sitter/`: draft Codex skill artifact until the package and docs are release-ready.
 
-The landing page should explain Graph-sitter in one screen and route users to the docs. The docs should carry setup, CLI, API, Rust backend, JS/TS, codemod, correctness, and benchmark details. This avoids coupling generated API reference pages and long-form guides to a small marketing app.
+The landing page should explain Graph-sitter in one screen. The docs should live in the same app under static routes and carry setup, CLI, API, Rust backend, JS/TS, codemod, correctness, and benchmark details. This gives us full control over layout, search, examples, interactive demos, custom benchmarking views, and future skill distribution pages.
 
-If the team later decides "docs site on Vercel" means moving docs rendering off Mintlify, treat that as a separate migration. The likely path would be a docs app under `site/docs` or `apps/docs` using MDX, with a scripted import from `docs/`. Do not start there unless Mintlify becomes a blocker.
+Mintlify should be treated as the legacy docs source/renderer, not the target platform. Keep the current `docs/` content as migration input until the Next docs renderer has parity, then retire Mintlify-specific config and CI.
 
 ## Current Repo Signals
 
@@ -29,9 +30,10 @@ If the team later decides "docs site on Vercel" means moving docs rendering off 
 Recommended public URLs:
 
 ```text
-https://graph-sitter.com       -> Vercel landing app rooted at site/
+https://graph-sitter.com       -> Vercel Next app landing page
+https://graph-sitter.com/docs  -> Vercel statically rendered docs
 https://www.graph-sitter.com   -> Vercel redirect or alias to the apex
-https://docs.graph-sitter.com  -> Mintlify docs rooted at docs/
+https://docs.graph-sitter.com  -> Vercel alias or redirect to /docs
 ```
 
 Landing page responsibilities in `site/`:
@@ -43,7 +45,7 @@ Landing page responsibilities in `site/`:
 - cautious `uvx graph-sitter ...` preview
 - links to docs and GitHub
 
-Docs responsibilities in `docs/`:
+Docs responsibilities in the Vercel app:
 
 - install and setup
 - parse command and JSON output
@@ -55,6 +57,35 @@ Docs responsibilities in `docs/`:
 - large-repo benchmark methodology and results
 - generated API reference
 - Codex skill installation and usage once published
+
+Recommended route shape:
+
+```text
+site/app/page.tsx                     -> landing page
+site/app/docs/[[...slug]]/page.tsx    -> static docs renderer
+site/app/api-reference/[[...slug]]    -> optional alias or docs section
+site/content/docs/**/*.mdx            -> migrated docs content
+site/content/nav.ts                   -> navigation source replacing mint.json
+site/components/docs/*.tsx            -> MDX shims and docs UI
+site/lib/docs/*.ts                    -> content loading, frontmatter, static params, search manifest
+```
+
+Use `generateStaticParams` and `dynamicParams = false` for docs routes so Vercel pre-renders every docs page. A full static export can be evaluated later, but regular Vercel static generation is enough for launch and keeps room for future dynamic features such as hosted examples or generated benchmark views.
+
+## Migration Plan From Mintlify
+
+The current `docs/` tree is a useful content seed, but it contains Mintlify-specific navigation and MDX components. Migrate deliberately:
+
+1. Inventory MDX component usage in `docs/**/*.mdx`.
+2. Implement local component shims in `site/components/docs/` for high-use components such as `Note`, `Card`, `CardGroup`, `Param`, `ResponseField`, and code blocks.
+3. Convert `docs/mint.json` navigation into a typed `site/content/nav.ts` or `site/content/nav.json`.
+4. Move or copy content into `site/content/docs/` so the Vercel project is self-contained.
+5. Add a build-time docs loader that parses frontmatter, resolves slugs, renders MDX, and emits a search manifest.
+6. Port generated API reference pages or replace them with a generator that writes Vercel-compatible MDX.
+7. Add redirects from old slugs to new slugs before domain cutover.
+8. Remove Mintlify CI only after Next docs build proves parity on all docs pages.
+
+Do not depend on files outside `site/` at Vercel build time unless the project root is deliberately changed to the repository root. The lower-risk target is a self-contained `site/` app with docs content underneath `site/content/docs/`.
 
 ## Accuracy Contract For Docs
 
@@ -131,7 +162,12 @@ Runtime Env Vars: none required today
 Production Branch: integrator-approved trunk branch
 ```
 
-No checked-in `vercel.json` is required for the current app if Vercel project settings define `site` as the root directory. Add `site/vercel.json` only if the project needs repo-portable settings such as redirects, headers, or pinned framework behavior.
+No checked-in `vercel.json` is required for the current app if Vercel project settings define `site` as the root directory. Once docs move to Vercel, add `site/vercel.json` or Next redirects if needed for:
+
+- `docs.graph-sitter.com` domain routing.
+- old Mintlify slug redirects.
+- canonical `/docs` paths.
+- long-cache headers for generated static assets and search indexes.
 
 Read-only/project setup checks:
 
@@ -165,7 +201,7 @@ Production cutover requires explicit approval:
 
 - attach `graph-sitter.com` to the Vercel landing project
 - attach or redirect `www.graph-sitter.com`
-- keep `docs.graph-sitter.com` pointed at docs hosting
+- attach or redirect `docs.graph-sitter.com` to the Vercel docs routes
 - update `hatch.toml` documentation URL if final docs URL differs from current metadata
 
 Do not run `vercel deploy --prod`, promote a deployment, or attach domains from a subagent task.
@@ -224,7 +260,15 @@ Rules:
 ### Docs Architecture
 
 - [x] Create docs/site strategy. owner: docs-vercel-subagent. Result: `rust-rewrite/docs-site-strategy.md`.
-- [ ] Decide whether docs stay on Mintlify for launch or migrate to Vercel MDX. owner: unclaimed.
+- [x] Decide whether docs stay on Mintlify for launch or migrate to Vercel MDX. owner: user. Result: target is Vercel/Next with statically rendered docs; Mintlify is legacy migration input.
+- [x] Design the Vercel docs content tree under `site/content/docs`. owner: codex. Result: added typed seed docs content in `site/content/docs/pages.ts` plus route/nav helpers for static docs pages.
+- [ ] Inventory Mintlify-specific MDX components used by `docs/**/*.mdx`. owner: unclaimed.
+- [ ] Build local MDX component shims for the migrated docs renderer. owner: unclaimed.
+- [ ] Convert `docs/mint.json` navigation into a Vercel docs nav source. owner: unclaimed.
+- [x] Create a static docs route in the Next app with `generateStaticParams`. owner: codex. Result: `site/app/docs/[[...slug]]/page.tsx` prerenders `/docs` plus setup, uvx, Rust status, parity, benchmark, and TypeScript support pages with `dynamicParams = false`.
+- [ ] Generate a static client-side search manifest for docs pages. owner: unclaimed.
+- [ ] Port or regenerate API reference pages into Vercel-compatible MDX. owner: unclaimed.
+- [ ] Add redirects for old Mintlify docs slugs before domain cutover. owner: unclaimed.
 - [ ] Add a docs release gate checklist to `rust-rewrite/strategy.md` or keep this file as the docs ledger. owner: unclaimed.
 - [x] Audit `docs/introduction/installation.mdx` against current `uv run`, `uv tool install`, and `uvx` behavior. owner: codex. Result: installation docs now distinguish installed tool, local source, published-package `uvx`, and branch-built wheel validation.
 - [x] Add or update a dedicated `docs/cli/uvx.mdx` page with release-gated package guidance. owner: codex. Result: added `docs/cli/uvx.mdx` for parse, run, transform, backend, safety, `--subdir`, and release-gate workflows.
@@ -236,17 +280,17 @@ Rules:
 
 - [ ] Review `site/app/page.tsx` copy for release-gated claims before the first public preview. owner: unclaimed.
 - [ ] Add a landing-page CTA to the exact docs quickstart once the docs URL is final. owner: unclaimed.
-- [ ] Verify `site` builds from a clean install with Node 22. owner: unclaimed.
+- [x] Verify `site` builds from a clean install with Node 22. owner: codex. Result: `PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH" npm ci && npm run build` passed and generated the static docs route.
 - [ ] Add landing-page screenshots or visual QA notes before production domain cutover. owner: unclaimed.
 
 ### Vercel
 
 - [ ] Link or create the Vercel project with root directory `site`. owner: unclaimed.
 - [ ] Pull preview env with `vercel pull --cwd site --environment=preview --yes`. owner: unclaimed.
-- [ ] Run a preview deploy for review only. owner: unclaimed.
+- [ ] Run a preview deploy for review only after the static docs route builds. owner: unclaimed.
 - [ ] Record the preview URL in this file or the integrator thread. owner: unclaimed.
-- [ ] Confirm `docs.graph-sitter.com` hosting before apex cutover. owner: unclaimed.
-- [ ] Attach `graph-sitter.com` and `www.graph-sitter.com` only after explicit approval. owner: blocked-pending-approval.
+- [ ] Confirm `docs.graph-sitter.com` routing to Vercel docs before apex cutover. owner: unclaimed.
+- [ ] Attach `graph-sitter.com`, `www.graph-sitter.com`, and `docs.graph-sitter.com` only after explicit approval. owner: blocked-pending-approval.
 
 ### Skill
 
@@ -267,5 +311,6 @@ Rules:
 
 - [ ] Ensure PyPI package metadata points to the final docs and landing URLs. owner: unclaimed.
 - [ ] Ensure the public setup path does not claim `uvx graph-sitter ...` until clean package validation passes. owner: unclaimed.
-- [x] Add a docs validation CI or release gate for `mintlify validate`. owner: codex. Result: `.github/workflows/docs-validate.yml` runs Mintlify validate and broken-link checks for docs changes.
+- [ ] Replace Mintlify docs validation CI with a Next docs build/link validation gate after migration. owner: unclaimed.
+- [x] Add a legacy docs validation CI or release gate for `mintlify validate`. owner: codex. Result: `.github/workflows/docs-validate.yml` runs Mintlify validate and broken-link checks for docs changes until Vercel docs replace it.
 - [x] Add a site build CI or release gate for `npm --prefix site ci && npm --prefix site run build`. owner: codex. Result: `.github/workflows/site-build.yml` installs from `site/package-lock.json` and runs the Next.js production build for landing-site changes.

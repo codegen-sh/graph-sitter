@@ -11,7 +11,7 @@ import {
   TerminalSquare
 } from "lucide-react";
 
-const docsUrl = "https://docs.graph-sitter.com/introduction/getting-started";
+const docsUrl = "/docs";
 const githubUrl = "https://github.com/codegen-sh/graph-sitter";
 
 const graphNodes = [
