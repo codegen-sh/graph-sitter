@@ -9,6 +9,7 @@
 			"name": "cold public query paths without broad materialization",
 			"status": "supported_opt_in",
 			"scope": [
+				"path-only compact Rust setup file discovery",
 				"deterministic public query ordering",
 				"global and file-local exact symbol lookup",
 				"case-insensitive file lookup",
@@ -20,6 +21,7 @@
 				"TypeScript file-local export lookup"
 			],
 			"tests": [
+				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_discovers_paths_without_python_source_reads",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_public_queries_preserve_python_sorting",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_queries_do_not_materialize_python_graph",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_all_file_queries_include_non_source_files",

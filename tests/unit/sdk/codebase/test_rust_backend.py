@@ -11,6 +11,7 @@ from graph_sitter.codebase.rust_backend import RustBackendUnsupportedError
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
 from graph_sitter.enums import ImportType, NodeType, SymbolType
+from graph_sitter.git.repo_operator.repo_operator import RepoOperator
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
@@ -2472,6 +2473,33 @@ def install_fake_rust_extension(monkeypatch: pytest.MonkeyPatch, index_cls=FakeI
 
 def _read_outputs(root: Path, paths: list[str]) -> dict[str, str]:
     return {path: (root / path).read_text() for path in paths}
+
+
+def test_rust_compact_discovers_paths_without_python_source_reads(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch)
+    iter_skip_content_flags: list[bool] = []
+    original_iter_files = RepoOperator.iter_files
+
+    def iter_files_wrapper(self, *args, **kwargs):
+        iter_skip_content_flags.append(bool(kwargs.get("skip_content", False)))
+        yield from original_iter_files(self, *args, **kwargs)
+
+    monkeypatch.setattr(RepoOperator, "iter_files", iter_files_wrapper)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={
+            "pkg/service.py": "import os\n\nclass Service:\n    pass\n",
+            "pkg/helpers.py": "def helper():\n    return 1\n",
+        },
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        assert codebase.ctx.rust_compact_mode is True
+
+    assert iter_skip_content_flags == [True]
 
 
 def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_path):

@@ -222,6 +222,33 @@ These measurements use real `Codebase(...)` construction with `CodebaseConfig(gr
 | `graph-sitter` repo checkout                                         | `--disable-graph` |      2.731s |       543.0 MB |               0.681s |                124.0 MB |         1133 |       1133 |         6505 |         6496 |                     432 |            4110 |              2953 | yes                  |     4.009x |    4.378x |
 | Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) | `--disable-graph` |     18.940s |      3469.5 MB |               4.085s |                266.2 MB |         4789 |       4789 |        52339 |        40580 |                   19011 |          109817 |             71932 | yes                  |     4.637x |   13.031x |
 
+### Python-Shell File Discovery Optimization
+
+On 2026-06-20, the Rust `Codebase` setup path was changed to do a single path-only `RepoOperator.iter_files(..., skip_content=True)` walk, then filter source extensions in memory. Before this change, the Python shell asked `RepoOperator` for source files with content enabled and then walked all files again for directory/file-shell parity. Rust immediately reread the source bytes for parsing, so the first Python content read was duplicate I/O and transient allocation.
+
+Regression coverage:
+
+```bash
+uv run pytest tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_discovers_paths_without_python_source_reads -q
+```
+
+The test asserts that compact Rust setup makes exactly one repo-operator file walk and that the walk uses `skip_content=True`.
+
+Measured with the same local PyO3 extension before and after the Python-shell change:
+
+| Input                        | Before Rust `Codebase` wall | After Rust `Codebase` wall | Before max RSS | After max RSS | Wall improvement |
+| ---------------------------- | --------------------------: | -------------------------: | -------------: | ------------: | ---------------: |
+| `graph-sitter` repo checkout |                      0.979s |                     0.848s |       143.0 MB |      143.2 MB |            1.16x |
+
+Discovery-only old-vs-new measurements were run in the same process to isolate the removed work:
+
+| Input                                                                | Old source scan with content | Old all-file path scan | Old total | New single path scan | New extension filter | New total | File sets match |
+| -------------------------------------------------------------------- | ---------------------------: | ---------------------: | --------: | -------------------: | -------------------: | --------: | --------------- |
+| `graph-sitter` repo checkout                                         |                       0.112s |                 0.055s |    0.167s |               0.059s |               0.000s |    0.059s | yes             |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) |                       0.684s |                 0.162s |    0.846s |               0.143s |               0.001s |    0.144s | yes             |
+
+The Airflow discovery slice is now about 5.9x faster before Rust parsing begins, while selecting the same 4,789 Python source files and 7,765 total repo files.
+
 ## Standalone TypeScript/JavaScript Rust Index Evidence
 
 These measurements capture the first syntax-only Rust TypeScript/JavaScript index exposed through PyO3. The Rust path uses Python-selected file discovery for a fair file-list comparison. The later `Codebase` measurement below includes the current relative-import resolution, reference/dependency rows, and lazy Python shell handles.

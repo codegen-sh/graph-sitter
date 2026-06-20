@@ -238,24 +238,19 @@ class CodebaseContext:
         from graph_sitter.codebase.rust_backend import RustBackendUnavailableError, RustIndexBackend, RustIndexBuildError
 
         try:
-            file_paths = self._rust_index_file_paths()
-            all_file_paths = self._rust_all_file_paths()
+            file_paths, all_file_paths = self._rust_file_paths_for_index()
             self.rust_index = RustIndexBackend.build(self.repo_path, file_paths=file_paths, all_file_paths=all_file_paths, language=self.programming_language)
         except (RustBackendUnavailableError, RustIndexBuildError) as error:
             self._handle_rust_backend_unavailable(str(error))
 
-    def _rust_index_file_paths(self) -> list[str]:
+    def _rust_file_paths_for_index(self) -> tuple[list[str], list[str]]:
+        all_file_paths = self._rust_all_file_paths()
         if self.config.disable_file_parse:
-            return []
-        repo_operator = self.projects[0].repo_operator
-        return [
-            str(filepath)
-            for filepath, _ in repo_operator.iter_files(
-                subdirs=self.projects[0].subdirectories,
-                extensions=self.extensions,
-                ignore_list=GLOBAL_FILE_IGNORE_LIST,
-            )
-        ]
+            return [], all_file_paths
+        return [filepath for filepath in all_file_paths if self._rust_path_matches_source_extension(filepath)], all_file_paths
+
+    def _rust_path_matches_source_extension(self, filepath: str) -> bool:
+        return self.extensions is None or any(filepath.endswith(extension) for extension in self.extensions)
 
     def _rust_all_file_paths(self) -> list[str]:
         repo_operator = self.projects[0].repo_operator
