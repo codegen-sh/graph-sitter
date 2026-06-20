@@ -268,4 +268,4 @@ Rules:
 - [ ] Ensure PyPI package metadata points to the final docs and landing URLs. owner: unclaimed.
 - [ ] Ensure the public setup path does not claim `uvx graph-sitter ...` until clean package validation passes. owner: unclaimed.
 - [x] Add a docs validation CI or release gate for `mintlify validate`. owner: codex. Result: `.github/workflows/docs-validate.yml` runs Mintlify validate and broken-link checks for docs changes.
-- [ ] Add a site build CI or release gate for `npm --prefix site ci && npm --prefix site run build`. owner: unclaimed.
+- [x] Add a site build CI or release gate for `npm --prefix site ci && npm --prefix site run build`. owner: codex. Result: `.github/workflows/site-build.yml` installs from `site/package-lock.json` and runs the Next.js production build for landing-site changes.
