@@ -23,6 +23,7 @@ on:
       - "src/graph_sitter/typescript/**"
       - "tests/integration/rust_rewrite/**"
       - "tests/unit/sdk/codebase/test_rust_backend.py"
+      - "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py"
   push:
     branches:
       - "develop"
@@ -46,6 +47,7 @@ on:
       - "src/graph_sitter/typescript/**"
       - "tests/integration/rust_rewrite/**"
       - "tests/unit/sdk/codebase/test_rust_backend.py"
+      - "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py"
   workflow_dispatch:
 
 permissions:
