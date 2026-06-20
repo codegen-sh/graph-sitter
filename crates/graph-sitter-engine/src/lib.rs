@@ -1,7 +1,10 @@
 #![forbid(unsafe_code)]
 
+use rayon::prelude::*;
+use rayon::ThreadPoolBuilder;
 use serde::{Serialize, Serializer};
 use std::borrow::Borrow;
+use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt;
 use std::fs;
@@ -12,6 +15,9 @@ use std::sync::Arc;
 use tree_sitter::{Node, Parser, Range, Tree};
 
 const ENABLED_FEATURES: &[&str] = &["skeleton", "python-index", "typescript-index"];
+const PARALLEL_PARSE_THREADS: usize = 2;
+const PARALLEL_PARSE_CHUNK_SIZE: usize = 8;
+const PARALLEL_PARSE_LARGE_FILE_BYTES: u64 = 256 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct InternedString(Arc<str>);
@@ -1051,9 +1057,9 @@ type ExportedSymbolsByFile = HashMap<u32, BTreeMap<String, u32>>;
 
 impl PythonIndexer {
     fn new() -> Result<Self, IndexError> {
-        let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_python::LANGUAGE.into())?;
-        Ok(Self { parser })
+        Ok(Self {
+            parser: new_python_parser()?,
+        })
     }
 
     fn index_path(mut self, repo_path: impl AsRef<Path>) -> Result<PythonIndex, IndexError> {
@@ -1150,21 +1156,12 @@ impl PythonIndexer {
     }
 }
 
-struct TypeScriptIndexer {
-    typescript_parser: Parser,
-    tsx_parser: Parser,
-}
+struct TypeScriptIndexer;
 
 impl TypeScriptIndexer {
     fn new() -> Result<Self, IndexError> {
-        let mut typescript_parser = Parser::new();
-        typescript_parser.set_language(&tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into())?;
-        let mut tsx_parser = Parser::new();
-        tsx_parser.set_language(&tree_sitter_typescript::LANGUAGE_TSX.into())?;
-        Ok(Self {
-            typescript_parser,
-            tsx_parser,
-        })
+        let _ = TypeScriptThreadParsers::new()?;
+        Ok(Self)
     }
 
     fn index_path(mut self, repo_path: impl AsRef<Path>) -> Result<TypeScriptIndex, IndexError> {
@@ -1224,79 +1221,53 @@ impl TypeScriptIndexer {
         paths.sort();
         let ts_configs = collect_typescript_configs(repo_path);
 
-        for path in paths {
-            let file_id = index.files.len() as u32;
-            let (content, byte_len, content_hash) = read_source_lossy(&path)?;
-            let language = file_language_for_typescript_path(&path);
-            let tree = self.parse_typescript_tree(language, &content, &path)?;
-            let root = tree.root_node();
-            let relative_path = path
-                .strip_prefix(repo_path)
-                .unwrap_or(path.as_path())
-                .to_string_lossy()
-                .replace('\\', "/");
+        {
+            let parse_pool = build_parallel_parse_pool();
+            parse_pool.install(|| -> Result<(), IndexError> {
+                let mut chunk_start = 0;
+                while chunk_start < paths.len() {
+                    let chunk_end = next_parallel_parse_chunk_end(&paths, chunk_start);
+                    let path_chunk = &paths[chunk_start..chunk_end];
+                    let parsed_files = path_chunk
+                        .par_iter()
+                        .map(|path| parse_typescript_source_file(repo_path, path.clone()))
+                        .collect::<Vec<_>>();
 
-            let relative_path = index.intern(relative_path);
-            index.files.push(FileRecord {
-                id: file_id,
-                module_name: None,
-                language,
-                content_hash,
-                path: relative_path,
-                byte_len,
-                line_count: line_count(&content),
-                has_error: root.has_error(),
-                root_range: root.range().into(),
-            });
-            extract_typescript_file(
-                file_id,
-                &content,
-                &tree,
-                &mut index,
-                &mut reference_candidates,
-            );
+                    for parsed_file in parsed_files {
+                        let parsed_file = parsed_file?;
+                        let file_id = index.files.len() as u32;
+                        let root = parsed_file.tree.root_node();
+
+                        let relative_path = index.intern(parsed_file.relative_path);
+                        index.files.push(FileRecord {
+                            id: file_id,
+                            module_name: None,
+                            language: parsed_file.language,
+                            content_hash: parsed_file.content_hash,
+                            path: relative_path,
+                            byte_len: parsed_file.byte_len,
+                            line_count: line_count(&parsed_file.content),
+                            has_error: root.has_error(),
+                            root_range: root.range().into(),
+                        });
+                        extract_typescript_file(
+                            file_id,
+                            &parsed_file.content,
+                            &parsed_file.tree,
+                            &mut index,
+                            &mut reference_candidates,
+                        );
+                    }
+                    chunk_start = chunk_end;
+                }
+                Ok(())
+            })?;
         }
 
         resolve_typescript_imports(&mut index, &ts_configs);
         resolve_typescript_references(&mut index, reference_candidates);
         build_typescript_dependencies(&mut index);
         Ok(index.finish())
-    }
-
-    fn parse_typescript_tree(
-        &mut self,
-        language: FileLanguage,
-        content: &str,
-        path: &Path,
-    ) -> Result<Tree, IndexError> {
-        let primary_is_tsx = matches!(language, FileLanguage::Tsx | FileLanguage::Jsx);
-        let primary_tree = if primary_is_tsx {
-            self.tsx_parser.parse(content, None)
-        } else {
-            self.typescript_parser.parse(content, None)
-        }
-        .ok_or_else(|| IndexError::ParseFailed {
-            path: path.to_path_buf(),
-        })?;
-        if !primary_tree.root_node().has_error() {
-            return Ok(primary_tree);
-        }
-
-        let fallback_tree = if primary_is_tsx {
-            self.typescript_parser.parse(content, None)
-        } else {
-            self.tsx_parser.parse(content, None)
-        }
-        .ok_or_else(|| IndexError::ParseFailed {
-            path: path.to_path_buf(),
-        })?;
-
-        if syntax_error_count(fallback_tree.root_node())
-            < syntax_error_count(primary_tree.root_node())
-        {
-            return Ok(fallback_tree);
-        }
-        Ok(primary_tree)
     }
 }
 
@@ -1586,6 +1557,157 @@ fn normalize_typescript_config_path(base: &str, path: &str) -> Option<String> {
         }
     }
     Some(parts.join("/"))
+}
+
+#[derive(Debug)]
+struct ParsedSourceFile {
+    relative_path: String,
+    content: String,
+    byte_len: usize,
+    content_hash: String,
+    language: FileLanguage,
+    tree: Tree,
+}
+
+thread_local! {
+    static TYPESCRIPT_THREAD_PARSERS: RefCell<Option<TypeScriptThreadParsers>> = const { RefCell::new(None) };
+}
+
+struct TypeScriptThreadParsers {
+    typescript_parser: Parser,
+    tsx_parser: Parser,
+}
+
+impl TypeScriptThreadParsers {
+    fn new() -> Result<Self, IndexError> {
+        Ok(Self {
+            typescript_parser: new_typescript_parser()?,
+            tsx_parser: new_tsx_parser()?,
+        })
+    }
+}
+
+fn parse_typescript_source_file(
+    repo_path: &Path,
+    path: PathBuf,
+) -> Result<ParsedSourceFile, IndexError> {
+    let language = file_language_for_typescript_path(&path);
+    let (content, byte_len, content_hash) = read_source_lossy(&path)?;
+    let tree = TYPESCRIPT_THREAD_PARSERS.with(|parsers_cell| {
+        let mut parsers_slot = parsers_cell.borrow_mut();
+        if parsers_slot.is_none() {
+            *parsers_slot = Some(TypeScriptThreadParsers::new()?);
+        }
+        let parsers = parsers_slot
+            .as_mut()
+            .expect("thread-local TypeScript parsers should be initialized");
+        let tree = parse_typescript_tree(
+            &mut parsers.typescript_parser,
+            &mut parsers.tsx_parser,
+            language,
+            &content,
+            &path,
+        )?;
+        Ok::<Tree, IndexError>(tree)
+    })?;
+    Ok(ParsedSourceFile {
+        relative_path: relative_repo_path(repo_path, &path),
+        content,
+        byte_len,
+        content_hash,
+        language,
+        tree,
+    })
+}
+
+fn new_python_parser() -> Result<Parser, IndexError> {
+    let mut parser = Parser::new();
+    parser.set_language(&tree_sitter_python::LANGUAGE.into())?;
+    Ok(parser)
+}
+
+fn new_typescript_parser() -> Result<Parser, IndexError> {
+    let mut parser = Parser::new();
+    parser.set_language(&tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into())?;
+    Ok(parser)
+}
+
+fn new_tsx_parser() -> Result<Parser, IndexError> {
+    let mut parser = Parser::new();
+    parser.set_language(&tree_sitter_typescript::LANGUAGE_TSX.into())?;
+    Ok(parser)
+}
+
+fn parse_typescript_tree(
+    typescript_parser: &mut Parser,
+    tsx_parser: &mut Parser,
+    language: FileLanguage,
+    content: &str,
+    path: &Path,
+) -> Result<Tree, IndexError> {
+    let primary_is_tsx = matches!(language, FileLanguage::Tsx | FileLanguage::Jsx);
+    let primary_tree = if primary_is_tsx {
+        tsx_parser.parse(content, None)
+    } else {
+        typescript_parser.parse(content, None)
+    }
+    .ok_or_else(|| IndexError::ParseFailed {
+        path: path.to_path_buf(),
+    })?;
+    if !primary_tree.root_node().has_error() {
+        return Ok(primary_tree);
+    }
+
+    let fallback_tree = if primary_is_tsx {
+        typescript_parser.parse(content, None)
+    } else {
+        tsx_parser.parse(content, None)
+    }
+    .ok_or_else(|| IndexError::ParseFailed {
+        path: path.to_path_buf(),
+    })?;
+
+    if syntax_error_count(fallback_tree.root_node()) < syntax_error_count(primary_tree.root_node())
+    {
+        return Ok(fallback_tree);
+    }
+    Ok(primary_tree)
+}
+
+fn relative_repo_path(repo_path: &Path, path: &Path) -> String {
+    path.strip_prefix(repo_path)
+        .unwrap_or(path)
+        .to_string_lossy()
+        .replace('\\', "/")
+}
+
+fn build_parallel_parse_pool() -> rayon::ThreadPool {
+    ThreadPoolBuilder::new()
+        .num_threads(PARALLEL_PARSE_THREADS)
+        .thread_name(|index| format!("graph-sitter-ts-parse-{index}"))
+        .build()
+        .expect("failed to build graph-sitter TypeScript parse thread pool")
+}
+
+fn next_parallel_parse_chunk_end(paths: &[PathBuf], start: usize) -> usize {
+    if is_large_parallel_parse_file(&paths[start]) {
+        return start + 1;
+    }
+
+    let mut end = start + 1;
+    while end < paths.len()
+        && end - start < PARALLEL_PARSE_CHUNK_SIZE
+        && !is_large_parallel_parse_file(&paths[end])
+    {
+        end += 1;
+    }
+    end
+}
+
+fn is_large_parallel_parse_file(path: &Path) -> bool {
+    fs::metadata(path)
+        .map(|metadata| metadata.len() > PARALLEL_PARSE_LARGE_FILE_BYTES)
+        .unwrap_or(false)
 }
 
 fn read_source_lossy(path: &Path) -> Result<(String, usize, String), IndexError> {
@@ -6946,6 +7068,31 @@ mod tests {
             info.enabled_features(),
             ["skeleton", "python-index", "typescript-index"]
         );
+    }
+
+    #[test]
+    fn parallel_parse_chunking_keeps_large_files_singleton() {
+        let repo = temp_repo_path("parallel-parse-chunks");
+        fs::create_dir_all(&repo).unwrap();
+        let mut paths = Vec::new();
+        for index in 0..10 {
+            let path = repo.join(format!("small-{index}.ts"));
+            fs::write(&path, "export const value = 1;\n").unwrap();
+            paths.push(path);
+        }
+        let large = repo.join("large.ts");
+        fs::write(
+            &large,
+            "x".repeat((PARALLEL_PARSE_LARGE_FILE_BYTES + 1) as usize),
+        )
+        .unwrap();
+        paths.insert(2, large);
+
+        assert_eq!(next_parallel_parse_chunk_end(&paths, 0), 2);
+        assert_eq!(next_parallel_parse_chunk_end(&paths, 2), 3);
+        assert_eq!(next_parallel_parse_chunk_end(&paths, 3), 11);
+
+        fs::remove_dir_all(&repo).unwrap();
     }
 
     #[test]

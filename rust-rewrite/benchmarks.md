@@ -361,6 +361,27 @@ uv run python rust-rewrite/tools/check_pinned_typescript_codebase.py \
 
 On 2026-06-19, the full pinned large-repo gate validated exact pinned Next.js `Codebase` handle counts plus compact function-call and Promise-chain counts, confirmed the Python graph stayed blocked, and measured 10.771s wall / 435.2 MB max RSS. Against the recorded Python TypeScript parse/object-materialization baseline above, that is 2.317x faster wall time and 7.123x lower max RSS with conservative CI-style ceilings.
 
+### TypeScript Parse Parallelism Optimization
+
+On 2026-06-20, the TypeScript Rust indexer changed file read/parse work to use a bounded two-thread parse pool. Extraction, string interning, file IDs, import resolution, reference resolution, and dependency construction remain sequential and sorted, preserving deterministic compact records. Files larger than 256 KiB are parsed as singleton chunks so a few large generated/test bundles do not stack multiple tree-sitter parse trees into the same RSS peak.
+
+Python indexing was intentionally left on the original single-parser sequential path. Airflow's Python parser stage is already below the TypeScript bottleneck, and broad Python parse parallelism retained too much allocator memory for too little benefit.
+
+Regression coverage:
+
+```bash
+cargo test -p graph-sitter-engine --lib parallel_parse_chunking_keeps_large_files_singleton
+```
+
+Measured with Python 3.13.11 on macOS against release PyO3 extensions built from pre-change `18536bde` and this branch:
+
+| Input                                                                | Before wall | After wall | Before max RSS | After max RSS | Files | Records unchanged |
+| -------------------------------------------------------------------- | ----------: | ---------: | -------------: | ------------: | ----: | ----------------- |
+| Next.js `v15.0.0` (`51bfe3c1863b191f4b039bc230e8ed5c57b0baf3`)       |     10.792s |     9.253s |       414.1 MB |      415.8 MB | 13688 | yes               |
+| Apache Airflow `2.10.5` (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) |      4.246s |     4.201s |       307.9 MB |      309.3 MB |  4789 | yes               |
+
+The Next.js strict Rust `Codebase` construction path is now about 1.17x faster with essentially flat max RSS. Airflow stays effectively unchanged because the optimization is scoped to TypeScript.
+
 ## Installed-Wheel `uvx` Airflow Evidence
 
 The branch-built wheel path now has an artifact-level large Python proof that
