@@ -337,6 +337,8 @@ The query is about 1.87x faster on this synthetic high-fanout file and, more imp
 
 Follow-up on 2026-06-20: the PyO3 dependency endpoints now stream filtered dependency records into JSON instead of first collecting matching records into a temporary Rust `Vec`. This keeps the same public JSON contract while trimming transient allocation for `dependencies_from_symbol_json(...)`, `dependencies_for_file_json(...)`, and `dependencies_to_symbol_json(...)` on both Python and TypeScript indexes. Binding coverage asserts the filtered dependency endpoints return the expected single-record and empty-array payloads.
 
+Second follow-up on 2026-06-20: the same streaming helper now covers high-volume reference endpoints: `references_to_symbol_json(...)`, `references_from_symbol_json(...)`, `references_for_import_json(...)`, `external_references_from_symbol_json(...)`, and `external_references_for_import_json(...)` for both Python and TypeScript indexes. Current pinned proof sizes are 120,770 internal / 79,300 external references for Airflow and 113,809 internal / 22,427 external references for Next.js, so this removes another temporary vector allocation on targeted compatibility queries without changing the JSON contract.
+
 ## Standalone TypeScript/JavaScript Rust Index Evidence
 
 These measurements capture the first syntax-only Rust TypeScript/JavaScript index exposed through PyO3. The Rust path uses Python-selected file discovery for a fair file-list comparison. The later `Codebase` measurement below includes the current relative-import resolution, reference/dependency rows, and lazy Python shell handles.

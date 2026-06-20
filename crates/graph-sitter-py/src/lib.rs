@@ -524,58 +524,48 @@ mod bindings {
         }
 
         fn references_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .references
-                .iter()
-                .filter(|reference| reference.target_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .references
+                    .iter()
+                    .filter(|reference| reference.target_symbol_id == symbol_id),
+            )
         }
 
         fn references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .references
-                .iter()
-                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .references
+                    .iter()
+                    .filter(|reference| reference.source_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn references_for_import_json(&self, import_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .references
-                .iter()
-                .filter(|reference| reference.import_id == Some(import_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .references
+                    .iter()
+                    .filter(|reference| reference.import_id == Some(import_id)),
+            )
         }
 
         fn external_references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .external_references
-                .iter()
-                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .external_references
+                    .iter()
+                    .filter(|reference| reference.source_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn external_references_for_import_json(&self, import_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .external_references
-                .iter()
-                .filter(|reference| reference.import_id == import_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .external_references
+                    .iter()
+                    .filter(|reference| reference.import_id == import_id),
+            )
         }
 
         fn file_ids(&self) -> Vec<u32> {
@@ -1177,58 +1167,48 @@ mod bindings {
         }
 
         fn references_to_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .references
-                .iter()
-                .filter(|reference| reference.target_symbol_id == symbol_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .references
+                    .iter()
+                    .filter(|reference| reference.target_symbol_id == symbol_id),
+            )
         }
 
         fn references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .references
-                .iter()
-                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .references
+                    .iter()
+                    .filter(|reference| reference.source_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn references_for_import_json(&self, import_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .references
-                .iter()
-                .filter(|reference| reference.import_id == Some(import_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .references
+                    .iter()
+                    .filter(|reference| reference.import_id == Some(import_id)),
+            )
         }
 
         fn external_references_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .external_references
-                .iter()
-                .filter(|reference| reference.source_symbol_id == Some(symbol_id))
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .external_references
+                    .iter()
+                    .filter(|reference| reference.source_symbol_id == Some(symbol_id)),
+            )
         }
 
         fn external_references_for_import_json(&self, import_id: u32) -> PyResult<String> {
-            let records: Vec<_> = self
-                .inner
-                .external_references
-                .iter()
-                .filter(|reference| reference.import_id == import_id)
-                .collect();
-            serde_json::to_string(&records)
-                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+            records_to_json(
+                self.inner
+                    .external_references
+                    .iter()
+                    .filter(|reference| reference.import_id == import_id),
+            )
         }
 
         fn function_call_by_id_json(&self, call_id: u32) -> PyResult<String> {
@@ -1927,6 +1907,28 @@ mod bindings {
                 .contains("target_symbol_id"));
             assert_eq!(index.external_modules_json().unwrap(), "[]");
             assert!(index.references_json().unwrap().contains("\"Base\""));
+            let service_references: serde_json::Value =
+                serde_json::from_str(&index.references_from_symbol_json(2).unwrap()).unwrap();
+            assert_eq!(service_references.as_array().unwrap().len(), 1);
+            assert_eq!(
+                service_references[0]["source_symbol_id"],
+                serde_json::json!(2)
+            );
+            assert_eq!(
+                service_references[0]["target_symbol_id"],
+                serde_json::json!(1)
+            );
+            assert_eq!(
+                index.references_to_symbol_json(1).unwrap(),
+                index.references_from_symbol_json(2).unwrap()
+            );
+            assert_eq!(
+                index.references_for_import_json(0).unwrap(),
+                index.references_from_symbol_json(2).unwrap()
+            );
+            assert_eq!(index.references_to_symbol_json(0).unwrap(), "[]");
+            assert_eq!(index.external_references_from_symbol_json(2).unwrap(), "[]");
+            assert_eq!(index.external_references_for_import_json(0).unwrap(), "[]");
             assert!(index
                 .dependencies_json()
                 .unwrap()
@@ -2049,6 +2051,20 @@ mod bindings {
             assert!(index.external_modules_json().unwrap().contains("\"React\""));
             assert!(index.exports_json().unwrap().contains("\"Page\""));
             assert!(index.references_json().unwrap().contains("\"helper\""));
+            let page_references: serde_json::Value =
+                serde_json::from_str(&index.references_from_symbol_json(0).unwrap()).unwrap();
+            assert_eq!(page_references.as_array().unwrap().len(), 1);
+            assert_eq!(page_references[0]["source_symbol_id"], serde_json::json!(0));
+            assert_eq!(page_references[0]["target_symbol_id"], serde_json::json!(1));
+            assert_eq!(
+                index.references_to_symbol_json(1).unwrap(),
+                index.references_from_symbol_json(0).unwrap()
+            );
+            assert_eq!(
+                index.references_for_import_json(1).unwrap(),
+                index.references_from_symbol_json(0).unwrap()
+            );
+            assert_eq!(index.references_to_symbol_json(0).unwrap(), "[]");
             assert!(index
                 .dependencies_json()
                 .unwrap()
