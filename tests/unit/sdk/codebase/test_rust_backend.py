@@ -359,6 +359,39 @@ class FakeIndex:
         return json.dumps([])
 
 
+class FakeTopLevelSymbolIndex(FakeIndex):
+    def _all_symbol_records(self):
+        return json.loads(FakeIndex.symbols_json(self))
+
+    def symbols_json(self):
+        msg = "top-level public symbol lists should not materialize every compact symbol"
+        raise AssertionError(msg)
+
+    def top_level_symbols_json(self):
+        return json.dumps([symbol for symbol in self._all_symbol_records() if symbol["is_top_level"]])
+
+    def top_level_class_symbols_json(self):
+        return json.dumps([symbol for symbol in self._all_symbol_records() if symbol["is_top_level"] and symbol["kind"] == "class"])
+
+    def top_level_function_symbols_json(self):
+        return json.dumps([symbol for symbol in self._all_symbol_records() if symbol["is_top_level"] and symbol["kind"] == "function"])
+
+    def top_level_global_variable_symbols_json(self):
+        return json.dumps([symbol for symbol in self._all_symbol_records() if symbol["is_top_level"] and symbol["kind"] == "global_variable"])
+
+    def top_level_interface_symbols_json(self):
+        return "[]"
+
+    def top_level_type_symbols_json(self):
+        return "[]"
+
+    def top_level_enum_symbols_json(self):
+        return "[]"
+
+    def top_level_namespace_symbols_json(self):
+        return "[]"
+
+
 class FakeOrderingSummary(FakeSummary):
     def as_dict(self):
         data = super().as_dict()
@@ -2500,6 +2533,32 @@ def test_rust_compact_discovers_paths_without_python_source_reads(monkeypatch, t
         assert codebase.ctx.rust_compact_mode is True
 
     assert iter_skip_content_flags == [True]
+
+
+def test_rust_compact_top_level_symbol_lists_do_not_materialize_all_symbols(monkeypatch, tmp_path):
+    install_fake_rust_extension(monkeypatch, index_cls=FakeTopLevelSymbolIndex)
+    config = CodebaseConfig(graph_backend=GraphBackend.RUST)
+
+    with get_codebase_session(
+        tmpdir=tmp_path,
+        files={"pkg/service.py": "import os\nimport pkg.service\n\nclass Service:\n    pass\n"},
+        config=config,
+        verify_input=False,
+        verify_output=False,
+    ) as codebase:
+        backend = codebase.ctx.rust_index
+        assert backend is not None
+
+        assert [symbol.name for symbol in codebase.symbols] == ["Service", "helper"]
+        assert [symbol.name for symbol in codebase.classes] == ["Service"]
+        assert [symbol.name for symbol in codebase.functions] == ["helper"]
+        assert codebase.global_vars == []
+        assert codebase.interfaces == []
+        assert codebase.types == []
+
+        assert backend._symbols is None
+        assert backend._symbol_handles is None
+        assert sorted(backend._symbol_handles_by_id or {}) == [0, 2]
 
 
 def test_rust_compact_public_queries_preserve_python_sorting(monkeypatch, tmp_path):

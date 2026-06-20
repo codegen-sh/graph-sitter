@@ -11,7 +11,8 @@ pub fn enabled_features() -> &'static [&'static str] {
 #[cfg(feature = "pyo3-bindings")]
 mod bindings {
     use graph_sitter_engine::{
-        self, Engine, EngineInfo, IndexSummary, PythonIndex, SymbolKind, TypeScriptIndex,
+        self, Engine, EngineInfo, IndexSummary, PythonIndex, SymbolKind, SymbolRecord,
+        TypeScriptIndex,
     };
     use pyo3::exceptions::{PyRuntimeError, PyValueError};
     use pyo3::prelude::*;
@@ -337,6 +338,38 @@ mod bindings {
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn top_level_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, None)
+        }
+
+        fn top_level_class_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Class))
+        }
+
+        fn top_level_function_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Function))
+        }
+
+        fn top_level_global_variable_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::GlobalVariable))
+        }
+
+        fn top_level_interface_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Interface))
+        }
+
+        fn top_level_type_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::TypeAlias))
+        }
+
+        fn top_level_enum_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Enum))
+        }
+
+        fn top_level_namespace_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Namespace))
         }
 
         fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {
@@ -885,6 +918,38 @@ mod bindings {
                 .collect();
             serde_json::to_string(&records)
                 .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn top_level_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, None)
+        }
+
+        fn top_level_class_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Class))
+        }
+
+        fn top_level_function_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Function))
+        }
+
+        fn top_level_global_variable_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::GlobalVariable))
+        }
+
+        fn top_level_interface_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Interface))
+        }
+
+        fn top_level_type_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::TypeAlias))
+        }
+
+        fn top_level_enum_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Enum))
+        }
+
+        fn top_level_namespace_symbols_json(&self) -> PyResult<String> {
+            top_level_symbols_json(&self.inner.symbols, Some(SymbolKind::Namespace))
         }
 
         fn imports_for_file_json(&self, file_id: u32) -> PyResult<String> {
@@ -1630,6 +1695,17 @@ mod bindings {
         graph_sitter_engine::index_typescript_paths(path, file_paths)
             .map(PyTypeScriptIndex::from)
             .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+    }
+
+    fn top_level_symbols_json(
+        symbols: &[SymbolRecord],
+        kind: Option<SymbolKind>,
+    ) -> PyResult<String> {
+        let records: Vec<_> = symbols
+            .iter()
+            .filter(|symbol| symbol.is_top_level && kind.map_or(true, |kind| symbol.kind == kind))
+            .collect();
+        serde_json::to_string(&records).map_err(|error| PyRuntimeError::new_err(error.to_string()))
     }
 
     fn import_lookup_candidates(

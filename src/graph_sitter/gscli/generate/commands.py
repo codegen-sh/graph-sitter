@@ -1,4 +1,3 @@
-import json
 import os
 import re
 import shutil
@@ -127,7 +126,7 @@ def get_snippet_pattern(target_name: str) -> str:
 
 
 def generate_codegen_sdk_docs(docs_dir: str) -> None:
-    """Generate the docs for the codegen_sdk API and update the mint.json"""
+    """Generate the docs for the codegen_sdk API."""
     print(colored("Generating codegen_sdk docs", "green"))
 
     # Generate docs page for codebase api and write to the file system
@@ -151,52 +150,23 @@ def generate_codegen_sdk_docs(docs_dir: str) -> None:
 
     # Generate the docs pages for core, python, and typescript classes
 
-    # Write the generated docs to the file system, splitting between core, python, and typescript
-    # keep track of where we put each one so we can update the mint.json
-    python_set = set()
-    typescript_set = set()
-    core_set = set()
+    # Write the generated docs to the file system, splitting between core, python, and typescript.
+    # The custom Next.js docs site discovers these files directly from docs/.
     # TODO replace this with new `get_mdx_for_class` function
     for class_doc in gs_docs.classes:
         class_name = class_doc.title
         lower_class_name = class_name.lower()
         if lower_class_name.startswith("py"):
             file_path = os.path.join(python_docs_dir, f"{class_name}.mdx")
-            python_set.add(f"api-reference/python/{class_name}")
         elif lower_class_name.startswith(("ts", "jsx")):
             file_path = os.path.join(typescript_docs_dir, f"{class_name}.mdx")
-            typescript_set.add(f"api-reference/typescript/{class_name}")
         else:
             file_path = os.path.join(core_dir, f"{class_name}.mdx")
-            core_set.add(f"api-reference/core/{class_name}")
 
         mdx_page = render_mdx_page_for_class(cls_doc=class_doc)
         with open(file_path, "w") as f:
             f.write(mdx_page)
     print(colored("Finished writing new .mdx files", "green"))
-
-    # Update the core, python, and typescript page sets in mint.json
-    mint_file_path = os.path.join(docs_dir, "mint.json")
-    with open(mint_file_path) as mint_file:
-        mint_data = json.load(mint_file)
-
-    # Find the "Codebase SDK" group where we want to add the pages
-    codebase_sdk_group = next(group for group in mint_data["navigation"] if group["group"] == "API Reference")
-
-    # Update the pages for each language group
-    for group in codebase_sdk_group["pages"]:
-        if isinstance(group, dict):  # Ensure group is a dictionary
-            if group["group"] == "Core":
-                group["pages"] = sorted(core_set)
-            elif group["group"] == "Python":
-                group["pages"] = sorted(python_set)
-            elif group["group"] == "Typescript":
-                group["pages"] = sorted(typescript_set)
-
-    with open(mint_file_path, "w") as mint_file:
-        json.dump(mint_data, mint_file, indent=2)
-
-    print(colored("Updated mint.json with new page sets", "green"))
 
 
 @generate.command()

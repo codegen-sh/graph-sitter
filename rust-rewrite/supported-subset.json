@@ -18,6 +18,7 @@
 				"module-import attribute resolution",
 				"source-backed directory lookup and traversal",
 				"non-source directory all-file traversal",
+				"top-level public symbol lists without full symbol hydration",
 				"TypeScript file-local export lookup"
 			],
 			"tests": [
@@ -30,6 +31,7 @@
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_name_resolution_does_not_materialize_file_maps",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_module_import_attribute_resolution_does_not_materialize_file_maps",
+				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_top_level_symbol_lists_do_not_materialize_all_symbols",
 				"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_export_lookups_do_not_materialize_all_exports"
 			]
 		},

@@ -1415,6 +1415,22 @@ class RustIndexBackend:
             return [symbol for symbol in self.symbol_handles if symbol.is_top_level and symbol.name == name]
         return [self._symbol_handle_from_record(record) for record in records]
 
+    def top_level_symbol_handles(self, symbol_type: SymbolType | None = None) -> list[RustCompactSymbol]:
+        method_by_symbol_type = {
+            None: "top_level_symbols_json",
+            SymbolType.Class: "top_level_class_symbols_json",
+            SymbolType.Function: "top_level_function_symbols_json",
+            SymbolType.GlobalVar: "top_level_global_variable_symbols_json",
+            SymbolType.Interface: "top_level_interface_symbols_json",
+            SymbolType.Type: "top_level_type_symbols_json",
+            SymbolType.Enum: "top_level_enum_symbols_json",
+            SymbolType.Namespace: "top_level_namespace_symbols_json",
+        }
+        records = self._records_from_json_method(method_by_symbol_type[symbol_type], RustSymbolRecord.from_dict)
+        if records is None:
+            return [symbol for symbol in self.symbol_handles if symbol.is_top_level and (symbol_type is None or symbol.symbol_type == symbol_type)]
+        return [self._symbol_handle_from_record(record) for record in records]
+
     def imports_for_file(self, file_id: int) -> list[RustCompactImport]:
         if self._import_handles is None and hasattr(self.index, "imports_for_file_json"):
             if self._imports_by_file_id is None:

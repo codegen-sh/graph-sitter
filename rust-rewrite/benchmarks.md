@@ -249,6 +249,28 @@ Discovery-only old-vs-new measurements were run in the same process to isolate t
 
 The Airflow discovery slice is now about 5.9x faster before Rust parsing begins, while selecting the same 4,789 Python source files and 7,765 total repo files.
 
+### Top-Level Symbol Query Optimization
+
+On 2026-06-20, the Rust PyO3 extension added top-level symbol-list methods so common public `Codebase` queries no longer deserialize every compact symbol into Python handles. Before this change, `codebase.functions`, `codebase.classes`, and similar top-level lists routed through `RustIndexBackend.symbol_handles`, materializing all compact symbols even when the caller only needed one top-level subset.
+
+Regression coverage:
+
+```bash
+uv run pytest tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_top_level_symbol_lists_do_not_materialize_all_symbols -q
+```
+
+The test asserts that public top-level symbol lists use the dedicated compact subset methods and do not populate the full `_symbols` or `_symbol_handles` caches.
+
+Measured on the cached Apache Airflow `2.10.5` checkout (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`:
+
+| Query path | Before wall | After wall | Before max RSS delta | After max RSS delta | Python handles created | Result count |
+| ---------- | ----------: | ---------: | -------------------: | ------------------: | ---------------------: | -----------: |
+| First `codebase.functions` | 0.310s | 0.031s | 104.8 MB | 0.0 MB | 52,339 -> 6,145 | 6,145 |
+| First `codebase.classes` after functions | 0.0068s | 0.0267s | 0.0 MB | 0.0 MB | already hydrated -> 11,524 cumulative | 5,379 |
+| First `codebase.symbols` after subsets | n/a | 0.112s | n/a | 0.0 MB | 23,663 cumulative | 23,663 |
+
+The first high-value public query is now about 10x faster and avoids the previous 105 MB Python-side RSS spike. The follow-on subset calls do their own compact JSON round trip instead of reusing a fully hydrated all-symbol cache, which is an intentional tradeoff for large repos where memory pressure dominates. The aggregate `_symbol_handles_by_id` cache only contains handles actually requested by the public query path.
+
 ## Standalone TypeScript/JavaScript Rust Index Evidence
 
 These measurements capture the first syntax-only Rust TypeScript/JavaScript index exposed through PyO3. The Rust path uses Python-selected file discovery for a fair file-list comparison. The later `Codebase` measurement below includes the current relative-import resolution, reference/dependency rows, and lazy Python shell handles.

@@ -1,7 +1,7 @@
 import re
 
 from graph_sitter.code_generation.doc_utils.schemas import ClassDoc, MethodDoc, ParameterDoc
-from graph_sitter.code_generation.doc_utils.utils import sanitize_html_for_mdx, sanitize_mdx_mintlify_description
+from graph_sitter.code_generation.doc_utils.utils import sanitize_html_for_mdx, sanitize_mdx_description
 
 
 def render_mdx_page_for_class(cls_doc: ClassDoc) -> str:
@@ -21,7 +21,7 @@ def render_mdx_page_title(cls_doc: ClassDoc, icon: str | None = None) -> str:
 title: "{cls_doc.title}"
 sidebarTitle: "{cls_doc.title}"
 icon: "{icon if icon else ""}"
-description: "{sanitize_mdx_mintlify_description(page_desc)}"
+description: "{sanitize_mdx_description(page_desc)}"
 ---
 import {{Parameter}} from '/snippets/Parameter.mdx';
 import {{ParameterWrapper}} from '/snippets/ParameterWrapper.mdx';
@@ -74,7 +74,7 @@ def render_mdx_methods_section(cls_doc: ClassDoc) -> str:
 
 def render_mdx_for_attribute(attribute: MethodDoc) -> str:
     """Renders the MDX for a single attribute"""
-    attribute_docstring = sanitize_mdx_mintlify_description(attribute.description)
+    attribute_docstring = sanitize_mdx_description(attribute.description)
     if len(attribute.return_type) > 0:
         return_type = f"{resolve_type_string(attribute.return_type[0])}"
     else:
@@ -118,7 +118,7 @@ def format_return_for_mdx(return_type: list[str], return_description: str) -> st
 
 
 def render_mdx_for_method(method: MethodDoc) -> str:
-    description = sanitize_mdx_mintlify_description(method.description)
+    description = sanitize_mdx_description(method.description)
     # =====[ RENDER ]=====
     # TODO add links here
     # TODO add inheritence info here

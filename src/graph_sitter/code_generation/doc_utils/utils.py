@@ -33,10 +33,8 @@ def sanitize_docstring_for_markdown(docstring: str | None) -> str:
     return docstring
 
 
-def sanitize_mdx_mintlify_description(content: str) -> str:
-    """Mintlify description field needs to have string escaped, which content doesn't need.
-    the must be parsing the description differently or something
-    """
+def sanitize_mdx_description(content: str) -> str:
+    """Sanitize docstrings for MDX front matter and component attributes."""
     content = sanitize_docstring_for_markdown(content)
     # make sure all `< />` components are properly escaped with a `` inline-block
     # if the string already has the single-quote then this is a no-op
