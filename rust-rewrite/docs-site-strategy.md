@@ -229,8 +229,8 @@ Rules:
 - [x] Audit `docs/introduction/installation.mdx` against current `uv run`, `uv tool install`, and `uvx` behavior. owner: codex. Result: installation docs now distinguish installed tool, local source, published-package `uvx`, and branch-built wheel validation.
 - [x] Add or update a dedicated `docs/cli/uvx.mdx` page with release-gated package guidance. owner: codex. Result: added `docs/cli/uvx.mdx` for parse, run, transform, backend, safety, `--subdir`, and release-gate workflows.
 - [ ] Add Rust backend architecture/status docs sourced from `rust-rewrite/supported-subset.json` and current wheel checks. owner: unclaimed.
-- [ ] Add correctness/parity docs that distinguish old-backend parity from semantic correctness. owner: unclaimed.
-- [ ] Add large-repo benchmark docs for pinned Airflow and pinned Next.js after fresh measurements. owner: unclaimed.
+- [x] Add correctness/parity docs that distinguish old-backend parity from semantic correctness. owner: codex. Result: added `docs/correctness/parity.mdx` with supported-scope evidence, known deltas, safety modes, and pre-default gates.
+- [x] Add large-repo benchmark docs for pinned Airflow and pinned Next.js after fresh measurements. owner: codex. Result: added `docs/benchmarks/large-repos.mdx` with Codebase, installed-wheel, and codemod proof summaries.
 
 ### Landing Page
 

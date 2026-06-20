@@ -162,6 +162,18 @@
       ]
     },
     {
+      "group": "Benchmarks",
+      "pages": [
+        "benchmarks/large-repos"
+      ]
+    },
+    {
+      "group": "Correctness",
+      "pages": [
+        "correctness/parity"
+      ]
+    },
+    {
       "group": "Changelog",
       "pages": [
         "changelog/changelog"

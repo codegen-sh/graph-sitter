@@ -337,8 +337,9 @@ docs owner explicitly approves a config migration.
 - [ ] Add or update Mintlify docs pages for quickstart, `uvx` CLI,
   transformations/codemods, Rust architecture, benchmark methodology,
   correctness/parity, and skill distribution. Notes: quickstart, `uvx` CLI,
-  parse/run/transform, and Rust backend setup docs are updated; benchmark,
-  correctness/parity, and skill public docs remain open.
+  parse/run/transform, Rust backend setup, benchmark evidence, and
+  correctness/parity docs are updated; Rust architecture and skill public docs
+  remain open.
 - [ ] Make docs examples use commands that are backed by current tests:
   `graph-sitter parse`, `graph-sitter transform --check|--write`, strict
   backend flags, and fallback behavior.

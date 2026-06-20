@@ -1,0 +1,105 @@
+---
+title: "Large-Repo Benchmarks"
+sidebarTitle: "Large Repos"
+icon: "gauge"
+iconType: "solid"
+---
+
+Graph-sitter's Rust backend is being validated against pinned large repositories
+before it becomes the default backend. The current benchmark evidence is for the
+`rust-rewrite` branch and branch-built wheels, not a final PyPI release.
+
+<Note>
+  Use these numbers as release evidence for the current implementation shape:
+  Python remains the authoring shell, while Rust owns compact parse/index graph
+  storage for the supported subset. Hardware, cache state, and package artifact
+  shape can change absolute times.
+</Note>
+
+## Pinned Repositories
+
+| Repository | Ref | Commit | Language mode |
+| --- | --- | --- | --- |
+| Apache Airflow | `2.10.5` | `b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf` | Python |
+| Next.js | `v15.0.0` | `51bfe3c1863b191f4b039bc230e8ed5c57b0baf3` | TypeScript, JavaScript, React |
+
+## Codebase Construction
+
+These measurements use real `Codebase(...)` construction with
+`CodebaseConfig(graph_backend="rust", rust_fallback="error")`. In strict Rust
+mode, the old eager Python graph is blocked after the compact Rust index builds.
+
+| Repository | Python wall | Python max RSS | Rust wall | Rust max RSS | Wall improvement | RSS improvement |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Apache Airflow `2.10.5` | 18.940s | 3469.5 MB | 4.085s | 266.2 MB | 4.637x | 13.031x |
+| Next.js `v15.0.0` | 24.959s | 3100.1 MB | 10.465s | 435.9 MB | 2.385x | 7.112x |
+
+The Airflow row exercises compact Python files, symbols, imports, import
+resolution, references, dependencies, and Python compatibility handles. The
+Next.js row exercises TypeScript/JavaScript files, symbols, imports, exports,
+relative and tsconfig path resolution, references, dependencies, subclass edges,
+read-only function call records, and read-only Promise-chain records.
+
+## Installed-Wheel uvx Proof
+
+Branch-built wheels are also tested through `uvx --from dist/<wheel>.whl
+graph-sitter ...`, which proves package contents and CLI entry points rather
+than relying on an editable checkout.
+
+| Repository | Backend | Parse elapsed | `uvx` outer wall | Sampled RSS | Parse improvement | RSS improvement |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Apache Airflow `2.10.5` | Rust strict | 4.913s | 6.064s | 487.0 MB | 9.818x vs Python parse | 11.148x |
+| Apache Airflow `2.10.5` | Python | 48.242s | 77.649s | 5429.3 MB | baseline | baseline |
+| Next.js `v15.0.0` | Rust strict | 10.352s | 11.508s | 537.5 MB | 5.598x vs Python parse | 8.383x |
+| Next.js `v15.0.0` | Python | 57.956s | 78.107s | 4505.6 MB | baseline | baseline |
+
+The installed-wheel Rust parse paths matched the committed compact golden
+summaries for both repositories.
+
+## Codemod Proof
+
+The same branch-built wheel gates run real write-mode transforms on temporary
+clones:
+
+| Repository | Transform proof | Validation |
+| --- | --- | --- |
+| Apache Airflow `2.10.5` | Adds `from typing import Any` and renames `__getattr__` in `airflow/__init__.py` | Only `airflow/__init__.py` changed |
+| Next.js `v15.0.0` | Adds an import, renames `AppRouterAnnouncer`, and updates its importing usage | Only `app-router-announcer.tsx` and `app-router.tsx` changed |
+
+These checks prove that the Rust-backed Python shell can run selected codemods
+without materializing the old Python graph.
+
+## Reproduce
+
+Run the fast local gate:
+
+```bash
+rust-rewrite/tools/check_fast.sh
+```
+
+Run the opt-in large-repo gate:
+
+```bash
+rust-rewrite/tools/check_pinned_large_repos.sh
+```
+
+Run branch-built wheel proofs:
+
+```bash
+rust-rewrite/tools/check_wheel_rust_backend.sh
+uv run python rust-rewrite/tools/check_wheel_pinned_python_repo.py --compare-python-backend --run-transform-proof
+uv run python rust-rewrite/tools/check_wheel_pinned_typescript_repo.py --compare-python-backend --run-transform-proof
+```
+
+See [uvx workflows](/cli/uvx) for the user-facing CLI form.
+
+## Caveats
+
+- Rust is still opt-in. The Python backend remains the default until rollout
+  gates, parity gates, and release artifact validation pass.
+- The installed-wheel results are branch-built wheel results. Published-package
+  `uvx graph-sitter ...` claims require a separate clean-environment release
+  transcript.
+- Counts are compared against compact Rust golden summaries, selected semantic
+  parity checks, and codemod file-diff assertions. Full graph-wide semantic
+  equality is still tracked separately before default-backend promotion.
