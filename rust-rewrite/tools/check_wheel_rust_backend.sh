@@ -42,7 +42,6 @@ if [[ -n "$WHEEL" ]]; then
     echo "Wheel does not exist: $WHEEL" >&2
     exit 1
   fi
-  WHEEL="$(run_python -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve())' "$WHEEL")"
 else
   rm -f dist/graph_sitter-*.whl
   uv build --wheel
@@ -53,6 +52,7 @@ if [[ -z "$WHEEL" ]]; then
   echo "No graph-sitter wheel was built" >&2
   exit 1
 fi
+WHEEL="$(run_python -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).resolve())' "$WHEEL")"
 
 SCRATCH="$(mktemp -d)"
 trap 'rm -rf "$SCRATCH"' EXIT
@@ -60,12 +60,19 @@ trap 'rm -rf "$SCRATCH"' EXIT
 UV_CACHE_DIR="$SCRATCH/uv-cache"
 mkdir -p "$UV_CACHE_DIR"
 export UV_CACHE_DIR
+INVOKE_DIR="$SCRATCH/invoke"
+mkdir -p "$INVOKE_DIR"
 
 run_graph_sitter() {
-  uvx --python "$PYTHON_VERSION" --from "$WHEEL" graph-sitter "$@"
+  (cd "$INVOKE_DIR" && env -u PYTHONPATH uvx --python "$PYTHON_VERSION" --from "$WHEEL" graph-sitter "$@")
+}
+
+run_gs() {
+  (cd "$INVOKE_DIR" && env -u PYTHONPATH uvx --python "$PYTHON_VERSION" --from "$WHEEL" gs "$@")
 }
 
 run_python - "$WHEEL" <<'PY'
+import configparser
 from pathlib import Path
 import sys
 import zipfile
@@ -79,6 +86,18 @@ with zipfile.ZipFile(wheel) as archive:
     if "codemods/codemod.py" not in names:
         msg = f"wheel does not include codemods package: {wheel}"
         raise AssertionError(msg)
+    entrypoint_names = [name for name in names if name.endswith(".dist-info/entry_points.txt")]
+    if len(entrypoint_names) != 1:
+        msg = f"wheel does not include exactly one entry_points.txt file: {wheel}"
+        raise AssertionError(msg)
+    entrypoints = configparser.ConfigParser()
+    entrypoints.read_string(archive.read(entrypoint_names[0]).decode())
+    console_scripts = entrypoints["console_scripts"]
+    expected_script = "graph_sitter.cli.cli:main"
+    for script_name in ["graph-sitter", "gs"]:
+        if console_scripts.get(script_name) != expected_script:
+            msg = f"wheel console script {script_name!r} does not point at {expected_script}: {wheel}"
+            raise AssertionError(msg)
     wheel_metadata_names = [name for name in names if name.endswith(".dist-info/WHEEL")]
     if len(wheel_metadata_names) != 1:
         msg = f"wheel does not include exactly one WHEEL metadata file: {wheel}"
@@ -121,6 +140,7 @@ git -C "$REPO" add .
 git -C "$REPO" commit -m initial >/dev/null
 
 run_graph_sitter --help >/dev/null
+run_gs --help >/dev/null
 
 PYTHON_OUTPUT="$(run_graph_sitter parse "$REPO" --language python --backend python --format json)"
 run_python - "$PYTHON_OUTPUT" <<'PY'

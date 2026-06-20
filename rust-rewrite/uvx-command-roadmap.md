@@ -490,11 +490,16 @@ pass against uploaded artifacts, not just branch-built wheels.
   and never publish a misleading pure-Python Rust-backed wheel. owner: codex.
   Result: the Hatch custom wheel hook marks wheels non-pure, and the release
   workflow smokes each `cibuildwheel` artifact before upload.
-- [ ] Verify `graph-sitter = graph_sitter.cli.cli:main` and
+- [x] Verify `graph-sitter = graph_sitter.cli.cli:main` and
   `gs = graph_sitter.cli.cli:main` are present in the built wheel metadata.
+  owner: codex. Result: `check_wheel_rust_backend.sh` now reads wheel
+  `entry_points.txt` and invokes both `graph-sitter --help` and `gs --help`
+  through `uvx --from`.
 - [ ] Verify Python-backend imports remain optional-Rust safe.
-- [ ] Verify `graph-sitter --help` imports no checkout-local modules in a clean
-  `UV_CACHE_DIR`.
+- [x] Verify `graph-sitter --help` imports no checkout-local modules in a clean
+  `UV_CACHE_DIR`. owner: codex. Result: wheel smokes now run all `uvx`
+  commands from a temporary directory with `PYTHONPATH` unset and a per-run
+  temporary `UV_CACHE_DIR`.
 - [ ] Upload to a pre-release index or publish a pre-release version.
 
 ### Published-Package Smokes
@@ -527,9 +532,13 @@ uvx --python 3.13 graph-sitter parse ./tiny-python --language python --backend a
 
 Required clean-environment assertions:
 
-- [ ] Use a fresh temporary `UV_CACHE_DIR` for every release smoke job.
-- [ ] Assert `graph-sitter --help` works without importing from the source
-  checkout.
+- [x] Use a fresh temporary `UV_CACHE_DIR` for every release smoke job.
+  owner: codex. Result: `check_wheel_rust_backend.sh` creates a per-run
+  scratch `UV_CACHE_DIR`, and release jobs call that script for each built
+  wheel.
+- [x] Assert `graph-sitter --help` works without importing from the source
+  checkout. owner: codex. Result: wheel smokes invoke `graph-sitter --help`
+  and `gs --help` from a temporary working directory with `PYTHONPATH` unset.
 - [ ] Assert `doctor --backend rust` exits zero for Python and TypeScript on
   supported wheel platforms.
 - [ ] Assert parse JSON includes `schema_version`, requested backend, actual
