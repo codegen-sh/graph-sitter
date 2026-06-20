@@ -301,6 +301,7 @@ Python transform examples:
 ```bash
 uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename ./service --language python --backend auto --fallback python --arguments '{"new_name":"renamed"}' --check
 uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename ./service --language python --backend auto --fallback python --arguments '{"new_name":"renamed"}' --write
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename ./service --language python --subdir src --arguments '{"new_name":"renamed"}' --check
 ```
 
 TypeScript transform examples:
@@ -316,6 +317,11 @@ Contract:
 - `OBJECT` may be a function, a `codemods.codemod.Codemod` subclass/instance,
   or an object exposing callable `execute`.
 - Callable targets receive `codebase` and optionally `arguments`.
+- `--subdir` may be passed more than once. Paths are resolved relative to
+  `PATH`; absolute paths are accepted only when they are inside the target
+  repository. The normalized repository-relative filters feed the same
+  `ProjectConfig.subdirectories` path used by registered codemods, including
+  `--check` sandbox runs.
 - `--check` and `--write` are mutually exclusive.
 - One of `--check` or `--write` is required.
 - `--check` must never mutate the target repo, including when a codemod calls
@@ -593,6 +599,11 @@ Skill rules:
   `check_wheel_rust_backend.sh` runs a file-based transform from the built wheel
   in strict Rust mode, proves `--check` reports a diff without mutating the
   target repo, then proves `--write` mutates the target repo.
+- [x] Add repeatable `--subdir` support to `graph-sitter transform`. owner:
+  codex. Result: import-path transforms now normalize repository-relative and
+  in-repo absolute subdirectory/file filters, pass them through
+  `ImportPathTransform.subdirectories`, work with `--check` sandboxes, and have
+  focused write-mode coverage proving unselected files remain untouched.
 - [x] Prove `transform` requires explicit mode and rejects `--check --write`.
   owner: codex. Result: focused transform CLI tests cover both errors.
 - [x] Add Rust-backend transform tests that either pass fully or fail/fallback

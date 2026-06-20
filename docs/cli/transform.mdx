@@ -39,6 +39,8 @@ graph-sitter transform MODULE:OBJECT [PATH] (--check | --write) [OPTIONS]
 - `--language auto|python|typescript`: Choose the repository language.
 - `--arguments JSON`: Pass arguments as a JSON object. If the transform accepts
   a typed argument model, Graph-sitter validates it before execution.
+- `--subdir PATH`: Limit parsing to a repository-relative subdirectory or file.
+  Pass this option more than once to include multiple paths.
 - `--diff-preview N`: Show the first N lines of the produced diff.
 - `--check`: Run in a temporary copied repository, print the diff, leave the
   target unchanged, and exit non-zero when changes would be produced.
@@ -66,6 +68,12 @@ Preview a TypeScript transform:
 graph-sitter transform ./codemods/rename_component.py:rename ./next.js --language typescript --backend auto --fallback python --arguments '{"new_name":"RenamedCard"}' --check
 ```
 
+Limit a transform to one package in a large repository:
+
+```bash
+graph-sitter transform ./codemods/rename.py:rename ./monorepo --subdir packages/app --arguments '{"new_name":"renamed"}' --check
+```
+
 Validate strict Rust behavior from a branch-built wheel:
 
 ```bash
@@ -78,6 +86,7 @@ Published package form after release:
 
 ```bash
 uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --arguments '{"new_name":"renamed"}' --check
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --subdir src --arguments '{"new_name":"renamed"}' --check
 ```
 
 Branch-built wheel validation form before release:

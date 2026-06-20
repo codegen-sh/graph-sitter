@@ -125,6 +125,72 @@ def rename(codebase):
     assert "def renamed()" in (repo_path / "app.py").read_text()
 
 
+def test_transform_write_limits_parse_to_subdirectory(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "src").mkdir()
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "src" / "app.py").write_text("def target():\n    return 1\n")
+    (tmp_path / "tests" / "test_app.py").write_text("def target():\n    return 2\n")
+    transform_file = tmp_path / "rename_all_transform.py"
+    transform_file.write_text(
+        """
+def rename_all(codebase):
+    for function in codebase.functions:
+        function.rename("renamed")
+    codebase.commit()
+""".lstrip()
+    )
+    _commit_all(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "transform",
+            f"{transform_file}:rename_all",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--subdir",
+            "src",
+            "--write",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "def renamed()" in (tmp_path / "src" / "app.py").read_text()
+    assert (tmp_path / "tests" / "test_app.py").read_text() == "def target():\n    return 2\n"
+
+
+def test_transform_rejects_missing_subdirectory(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "app.py").write_text("def target():\n    return 1\n")
+    transform_file = tmp_path / "noop_transform.py"
+    transform_file.write_text(
+        """
+def noop(codebase):
+    return None
+""".lstrip()
+    )
+    _commit_all(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "transform",
+            f"{transform_file}:noop",
+            str(tmp_path),
+            "--subdir",
+            "missing",
+            "--write",
+        ],
+    )
+
+    assert result.exit_code != 0
+    output = strip_ansi(result.output)
+    assert "--subdir" in output
+    assert "path does not exist: missing" in output
+
+
 def test_transform_rust_backend_fallback_python_write_modifies_target_repo(monkeypatch, tmp_path):
     monkeypatch.setitem(sys.modules, "graph_sitter_py", None)
     _init_repo(tmp_path)

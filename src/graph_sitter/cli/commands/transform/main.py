@@ -123,6 +123,38 @@ def _build_call_arguments(callable_target: Any, arguments: dict[str, Any] | None
     return [arguments]
 
 
+def _normalize_subdirectories(repo_path: Path, raw_subdirectories: tuple[str, ...]) -> list[str] | None:
+    if not raw_subdirectories:
+        return None
+
+    repo_root = repo_path.resolve()
+    subdirectories: list[str] = []
+    for raw_subdirectory in raw_subdirectories:
+        raw_path = Path(raw_subdirectory).expanduser()
+        if raw_path.is_absolute():
+            try:
+                relative_path = raw_path.resolve().relative_to(repo_root)
+            except ValueError as error:
+                msg = f"--subdir must be inside the target repository: {raw_subdirectory}"
+                raise click.ClickException(msg) from error
+        else:
+            relative_path = raw_path
+
+        normalized = relative_path.as_posix().removeprefix("./").rstrip("/")
+        if normalized in {"", "."}:
+            continue
+
+        full_path = repo_root / normalized
+        if not full_path.exists():
+            msg = f"--subdir path does not exist: {normalized}"
+            raise click.ClickException(msg)
+        if full_path.is_dir():
+            normalized = f"{normalized}/"
+        subdirectories.append(normalized)
+
+    return subdirectories or None
+
+
 @click.command(name="transform")
 @click.argument("specifier", required=True)
 @click.argument("path", required=False, type=click.Path(path_type=Path, exists=True, file_okay=False), default=Path("."))
@@ -133,6 +165,7 @@ def _build_call_arguments(callable_target: Any, arguments: dict[str, Any] | None
 @click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")
 @click.option("--check", is_flag=True, help="Run in a temporary sandbox and exit non-zero if changes would be produced.")
 @click.option("--write", is_flag=True, help="Apply changes to the target repo.")
+@click.option("--subdir", "subdirectories", multiple=True, help="Limit parsing to a repository-relative subdirectory or file. Can be passed more than once.")
 def transform_command(
     specifier: str,
     path: Path,
@@ -143,6 +176,7 @@ def transform_command(
     language: str = "auto",
     check: bool = False,
     write: bool = False,
+    subdirectories: tuple[str, ...] = (),
 ) -> None:
     """Run an import-path transform against a local codebase."""
     if check and write:
@@ -152,12 +186,17 @@ def transform_command(
         msg = "Choose either --check to preview changes or --write to apply them."
         raise click.ClickException(msg)
 
-    transform = ImportPathTransform(name=specifier, target=_load_object(specifier))
+    repo_path = path.resolve()
+    transform = ImportPathTransform(
+        name=specifier,
+        target=_load_object(specifier),
+        subdirectories=_normalize_subdirectories(repo_path, subdirectories),
+    )
     run_local(
         None,
         transform,
         diff_preview=diff_preview,
-        repo_path=path.resolve(),
+        repo_path=repo_path,
         arguments=_parse_arguments(arguments),
         backend=GraphBackend(backend),
         fallback=RustFallbackMode(fallback),
