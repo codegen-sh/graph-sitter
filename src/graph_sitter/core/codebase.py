@@ -269,9 +269,10 @@ class Codebase(
     @property
     @noapidoc
     def rust_index_summary(self):
-        if self.ctx.rust_index is None:
+        rust_index = self._rust_index_backend()
+        if rust_index is None:
             return None
-        return self.ctx.rust_index.summary
+        return rust_index.summary
 
     @property
     @noapidoc
@@ -343,12 +344,27 @@ class Codebase(
     def rust_debug_graph_json(self):
         return self._require_rust_index().debug_graph_json()
 
+    def _rust_index_backend(self):
+        rust_index = self.ctx.rust_index
+        if rust_index is None:
+            return None
+        from graph_sitter.codebase.rust_backend import RustIndexBackend
+
+        if not isinstance(rust_index, RustIndexBackend):
+            return None
+        return rust_index
+
+    @property
+    def _rust_compact_mode(self) -> bool:
+        return self._rust_index_backend() is not None
+
     def _require_rust_index(self):
-        if self.ctx.rust_index is None:
+        rust_index = self._rust_index_backend()
+        if rust_index is None:
             msg = "Rust compact index is unavailable; construct Codebase with CodebaseConfig(graph_backend='rust')"
             raise RuntimeError(msg)
-        self.ctx.rust_index.bind_context(self.ctx)
-        return self.ctx.rust_index
+        rust_index.bind_context(self.ctx)
+        return rust_index
 
     def _rust_compact_files(self, extensions: list[str] | Literal["*"] | None = None):
         if isinstance(extensions, str) and extensions != "*":
@@ -373,7 +389,7 @@ class Codebase(
 
     @noapidoc
     def _symbols(self, symbol_type: SymbolType | None = None) -> list[TSymbol | TClass | TFunction | TGlobalVar]:
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             symbols = self._require_rust_index().symbol_handles
             return [x for x in symbols if x.is_top_level and (symbol_type is None or x.symbol_type == symbol_type)]
         matches: list[Symbol] = self.ctx.get_nodes(NodeType.SYMBOL)
@@ -405,7 +421,7 @@ class Codebase(
         Returns:
             list[TSourceFile]: A sorted list of source files in the codebase.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             return self._rust_compact_files(extensions)
         if self.ctx.config.use_pink == PinkMode.ALL_FILES:
             return self._pink_codebase.files
@@ -451,7 +467,7 @@ class Codebase(
         Returns:
             list[TDirectory]: A list of Directory objects in the codebase.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             return self._require_rust_index().directory_handles
         return list(self.ctx.directories.values())
 
@@ -469,7 +485,7 @@ class Codebase(
             list[TImport]: A list of Import nodes representing all imports in the codebase.
             TImport can be PyImport for Python codebases or TSImport for TypeScript codebases.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             return self._require_rust_index().import_handles
         return self.ctx.get_nodes(NodeType.IMPORT)
 
@@ -493,7 +509,7 @@ class Codebase(
             msg = "Exports are not supported for Python codebases since Python does not have an export mechanism."
             raise NotImplementedError(msg)
 
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             return self._require_rust_index().export_handles
 
         return self.ctx.get_nodes(NodeType.EXPORT)
@@ -507,7 +523,7 @@ class Codebase(
         Returns:
             list[ExternalModule]: List of external module nodes from the codebase graph.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             return self._require_rust_index().external_module_handles
 
         return self.ctx.get_nodes(NodeType.EXTERNAL)
@@ -608,7 +624,7 @@ class Codebase(
         if self.has_file(filepath):
             logger.warning(f"File {filepath} already exists in codebase. Overwriting...")
 
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             path = self.ctx.to_absolute(filepath)
             path.parent.mkdir(parents=True, exist_ok=True)
             self.ctx.io.write_file(path, content)
@@ -649,7 +665,7 @@ class Codebase(
             logger.warning(f"Directory {dir_path} already exists in codebase. Overwriting...")
 
         self.ctx.to_absolute(dir_path).mkdir(parents=parents, exist_ok=exist_ok)
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             self._require_rust_index().register_directory(dir_path)
 
     def has_file(self, filepath: str, ignore_case: bool = False) -> bool:
@@ -693,7 +709,7 @@ class Codebase(
         if self.ctx.config.use_pink == PinkMode.ALL_FILES:
             absolute_path = self.ctx.to_absolute(filepath)
             return self._pink_codebase.get_file(absolute_path)
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             file = self._require_rust_index().get_file_handle(filepath, ignore_case=ignore_case)
             if file is not None:
                 return file
@@ -756,7 +772,7 @@ class Codebase(
         # Sanitize the path
         dir_path = os.path.normpath(dir_path)
         dir_path = "" if dir_path == "." else dir_path
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             directory = self._require_rust_index().get_directory_handle(dir_path, ignore_case=ignore_case)
         else:
             directory = self.ctx.get_directory(self.ctx.to_absolute(dir_path), ignore_case=ignore_case)
@@ -776,7 +792,7 @@ class Codebase(
         Returns:
             bool: True if a symbol with the given name exists in the codebase, False otherwise.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             return bool(self._require_rust_index().top_level_symbols_by_name(symbol_name))
         return any([x.name == symbol_name for x in self.symbols])
 
@@ -821,7 +837,7 @@ class Codebase(
         Note:
             When a unique symbol is required, use get_symbol() instead. It will raise ValueError if multiple symbols are found.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             return sort_editables(self._require_rust_index().top_level_symbols_by_name(symbol_name))
         return sort_editables(x for x in self.symbols if x.name == symbol_name)
 
@@ -838,7 +854,7 @@ class Codebase(
         Raises:
             ValueError: If the class is not found and optional=False, or if multiple classes with the same name exist.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             matches = [symbol for symbol in self._require_rust_index().top_level_symbols_by_name(class_name) if symbol.symbol_type == SymbolType.Class]
         else:
             matches = [c for c in self.classes if c.name == class_name]
@@ -870,7 +886,7 @@ class Codebase(
         Raises:
             ValueError: If function is not found and optional=False, or if multiple matching functions exist.
         """
-        if self.ctx.rust_compact_mode:
+        if self._rust_compact_mode:
             matches = [symbol for symbol in self._require_rust_index().top_level_symbols_by_name(function_name) if symbol.symbol_type == SymbolType.Function]
         else:
             matches = [f for f in self.functions if f.name == function_name]
