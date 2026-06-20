@@ -3040,6 +3040,26 @@ fn collect_typescript_identifier_candidates(
         | "extends_clause"
         | "implements_clause"
         | "extends_type_clause" => return,
+        "export_statement" if node_text(source, node).trim_start().starts_with("export =") => {
+            let call_value = node
+                .child_by_field_name("value")
+                .filter(|value| value.kind() == "call_expression")
+                .or_else(|| first_child_of_kind(node, &["call_expression"]));
+            if let Some(call_value) = call_value {
+                collect_typescript_identifier_candidates(
+                    file_id,
+                    source,
+                    call_value,
+                    symbol_ranges,
+                    local_bindings_by_symbol_id,
+                    local_binding_scopes,
+                    excluded_ranges,
+                    indexed_local_symbols,
+                    out,
+                );
+            }
+            return;
+        }
         "call_expression" => {
             let function_node = node.child_by_field_name("function");
             if let Some(function_node) = function_node {
@@ -3968,6 +3988,9 @@ fn typescript_local_exported_symbol_map(
         });
         if let Some(symbol_id) = symbol_id {
             exported_symbols.insert((export.file_id, name.to_owned()), symbol_id);
+            if export.kind == ExportKind::ExportEquals {
+                exported_symbols.insert((export.file_id, "default".to_owned()), symbol_id);
+            }
         }
     }
     exported_symbols
@@ -7942,6 +7965,118 @@ export function shadow(localHelper: number) {\n\
             dependency.source_symbol_id == run_symbol_id
                 && dependency.target_symbol_id == helper_symbol_id
                 && dependency.reference_count == 1
+        }));
+    }
+
+    #[test]
+    fn resolves_typescript_default_imports_from_export_equals_symbols() {
+        let repo = temp_repo_path("resolve-typescript-export-equals-default-imports");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/legacy.ts"),
+            "class Legacy {}\nexport = Legacy;\n",
+        )
+        .unwrap();
+        fs::write(
+            repo.join("src/app.ts"),
+            "import Legacy from './legacy';\n\nexport function run() {\n  return Legacy;\n}\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let legacy_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/legacy.ts")
+            .unwrap()
+            .id;
+        let app_file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/app.ts")
+            .unwrap()
+            .id;
+        let legacy_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == legacy_file_id && symbol.name == "Legacy")
+            .unwrap()
+            .id;
+        let run_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == app_file_id && symbol.name == "run")
+            .unwrap()
+            .id;
+        let import = index
+            .imports
+            .iter()
+            .find(|import| import.alias.as_deref() == Some("Legacy"))
+            .unwrap();
+
+        assert!(index.exports.iter().any(|export| {
+            export.file_id == legacy_file_id
+                && export.kind == ExportKind::ExportEquals
+                && export.name.as_deref() == Some("Legacy")
+                && export.local_name.as_deref() == Some("Legacy")
+        }));
+        assert!(index.import_resolutions.iter().any(|resolution| {
+            resolution.import_id == import.id
+                && resolution.target_file_id == legacy_file_id
+                && resolution.target_symbol_id == Some(legacy_symbol_id)
+        }));
+        assert!(index.references.iter().any(|reference| {
+            reference.source_symbol_id == Some(run_symbol_id)
+                && reference.target_symbol_id == legacy_symbol_id
+                && reference.import_id == Some(import.id)
+                && reference.name == "Legacy"
+        }));
+        assert!(!index.references.iter().any(|reference| {
+            reference.source_file_id == legacy_file_id
+                && reference.source_symbol_id.is_none()
+                && reference.target_symbol_id == legacy_symbol_id
+                && reference.name == "Legacy"
+        }));
+        assert!(index.dependencies.iter().any(|dependency| {
+            dependency.source_symbol_id == run_symbol_id
+                && dependency.target_symbol_id == legacy_symbol_id
+                && dependency.reference_count == 1
+        }));
+    }
+
+    #[test]
+    fn preserves_typescript_export_equals_call_records() {
+        let repo = temp_repo_path("preserve-typescript-export-equals-call-records");
+        fs::create_dir_all(repo.join("src")).unwrap();
+        fs::write(
+            repo.join("src/legacy.ts"),
+            "function makeLegacy() { return class Legacy {}; }\nexport = makeLegacy();\n",
+        )
+        .unwrap();
+
+        let index = index_typescript_path(&repo).unwrap();
+        fs::remove_dir_all(&repo).unwrap();
+
+        let file_id = index
+            .files
+            .iter()
+            .find(|file| file.path == "src/legacy.ts")
+            .unwrap()
+            .id;
+        let make_legacy_symbol_id = index
+            .symbols
+            .iter()
+            .find(|symbol| symbol.file_id == file_id && symbol.name == "makeLegacy")
+            .unwrap()
+            .id;
+
+        assert!(index.function_calls.iter().any(|call| {
+            call.source_file_id == file_id
+                && call.source_symbol_id.is_none()
+                && call.target_symbol_id == Some(make_legacy_symbol_id)
+                && call.name == "makeLegacy"
         }));
     }
 

@@ -57,7 +57,7 @@ EXPECTED_RECORDS = {
     "rust_external_modules": 13525,
     "rust_exports": 16027,
     "rust_references": 114464,
-    "rust_external_references": 25318,
+    "rust_external_references": 25317,
     "rust_function_calls": 197581,
     "rust_promise_chains": 878,
     "rust_dependencies": 49287,

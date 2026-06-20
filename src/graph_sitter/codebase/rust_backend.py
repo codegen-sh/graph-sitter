@@ -4361,6 +4361,15 @@ class RustCompactExport(RustCompactHandle):
         declared = self.declared_symbol
         if declared is not None:
             return declared
+        if self.record.kind == "export_equals" and self.record.local_name is not None:
+            return next(
+                (
+                    symbol
+                    for symbol in self.backend.symbols_for_file_by_name(self.record.file_id, self.record.local_name)
+                    if symbol.is_top_level
+                ),
+                None,
+            )
         if self.is_wildcard_export():
             return self.file
         return None

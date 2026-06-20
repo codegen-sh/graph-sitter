@@ -905,7 +905,7 @@
       "sha256": "75176bcfeb2ad12c09a7dfddc5de0f357b3f760e0b16b6cd05c9cf8260113b33"
     },
     "external_references": {
-      "count": 25318,
+      "count": 25317,
       "samples": [
         {
           "import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
@@ -1208,7 +1208,7 @@
           "source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615"
         }
       ],
-      "sha256": "48622e2fc0e25018d8cd1cbf20b7fd48a4bfc66e0105d4243014ca5934ff7074"
+      "sha256": "30bdfc999d06a7b426261e850bdbec296db2b5dac2ad482c73fd87f06181579f"
     },
     "files": {
       "count": 13688,
@@ -2994,7 +2994,7 @@
     "dependencies": 49287,
     "exports": 16027,
     "external_modules": 13525,
-    "external_references": 25318,
+    "external_references": 25317,
     "files": 13688,
     "files_with_errors": 113,
     "functions": 13497,
