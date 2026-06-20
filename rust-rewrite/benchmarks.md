@@ -263,11 +263,11 @@ The test asserts that public top-level symbol lists use the dedicated compact su
 
 Measured on the cached Apache Airflow `2.10.5` checkout (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`:
 
-| Query path | Before wall | After wall | Before max RSS delta | After max RSS delta | Python handles created | Result count |
-| ---------- | ----------: | ---------: | -------------------: | ------------------: | ---------------------: | -----------: |
-| First `codebase.functions` | 0.310s | 0.031s | 104.8 MB | 0.0 MB | 52,339 -> 6,145 | 6,145 |
-| First `codebase.classes` after functions | 0.0068s | 0.0267s | 0.0 MB | 0.0 MB | already hydrated -> 11,524 cumulative | 5,379 |
-| First `codebase.symbols` after subsets | n/a | 0.112s | n/a | 0.0 MB | 23,663 cumulative | 23,663 |
+| Query path                               | Before wall | After wall | Before max RSS delta | After max RSS delta |                Python handles created | Result count |
+| ---------------------------------------- | ----------: | ---------: | -------------------: | ------------------: | ------------------------------------: | -----------: |
+| First `codebase.functions`               |      0.310s |     0.031s |             104.8 MB |              0.0 MB |                       52,339 -> 6,145 |        6,145 |
+| First `codebase.classes` after functions |     0.0068s |    0.0267s |               0.0 MB |              0.0 MB | already hydrated -> 11,524 cumulative |        5,379 |
+| First `codebase.symbols` after subsets   |         n/a |     0.112s |                  n/a |              0.0 MB |                     23,663 cumulative |       23,663 |
 
 The first high-value public query is now about 10x faster and avoids the previous 105 MB Python-side RSS spike. The follow-on subset calls do their own compact JSON round trip instead of reusing a fully hydrated all-symbol cache, which is an intentional tradeoff for large repos where memory pressure dominates. The aggregate `_symbol_handles_by_id` cache only contains handles actually requested by the public query path.
 
