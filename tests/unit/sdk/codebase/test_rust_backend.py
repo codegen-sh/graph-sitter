@@ -2570,14 +2570,21 @@ def test_rust_compact_top_level_symbol_lists_do_not_materialize_all_symbols(monk
 def test_rust_compact_all_files_reuses_non_source_path_index(monkeypatch, tmp_path):
     install_fake_rust_extension(monkeypatch)
     calls = 0
+    binary_probe_paths: list[Path] = []
     original_non_source_file_paths = RustIndexBackend._non_source_file_paths
+    original_is_likely_binary_file = sys.modules["graph_sitter.codebase.rust_backend"]._is_likely_binary_file
 
     def non_source_file_paths_wrapper(self):
         nonlocal calls
         calls += 1
         return original_non_source_file_paths(self)
 
+    def is_likely_binary_file_wrapper(path: Path):
+        binary_probe_paths.append(path)
+        return original_is_likely_binary_file(path)
+
     monkeypatch.setattr(RustIndexBackend, "_non_source_file_paths", non_source_file_paths_wrapper)
+    monkeypatch.setattr(sys.modules["graph_sitter.codebase.rust_backend"], "_is_likely_binary_file", is_likely_binary_file_wrapper)
     config = CodebaseConfig(graph_backend=GraphBackend.RUST)
 
     with get_codebase_session(
@@ -2610,10 +2617,15 @@ def test_rust_compact_all_files_reuses_non_source_path_index(monkeypatch, tmp_pa
             "notes/usage.md",
             "pkg/service.py",
         ]
-        assert next(file for file in all_files if file.filepath == "README.md").record.content_hash == ""
+        readme = next(file for file in all_files if file.filepath == "README.md")
+        assert readme.record.content_hash == ""
+        assert readme.record.is_binary is None
         assert backend._files is not None
         assert backend._file_handles is not None
         assert read_bytes_calls == []
+        assert binary_probe_paths == []
+        assert readme.is_binary is False
+        assert binary_probe_paths == [tmp_path / "README.md"]
 
     assert calls <= 2
 

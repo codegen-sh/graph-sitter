@@ -97,7 +97,7 @@ class RustFileRecord:
     line_count: int
     has_error: bool
     root_range: RustSourceRange
-    is_binary: bool = False
+    is_binary: bool | None = False
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> RustFileRecord:
@@ -111,7 +111,7 @@ class RustFileRecord:
             line_count=int(data["line_count"]),
             has_error=bool(data["has_error"]),
             root_range=RustSourceRange.from_dict(data["root_range"]),
-            is_binary=bool(data.get("is_binary", False)),
+            is_binary=None if "is_binary" in data and data["is_binary"] is None else bool(data.get("is_binary", False)),
         )
 
 
@@ -1064,7 +1064,7 @@ class RustIndexBackend:
             line_count=0,
             has_error=False,
             root_range=_source_range_for_bytes_len(byte_len),
-            is_binary=_is_likely_binary_file(self.repo_path / normalized),
+            is_binary=None,
         )
         self._synthetic_file_records_by_path[record.path] = record
         self._synthetic_file_records_by_id[record.id] = record
@@ -3065,6 +3065,8 @@ class RustCompactFile(RustCompactHandle):
 
     @property
     def is_binary(self) -> bool:
+        if self._binary is None:
+            self._binary = _is_likely_binary_file(self.path)
         return self._binary
 
     @property

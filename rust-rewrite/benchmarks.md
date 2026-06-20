@@ -271,7 +271,7 @@ The default source-file list is now about 1.9x faster for Airflow while preservi
 
 ### All-File Listing Optimization
 
-On 2026-06-20, the Rust Python shell changed synthetic non-source file records so `codebase.files(extensions="*")` no longer rereads every non-source file to compute eager content hashes and exact line counts. Non-source file content remains lazy through `file.content` and `file.content_bytes`; listing now uses path metadata, cached non-source path indexes, and a small binary-detection sample.
+On 2026-06-20, the Rust Python shell changed synthetic non-source file records so `codebase.files(extensions="*")` no longer rereads every non-source file to compute eager content hashes and exact line counts. Non-source file content remains lazy through `file.content` and `file.content_bytes`; listing now uses path metadata and cached non-source path indexes. Binary detection for non-source files is also lazy: `file.is_binary` samples the file on first access instead of during broad listing.
 
 Regression coverage:
 
@@ -283,12 +283,14 @@ The test asserts that all-file listing reuses the derived non-source path index 
 
 Measured on the cached Apache Airflow `2.10.5` checkout (`b93c3db6b1641b0840bd15ac7d05bc58ff2cccbf`) with `CodebaseConfig(graph_backend="rust", rust_fallback="error")`:
 
-| Query path                             | Before wall | Path-cache-only wall | After lazy metadata wall | Result count |
-| -------------------------------------- | ----------: | -------------------: | -----------------------: | -----------: |
-| First `codebase.files`                 |      0.060s |               0.064s |                   0.059s |        4,789 |
-| First `codebase.files(extensions="*")` |      4.299s |               2.989s |                   0.174s |        7,765 |
+| Query path                             | Before wall | Path-cache-only wall | Lazy metadata wall | Lazy binary wall | Result count |
+| -------------------------------------- | ----------: | -------------------: | -----------------: | ---------------: | -----------: |
+| First `codebase.files`                 |      0.060s |               0.064s |             0.059s |              n/a |        4,789 |
+| First `codebase.files(extensions="*")` |      4.299s |               2.989s |             0.174s |           0.090s |        7,765 |
 
-The all-file listing path is now about 24.8x faster for Airflow and no longer reads full content for 2,976 non-source files just to return file handles.
+The all-file listing path is now about 47.8x faster for Airflow and no longer reads full content or binary-detection samples for 2,976 non-source files just to return file handles.
+
+The same lazy binary-detection refinement measured `codebase.files(extensions="*")` at 0.195s for Next.js `v15.0.0` with 19,643 total files and 5,955 non-source files; the first explicit `file.is_binary` probe sampled one file in 0.000147s.
 
 ### Top-Level Symbol Query Optimization
 
