@@ -14,10 +14,10 @@ dependencies = [
   "dicttoxml<2.0.0,>=1.7.16",
   "xmltodict<1.0.0,>=0.13.0",
   "astor<1.0.0,>=0.8.1",
-  "tree-sitter>=0.23.1",
-  "tree-sitter-python>=0.23.4",
-  "tree-sitter-typescript>=0.23.2",
-  "tree-sitter-javascript>=0.23.1",
+  "tree-sitter>=0.23.1,<0.25",
+  "tree-sitter-python>=0.23.4,<0.24",
+  "tree-sitter-typescript>=0.23.2,<0.24",
+  "tree-sitter-javascript>=0.23.1,<0.24",
   "python-levenshtein<1.0.0,>=0.25.1",
   "networkx>=3.4.1",
   "wrapt<2.0.0,>=1.16.0",
@@ -31,7 +31,7 @@ dependencies = [
   "humanize<5.0.0,>=4.10.0",
   "pytest-snapshot>=0.9.0",
   "pyjson5==1.6.9",
-  "mini-racer>=0.12.4",
+  "mini-racer==0.12.4",
   "rustworkx>=0.15.1",
   "typing-extensions>=4.12.2",
   "termcolor>=2.4.0",
@@ -43,7 +43,7 @@ dependencies = [
   "hatch-vcs>=0.4.0",
   "hatchling>=1.25.0",
   "pyinstrument>=5.0.0",
-  "pip>=24.3.1",                       # This is needed for some NPM/YARN/PNPM post-install scripts to work!
+  "pip>=24.3.1",                          # This is needed for some NPM/YARN/PNPM post-install scripts to work!
   "rich-click>=1.8.5",
   "python-dotenv>=1.0.1",
   "giturlparse",
@@ -110,6 +110,7 @@ keywords = [
 ]
 [project.scripts]
 gs = "graph_sitter.cli.cli:main"
+graph-sitter = "graph_sitter.cli.cli:main"
 
 [project.optional-dependencies]
 pink = ["codegen-sdk-pink>=0.1.0"]

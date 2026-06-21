@@ -1,0 +1,58 @@
+---
+title: "AI Assistance"
+sidebarTitle: "expert"
+icon: "robot"
+iconType: "solid"
+---
+
+Use this workflow when you want an AI assistant to help write, review, or refine
+Graph-sitter codemods.
+
+<Note>
+  This branch does not expose a standalone `gs expert` shell command. The
+  `expert` page describes the AI-assistance workflow around the documented CLI
+  commands.
+</Note>
+
+## Recommended Flow
+
+1. Initialize Graph-sitter in the target repository.
+
+```bash
+gs init
+```
+
+2. Scaffold a codemod.
+
+```bash
+gs create rename-function .
+```
+
+3. Ask your assistant to edit the generated codemod with Graph-sitter APIs such
+as `Codebase`, `Function`, `Import`, and `commit()`.
+
+4. Run the codemod in check mode before applying changes.
+
+```bash
+gs run rename-function . --check
+```
+
+5. Apply the codemod after reviewing the diff.
+
+```bash
+gs run rename-function . --write
+```
+
+## What To Give The Assistant
+
+- The goal of the codemod.
+- The target repository path and language.
+- Any expected symbol names, import paths, or file patterns.
+- Whether the run should use the Python backend or the opt-in Rust backend.
+- The generated codemod file under `.codegen/codemods/`.
+
+## Related Commands
+
+- [`create`](/cli/create): scaffold a codemod file.
+- [`run`](/cli/run): execute a local codemod.
+- [`parse`](/cli/about): inspect the codebase graph before editing.

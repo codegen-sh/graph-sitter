@@ -1,29 +1,41 @@
-import json
 from pathlib import Path
 
-docs = Path("./docs")
-mint = json.load(open(docs / "mint.json"))
+DOCS_ROOT = Path("./docs")
+SYSTEM_PROMPT_SECTIONS = (
+    "introduction",
+    "building-with-graph-sitter",
+    "tutorials",
+)
+PAGE_PRIORITY = {
+    "introduction": ("overview", "getting-started", "installation"),
+    "building-with-graph-sitter": ("at-a-glance",),
+    "tutorials": ("at-a-glance",),
+}
 
 
-def render_page(page_str: str):
-    return open(docs / (page_str + ".mdx")).read()
+def render_page(page_path: Path) -> str:
+    return page_path.read_text(encoding="utf-8").strip()
 
 
-def render_group(page_strs: list[str]):
-    return "\n\n".join([render_page(x) for x in page_strs])
+def iter_section_pages(section: str) -> list[Path]:
+    section_dir = DOCS_ROOT / section
+    if not section_dir.exists():
+        return []
+
+    priorities = PAGE_PRIORITY.get(section, ())
+    priority_by_stem = {stem: index for index, stem in enumerate(priorities)}
+
+    def sort_key(page_path: Path) -> tuple[int, str]:
+        priority = priority_by_stem.get(page_path.stem, len(priorities))
+        return (priority, page_path.relative_to(section_dir).as_posix())
+
+    return sorted(section_dir.rglob("*.mdx"), key=sort_key)
 
 
-def get_group(name) -> list[str]:
-    group = next((x for x in mint["navigation"] if x.get("group") == name), None)
-    if group:
-        return group["pages"]
-
-
-def render_groups(group_names: list[str]) -> str:
-    groups = [get_group(x) for x in group_names]
-    return "\n\n".join([render_group(g) for g in groups])
+def render_section(section: str) -> str:
+    return "\n\n".join(render_page(page) for page in iter_section_pages(section))
 
 
 def get_system_prompt() -> str:
-    """Generates a string system prompt based on the docs"""
-    return render_groups(["Introduction", "Building with Codegen", "Tutorials"])
+    """Generate a system prompt from the docs tree used by the custom site."""
+    return "\n\n".join(section for section in (render_section(section) for section in SYSTEM_PROMPT_SECTIONS) if section)

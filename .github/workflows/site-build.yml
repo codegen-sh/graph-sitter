@@ -1,0 +1,45 @@
+name: Site Build
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+    paths:
+      - ".github/workflows/site-build.yml"
+      - "docs/**"
+      - "site/**"
+  push:
+    branches:
+      - "develop"
+      - "rust-rewrite"
+    paths:
+      - ".github/workflows/site-build.yml"
+      - "docs/**"
+      - "site/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  next-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        working-directory: site
+        run: npm ci
+
+      - name: Build Next.js site
+        working-directory: site
+        run: npm run build

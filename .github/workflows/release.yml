@@ -27,6 +27,9 @@ permissions:
 jobs:
   build:
     name: Build 3.${{ matrix.python }} ${{ matrix.os }}
+    # Keep Intel macOS wheels in release/tag builds, but avoid queue-heavy
+    # macos-13 jobs as PR gates. macos-latest still covers macOS smoke on PRs.
+    if: ${{ github.event_name != 'pull_request' || matrix.os != 'macos-13' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -72,6 +75,17 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_BUILD: "*cp3${{ matrix.python }}*"
+
+      - name: Smoke test built wheel through uvx
+        env:
+          PYTHON_VERSION: 3.${{ matrix.python }}
+        run: |
+          WHEEL="$(ls -t wheelhouse/graph_sitter-*.whl | head -n 1)"
+          if [ -z "$WHEEL" ]; then
+            echo "No graph-sitter wheel found in wheelhouse" >&2
+            exit 1
+          fi
+          rust-rewrite/tools/check_wheel_rust_backend.sh --wheel "$WHEEL"
 
       - uses: actions/upload-artifact@v4
         with:

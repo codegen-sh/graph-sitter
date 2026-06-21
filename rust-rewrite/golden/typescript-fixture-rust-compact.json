@@ -1,0 +1,446 @@
+{
+	"dependencies": [
+		{
+			"id": 0,
+			"reference_count": 1,
+			"reference_ids": [0],
+			"source_file_id": 0,
+			"source_symbol_id": 8,
+			"target_file_id": 0,
+			"target_symbol_id": 2
+		},
+		{
+			"id": 1,
+			"reference_count": 1,
+			"reference_ids": [1],
+			"source_file_id": 1,
+			"source_symbol_id": 11,
+			"target_file_id": 1,
+			"target_symbol_id": 10
+		}
+	],
+	"exports": [
+		{
+			"file_id": 0,
+			"id": 0,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "Props",
+			"name": "Props",
+			"range": [187, 246, 7, 0, 7, 59],
+			"source_module": null,
+			"symbol_id": 2
+		},
+		{
+			"file_id": 0,
+			"id": 1,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "Mode",
+			"name": "Mode",
+			"range": [247, 283, 8, 0, 8, 36],
+			"source_module": null,
+			"symbol_id": 3
+		},
+		{
+			"file_id": 0,
+			"id": 2,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "Status",
+			"name": "Status",
+			"range": [284, 322, 9, 0, 9, 38],
+			"source_module": null,
+			"symbol_id": 4
+		},
+		{
+			"file_id": 0,
+			"id": 3,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "Tokens",
+			"name": "Tokens",
+			"range": [323, 376, 10, 0, 10, 53],
+			"source_module": null,
+			"symbol_id": 5
+		},
+		{
+			"file_id": 0,
+			"id": 4,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "helper",
+			"name": "helper",
+			"range": [377, 428, 11, 0, 11, 51],
+			"source_module": null,
+			"symbol_id": 7
+		},
+		{
+			"file_id": 0,
+			"id": 5,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "Page",
+			"name": "Page",
+			"range": [429, 502, 12, 0, 12, 73],
+			"source_module": null,
+			"symbol_id": 8
+		},
+		{
+			"file_id": 0,
+			"id": 6,
+			"import_id": null,
+			"kind": "default",
+			"local_name": "Widget",
+			"name": "default",
+			"range": [503, 533, 13, 0, 13, 30],
+			"source_module": null,
+			"symbol_id": 9
+		},
+		{
+			"file_id": 0,
+			"id": 7,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "helper",
+			"name": "renamedHelper",
+			"range": [534, 576, 14, 0, 14, 42],
+			"source_module": null,
+			"symbol_id": null
+		},
+		{
+			"file_id": 0,
+			"id": 8,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "Props",
+			"name": "Props",
+			"range": [534, 576, 14, 0, 14, 42],
+			"source_module": null,
+			"symbol_id": null
+		},
+		{
+			"file_id": 0,
+			"id": 9,
+			"import_id": 7,
+			"kind": "wildcard",
+			"local_name": null,
+			"name": null,
+			"range": [577, 602, 15, 0, 15, 25],
+			"source_module": "./shared",
+			"symbol_id": null
+		},
+		{
+			"file_id": 0,
+			"id": 10,
+			"import_id": 8,
+			"kind": "namespace",
+			"local_name": "shared",
+			"name": "shared",
+			"range": [603, 638, 16, 0, 16, 35],
+			"source_module": "./shared",
+			"symbol_id": null
+		},
+		{
+			"file_id": 1,
+			"id": 11,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "sharedValue",
+			"name": "sharedValue",
+			"range": [0, 29, 0, 0, 0, 29],
+			"source_module": null,
+			"symbol_id": 10
+		},
+		{
+			"file_id": 1,
+			"id": 12,
+			"import_id": null,
+			"kind": "named",
+			"local_name": "sharedFn",
+			"name": "sharedFn",
+			"range": [30, 80, 1, 0, 1, 50],
+			"source_module": null,
+			"symbol_id": 11
+		}
+	],
+	"files": [
+		{
+			"byte_len": 639,
+			"content_hash": "825a13117e50e433",
+			"has_error": false,
+			"id": 0,
+			"language": "tsx",
+			"line_count": 17,
+			"path": "src/app.tsx",
+			"root_range": [0, 639, 0, 0, 17, 0]
+		},
+		{
+			"byte_len": 81,
+			"content_hash": "7ed060fdc0c18e96",
+			"has_error": false,
+			"id": 1,
+			"language": "typescript",
+			"line_count": 2,
+			"path": "src/shared.ts",
+			"root_range": [0, 81, 0, 0, 2, 0]
+		}
+	],
+	"import_resolutions": [
+		{
+			"id": 0,
+			"import_id": 7,
+			"source_file_id": 0,
+			"target_file_id": 1,
+			"target_symbol_id": null
+		},
+		{
+			"id": 1,
+			"import_id": 8,
+			"source_file_id": 0,
+			"target_file_id": 1,
+			"target_symbol_id": null
+		}
+	],
+	"imports": [
+		{
+			"alias": "React",
+			"file_id": 0,
+			"id": 0,
+			"kind": "default_import",
+			"module": "react",
+			"name": "React",
+			"range": [7, 12, 0, 7, 0, 12]
+		},
+		{
+			"alias": "memo",
+			"file_id": 0,
+			"id": 1,
+			"kind": "named_import",
+			"module": "react",
+			"name": "useMemo",
+			"range": [16, 31, 0, 16, 0, 31]
+		},
+		{
+			"alias": "ReactNode",
+			"file_id": 0,
+			"id": 2,
+			"kind": "named_import",
+			"module": "react",
+			"name": "ReactNode",
+			"range": [33, 42, 0, 33, 0, 42]
+		},
+		{
+			"alias": "path",
+			"file_id": 0,
+			"id": 3,
+			"kind": "namespace_import",
+			"module": "path",
+			"name": "*",
+			"range": [66, 75, 1, 7, 1, 16]
+		},
+		{
+			"alias": null,
+			"file_id": 0,
+			"id": 4,
+			"kind": "side_effect",
+			"module": "./polyfill",
+			"name": null,
+			"range": [89, 109, 2, 0, 2, 20]
+		},
+		{
+			"alias": "lazy",
+			"file_id": 0,
+			"id": 5,
+			"kind": "dynamic_import",
+			"module": "./lazy",
+			"name": "lazy",
+			"range": [117, 141, 4, 6, 4, 30]
+		},
+		{
+			"alias": "dynamicModule",
+			"file_id": 0,
+			"id": 6,
+			"kind": "dynamic_import",
+			"module": "./dynamic",
+			"name": "dynamicModule",
+			"range": [149, 184, 5, 6, 5, 41]
+		},
+		{
+			"alias": null,
+			"file_id": 0,
+			"id": 7,
+			"kind": "namespace_import",
+			"module": "./shared",
+			"name": "*",
+			"range": [577, 602, 15, 0, 15, 25]
+		},
+		{
+			"alias": "shared",
+			"file_id": 0,
+			"id": 8,
+			"kind": "namespace_import",
+			"module": "./shared",
+			"name": "*",
+			"range": [610, 621, 16, 7, 16, 18]
+		}
+	],
+	"references": [
+		{
+			"id": 0,
+			"import_id": null,
+			"name": "Props",
+			"range": [457, 462, 12, 28, 12, 33],
+			"source_file_id": 0,
+			"source_symbol_id": 8,
+			"target_symbol_id": 2
+		},
+		{
+			"id": 1,
+			"import_id": null,
+			"name": "sharedValue",
+			"range": [66, 77, 1, 36, 1, 47],
+			"source_file_id": 1,
+			"source_symbol_id": 11,
+			"target_symbol_id": 10
+		}
+	],
+	"subclass_edges": [],
+	"summary": {
+		"bytes": 720,
+		"classes": 1,
+		"dependencies": 2,
+		"exports": 13,
+		"files": 2,
+		"files_with_errors": 0,
+		"functions": 3,
+		"global_variables": 4,
+		"import_resolutions": 2,
+		"imports": 9,
+		"lines": 19,
+		"references": 2,
+		"symbols": 12
+	},
+	"symbols": [
+		{
+			"file_id": 0,
+			"id": 0,
+			"is_top_level": true,
+			"kind": "global_variable",
+			"name": "lazy",
+			"name_range": [117, 121, 4, 6, 4, 10],
+			"parent_symbol_id": null,
+			"range": [111, 142, 4, 0, 4, 31]
+		},
+		{
+			"file_id": 0,
+			"id": 1,
+			"is_top_level": true,
+			"kind": "global_variable",
+			"name": "dynamicModule",
+			"name_range": [149, 162, 5, 6, 5, 19],
+			"parent_symbol_id": null,
+			"range": [143, 185, 5, 0, 5, 42]
+		},
+		{
+			"file_id": 0,
+			"id": 2,
+			"is_top_level": true,
+			"kind": "interface",
+			"name": "Props",
+			"name_range": [204, 209, 7, 17, 7, 22],
+			"parent_symbol_id": null,
+			"range": [194, 246, 7, 7, 7, 59]
+		},
+		{
+			"file_id": 0,
+			"id": 3,
+			"is_top_level": true,
+			"kind": "type_alias",
+			"name": "Mode",
+			"name_range": [259, 263, 8, 12, 8, 16],
+			"parent_symbol_id": null,
+			"range": [254, 283, 8, 7, 8, 36]
+		},
+		{
+			"file_id": 0,
+			"id": 4,
+			"is_top_level": true,
+			"kind": "enum",
+			"name": "Status",
+			"name_range": [296, 302, 9, 12, 9, 18],
+			"parent_symbol_id": null,
+			"range": [291, 322, 9, 7, 9, 38]
+		},
+		{
+			"file_id": 0,
+			"id": 5,
+			"is_top_level": true,
+			"kind": "namespace",
+			"name": "Tokens",
+			"name_range": [340, 346, 10, 17, 10, 23],
+			"parent_symbol_id": null,
+			"range": [330, 376, 10, 7, 10, 53]
+		},
+		{
+			"file_id": 0,
+			"id": 6,
+			"is_top_level": false,
+			"kind": "global_variable",
+			"name": "spacing",
+			"name_range": [362, 369, 10, 39, 10, 46],
+			"parent_symbol_id": 5,
+			"range": [356, 374, 10, 33, 10, 51]
+		},
+		{
+			"file_id": 0,
+			"id": 7,
+			"is_top_level": true,
+			"kind": "function",
+			"name": "helper",
+			"name_range": [390, 396, 11, 13, 11, 19],
+			"parent_symbol_id": null,
+			"range": [384, 428, 11, 7, 11, 51]
+		},
+		{
+			"file_id": 0,
+			"id": 8,
+			"is_top_level": true,
+			"kind": "function",
+			"name": "Page",
+			"name_range": [445, 449, 12, 16, 12, 20],
+			"parent_symbol_id": null,
+			"range": [436, 502, 12, 7, 12, 73]
+		},
+		{
+			"file_id": 0,
+			"id": 9,
+			"is_top_level": true,
+			"kind": "class",
+			"name": "Widget",
+			"name_range": [524, 530, 13, 21, 13, 27],
+			"parent_symbol_id": null,
+			"range": [518, 533, 13, 15, 13, 30]
+		},
+		{
+			"file_id": 1,
+			"id": 10,
+			"is_top_level": true,
+			"kind": "global_variable",
+			"name": "sharedValue",
+			"name_range": [13, 24, 0, 13, 0, 24],
+			"parent_symbol_id": null,
+			"range": [7, 29, 0, 7, 0, 29]
+		},
+		{
+			"file_id": 1,
+			"id": 11,
+			"is_top_level": true,
+			"kind": "function",
+			"name": "sharedFn",
+			"name_range": [46, 54, 1, 16, 1, 24],
+			"parent_symbol_id": null,
+			"range": [37, 80, 1, 7, 1, 50]
+		}
+	]
+}

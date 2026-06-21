@@ -1,0 +1,1889 @@
+{
+	"graphs": {
+		"dependencies": {
+			"count": 49285,
+			"samples": [
+				{
+					"reference_count": 2,
+					"references": [
+						".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:function:assertNotNullable@423::assertNotNullable@706",
+						".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:function:assertNotNullable@423::assertNotNullable@735"
+					],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"target_file": ".github/actions/needs-triage/src/index.ts",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:function:assertNotNullable@423"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@1218"
+					],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"target_file": ".github/actions/needs-triage/src/index.ts",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301::labelsRequireUserInput@1027"
+					],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"target_file": ".github/actions/needs-triage/src/index.ts",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301"
+				},
+				{
+					"reference_count": 3,
+					"references": [
+						".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@330",
+						".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@354",
+						".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@381"
+					],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301",
+					"target_file": ".github/actions/needs-triage/src/index.ts",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107->.github/actions/next-integration-stat/src/index.ts:global_variable:result@22409::result@22574"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:result@22409"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@22144"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764->.github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513::BOT_COMMENT_MARKER@21904"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764->.github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630::commentTitlePre@21885"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630"
+				},
+				{
+					"reference_count": 2,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2522",
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2558"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@2489"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@785"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@752"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513::BOT_COMMENT_MARKER@5798"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@4042"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"reference_count": 2,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452::fetchJobLogsFromWorkflow@7582",
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452::fetchJobLogsFromWorkflow@8747"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709::findNextJsVersionFromBuildLogs@7296"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:fs@160::fs@10385"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:fs@160"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:index@9171::index@9683"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:index@9171"
+				},
+				{
+					"reference_count": 2,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:splittedLogs@9336::splittedLogs@9455",
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:global_variable:splittedLogs@9336::splittedLogs@9504"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:splittedLogs@9336"
+				},
+				{
+					"reference_count": 1,
+					"references": [
+						".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@6683"
+					],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_file": ".github/actions/next-integration-stat/src/index.ts",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				}
+			],
+			"sha256": "72d6c7c2ee1ec459b47b109e4bfdef8b935a0446ea0ca5c8c3990e088185da2d"
+		},
+		"exports": {
+			"count": 16027,
+			"samples": [
+				{
+					"file": "bench/app-router-server/app/layout.js",
+					"import": null,
+					"key": "bench/app-router-server/app/layout.js:default:default:Root:@32",
+					"kind": "default",
+					"local_name": "Root",
+					"name": "default",
+					"range": [32, 166, 2, 0, 9, 1],
+					"source_module": null,
+					"symbol": "bench/app-router-server/app/layout.js:function:Root@56"
+				},
+				{
+					"file": "bench/app-router-server/app/rsc/page.js",
+					"import": null,
+					"key": "bench/app-router-server/app/rsc/page.js:default:default:page:@32",
+					"kind": "default",
+					"local_name": "page",
+					"name": "default",
+					"range": [32, 92, 2, 0, 4, 1],
+					"source_module": null,
+					"symbol": "bench/app-router-server/app/rsc/page.js:function:page@56"
+				},
+				{
+					"file": "bench/app-router-server/pages/index.js",
+					"import": null,
+					"key": "bench/app-router-server/pages/index.js:default:default:page:@32",
+					"kind": "default",
+					"local_name": "page",
+					"name": "default",
+					"range": [32, 100, 2, 0, 4, 1],
+					"source_module": null,
+					"symbol": "bench/app-router-server/pages/index.js:function:page@56"
+				},
+				{
+					"file": "bench/app-router-server/pages/index.js",
+					"import": null,
+					"key": "bench/app-router-server/pages/index.js:named:getServerSideProps:getServerSideProps:@102",
+					"kind": "named",
+					"local_name": "getServerSideProps",
+					"name": "getServerSideProps",
+					"range": [102, 160, 6, 0, 8, 1],
+					"source_module": null,
+					"symbol": "bench/app-router-server/pages/index.js:function:getServerSideProps@124"
+				},
+				{
+					"file": "bench/basic-app/app/api/app/route.js",
+					"import": null,
+					"key": "bench/basic-app/app/api/app/route.js:named:GET:GET:@0",
+					"kind": "named",
+					"local_name": "GET",
+					"name": "GET",
+					"range": [0, 70, 0, 0, 2, 1],
+					"source_module": null,
+					"symbol": "bench/basic-app/app/api/app/route.js:function:GET@16"
+				},
+				{
+					"file": "bench/basic-app/app/api/app/route.js",
+					"import": null,
+					"key": "bench/basic-app/app/api/app/route.js:named:dynamic:dynamic:@72",
+					"kind": "named",
+					"local_name": "dynamic",
+					"name": "dynamic",
+					"range": [72, 110, 4, 0, 4, 38],
+					"source_module": null,
+					"symbol": "bench/basic-app/app/api/app/route.js:global_variable:dynamic@85"
+				},
+				{
+					"file": "bench/basic-app/app/layout.js",
+					"import": null,
+					"key": "bench/basic-app/app/layout.js:default:default:Layout:@27",
+					"kind": "default",
+					"local_name": "Layout",
+					"name": "default",
+					"range": [27, 200, 2, 0, 11, 1],
+					"source_module": null,
+					"symbol": "bench/basic-app/app/layout.js:function:Layout@51"
+				},
+				{
+					"file": "bench/basic-app/app/page.js",
+					"import": null,
+					"key": "bench/basic-app/app/page.js:default:default:Page:@27",
+					"kind": "default",
+					"local_name": "Page",
+					"name": "default",
+					"range": [27, 87, 2, 0, 4, 1],
+					"source_module": null,
+					"symbol": "bench/basic-app/app/page.js:function:Page@51"
+				},
+				{
+					"file": "bench/basic-app/app/page.js",
+					"import": null,
+					"key": "bench/basic-app/app/page.js:named:dynamic:dynamic:@89",
+					"kind": "named",
+					"local_name": "dynamic",
+					"name": "dynamic",
+					"range": [89, 127, 6, 0, 6, 38],
+					"source_module": null,
+					"symbol": "bench/basic-app/app/page.js:global_variable:dynamic@102"
+				},
+				{
+					"file": "bench/basic-app/pages/api/page-api.js",
+					"import": null,
+					"key": "bench/basic-app/pages/api/page-api.js:default:default:handler:@0",
+					"kind": "default",
+					"local_name": "handler",
+					"name": "default",
+					"range": [0, 90, 0, 0, 2, 1],
+					"source_module": null,
+					"symbol": "bench/basic-app/pages/api/page-api.js:function:handler@24"
+				},
+				{
+					"file": "bench/basic-app/pages/pages/index.js",
+					"import": null,
+					"key": "bench/basic-app/pages/pages/index.js:default:default:() => 'Hello World':@0",
+					"kind": "default",
+					"local_name": "() => 'Hello World'",
+					"name": "default",
+					"range": [0, 34, 0, 0, 0, 34],
+					"source_module": null,
+					"symbol": null
+				},
+				{
+					"file": "bench/basic-app/pages/pages/index.js",
+					"import": null,
+					"key": "bench/basic-app/pages/pages/index.js:named:getServerSideProps:getServerSideProps:@36",
+					"kind": "named",
+					"local_name": "getServerSideProps",
+					"name": "getServerSideProps",
+					"range": [36, 106, 2, 0, 6, 1],
+					"source_module": null,
+					"symbol": "bench/basic-app/pages/pages/index.js:function:getServerSideProps@52"
+				},
+				{
+					"file": "bench/heavy-npm-deps/app/layout.js",
+					"import": null,
+					"key": "bench/heavy-npm-deps/app/layout.js:named:metadata:metadata:@305",
+					"kind": "named",
+					"local_name": "metadata",
+					"name": "metadata",
+					"range": [305, 407, 14, 0, 17, 1],
+					"source_module": null,
+					"symbol": "bench/heavy-npm-deps/app/layout.js:global_variable:metadata@318"
+				},
+				{
+					"file": "bench/heavy-npm-deps/app/layout.js",
+					"import": null,
+					"key": "bench/heavy-npm-deps/app/layout.js:default:default:RootLayout:@409",
+					"kind": "default",
+					"local_name": "RootLayout",
+					"name": "default",
+					"range": [409, 613, 19, 0, 27, 1],
+					"source_module": null,
+					"symbol": "bench/heavy-npm-deps/app/layout.js:function:RootLayout@433"
+				},
+				{
+					"file": "bench/heavy-npm-deps/app/page.js",
+					"import": null,
+					"key": "bench/heavy-npm-deps/app/page.js:default:default:Page:@178",
+					"kind": "default",
+					"local_name": "Page",
+					"name": "default",
+					"range": [178, 338, 4, 0, 12, 1],
+					"source_module": null,
+					"symbol": "bench/heavy-npm-deps/app/page.js:function:Page@202"
+				},
+				{
+					"file": "bench/heavy-npm-deps/components/lodash.js",
+					"import": null,
+					"key": "bench/heavy-npm-deps/components/lodash.js:named:LodashComponent:LodashComponent:@71",
+					"kind": "named",
+					"local_name": "LodashComponent",
+					"name": "LodashComponent",
+					"range": [71, 170, 5, 0, 11, 1],
+					"source_module": null,
+					"symbol": "bench/heavy-npm-deps/components/lodash.js:function:LodashComponent@87"
+				},
+				{
+					"file": "bench/heavy-npm-deps/components/mantine.js",
+					"import": null,
+					"key": "bench/heavy-npm-deps/components/mantine.js:named:MantineComponent:MantineComponent:@98",
+					"kind": "named",
+					"local_name": "MantineComponent",
+					"name": "MantineComponent",
+					"range": [98, 198, 5, 0, 11, 1],
+					"source_module": null,
+					"symbol": "bench/heavy-npm-deps/components/mantine.js:function:MantineComponent@114"
+				},
+				{
+					"file": "bench/heavy-npm-deps/components/mermaid.js",
+					"import": null,
+					"key": "bench/heavy-npm-deps/components/mermaid.js:named:MermaidComponent:MermaidComponent:@117",
+					"kind": "named",
+					"local_name": "MermaidComponent",
+					"name": "MermaidComponent",
+					"range": [117, 217, 6, 0, 12, 1],
+					"source_module": null,
+					"symbol": "bench/heavy-npm-deps/components/mermaid.js:function:MermaidComponent@133"
+				},
+				{
+					"file": "bench/nested-deps-app-router/app/client-components-only/page.js",
+					"import": null,
+					"key": "bench/nested-deps-app-router/app/client-components-only/page.js:default:default:Home:@87",
+					"kind": "default",
+					"local_name": "Home",
+					"name": "default",
+					"range": [87, 188, 5, 0, 12, 1],
+					"source_module": null,
+					"symbol": "bench/nested-deps-app-router/app/client-components-only/page.js:function:Home@111"
+				},
+				{
+					"file": "bench/nested-deps-app-router/app/layout.js",
+					"import": null,
+					"key": "bench/nested-deps-app-router/app/layout.js:named:metadata:metadata:@27",
+					"kind": "named",
+					"local_name": "metadata",
+					"name": "metadata",
+					"range": [27, 113, 2, 0, 5, 1],
+					"source_module": null,
+					"symbol": "bench/nested-deps-app-router/app/layout.js:global_variable:metadata@40"
+				}
+			],
+			"sha256": "d3952dc6951104f04bc1e184f61e85eb1218089a07c294e3be675285d36dba4c"
+		},
+		"external_modules": {
+			"count": 13525,
+			"samples": [
+				{
+					"alias": "github",
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
+					"key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7:*",
+					"module": "@actions/github",
+					"name": "*",
+					"range": [7, 18, 0, 7, 0, 18]
+				},
+				{
+					"alias": "core",
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49",
+					"key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49:*",
+					"module": "@actions/core",
+					"name": "*",
+					"range": [49, 58, 1, 7, 1, 16]
+				},
+				{
+					"alias": "context",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context",
+					"module": "@actions/github",
+					"name": "context",
+					"range": [9, 16, 0, 9, 0, 16]
+				},
+				{
+					"alias": "getOctokit",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18:getOctokit",
+					"module": "@actions/github",
+					"name": "getOctokit",
+					"range": [18, 28, 0, 18, 0, 28]
+				},
+				{
+					"alias": "info",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63:info",
+					"module": "@actions/core",
+					"name": "info",
+					"range": [63, 67, 1, 9, 1, 13]
+				},
+				{
+					"alias": "getInput",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69:getInput",
+					"module": "@actions/core",
+					"name": "getInput",
+					"range": [69, 77, 1, 15, 1, 23]
+				},
+				{
+					"alias": "stripAnsi",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:strip-ansi:stripAnsi:stripAnsi@107",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:strip-ansi:stripAnsi:stripAnsi@107:stripAnsi",
+					"module": "strip-ansi",
+					"name": "stripAnsi",
+					"range": [107, 153, 2, 6, 2, 52]
+				},
+				{
+					"alias": "fs",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:fs:fs:fs@160",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:fs:fs:fs@160:fs",
+					"module": "fs",
+					"name": "fs",
+					"range": [160, 178, 3, 6, 3, 24]
+				},
+				{
+					"alias": "path",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:path:path:path@185",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:path:path:path@185:path",
+					"module": "path",
+					"name": "path",
+					"range": [185, 207, 4, 6, 4, 28]
+				},
+				{
+					"alias": "semver",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"import": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:semver:semver:semver@214",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:semver:semver:semver@214:semver",
+					"module": "semver",
+					"name": "semver",
+					"range": [214, 240, 5, 6, 5, 32]
+				},
+				{
+					"alias": "info",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:info:info@9",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:info:info@9:info",
+					"module": "@actions/core",
+					"name": "info",
+					"range": [9, 13, 0, 9, 0, 13]
+				},
+				{
+					"alias": "setFailed",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:setFailed:setFailed@15",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:setFailed:setFailed@15:setFailed",
+					"module": "@actions/core",
+					"name": "setFailed",
+					"range": [15, 24, 0, 15, 0, 24]
+				},
+				{
+					"alias": "context",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:context:context@57",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:context:context@57:context",
+					"module": "@actions/github",
+					"name": "context",
+					"range": [57, 64, 1, 9, 1, 16]
+				},
+				{
+					"alias": "getOctokit",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:getOctokit:getOctokit@66",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:getOctokit:getOctokit@66:getOctokit",
+					"module": "@actions/github",
+					"name": "getOctokit",
+					"range": [66, 76, 1, 18, 1, 28]
+				},
+				{
+					"alias": "WebClient",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@slack/web-api:WebClient:WebClient@111",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@slack/web-api:WebClient:WebClient@111:WebClient",
+					"module": "@slack/web-api",
+					"name": "WebClient",
+					"range": [111, 120, 2, 9, 2, 18]
+				},
+				{
+					"alias": "BlockCollection",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:BlockCollection:BlockCollection@154",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:BlockCollection:BlockCollection@154:BlockCollection",
+					"module": "slack-block-builder",
+					"name": "BlockCollection",
+					"range": [154, 169, 3, 9, 3, 24]
+				},
+				{
+					"alias": "Section",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"import": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:Section:Section@171",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:Section:Section@171:Section",
+					"module": "slack-block-builder",
+					"name": "Section",
+					"range": [171, 178, 3, 26, 3, 33]
+				},
+				{
+					"alias": "info",
+					"file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+					"import": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:info:info@9",
+					"key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:info:info@9:info",
+					"module": "@actions/core",
+					"name": "info",
+					"range": [9, 13, 0, 9, 0, 13]
+				},
+				{
+					"alias": "setFailed",
+					"file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+					"import": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:setFailed:setFailed@15",
+					"key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:setFailed:setFailed@15:setFailed",
+					"module": "@actions/core",
+					"name": "setFailed",
+					"range": [15, 24, 0, 15, 0, 24]
+				},
+				{
+					"alias": "context",
+					"file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+					"import": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/github:context:context@57",
+					"key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/github:context:context@57:context",
+					"module": "@actions/github",
+					"name": "context",
+					"range": [57, 64, 1, 9, 1, 16]
+				}
+			],
+			"sha256": "75176bcfeb2ad12c09a7dfddc5de0f357b3f760e0b16b6cd05c9cf8260113b33"
+		},
+		"external_references": {
+			"count": 22427,
+			"samples": [
+				{
+					"import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7:github@647",
+					"name": "github",
+					"range": [647, 653, 23, 30, 23, 36],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601"
+				},
+				{
+					"import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7:github@825",
+					"name": "github",
+					"range": [825, 831, 31, 19, 31, 25],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601"
+				},
+				{
+					"import": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49",
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49:core@1294",
+					"name": "core",
+					"range": [1294, 1298, 45, 4, 45, 8],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18:getOctokit@312",
+					"name": "getOctokit",
+					"range": [312, 322, 9, 33, 9, 43],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@1132",
+					"name": "context",
+					"range": [1132, 1139, 34, 9, 34, 16],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@2891",
+					"name": "context",
+					"range": [2891, 2898, 91, 9, 91, 16],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69:getInput@4182",
+					"name": "getInput",
+					"range": [4182, 4190, 139, 16, 139, 24],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69:getInput@4241",
+					"name": "getInput",
+					"range": [4241, 4249, 141, 4, 141, 12],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69:getInput@4306",
+					"name": "getInput",
+					"range": [4306, 4314, 142, 19, 142, 27],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18:getOctokit@4824",
+					"name": "getOctokit",
+					"range": [4824, 4834, 155, 18, 155, 28],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@4862",
+					"name": "context",
+					"range": [4862, 4869, 157, 19, 157, 26],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@4915",
+					"name": "context",
+					"range": [4915, 4922, 158, 14, 158, 21],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@5244",
+					"name": "context",
+					"range": [5244, 5251, 171, 9, 171, 16],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@6032",
+					"name": "context",
+					"range": [6032, 6039, 191, 13, 191, 20],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63:info@6120",
+					"name": "info",
+					"range": [6120, 6124, 197, 4, 197, 8],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69:getInput@6356",
+					"name": "getInput",
+					"range": [6356, 6364, 205, 15, 205, 23],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@6924",
+					"name": "context",
+					"range": [6924, 6931, 229, 9, 229, 16],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@6952",
+					"name": "context",
+					"range": [6952, 6959, 230, 14, 230, 21],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@10947",
+					"name": "context",
+					"range": [10947, 10954, 358, 9, 358, 16],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615"
+				},
+				{
+					"import": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615->.github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9:context@11320",
+					"name": "context",
+					"range": [11320, 11327, 371, 9, 371, 16],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615"
+				}
+			],
+			"sha256": "911fa8cb79987fc29b94fd6d6fe19b3d188af26dc834a37faaf685690db8a768"
+		},
+		"files": {
+			"count": 13688,
+			"samples": [
+				{
+					"byte_len": 458956,
+					"has_error": false,
+					"line_count": 7,
+					"path": ".github/actions/needs-triage/dist/index.js",
+					"root_range": [0, 458956, 0, 0, 6, 332106]
+				},
+				{
+					"byte_len": 1337,
+					"has_error": false,
+					"line_count": 50,
+					"path": ".github/actions/needs-triage/src/index.ts",
+					"root_range": [0, 1337, 0, 0, 50, 0]
+				},
+				{
+					"byte_len": 10280,
+					"has_error": false,
+					"line_count": 452,
+					"path": ".github/actions/next-integration-stat/dist/37.index.js",
+					"root_range": [0, 10280, 0, 0, 451, 1]
+				},
+				{
+					"byte_len": 711832,
+					"has_error": false,
+					"line_count": 13770,
+					"path": ".github/actions/next-integration-stat/dist/index.js",
+					"root_range": [0, 711832, 0, 0, 13769, 1]
+				},
+				{
+					"byte_len": 28330,
+					"has_error": false,
+					"line_count": 934,
+					"path": ".github/actions/next-integration-stat/src/index.ts",
+					"root_range": [0, 28330, 0, 0, 934, 0]
+				},
+				{
+					"byte_len": 1145,
+					"has_error": false,
+					"line_count": 49,
+					"path": ".github/actions/next-integration-stat/src/manifest.d.ts",
+					"root_range": [0, 1145, 0, 0, 49, 0]
+				},
+				{
+					"byte_len": 953900,
+					"has_error": false,
+					"line_count": 16,
+					"path": ".github/actions/next-repo-actions/dist/bankrupt/index.js",
+					"root_range": [0, 953900, 0, 0, 15, 258858]
+				},
+				{
+					"byte_len": 961976,
+					"has_error": false,
+					"line_count": 16,
+					"path": ".github/actions/next-repo-actions/dist/issues-by-version/index.js",
+					"root_range": [0, 961976, 0, 0, 15, 257482]
+				},
+				{
+					"byte_len": 985836,
+					"has_error": false,
+					"line_count": 16,
+					"path": ".github/actions/next-repo-actions/dist/prs/index.js",
+					"root_range": [0, 985836, 0, 0, 15, 258088]
+				},
+				{
+					"byte_len": 1699173,
+					"has_error": false,
+					"line_count": 18,
+					"path": ".github/actions/next-repo-actions/dist/triage-issues-with-ai/index.js",
+					"root_range": [0, 1699173, 0, 0, 17, 523563]
+				},
+				{
+					"byte_len": 3661,
+					"has_error": false,
+					"line_count": 100,
+					"path": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"root_range": [0, 3661, 0, 0, 100, 0]
+				},
+				{
+					"byte_len": 1960,
+					"has_error": false,
+					"line_count": 60,
+					"path": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+					"root_range": [0, 1960, 0, 0, 60, 0]
+				},
+				{
+					"byte_len": 2129,
+					"has_error": false,
+					"line_count": 66,
+					"path": ".github/actions/next-repo-actions/src/popular-prs.ts",
+					"root_range": [0, 2129, 0, 0, 66, 0]
+				},
+				{
+					"byte_len": 3244,
+					"has_error": false,
+					"line_count": 93,
+					"path": ".github/actions/next-repo-actions/src/triage-issues-with-ai.ts",
+					"root_range": [0, 3244, 0, 0, 93, 0]
+				},
+				{
+					"byte_len": 8928,
+					"has_error": false,
+					"line_count": 285,
+					"path": ".github/actions/next-stats-action/src/add-comment.js",
+					"root_range": [0, 8928, 0, 0, 285, 0]
+				},
+				{
+					"byte_len": 624,
+					"has_error": false,
+					"line_count": 26,
+					"path": ".github/actions/next-stats-action/src/constants.js",
+					"root_range": [0, 624, 0, 0, 26, 0]
+				},
+				{
+					"byte_len": 5227,
+					"has_error": false,
+					"line_count": 158,
+					"path": ".github/actions/next-stats-action/src/index.js",
+					"root_range": [0, 5227, 0, 0, 158, 0]
+				},
+				{
+					"byte_len": 2678,
+					"has_error": false,
+					"line_count": 103,
+					"path": ".github/actions/next-stats-action/src/prepare/action-info.js",
+					"root_range": [0, 2678, 0, 0, 103, 0]
+				},
+				{
+					"byte_len": 994,
+					"has_error": false,
+					"line_count": 42,
+					"path": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+					"root_range": [0, 994, 0, 0, 42, 0]
+				},
+				{
+					"byte_len": 10396,
+					"has_error": false,
+					"line_count": 289,
+					"path": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+					"root_range": [0, 10396, 0, 0, 289, 0]
+				}
+			],
+			"sha256": "10185cca51023d11ccfd72c255e2fd0eac8146ab3768a974f2b6e93c428d0f93"
+		},
+		"import_resolutions": {
+			"count": 13462,
+			"samples": [
+				{
+					"import": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./constants:benchTitle:benchTitle@227",
+					"key": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./constants:benchTitle:benchTitle@227->.github/actions/next-stats-action/src/constants.js:",
+					"source_file": ".github/actions/next-stats-action/src/add-comment.js",
+					"target_file": ".github/actions/next-stats-action/src/constants.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./util/logger:logger:logger@143",
+					"key": ".github/actions/next-stats-action/src/add-comment.js:dynamic_import:./util/logger:logger:logger@143->.github/actions/next-stats-action/src/util/logger.js:",
+					"source_file": ".github/actions/next-stats-action/src/add-comment.js",
+					"target_file": ".github/actions/next-stats-action/src/util/logger.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./add-comment:addComment:addComment@218",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./add-comment:addComment:addComment@218->.github/actions/next-stats-action/src/add-comment.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/add-comment.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:diffRepoDir:diffRepoDir@316",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:diffRepoDir:diffRepoDir@316->.github/actions/next-stats-action/src/constants.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/constants.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:mainRepoDir:mainRepoDir@316",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./constants:mainRepoDir:mainRepoDir@316->.github/actions/next-stats-action/src/constants.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/constants.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/action-info:actionInfo:actionInfo@262",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/action-info:actionInfo:actionInfo@262->.github/actions/next-stats-action/src/prepare/action-info.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/prepare/action-info.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/load-stats-config:loadStatsConfig:loadStatsConfig@376",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/load-stats-config:loadStatsConfig:loadStatsConfig@376->.github/actions/next-stats-action/src/prepare/load-stats-config.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:cloneRepo:cloneRepo@439",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:cloneRepo:cloneRepo@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getCommitId:getCommitId@439",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getCommitId:getCommitId@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getLastStable:getLastStable@439",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:getLastStable:getLastStable@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:linkPackages:linkPackages@439",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:linkPackages:linkPackages@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:mergeBranch:mergeBranch@439",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./prepare/repo-setup:mergeBranch:mergeBranch@439->.github/actions/next-stats-action/src/prepare/repo-setup.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./run:runConfigs:runConfigs@182",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./run:runConfigs:runConfigs@182->.github/actions/next-stats-action/src/run/index.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/run/index.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/exec:exec:exec@106",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/exec:exec:exec@106->.github/actions/next-stats-action/src/util/exec.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/util/exec.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/logger:logger:logger@142",
+					"key": ".github/actions/next-stats-action/src/index.js:dynamic_import:./util/logger:logger:logger@142->.github/actions/next-stats-action/src/util/logger.js:",
+					"source_file": ".github/actions/next-stats-action/src/index.js",
+					"target_file": ".github/actions/next-stats-action/src/util/logger.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/prepare/action-info.js:dynamic_import:../util/logger:logger:logger@35",
+					"key": ".github/actions/next-stats-action/src/prepare/action-info.js:dynamic_import:../util/logger:logger:logger@35->.github/actions/next-stats-action/src/util/logger.js:",
+					"source_file": ".github/actions/next-stats-action/src/prepare/action-info.js",
+					"target_file": ".github/actions/next-stats-action/src/util/logger.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:allowedConfigLocations:allowedConfigLocations@76",
+					"key": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:allowedConfigLocations:allowedConfigLocations@76->.github/actions/next-stats-action/src/constants.js:",
+					"source_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+					"target_file": ".github/actions/next-stats-action/src/constants.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:diffRepoDir:diffRepoDir@76",
+					"key": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../constants:diffRepoDir:diffRepoDir@76->.github/actions/next-stats-action/src/constants.js:",
+					"source_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+					"target_file": ".github/actions/next-stats-action/src/constants.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../util/logger:logger:logger@35",
+					"key": ".github/actions/next-stats-action/src/prepare/load-stats-config.js:dynamic_import:../util/logger:logger:logger@35->.github/actions/next-stats-action/src/util/logger.js:",
+					"source_file": ".github/actions/next-stats-action/src/prepare/load-stats-config.js",
+					"target_file": ".github/actions/next-stats-action/src/util/logger.js",
+					"target_symbol": null
+				},
+				{
+					"import": ".github/actions/next-stats-action/src/prepare/repo-setup.js:dynamic_import:../util/exec:exec:exec@97",
+					"key": ".github/actions/next-stats-action/src/prepare/repo-setup.js:dynamic_import:../util/exec:exec:exec@97->.github/actions/next-stats-action/src/util/exec.js:",
+					"source_file": ".github/actions/next-stats-action/src/prepare/repo-setup.js",
+					"target_file": ".github/actions/next-stats-action/src/util/exec.js",
+					"target_symbol": null
+				}
+			],
+			"sha256": "59a2edf479c3dd84f34df1c789b36c629c74c98c941d3de685f8acd2cbe86f82"
+		},
+		"imports": {
+			"count": 28210,
+			"samples": [
+				{
+					"alias": "github",
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/github:*:github@7",
+					"kind": "namespace_import",
+					"module": "@actions/github",
+					"name": "*",
+					"range": [7, 18, 0, 7, 0, 18]
+				},
+				{
+					"alias": "core",
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"key": ".github/actions/needs-triage/src/index.ts:namespace_import:@actions/core:*:core@49",
+					"kind": "namespace_import",
+					"module": "@actions/core",
+					"name": "*",
+					"range": [49, 58, 1, 7, 1, 16]
+				},
+				{
+					"alias": "context",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:context:context@9",
+					"kind": "named_import",
+					"module": "@actions/github",
+					"name": "context",
+					"range": [9, 16, 0, 9, 0, 16]
+				},
+				{
+					"alias": "getOctokit",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/github:getOctokit:getOctokit@18",
+					"kind": "named_import",
+					"module": "@actions/github",
+					"name": "getOctokit",
+					"range": [18, 28, 0, 18, 0, 28]
+				},
+				{
+					"alias": "info",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:info:info@63",
+					"kind": "named_import",
+					"module": "@actions/core",
+					"name": "info",
+					"range": [63, 67, 1, 9, 1, 13]
+				},
+				{
+					"alias": "getInput",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:named_import:@actions/core:getInput:getInput@69",
+					"kind": "named_import",
+					"module": "@actions/core",
+					"name": "getInput",
+					"range": [69, 77, 1, 15, 1, 23]
+				},
+				{
+					"alias": "stripAnsi",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:strip-ansi:stripAnsi:stripAnsi@107",
+					"kind": "dynamic_import",
+					"module": "strip-ansi",
+					"name": "stripAnsi",
+					"range": [107, 153, 2, 6, 2, 52]
+				},
+				{
+					"alias": "fs",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:fs:fs:fs@160",
+					"kind": "dynamic_import",
+					"module": "fs",
+					"name": "fs",
+					"range": [160, 178, 3, 6, 3, 24]
+				},
+				{
+					"alias": "path",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:path:path:path@185",
+					"kind": "dynamic_import",
+					"module": "path",
+					"name": "path",
+					"range": [185, 207, 4, 6, 4, 28]
+				},
+				{
+					"alias": "semver",
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"key": ".github/actions/next-integration-stat/src/index.ts:dynamic_import:semver:semver:semver@214",
+					"kind": "dynamic_import",
+					"module": "semver",
+					"name": "semver",
+					"range": [214, 240, 5, 6, 5, 32]
+				},
+				{
+					"alias": "info",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:info:info@9",
+					"kind": "named_import",
+					"module": "@actions/core",
+					"name": "info",
+					"range": [9, 13, 0, 9, 0, 13]
+				},
+				{
+					"alias": "setFailed",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/core:setFailed:setFailed@15",
+					"kind": "named_import",
+					"module": "@actions/core",
+					"name": "setFailed",
+					"range": [15, 24, 0, 15, 0, 24]
+				},
+				{
+					"alias": "context",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:context:context@57",
+					"kind": "named_import",
+					"module": "@actions/github",
+					"name": "context",
+					"range": [57, 64, 1, 9, 1, 16]
+				},
+				{
+					"alias": "getOctokit",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@actions/github:getOctokit:getOctokit@66",
+					"kind": "named_import",
+					"module": "@actions/github",
+					"name": "getOctokit",
+					"range": [66, 76, 1, 18, 1, 28]
+				},
+				{
+					"alias": "WebClient",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:@slack/web-api:WebClient:WebClient@111",
+					"kind": "named_import",
+					"module": "@slack/web-api",
+					"name": "WebClient",
+					"range": [111, 120, 2, 9, 2, 18]
+				},
+				{
+					"alias": "BlockCollection",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:BlockCollection:BlockCollection@154",
+					"kind": "named_import",
+					"module": "slack-block-builder",
+					"name": "BlockCollection",
+					"range": [154, 169, 3, 9, 3, 24]
+				},
+				{
+					"alias": "Section",
+					"file": ".github/actions/next-repo-actions/src/bankrupt-issues.ts",
+					"key": ".github/actions/next-repo-actions/src/bankrupt-issues.ts:named_import:slack-block-builder:Section:Section@171",
+					"kind": "named_import",
+					"module": "slack-block-builder",
+					"name": "Section",
+					"range": [171, 178, 3, 26, 3, 33]
+				},
+				{
+					"alias": "info",
+					"file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+					"key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:info:info@9",
+					"kind": "named_import",
+					"module": "@actions/core",
+					"name": "info",
+					"range": [9, 13, 0, 9, 0, 13]
+				},
+				{
+					"alias": "setFailed",
+					"file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+					"key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/core:setFailed:setFailed@15",
+					"kind": "named_import",
+					"module": "@actions/core",
+					"name": "setFailed",
+					"range": [15, 24, 0, 15, 0, 24]
+				},
+				{
+					"alias": "context",
+					"file": ".github/actions/next-repo-actions/src/issues-by-version.ts",
+					"key": ".github/actions/next-repo-actions/src/issues-by-version.ts:named_import:@actions/github:context:context@57",
+					"kind": "named_import",
+					"module": "@actions/github",
+					"name": "context",
+					"range": [57, 64, 1, 9, 1, 16]
+				}
+			],
+			"sha256": "701c5aeb3c9738bd1051ddb1c7a97afe67422e303b25dc50e4c2d028f739856f"
+		},
+		"references": {
+			"count": 113809,
+			"samples": [
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@330",
+					"name": "LABELS",
+					"range": [330, 336, 11, 2, 11, 8],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@354",
+					"name": "LABELS",
+					"range": [354, 360, 12, 2, 12, 8],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@381",
+					"name": "LABELS",
+					"range": [381, 387, 13, 2, 13, 8],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:function:assertNotNullable@423::assertNotNullable@706",
+					"name": "assertNotNullable",
+					"range": [706, 723, 26, 4, 26, 21],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:function:assertNotNullable@423"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:function:assertNotNullable@423::assertNotNullable@735",
+					"name": "assertNotNullable",
+					"range": [735, 752, 27, 4, 27, 21],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:function:assertNotNullable@423"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301::labelsRequireUserInput@1027",
+					"name": "labelsRequireUserInput",
+					"range": [1027, 1049, 36, 8, 36, 30],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:.github/actions/needs-triage/src/index.ts:function:run@601->.github/actions/needs-triage/src/index.ts:global_variable:LABELS@87::LABELS@1218",
+					"name": "LABELS",
+					"range": [1218, 1224, 40, 19, 40, 25],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/needs-triage/src/index.ts:->.github/actions/needs-triage/src/index.ts:function:run@601::run@1331",
+					"name": "run",
+					"range": [1331, 1334, 49, 0, 49, 3],
+					"source_file": ".github/actions/needs-triage/src/index.ts",
+					"source_symbol": null,
+					"target_symbol": ".github/actions/needs-triage/src/index.ts:function:run@601"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@358",
+					"name": "Octokit",
+					"range": [358, 365, 12, 13, 12, 20],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@752",
+					"name": "Octokit",
+					"range": [752, 759, 21, 11, 21, 18],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@785",
+					"name": "Job",
+					"range": [785, 788, 23, 7, 23, 10],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@2489",
+					"name": "Octokit",
+					"range": [2489, 2496, 79, 11, 79, 18],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2522",
+					"name": "Job",
+					"range": [2522, 2525, 81, 7, 81, 10],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452->.github/actions/next-integration-stat/src/index.ts:type_alias:Job@330::Job@2558",
+					"name": "Job",
+					"range": [2558, 2561, 82, 32, 82, 35],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Job@330"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@4042",
+					"name": "Octokit",
+					"range": [4042, 4049, 133, 11, 133, 18],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getInputs@3962->.github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513::BOT_COMMENT_MARKER@5798",
+					"name": "BOT_COMMENT_MARKER",
+					"range": [5798, 5816, 184, 32, 184, 50],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284::Octokit@6683",
+					"name": "Octokit",
+					"range": [6683, 6690, 221, 11, 221, 18],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:type_alias:Octokit@284"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709::findNextJsVersionFromBuildLogs@7296",
+					"name": "findNextJsVersionFromBuildLogs",
+					"range": [7296, 7326, 241, 30, 241, 60],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452::fetchJobLogsFromWorkflow@7582",
+					"name": "fetchJobLogsFromWorkflow",
+					"range": [7582, 7606, 252, 10, 252, 34],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
+				},
+				{
+					"import": null,
+					"key": ".github/actions/next-integration-stat/src/index.ts:.github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657->.github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452::fetchJobLogsFromWorkflow@8747",
+					"name": "fetchJobLogsFromWorkflow",
+					"range": [8747, 8771, 284, 6, 284, 30],
+					"source_file": ".github/actions/next-integration-stat/src/index.ts",
+					"source_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"target_symbol": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452"
+				}
+			],
+			"sha256": "273b2c2b48d09aa7fabdc027ba0bc6f9d2124ce1003ff0b359f31209a00fc4ca"
+		},
+		"subclass_edges": {
+			"count": 160,
+			"samples": [
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261187:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261187::a@261235",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261187::a@261235",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@261187"
+				},
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261741:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261741::a@261839",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@261741::a@261839",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@261741"
+				},
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262615:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262615::a@262703",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262615::a@262703",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@262615"
+				},
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262980:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262980::a@263065",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@262980::a@263065",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@262980"
+				},
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263224:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263224::a@263282",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263224::a@263282",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@263224"
+				},
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263668:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263668::a@263800",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@263668::a@263800",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@263668"
+				},
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@267323:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@267323::a@267406",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@267323::a@267406",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@267323"
+				},
+				{
+					"key": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@269883:.github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@269883::a@269941",
+					"reference": ".github/actions/validate-docs-links/dist/index.js:.github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74->.github/actions/validate-docs-links/dist/index.js:global_variable:a@269883::a@269941",
+					"source_file": ".github/actions/validate-docs-links/dist/index.js",
+					"source_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:__webpack_modules__@74",
+					"target_file": ".github/actions/validate-docs-links/dist/index.js",
+					"target_symbol": ".github/actions/validate-docs-links/dist/index.js:global_variable:a@269883"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@246",
+					"reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@246",
+					"source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/computed.ts:class:ComputedPlugin@220",
+					"target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@254",
+					"reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@254",
+					"source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/fallback.ts:class:FallbackPlugin@228",
+					"target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@192",
+					"reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@192",
+					"source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/package-json.ts:class:PackageJsonPlugin@163",
+					"target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@301",
+					"reference": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272->examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414:examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:named_import:..:ConfigPlugin:ConfigPlugin@9:ConfigPlugin@301",
+					"source_file": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/scripts/config/plugins/scjssconfig.ts:class:ScJssConfigPlugin@272",
+					"target_file": "examples/cms-sitecore-xmcloud/scripts/config/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/scripts/config/index.ts:interface:ConfigPlugin@414"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:named_import:..:Plugin:Plugin@266:Plugin@351",
+					"reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:named_import:..:Plugin:Plugin@266:Plugin@351",
+					"source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/component-props.ts:class:ComponentPropsPlugin@319",
+					"target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:named_import:..:Plugin:Plugin@417:Plugin@498",
+					"reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:named_import:..:Plugin:Plugin@417:Plugin@498",
+					"source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/normal-mode.ts:class:NormalModePlugin@470",
+					"target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:named_import:..:Plugin:Plugin@276:Plugin@332",
+					"reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:named_import:..:Plugin:Plugin@276:Plugin@332",
+					"source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/preview-mode.ts:class:PreviewModePlugin@303",
+					"target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:named_import:..:Plugin:Plugin@134:Plugin@267",
+					"reference": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245->examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603:examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:named_import:..:Plugin:Plugin@134:Plugin@267",
+					"source_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/plugins/site.ts:class:SitePlugin@245",
+					"target_file": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/src/lib/page-props-factory/index.ts:interface:Plugin@603"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155->examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155->examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:named_import:..:SiteResolverPlugin:SiteResolverPlugin@116:SiteResolverPlugin@180",
+					"reference": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155->examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489:examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:named_import:..:SiteResolverPlugin:SiteResolverPlugin@116:SiteResolverPlugin@180",
+					"source_file": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/plugins/default.ts:class:DefaultPlugin@155",
+					"target_file": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/src/lib/site-resolver/index.ts:interface:SiteResolverPlugin@489"
+				},
+				{
+					"key": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235->examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235->examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:named_import:..:SitemapFetcherPlugin:SitemapFetcherPlugin@148:SitemapFetcherPlugin@274",
+					"reference": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235->examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185:examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:named_import:..:SitemapFetcherPlugin:SitemapFetcherPlugin@148:SitemapFetcherPlugin@274",
+					"source_file": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts",
+					"source_symbol": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/plugins/graphql-sitemap-service.ts:class:GraphqlSitemapServicePlugin@235",
+					"target_file": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts",
+					"target_symbol": "examples/cms-sitecore-xmcloud/src/lib/sitemap-fetcher/index.ts:interface:SitemapFetcherPlugin@185"
+				},
+				{
+					"key": "examples/with-xata/utils/xata.codegen.ts:class:XataClient@673->examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599:examples/with-xata/utils/xata.codegen.ts:examples/with-xata/utils/xata.codegen.ts:class:XataClient@673->examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599::DatabaseClient@692",
+					"reference": "examples/with-xata/utils/xata.codegen.ts:examples/with-xata/utils/xata.codegen.ts:class:XataClient@673->examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599::DatabaseClient@692",
+					"source_file": "examples/with-xata/utils/xata.codegen.ts",
+					"source_symbol": "examples/with-xata/utils/xata.codegen.ts:class:XataClient@673",
+					"target_file": "examples/with-xata/utils/xata.codegen.ts",
+					"target_symbol": "examples/with-xata/utils/xata.codegen.ts:global_variable:DatabaseClient@599"
+				},
+				{
+					"key": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Endpoint@5583:packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Endpoint@5583:packages/next/src/build/swc/index.ts:named_import:./types:Endpoint:Endpoint@1178:Endpoint@24134",
+					"reference": "packages/next/src/build/swc/index.ts:packages/next/src/build/swc/index.ts:function:bindingToApi@13558->packages/next/src/build/swc/types.ts:interface:Endpoint@5583:packages/next/src/build/swc/index.ts:named_import:./types:Endpoint:Endpoint@1178:Endpoint@24134",
+					"source_file": "packages/next/src/build/swc/index.ts",
+					"source_symbol": "packages/next/src/build/swc/index.ts:function:bindingToApi@13558",
+					"target_file": "packages/next/src/build/swc/types.ts",
+					"target_symbol": "packages/next/src/build/swc/types.ts:interface:Endpoint@5583"
+				}
+			],
+			"sha256": "b55a1570991c33ad18f55ba9f3e56595d759091893a685e8ada69598b45ac8a7"
+		},
+		"symbols": {
+			"count": 44871,
+			"samples": [
+				{
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/needs-triage/src/index.ts:function:assertNotNullable@423",
+					"kind": "function",
+					"name": "assertNotNullable",
+					"name_range": [423, 440, 16, 9, 16, 26],
+					"parent_symbol": null,
+					"range": [414, 584, 16, 0, 19, 1]
+				},
+				{
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/needs-triage/src/index.ts:function:run@601",
+					"kind": "function",
+					"name": "run",
+					"name_range": [601, 604, 21, 15, 21, 18],
+					"parent_symbol": null,
+					"range": [586, 1329, 21, 0, 47, 1]
+				},
+				{
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/needs-triage/src/index.ts:global_variable:LABELS@87",
+					"kind": "global_variable",
+					"name": "LABELS",
+					"name_range": [87, 93, 3, 6, 3, 12],
+					"parent_symbol": null,
+					"range": [81, 293, 3, 0, 8, 1]
+				},
+				{
+					"file": ".github/actions/needs-triage/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/needs-triage/src/index.ts:global_variable:labelsRequireUserInput@301",
+					"kind": "global_variable",
+					"name": "labelsRequireUserInput",
+					"name_range": [301, 323, 10, 6, 10, 28],
+					"parent_symbol": null,
+					"range": [295, 412, 10, 0, 14, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:createCommentPostAsync@22107",
+					"kind": "function",
+					"name": "createCommentPostAsync",
+					"name_range": [22107, 22129, 719, 6, 719, 28],
+					"parent_symbol": null,
+					"range": [22101, 22599, 719, 0, 735, 3]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:createFormattedComment@21764",
+					"kind": "function",
+					"name": "createFormattedComment",
+					"name_range": [21764, 21786, 704, 6, 704, 28],
+					"parent_symbol": null,
+					"range": [21758, 22028, 704, 0, 716, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:fetchJobLogsFromWorkflow@2452",
+					"kind": "function",
+					"name": "fetchJobLogsFromWorkflow",
+					"name_range": [2452, 2476, 78, 15, 78, 39],
+					"parent_symbol": null,
+					"range": [2437, 3901, 78, 0, 127, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:findNextJsVersionFromBuildLogs@709",
+					"kind": "function",
+					"name": "findNextJsVersionFromBuildLogs",
+					"name_range": [709, 739, 20, 15, 20, 45],
+					"parent_symbol": null,
+					"range": [694, 2338, 20, 0, 75, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:getInputs@3962",
+					"kind": "function",
+					"name": "getInputs",
+					"name_range": [3962, 3971, 130, 15, 130, 24],
+					"parent_symbol": null,
+					"range": [3947, 6526, 130, 0, 217, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:getJobResults@6657",
+					"kind": "function",
+					"name": "getJobResults",
+					"name_range": [6657, 6670, 220, 15, 220, 28],
+					"parent_symbol": null,
+					"range": [6642, 10519, 220, 0, 346, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
+					"kind": "function",
+					"name": "getTestResultDiffBase",
+					"name_range": [10615, 10636, 349, 15, 349, 36],
+					"parent_symbol": null,
+					"range": [10600, 15116, 349, 0, 502, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:getTestSummary@15558",
+					"kind": "function",
+					"name": "getTestSummary",
+					"name_range": [15558, 15572, 519, 9, 519, 23],
+					"parent_symbol": null,
+					"range": [15549, 21625, 519, 0, 700, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
+					"kind": "function",
+					"name": "run",
+					"name_range": [22681, 22684, 738, 15, 738, 18],
+					"parent_symbol": null,
+					"range": [22666, 28322, 738, 0, 931, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:function:withoutRetries@15127",
+					"kind": "function",
+					"name": "withoutRetries",
+					"name_range": [15127, 15141, 504, 9, 504, 23],
+					"parent_symbol": null,
+					"range": [15118, 15547, 504, 0, 517, 1]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:global_variable:BOT_COMMENT_MARKER@513",
+					"kind": "global_variable",
+					"name": "BOT_COMMENT_MARKER",
+					"name_range": [513, 531, 16, 6, 16, 24],
+					"parent_symbol": null,
+					"range": [507, 592, 16, 0, 16, 85]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": false,
+					"key": ".github/actions/next-integration-stat/src/index.ts:global_variable:accVersion@12941",
+					"kind": "global_variable",
+					"name": "accVersion",
+					"name_range": [12941, 12951, 423, 14, 423, 24],
+					"parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
+					"range": [12941, 12983, 423, 14, 423, 56]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": false,
+					"key": ".github/actions/next-integration-stat/src/index.ts:global_variable:ancestorKey@24045",
+					"kind": "global_variable",
+					"name": "ancestorKey",
+					"name_range": [24045, 24056, 781, 14, 781, 25],
+					"parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
+					"range": [24045, 24093, 781, 14, 781, 62]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": false,
+					"key": ".github/actions/next-integration-stat/src/index.ts:global_variable:base@12504",
+					"kind": "global_variable",
+					"name": "base",
+					"name_range": [12504, 12508, 406, 14, 406, 18],
+					"parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:getTestResultDiffBase@10615",
+					"range": [12504, 12541, 406, 14, 406, 51]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": false,
+					"key": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentIdxToUpdate@26113",
+					"kind": "global_variable",
+					"name": "commentIdxToUpdate",
+					"name_range": [26113, 26131, 840, 10, 840, 28],
+					"parent_symbol": ".github/actions/next-integration-stat/src/index.ts:function:run@22681",
+					"range": [26113, 26148, 840, 10, 840, 45]
+				},
+				{
+					"file": ".github/actions/next-integration-stat/src/index.ts",
+					"is_top_level": true,
+					"key": ".github/actions/next-integration-stat/src/index.ts:global_variable:commentTitlePre@630",
+					"kind": "global_variable",
+					"name": "commentTitlePre",
+					"name_range": [630, 645, 18, 6, 18, 21],
+					"parent_symbol": null,
+					"range": [624, 692, 18, 0, 18, 68]
+				}
+			],
+			"sha256": "01a2355f2b5ee684cfa2c100ec231ebc756e7b655565b9d0829f9381e0a471e1"
+		}
+	},
+	"integrity": {
+		"mismatched_subclass_edge_references": 0,
+		"missing_dependency_reference_links": 0,
+		"missing_dependency_source_file_links": 0,
+		"missing_dependency_source_symbol_links": 0,
+		"missing_dependency_target_file_links": 0,
+		"missing_dependency_target_symbol_links": 0,
+		"missing_export_file_links": 0,
+		"missing_export_import_links": 0,
+		"missing_export_symbol_links": 0,
+		"missing_external_module_file_links": 0,
+		"missing_external_module_import_links": 0,
+		"missing_external_reference_import_links": 0,
+		"missing_external_reference_source_file_links": 0,
+		"missing_external_reference_source_symbol_links": 0,
+		"missing_import_file_links": 0,
+		"missing_reference_import_links": 0,
+		"missing_reference_source_file_links": 0,
+		"missing_reference_source_symbol_links": 0,
+		"missing_reference_target_symbol_links": 0,
+		"missing_resolution_import_links": 0,
+		"missing_resolution_source_file_links": 0,
+		"missing_resolution_target_file_links": 0,
+		"missing_resolution_target_symbol_links": 0,
+		"missing_subclass_edge_reference_links": 0,
+		"missing_subclass_edge_source_file_links": 0,
+		"missing_subclass_edge_source_symbol_links": 0,
+		"missing_subclass_edge_target_file_links": 0,
+		"missing_subclass_edge_target_symbol_links": 0,
+		"missing_symbol_file_links": 0,
+		"selected_file_count_delta": 0
+	},
+	"metadata": {
+		"commit": "51bfe3c1863b191f4b039bc230e8ed5c57b0baf3",
+		"name": "next.js-v15.0.0",
+		"raw_rust_walk": false,
+		"ref": "refs/tags/v15.0.0",
+		"repo_url": "https://github.com/vercel/next.js.git",
+		"selected_file_count": 13688
+	},
+	"schema_version": 6,
+	"summary": {
+		"bytes": 25421217,
+		"classes": 502,
+		"dependencies": 49285,
+		"exports": 16027,
+		"external_modules": 13525,
+		"external_references": 22427,
+		"files": 13688,
+		"files_with_errors": 113,
+		"functions": 13497,
+		"global_variables": 28742,
+		"import_resolutions": 13462,
+		"imports": 28210,
+		"lines": 634891,
+		"references": 113809,
+		"subclass_edges": 160,
+		"symbols": 44871
+	}
+}

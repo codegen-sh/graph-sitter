@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Self, TypeVar
 
 from graph_sitter.compiled.utils import find_line_start_and_end_nodes
 from graph_sitter.core.autocommit import reader, writer
@@ -9,6 +9,7 @@ from graph_sitter.core.symbol_groups.multi_line_collection import MultiLineColle
 from graph_sitter.shared.decorators.docs import noapidoc, ts_apidoc
 
 if TYPE_CHECKING:
+    from graph_sitter.typescript.assignment import TSAssignment
     from graph_sitter.typescript.interfaces.has_block import TSHasBlock
 
 
@@ -16,7 +17,7 @@ Parent = TypeVar("Parent", bound="TSHasBlock")
 
 
 @ts_apidoc
-class TSCodeBlock(CodeBlock[Parent, "TSAssignment"], Generic[Parent]):
+class TSCodeBlock[Parent: "TSHasBlock"](CodeBlock[Parent, "TSAssignment"]):
     """Extends the CodeBlock class to provide TypeScript-specific functionality."""
 
     @noapidoc

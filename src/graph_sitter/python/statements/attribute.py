@@ -13,6 +13,7 @@ from graph_sitter.shared.exceptions.api import APINotApplicableForLanguageError
 
 if TYPE_CHECKING:
     from graph_sitter.python.class_definition import PyClass
+    from graph_sitter.python.detached_symbols.code_block import PyCodeBlock
 
 
 @py_apidoc

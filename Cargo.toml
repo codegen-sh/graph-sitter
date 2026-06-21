@@ -1,0 +1,19 @@
+[workspace]
+members = ["crates/graph-sitter-engine", "crates/graph-sitter-py"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/codegen-sh/graph-sitter"
+
+[workspace.dependencies]
+graph-sitter-engine = { path = "crates/graph-sitter-engine" }
+pyo3 = "0.22"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rayon = "1"
+tree-sitter = "0.26"
+tree-sitter-python = "0.25"
+tree-sitter-typescript = "0.23.2"

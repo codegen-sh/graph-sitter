@@ -11,6 +11,7 @@ from graph_sitter.shared.decorators.docs import noapidoc, py_apidoc
 if TYPE_CHECKING:
     from graph_sitter.codebase.codebase_context import CodebaseContext
     from graph_sitter.core.interfaces.conditional_block import ConditionalBlock
+    from graph_sitter.python.statements.match_statement import PyMatchStatement
 
 
 @py_apidoc

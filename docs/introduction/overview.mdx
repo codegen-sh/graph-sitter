@@ -5,7 +5,7 @@ icon: "robot"
 iconType: "solid"
 ---
 
-[Graph-sitter](https://github.com/codegen-sh/graph-sitter) is a python library for manipulating codebases.
+[Graph-sitter](https://github.com/codegen-sh/graph-sitter) is a Python library for manipulating codebases.
 
 It provides a scriptable interface to a powerful, multi-lingual language server built on top of [Tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 
@@ -20,7 +20,7 @@ codebase = Codebase("./")
 for function in codebase.functions:
     # Comprehensive static analysis for references, dependencies, etc.
     if not function.usages:
-        # Auto-handles references and imports to maintain correctness
+        # Updates references and imports through graph-aware edit APIs
         function.remove()
 
 # Fast, in-memory code index
@@ -29,12 +29,14 @@ codebase.commit()
 
 
 <Note>
-Graph-sitter handles complex refactors while maintaining correctness, enabling a broad set of advanced code manipulation programs.
+Graph-sitter is designed for graph-aware refactors and codebase analysis. See
+[correctness and parity](/correctness/parity) for the current tested scope and
+known limits.
 </Note>
 
 <Tip>Graph-sitter works with both Python and Typescript/JSX codebases. Learn more about language support [here](/building-with-graph-sitter/language-support).</Tip>
 
-## Quick Started
+## Quick Start
 
 <Note>
 Graph-sitter requires Python 3.12 - 3.13 (recommended: Python 3.13+).
@@ -139,7 +141,7 @@ Graph-sitter was engineered backwards from real-world refactors we performed for
 
 - **Natural Mental Model**: Express transformations through high-level operations that match how you reason about code changes, not low-level text or AST manipulation.
 - **Clean Business Logic**: Let the engine handle the complexities of imports, references, and cross-file dependencies.
-- **Scale with Confidence**: Make sweeping changes across large codebases consistently across Python, TypeScript, JavaScript, and React.
+- **Scale with Evidence**: Make sweeping changes across large codebases using tested Python, TypeScript, JavaScript, and React workflows. See the [large-repo benchmarks](/benchmarks/large-repos) for current Airflow and Next.js proof.
 
 As AI becomes increasingly sophisticated, we're seeing a fascinating shift: AI agents aren't bottlenecked by their ability to understand code or generate solutions. Instead, they're limited by their ability to efficiently manipulate codebases. The challenge isn't the "brain" - it's the "hands."
 

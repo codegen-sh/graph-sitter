@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graph-sitter"
+  short_description: "Use codebase graphs for codemods"
+  default_prompt: "Use $graph-sitter to analyze this repository and plan a safe code transformation."

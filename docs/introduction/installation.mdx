@@ -33,6 +33,35 @@ uv tool install graph-sitter --python 3.13
 This makes the `graph-sitter` command available globally in your terminal, while keeping its dependencies isolated.
 </Note>
 
+Verify the installation before parsing a large repository:
+
+```bash
+graph-sitter doctor --json
+graph-sitter parse . --language python --backend python --format summary
+```
+
+Use `--language typescript` for TypeScript, JavaScript, and React repositories.
+
+## One-Shot uvx Usage
+
+Use `uvx` when you want to run Graph-sitter without installing a global tool:
+
+```bash
+uvx --python 3.13 graph-sitter doctor --json
+uvx --python 3.13 graph-sitter parse . --language auto --backend auto --fallback python --format json
+```
+
+For branch-built Rust wheel validation before a public release, point `uvx` at
+the wheel artifact:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter doctor --backend rust --language python --json
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter parse . --language python --backend rust --fallback error --format json
+```
+
+See [uvx workflows](/cli/uvx) for parse, run, transform, `--subdir`, and
+release-gate examples.
+
 ## Quick Start
 
 Let's walk through a minimal example of using Graph-sitter in a project:
@@ -42,9 +71,19 @@ Let's walk through a minimal example of using Graph-sitter in a project:
    cd path/to/your/project
    ```
 
-2. Initialize Graph-sitter in your project with [gs init](/cli/init):
+2. Parse the repository without initialization:
    ```bash
-   gs init
+   graph-sitter parse . --language python --backend python --format summary
+   ```
+
+   For TypeScript, JavaScript, and React repositories:
+   ```bash
+   graph-sitter parse . --language typescript --backend auto --fallback python --format summary
+   ```
+
+3. Initialize Graph-sitter in your project with [graph-sitter init](/cli/init):
+   ```bash
+   graph-sitter init
    ```
 
    This creates a `.codegen/` directory with:
@@ -57,26 +96,72 @@ Let's walk through a minimal example of using Graph-sitter in a project:
    └── codegen-system-prompt.txt  # AI system prompt
    ```
 
-3. Create your first codemod with [gs create](/cli/create):
+4. Create your first codemod with [graph-sitter create](/cli/create):
    ```bash
-   gs create organize-imports \
+   graph-sitter create organize-imports \
      -d "Sort and organize imports according to PEP8"
    ```
     <Note>
-        The `-d` flag in `gs create` generates an AI-powered implementation. This requires a Github account registered on [codegen.sh](https://codegen.sh)
+        The `-d` flag in `graph-sitter create` generates an AI-powered implementation. This requires a Github account registered on [codegen.sh](https://codegen.sh)
     </Note>
 
 
 
-4. Run your codemod with [gs run](/cli/run):
+5. Preview your codemod with [graph-sitter run](/cli/run):
    ```bash
-   gs run organize-imports
+   graph-sitter run organize-imports . --check
    ```
 
-5. Reset any filesystem changes (excluding `.codegen/*`) with [gs reset](/cli/reset):
+6. Apply the codemod after reviewing the diff:
    ```bash
-   gs reset
+   graph-sitter run organize-imports . --write
    ```
+
+7. Reset any filesystem changes (excluding `.codegen/*`) with [graph-sitter reset](/cli/reset):
+   ```bash
+   graph-sitter reset
+   ```
+
+## Rust Backend
+
+Python remains the authoring shell. The Rust backend is an opt-in compact
+parse/index backend for supported graph and codemod surfaces.
+
+Use strict Rust mode when unsupported behavior should fail loudly:
+
+```bash
+graph-sitter parse . --language python --backend rust --fallback error --format json
+```
+
+Use automatic mode with Python fallback when a working result is more important
+than proving the Rust path:
+
+```bash
+graph-sitter parse . --language auto --backend auto --fallback python --format json
+```
+
+Python API users can select the same backend behavior through
+`CodebaseConfig`:
+
+```python
+from graph_sitter.configs.models.codebase import (
+    CodebaseConfig,
+    GraphBackend,
+    RustFallbackMode,
+)
+from graph_sitter.core.codebase import Codebase
+
+codebase = Codebase(
+    "./",
+    config=CodebaseConfig(
+        graph_backend=GraphBackend.RUST,
+        rust_fallback=RustFallbackMode.ERROR,
+    ),
+)
+```
+
+Run [`doctor`](/cli/doctor) before relying on strict Rust mode in CI,
+benchmarks, or release validation.
 
 ## Troubleshooting
 

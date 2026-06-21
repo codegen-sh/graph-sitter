@@ -19,8 +19,6 @@ Edge Cases:
 
 from graph_sitter.core.autocommit.constants import enabled
 from graph_sitter.core.autocommit.decorators import mover, remover, repr_func, writer
-from graph_sitter.core.autocommit.manager import AutoCommit
-from graph_sitter.compiled.autocommit import commiter, reader
 
 __all__ = [
     "AutoCommit",
@@ -32,3 +30,16 @@ __all__ = [
     "repr_func",
     "writer",
 ]
+
+
+def __getattr__(name: str):
+    if name == "AutoCommit":
+        from graph_sitter.core.autocommit.manager import AutoCommit
+
+        return AutoCommit
+    if name in {"commiter", "reader"}:
+        from graph_sitter.compiled.autocommit import commiter, reader
+
+        return {"commiter": commiter, "reader": reader}[name]
+    msg = f"module {__name__!r} has no attribute {name!r}"
+    raise AttributeError(msg)

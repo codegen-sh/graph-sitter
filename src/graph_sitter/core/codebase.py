@@ -266,12 +266,131 @@ class Codebase(
         """The programming language of the repository."""
         return self.ctx.programming_language
 
+    @property
+    @noapidoc
+    def rust_index_summary(self):
+        rust_index = self._rust_index_backend()
+        if rust_index is None:
+            return None
+        return rust_index.summary
+
+    @property
+    @noapidoc
+    def rust_files(self):
+        return self._require_rust_index().source_files
+
+    @property
+    @noapidoc
+    def rust_symbols(self):
+        return self._require_rust_index().symbols
+
+    @property
+    @noapidoc
+    def rust_classes(self):
+        return [symbol for symbol in self.rust_symbols if symbol.kind == "class"]
+
+    @property
+    @noapidoc
+    def rust_functions(self):
+        return [symbol for symbol in self.rust_symbols if symbol.kind == "function"]
+
+    @property
+    @noapidoc
+    def rust_global_vars(self):
+        return [symbol for symbol in self.rust_symbols if symbol.kind == "global_variable"]
+
+    @property
+    @noapidoc
+    def rust_imports(self):
+        return self._require_rust_index().imports
+
+    @property
+    @noapidoc
+    def rust_import_resolutions(self):
+        return self._require_rust_index().import_resolutions
+
+    @property
+    @noapidoc
+    def rust_external_modules(self):
+        return self._require_rust_index().external_modules
+
+    @property
+    @noapidoc
+    def rust_exports(self):
+        return self._require_rust_index().exports
+
+    @property
+    @noapidoc
+    def rust_references(self):
+        return self._require_rust_index().references
+
+    @property
+    @noapidoc
+    def rust_external_references(self):
+        return self._require_rust_index().external_references
+
+    @property
+    @noapidoc
+    def rust_dependencies(self):
+        return self._require_rust_index().dependencies
+
+    @property
+    @noapidoc
+    def rust_subclass_edges(self):
+        return self._require_rust_index().subclass_edges
+
+    @property
+    @noapidoc
+    def rust_debug_graph_json(self):
+        return self._require_rust_index().debug_graph_json()
+
+    def _rust_index_backend(self):
+        rust_index = self.ctx.rust_index
+        if rust_index is None:
+            return None
+        from graph_sitter.codebase.rust_backend import RustIndexBackend
+
+        if not isinstance(rust_index, RustIndexBackend):
+            return None
+        return rust_index
+
+    @property
+    def _rust_compact_mode(self) -> bool:
+        return self._rust_index_backend() is not None
+
+    def _require_rust_index(self):
+        rust_index = self._rust_index_backend()
+        if rust_index is None:
+            msg = "Rust compact index is unavailable; construct Codebase with CodebaseConfig(graph_backend='rust')"
+            raise RuntimeError(msg)
+        rust_index.bind_context(self.ctx)
+        return rust_index
+
+    def _rust_compact_files(self, extensions: list[str] | Literal["*"] | None = None):
+        if isinstance(extensions, str) and extensions != "*":
+            msg = "extensions must be a list of extensions or '*'"
+            raise ValueError(msg)
+        rust_index = self._require_rust_index()
+        if extensions is None and rust_index.summary.files > 0:
+            files = rust_index.source_file_handles
+        else:
+            files = rust_index.file_handles
+        if extensions is None and rust_index.summary.files > 0:
+            allowed = set(self.ctx.extensions)
+            files = [file for file in files if file.extension in allowed]
+        elif isinstance(extensions, list):
+            allowed = set(extensions)
+            files = [file for file in files if file.extension in allowed]
+        return sorted(files, key=lambda file: (file.name, file.filepath))
+
     ####################################################################################################################
     # NODES
     ####################################################################################################################
 
     @noapidoc
     def _symbols(self, symbol_type: SymbolType | None = None) -> list[TSymbol | TClass | TFunction | TGlobalVar]:
+        if self._rust_compact_mode:
+            return self._require_rust_index().top_level_symbol_handles(symbol_type)
         matches: list[Symbol] = self.ctx.get_nodes(NodeType.SYMBOL)
         return [x for x in matches if x.is_top_level and (symbol_type is None or x.symbol_type == symbol_type)]
 
@@ -301,6 +420,8 @@ class Codebase(
         Returns:
             list[TSourceFile]: A sorted list of source files in the codebase.
         """
+        if self._rust_compact_mode:
+            return self._rust_compact_files(extensions)
         if self.ctx.config.use_pink == PinkMode.ALL_FILES:
             return self._pink_codebase.files
         if extensions is None and len(self.ctx.get_nodes(NodeType.FILE)) > 0:
@@ -345,6 +466,8 @@ class Codebase(
         Returns:
             list[TDirectory]: A list of Directory objects in the codebase.
         """
+        if self._rust_compact_mode:
+            return self._require_rust_index().directory_handles
         return list(self.ctx.directories.values())
 
     @property
@@ -361,6 +484,8 @@ class Codebase(
             list[TImport]: A list of Import nodes representing all imports in the codebase.
             TImport can be PyImport for Python codebases or TSImport for TypeScript codebases.
         """
+        if self._rust_compact_mode:
+            return self._require_rust_index().import_handles
         return self.ctx.get_nodes(NodeType.IMPORT)
 
     @property
@@ -383,6 +508,9 @@ class Codebase(
             msg = "Exports are not supported for Python codebases since Python does not have an export mechanism."
             raise NotImplementedError(msg)
 
+        if self._rust_compact_mode:
+            return self._require_rust_index().export_handles
+
         return self.ctx.get_nodes(NodeType.EXPORT)
 
     @property
@@ -394,6 +522,9 @@ class Codebase(
         Returns:
             list[ExternalModule]: List of external module nodes from the codebase graph.
         """
+        if self._rust_compact_mode:
+            return self._require_rust_index().external_module_handles
+
         return self.ctx.get_nodes(NodeType.EXTERNAL)
 
     @property
@@ -492,6 +623,14 @@ class Codebase(
         if self.has_file(filepath):
             logger.warning(f"File {filepath} already exists in codebase. Overwriting...")
 
+        if self._rust_compact_mode:
+            path = self.ctx.to_absolute(filepath)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self.ctx.io.write_file(path, content)
+            self.ctx.io.save_files({path})
+            self.ctx.transaction_manager.add_file_add_transaction(path)
+            return self._require_rust_index().register_added_file(filepath, content)
+
         file_exts = self.ctx.extensions
         # Create file as source file if it has a registered extension
         if any(filepath.endswith(ext) for ext in file_exts) and not self.ctx.config.disable_file_parse:
@@ -525,6 +664,8 @@ class Codebase(
             logger.warning(f"Directory {dir_path} already exists in codebase. Overwriting...")
 
         self.ctx.to_absolute(dir_path).mkdir(parents=parents, exist_ok=exist_ok)
+        if self._rust_compact_mode:
+            self._require_rust_index().register_directory(dir_path)
 
     def has_file(self, filepath: str, ignore_case: bool = False) -> bool:
         """Determines if a file exists in the codebase.
@@ -567,6 +708,14 @@ class Codebase(
         if self.ctx.config.use_pink == PinkMode.ALL_FILES:
             absolute_path = self.ctx.to_absolute(filepath)
             return self._pink_codebase.get_file(absolute_path)
+        if self._rust_compact_mode:
+            file = self._require_rust_index().get_file_handle(filepath, ignore_case=ignore_case)
+            if file is not None:
+                return file
+            if not optional:
+                msg = f"File {filepath} not found in Rust compact index. Use optional=True to return None instead."
+                raise ValueError(msg)
+            return None
         # Try to get the file from the graph first
         file = self.ctx.get_file(filepath, ignore_case=ignore_case)
         if file is not None:
@@ -622,7 +771,10 @@ class Codebase(
         # Sanitize the path
         dir_path = os.path.normpath(dir_path)
         dir_path = "" if dir_path == "." else dir_path
-        directory = self.ctx.get_directory(self.ctx.to_absolute(dir_path), ignore_case=ignore_case)
+        if self._rust_compact_mode:
+            directory = self._require_rust_index().get_directory_handle(dir_path, ignore_case=ignore_case)
+        else:
+            directory = self.ctx.get_directory(self.ctx.to_absolute(dir_path), ignore_case=ignore_case)
         if directory is None and not optional:
             msg = f"Directory {dir_path} not found in codebase. Use optional=True to return None instead."
             raise ValueError(msg)
@@ -639,6 +791,8 @@ class Codebase(
         Returns:
             bool: True if a symbol with the given name exists in the codebase, False otherwise.
         """
+        if self._rust_compact_mode:
+            return bool(self._require_rust_index().top_level_symbols_by_name(symbol_name))
         return any([x.name == symbol_name for x in self.symbols])
 
     def get_symbol(self, symbol_name: str, optional: bool = False) -> TSymbol | None:
@@ -682,6 +836,8 @@ class Codebase(
         Note:
             When a unique symbol is required, use get_symbol() instead. It will raise ValueError if multiple symbols are found.
         """
+        if self._rust_compact_mode:
+            return sort_editables(self._require_rust_index().top_level_symbols_by_name(symbol_name))
         return sort_editables(x for x in self.symbols if x.name == symbol_name)
 
     def get_class(self, class_name: str, optional: bool = False) -> TClass | None:
@@ -697,7 +853,10 @@ class Codebase(
         Raises:
             ValueError: If the class is not found and optional=False, or if multiple classes with the same name exist.
         """
-        matches = [c for c in self.classes if c.name == class_name]
+        if self._rust_compact_mode:
+            matches = [symbol for symbol in self._require_rust_index().top_level_symbols_by_name(class_name) if symbol.symbol_type == SymbolType.Class]
+        else:
+            matches = [c for c in self.classes if c.name == class_name]
         if len(matches) == 0:
             if not optional:
                 msg = f"Class {class_name} not found in codebase. Use optional=True to return None instead."
@@ -726,7 +885,10 @@ class Codebase(
         Raises:
             ValueError: If function is not found and optional=False, or if multiple matching functions exist.
         """
-        matches = [f for f in self.functions if f.name == function_name]
+        if self._rust_compact_mode:
+            matches = [symbol for symbol in self._require_rust_index().top_level_symbols_by_name(function_name) if symbol.symbol_type == SymbolType.Function]
+        else:
+            matches = [f for f in self.functions if f.name == function_name]
         if len(matches) == 0:
             if not optional:
                 msg = f"Function {function_name} not found in codebase. Use optional=True to return None instead."
@@ -1359,7 +1521,7 @@ class Codebase(
         if "/" not in repo_full_name:
             msg = "repo_name must be in format 'owner/repo'"
             raise ValueError(msg)
-        owner, repo = repo_full_name.split("/")
+        _owner, repo = repo_full_name.split("/")
 
         # Setup temp directory
         os.makedirs(tmp_dir, exist_ok=True)

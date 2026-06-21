@@ -1,0 +1,143 @@
+---
+title: "uvx Workflows"
+sidebarTitle: "uvx"
+icon: "terminal"
+iconType: "solid"
+---
+
+Use `uvx` when you want to run Graph-sitter from a package or wheel in a clean
+temporary environment.
+
+```bash
+uvx --python 3.13 graph-sitter parse .
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --check
+uvx --python 3.13 graph-sitter run rename-function . --check
+```
+
+<Note>
+  Published-package commands use the package resolved by `uvx`. Before a
+  published Graph-sitter release is validated, use branch-built wheel commands
+  with `--from dist/<wheel>.whl` for Rust backend proof.
+</Note>
+
+## Workflows
+
+Local source checkout:
+
+```bash
+uv run graph-sitter doctor --json
+uv run graph-sitter parse . --language python --backend python --format summary
+```
+
+Published package workflow after release validation:
+
+```bash
+uvx --python 3.13 graph-sitter doctor --json
+uvx --python 3.13 graph-sitter parse . --language auto --backend auto --fallback python --format json
+```
+
+Branch-built wheel validation before release:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter doctor --backend rust --language python --json
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter parse . --language python --backend rust --fallback error --format json
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter parse . --language typescript --backend rust --fallback error --format json
+```
+
+## Backend Modes
+
+Use strict Rust mode for release validation, benchmarks, and CI gates where
+fallback would hide an unsupported Rust-backed API:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter parse . --backend rust --fallback error --format json
+```
+
+Use automatic backend selection with Python fallback when you want a working
+command even if the Rust extension is unavailable or a requested API is not yet
+Rust-backed:
+
+```bash
+uvx --python 3.13 graph-sitter parse . --backend auto --fallback python --format json
+```
+
+The JSON output reports both the requested backend and the actual backend used.
+When fallback happens, inspect that disclosure before treating a result as a
+Rust performance or compatibility proof.
+
+## Parse
+
+`parse` is read-only and does not require `.codegen` initialization.
+
+```bash
+uvx --python 3.13 graph-sitter parse . --language python --format json
+uvx --python 3.13 graph-sitter parse . --language typescript --format json
+```
+
+For large repositories, scope the parse to the files that matter:
+
+```bash
+uvx --python 3.13 graph-sitter parse ./monorepo --language typescript --subdir packages/app --subdir packages/ui --format json
+```
+
+Write JSON to a file when another tool or agent consumes the graph summary:
+
+```bash
+uvx --python 3.13 graph-sitter parse . --format json --output graph-sitter-index.json
+```
+
+## Transform
+
+`transform` runs a one-shot Python transform by file path or import path. It
+does not require the transform to be registered under `.codegen/codemods`.
+
+```bash
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --arguments '{"new_name":"renamed"}' --check
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --arguments '{"new_name":"renamed"}' --write
+```
+
+For strict branch-wheel validation:
+
+```bash
+uvx --python 3.13 --from dist/<wheel>.whl graph-sitter transform ./codemods/rename.py:rename . --language python --backend rust --fallback error --check
+```
+
+## Run
+
+`run` executes a registered codemod from the target repository's
+`.codegen/codemods` directory.
+
+```bash
+uvx --python 3.13 graph-sitter run rename-function . --arguments '{"old_name":"old","new_name":"new"}' --check
+uvx --python 3.13 graph-sitter run rename-function . --arguments '{"old_name":"old","new_name":"new"}' --write
+```
+
+For large repositories, pass `--subdir` to avoid parsing unrelated packages:
+
+```bash
+uvx --python 3.13 graph-sitter run rename-function ./airflow --subdir airflow/providers --subdir tests/providers --check
+```
+
+## Safety
+
+Use `--check` first, inspect the diff, then rerun with `--write`. `--check`
+copies the target repository to a temporary Git repo before executing the
+codemod, so the original checkout is left unchanged.
+
+`parse` never mutates files. `transform` and `run` require either `--check` or
+`--write` in documented workflows; prefer the explicit mode even when
+compatibility behavior accepts an omitted mode.
+
+## Release Gate
+
+Branch-built wheel validation proves the current branch can package and run the
+Rust extension. It is not the same as a PyPI-backed public release.
+
+Before making `uvx graph-sitter ... --backend rust` the primary public setup
+path, validate the uploaded package artifact with `doctor`, `parse`,
+`transform`, and `run` from a clean environment and record the transcript in the
+release notes or setup docs.
+
+See [large-repo benchmarks](/benchmarks/large-repos) for the current Airflow and
+Next.js proof, and [correctness and parity](/correctness/parity) for the tested
+semantic scope and known gaps.

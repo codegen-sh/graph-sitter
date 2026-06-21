@@ -10,6 +10,10 @@ from graph_sitter.shared.decorators.docs import ts_apidoc
 if TYPE_CHECKING:
     from tree_sitter import Node as TSNode
 
+    from graph_sitter.typescript.class_definition import TSClass
+    from graph_sitter.typescript.detached_symbols.parameter import TSParameter
+    from graph_sitter.typescript.function import TSFunction
+
 
 @ts_apidoc
 class TSDecorator(Decorator["TSClass", "TSFunction", "TSParameter"]):

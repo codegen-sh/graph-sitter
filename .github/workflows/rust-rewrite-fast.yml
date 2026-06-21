@@ -1,0 +1,85 @@
+name: Rust Rewrite Fast Checks
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+    paths:
+      - ".github/workflows/rust-rewrite-fast.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "crates/**"
+      - "rust-rewrite/golden/**"
+      - "rust-rewrite/p0-parity-coverage.json"
+      - "rust-rewrite/supported-subset.json"
+      - "rust-rewrite/tools/**"
+      - "src/graph_sitter/codebase/**"
+      - "src/graph_sitter/configs/models/codebase.py"
+      - "src/graph_sitter/core/codebase.py"
+      - "src/graph_sitter/core/file.py"
+      - "src/graph_sitter/core/import_resolution.py"
+      - "src/graph_sitter/core/symbol.py"
+      - "src/graph_sitter/python/**"
+      - "src/graph_sitter/typescript/**"
+      - "tests/integration/rust_rewrite/**"
+      - "tests/unit/sdk/codebase/test_rust_backend.py"
+      - "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py"
+  push:
+    branches:
+      - "develop"
+      - "rust-rewrite"
+    paths:
+      - ".github/workflows/rust-rewrite-fast.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "crates/**"
+      - "rust-rewrite/golden/**"
+      - "rust-rewrite/p0-parity-coverage.json"
+      - "rust-rewrite/supported-subset.json"
+      - "rust-rewrite/tools/**"
+      - "src/graph_sitter/codebase/**"
+      - "src/graph_sitter/configs/models/codebase.py"
+      - "src/graph_sitter/core/codebase.py"
+      - "src/graph_sitter/core/file.py"
+      - "src/graph_sitter/core/import_resolution.py"
+      - "src/graph_sitter/core/symbol.py"
+      - "src/graph_sitter/python/**"
+      - "src/graph_sitter/typescript/**"
+      - "tests/integration/rust_rewrite/**"
+      - "tests/unit/sdk/codebase/test_rust_backend.py"
+      - "tests/unit/sdk/codebase/test_rust_rewrite_readiness.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fast-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5.4
+        with:
+          enable-cache: true
+          prune-cache: false
+          python-version: "3.13"
+          version: "0.9.1"
+          cache-suffix: rust-rewrite-fast
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-rewrite-fast
+
+      - name: Run fast Rust rewrite checks
+        run: rust-rewrite/tools/check_fast.sh

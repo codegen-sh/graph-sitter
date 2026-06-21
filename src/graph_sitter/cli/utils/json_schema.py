@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any
 
 from datamodel_code_generator import DataModelType, InputFileType, generate
 from pydantic import BaseModel
@@ -12,7 +13,7 @@ def get_schema(model: BaseModel) -> dict:
     return model.model_json_schema()
 
 
-def validate_json(schema: dict, json_data: str) -> bool:
+def validate_json(schema: dict, json_data: dict[str, Any] | str) -> bool:
     json_schema = json.dumps(schema)
     exec_scope = {}
     model_name = schema["title"]
@@ -29,10 +30,12 @@ def validate_json(schema: dict, json_data: str) -> bool:
         )
 
         exec(output.read_text(), exec_scope, exec_scope)
-    print(f"exec_scope: {exec_scope}")
     model = exec_scope.get(model_name)
     try:
-        model.model_validate_json(json_data)
+        if isinstance(json_data, str):
+            model.model_validate_json(json_data)
+        else:
+            model.model_validate(json_data)
         return True
-    except Exception as e:
+    except Exception:
         return False

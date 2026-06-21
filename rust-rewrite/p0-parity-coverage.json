@@ -1,0 +1,185 @@
+{
+	"schema_version": 1,
+	"pytest_roots": [
+		"tests/unit/sdk/codebase/test_rust_backend.py",
+		"tests/unit/sdk/codebase/test_rust_rewrite_readiness.py"
+	],
+	"groups": [
+		{
+			"name": "Codebase construction and graph-free public queries",
+			"status": "parity_covered",
+			"api_inventory": [
+				"Codebase(...) constructor surface",
+				"codebase.files(...) ordering and filtering",
+				"codebase.has_file/get_file with ignore_case",
+				"codebase.symbols/classes/functions/global_vars/imports/exports",
+				"codebase.has_symbol/get_symbol/get_symbols/get_class/get_function"
+			],
+			"evidence": {
+				"pytest": [
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_codebase_context_builds_opt_in_rust_index",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_codebase_context_builds_opt_in_typescript_rust_index",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_public_queries_preserve_python_sorting",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_symbol_lookups_do_not_materialize_all_symbols",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_ignore_case_file_lookup_does_not_materialize_file_lists"
+				],
+				"tools": [
+					"rust-rewrite/tools/check_python_rust_parity_fixture.py",
+					"rust-rewrite/tools/check_pinned_python_codebase.py",
+					"rust-rewrite/tools/check_pinned_typescript_codebase.py",
+					"rust-rewrite/tools/check_pinned_semantic_parity.py"
+				]
+			}
+		},
+		{
+			"name": "File and SourceFile read APIs",
+			"status": "parity_covered",
+			"api_inventory": [
+				"file identity and content accessors",
+				"file.imports/import_statements/inbound_imports/importers",
+				"file.has_import/get_import",
+				"file.symbols/classes/functions/global_vars",
+				"file.get_symbol/get_class/get_function/get_global_var",
+				"file.find_by_byte_range(...)",
+				"file.resolve_name/resolve_attribute/get_node_by_name",
+				"TypeScript file.exports/get_export",
+				"TypeScript file.get_namespace and namespace member lookup helpers"
+			],
+			"evidence": {
+				"pytest": [
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_byte_range_lookups_do_not_materialize_file_nodes",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_name_resolution_does_not_materialize_file_maps",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_module_import_attribute_resolution_does_not_materialize_file_maps",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_exact_export_lookups_do_not_materialize_all_exports",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_namespace_lookups_do_not_materialize_python_graph"
+				],
+				"tools": [
+					"rust-rewrite/tools/check_python_rust_parity_fixture.py",
+					"rust-rewrite/tools/check_pinned_python_codebase.py",
+					"rust-rewrite/tools/check_pinned_typescript_codebase.py"
+				]
+			}
+		},
+		{
+			"name": "Symbol, import, export, usage, and dependency wrappers",
+			"status": "parity_covered",
+			"api_inventory": [
+				"symbol identity/source/name handles",
+				"symbol.dependencies/usages/symbol_usages/descendant_symbols",
+				"import identity/predicates/resolution/imported_exports",
+				"export identity/predicates/resolution/import string helpers",
+				"external import dependency handles",
+				"TypeScript import type/default/namespace predicates",
+				"TypeScript interface/class heritage dependencies and traversal",
+				"TypeScript named namespace re-export member dependencies",
+				"TypeScript qualified namespace member references through namespace imports and re-exports",
+				"TypeScript JSX component tag references without intrinsic tag or prop-name false positives",
+				"TypeScript read-only file/symbol JSX element records and symbol.is_jsx",
+				"TypeScript file.get_namespace and namespace member lookups",
+				"TypeScript subclass and implementation traversal"
+			],
+			"evidence": {
+				"pytest": [
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_external_modules",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_usages_include_import_export_wrappers_without_materializing_indexes",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_import_predicates_do_not_materialize_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_external_import_dependencies",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_subclass_traversal",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_jsx_elements_do_not_materialize_python_graph"
+				],
+				"tools": [
+					"rust-rewrite/tools/check_python_rust_parity_fixture.py",
+					"rust-rewrite/tools/check_pinned_semantic_parity.py"
+				]
+			}
+		},
+		{
+			"name": "Codemod transaction compatibility",
+			"status": "parity_covered",
+			"api_inventory": [
+				"codebase.commit(...) and reset(...) stay callable",
+				"file edit/create/remove flows",
+				"symbol rename/remove/move-to-file flows",
+				"import add/remove/retarget flows",
+				"Codemod.execute(...) mutation flows"
+			],
+			"evidence": {
+				"pytest": [
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_file_mutations_commit_without_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_symbol_rename_and_add_import_commit_without_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_codemod_symbol_import_edits_match_python_backend",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_codemod_execute_move_updates_imports_without_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_codemod_import_edits_match_python_backend",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_typescript_codemod_move_updates_imports_matches_python_backend"
+				],
+				"tools": [
+					"rust-rewrite/tools/check_python_rust_parity_fixture.py",
+					"rust-rewrite/tools/check_pinned_codemods.py"
+				]
+			}
+		},
+		{
+			"name": "Fallback and strict unsupported API behavior",
+			"status": "fallback_covered",
+			"api_inventory": [
+				"missing extension behavior",
+				"rust_fallback=python promotion path",
+				"rust_fallback=error explicit unsupported API errors",
+				"unsupported compact file methods"
+			],
+			"evidence": {
+				"pytest": [
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_missing_rust_extension_falls_back_to_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_unsupported_api_fails_explicitly_without_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_unsupported_file_method_falls_back_to_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_missing_rust_extension_can_fail_strictly"
+				],
+				"tools": ["rust-rewrite/tools/check_supported_subset.py"]
+			}
+		},
+		{
+			"name": "Directory traversal and recursive symbol APIs",
+			"status": "parity_covered",
+			"api_inventory": [
+				"codebase.directories/get_directory/has_directory",
+				"codebase.files(extensions='*') for non-source file handles",
+				"directory.files/subdirectories/items/tree",
+				"directory.files(extensions='*') for non-source files",
+				"create_directory(...) visibility in compact Rust mode",
+				"directory recursive symbols/imports/exports/classes/functions/global_vars",
+				"directory get_symbol/get_import/get_export helpers"
+			],
+			"evidence": {
+				"pytest": [
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_queries_do_not_materialize_python_graph",
+					"tests/unit/sdk/codebase/test_rust_backend.py::test_rust_compact_directory_all_file_queries_include_non_source_files"
+				],
+				"tools": []
+			}
+		},
+		{
+			"name": "Full TypeScript expression, namespace, and type-system surface",
+			"status": "open_gap",
+			"api_inventory": [
+				"full namespace export/private/member semantics beyond direct member lookup",
+				"promise-chain async conversion and mutable expression-object semantics beyond compact read-only file/symbol.promise_chains",
+				"mutable JSX element/prop object semantics beyond compact read-only file/symbol.jsx_elements and reference/dependency extraction",
+				"full mutable FunctionCall expression object semantics beyond compact read-only file/symbol.function_calls",
+				"full TypeScript lexical/type/interface/reference coverage",
+				"complete namespace and expression dependency parity"
+			],
+			"gap": "The current compact TypeScript path covers selected files/imports/exports/usages/dependencies/subclass APIs, named namespace re-export member dependencies, qualified namespace member references through namespace imports and re-exports, JSX component tag references without intrinsic tag or prop-name false positives, direct file.get_namespace/member lookup helpers, read-only compact file/symbol.function_calls, read-only compact file/symbol.promise_chains, and read-only compact file/symbol.jsx_elements plus symbol.is_jsx, but broader namespace export/private semantics, mutable JSX/expression nodes and props, async promise-chain conversion, and type-system P0 surfaces still need parity tests and targeted Rust data."
+		},
+		{
+			"name": "Full graph-wide large-repo semantic parity",
+			"status": "open_gap",
+			"api_inventory": [
+				"repo-wide reference graph equality",
+				"repo-wide import graph equality",
+				"repo-wide dependency graph equality",
+				"deterministic ordering across full graph materializers"
+			],
+			"gap": "Pinned Airflow and Next.js have selected semantic parity plus stable compact snapshots, but a full Python-vs-Rust graph-wide equality test is still open before default-backend promotion."
+		}
+	]
+}

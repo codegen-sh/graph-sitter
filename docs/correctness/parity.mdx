@@ -1,0 +1,111 @@
+---
+title: "Correctness and Parity"
+sidebarTitle: "Parity"
+icon: "scale-balanced"
+iconType: "solid"
+---
+
+Graph-sitter's Rust backend is tested against the existing Python backend, but
+parity is not the same thing as universal semantic correctness. The current
+release posture is conservative: use strict Rust mode for proof, use Python
+fallback when you need compatibility, and keep the Python backend as the default
+until broader parity gates pass.
+
+## Current Status
+
+| Area | Status | Evidence |
+| --- | --- | --- |
+| Codebase construction and graph-free public queries | Parity covered for the supported subset | Unit tests, fixture parity, pinned Airflow and Next.js checks |
+| File and source-file read APIs | Parity covered for the supported subset | Targeted lookup tests and pinned repo probes |
+| Symbol, import, export, usage, and dependency wrappers | Parity covered for the supported subset | Fixture-wide graph rows plus selected large-repo semantic checks |
+| Codemod transaction compatibility | Parity covered for selected Python and TypeScript edit flows | Python-vs-Rust fixture output-byte parity and pinned codemod proofs |
+| Fallback and unsupported APIs | Covered | Strict mode raises explicit unsupported errors; fallback mode can promote to Python |
+| Directory traversal and recursive symbol APIs | Parity covered for the current scope | Source and all-file directory tests |
+| Full TypeScript expression, namespace, and type-system surface | Open gap | Broader mutable expression objects and full type-system parity remain open |
+| Full graph-wide large-repo semantic equality | Open gap | Pinned repos have selected semantic parity and golden snapshots, not full graph-wide equality |
+
+## What Is Compared
+
+The fast parity fixture exact-compares Python and Rust behavior for:
+
+- files, symbols, imports, exports, and import targets
+- symbol dependencies and symbol usages
+- import usages and imported-export chains
+- Python and TypeScript mutation output bytes
+- graph-free execution, where the Rust path keeps the old Python graph blocked
+
+The pinned large-repo semantic checks compare selected high-value workflows on
+Airflow `2.10.5` and Next.js `v15.0.0`. They cover known files, global and
+file-local lookups, import resolution, name resolution, dependency lookups, and
+selected TypeScript usage/dependency flows.
+
+## Known Deltas
+
+The selected Next.js semantic proof currently has zero known deltas.
+
+The selected Airflow proof has one checked delta: Rust resolves
+`airflow.models.DagModel` through `airflow/models/__init__.py`, while the
+current Python backend returns `None` for that probe. The checker fails unless
+that delta is exactly the expected value, so it is tracked as a specific Rust
+enhancement rather than a loose tolerated mismatch.
+
+## Safety Modes
+
+Use strict Rust mode when a test, benchmark, or release gate should fail instead
+of silently falling back:
+
+```bash
+graph-sitter parse . --backend rust --fallback error --format json
+```
+
+Use automatic mode with Python fallback when compatibility matters more than
+proving the Rust path:
+
+```bash
+graph-sitter parse . --backend auto --fallback python --format json
+```
+
+The JSON CLI output reports the requested backend and actual backend. Inspect
+that field before treating a result as Rust-backed evidence.
+
+## Release Gates
+
+Fast gate:
+
+```bash
+rust-rewrite/tools/check_fast.sh
+```
+
+Pinned large-repo gate:
+
+```bash
+rust-rewrite/tools/check_pinned_large_repos.sh
+```
+
+P0 parity manifest:
+
+```bash
+uv run python rust-rewrite/tools/check_p0_parity_coverage.py
+```
+
+The stricter pre-default gate is:
+
+```bash
+uv run python rust-rewrite/tools/check_p0_parity_coverage.py --require-complete
+```
+
+That stricter gate is intentionally expected to stay closed while the TypeScript
+expression/type-system surface and full graph-wide large-repo equality remain
+open.
+
+## Before Defaulting To Rust
+
+Rust should remain opt-in until:
+
+- full Python unit coverage stays green with the Python backend
+- supported Rust-backed APIs pass the fast and pinned large-repo gates
+- P0 parity coverage has no open gaps, or the remaining gaps are explicitly
+  removed from the default-backend contract
+- published-package `uvx graph-sitter ...` artifacts pass clean-environment
+  parse, run, and transform smokes
+- docs and skill instructions match the final command surface
