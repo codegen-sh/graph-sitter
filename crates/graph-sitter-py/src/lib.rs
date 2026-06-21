@@ -1223,6 +1223,20 @@ mod bindings {
             )
         }
 
+        fn jsx_props_json(&self) -> PyResult<String> {
+            serde_json::to_string(&self.inner.jsx_props)
+                .map_err(|error| PyRuntimeError::new_err(error.to_string()))
+        }
+
+        fn jsx_props_for_element_json(&self, parent_element_id: u32) -> PyResult<String> {
+            records_to_json(
+                self.inner
+                    .jsx_props
+                    .iter()
+                    .filter(|prop| prop.parent_jsx_element_id == parent_element_id),
+            )
+        }
+
         fn subclass_edges_from_symbol_json(&self, symbol_id: u32) -> PyResult<String> {
             records_to_json(
                 self.inner
@@ -1923,7 +1937,7 @@ mod bindings {
             fs::create_dir_all(repo.join("src")).unwrap();
             fs::write(
                 repo.join("src/app.tsx"),
-                "import React from 'react';\nimport { helper } from './util';\nexport function Page() { return helper(<div />); }\n",
+                "import React from 'react';\nimport { helper } from './util';\nexport function Page() { return helper(<div title=\"Hello\" enabled count={1} />); }\n",
             )
             .unwrap();
             fs::write(
@@ -2054,6 +2068,35 @@ mod bindings {
                 serde_json::json!(0)
             );
             assert_eq!(page_jsx_elements[0]["name"], serde_json::json!("div"));
+            let page_jsx_props: serde_json::Value =
+                serde_json::from_str(&index.jsx_props_for_element_json(0).unwrap()).unwrap();
+            assert_eq!(page_jsx_props.as_array().unwrap().len(), 3);
+            assert_eq!(page_jsx_props[0]["name"], serde_json::json!("title"));
+            assert_eq!(page_jsx_props[0]["value"], serde_json::json!("\"Hello\""));
+            assert_eq!(
+                page_jsx_props[0]["value_is_expression"],
+                serde_json::json!(false)
+            );
+            assert_eq!(page_jsx_props[1]["name"], serde_json::json!("enabled"));
+            assert_eq!(page_jsx_props[1]["value"], serde_json::json!(null));
+            assert_eq!(
+                page_jsx_props[1]["value_is_expression"],
+                serde_json::json!(false)
+            );
+            assert_eq!(page_jsx_props[2]["name"], serde_json::json!("count"));
+            assert_eq!(page_jsx_props[2]["value"], serde_json::json!("{1}"));
+            assert_eq!(
+                page_jsx_props[2]["value_is_expression"],
+                serde_json::json!(true)
+            );
+            assert_eq!(
+                serde_json::from_str::<serde_json::Value>(&index.jsx_props_json().unwrap())
+                    .unwrap()
+                    .as_array()
+                    .unwrap()
+                    .len(),
+                3
+            );
             assert_eq!(
                 index.jsx_elements_for_symbol_json(0).unwrap(),
                 index.jsx_elements_for_file_json(0).unwrap()

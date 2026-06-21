@@ -1690,7 +1690,14 @@ class FakeTypeScriptPromiseChainIndex:
         return json.dumps([])
 
 
-FAKE_TYPESCRIPT_JSX_CONTENT = "export function App() {\n  return <div><Header /><UI.Card><span /></UI.Card></div>;\n}\n\nexport function helper() {\n  return 1;\n}\n"
+FAKE_TYPESCRIPT_JSX_CONTENT = (
+    "export function App() {\n"
+    '  return <div role="main" count={1}><Header title="Welcome" enabled /><UI.Card><span /></UI.Card></div>;\n'
+    "}\n\n"
+    "export function helper() {\n"
+    "  return 1;\n"
+    "}\n"
+)
 
 
 class FakeTypeScriptJSXSummary(FakeSummary):
@@ -1758,7 +1765,10 @@ class FakeTypeScriptJSXIndex:
                     "is_top_level": True,
                     "name": "App",
                     "kind": "function",
-                    "range": fake_range_for_text(content, "export function App() {\n  return <div><Header /><UI.Card><span /></UI.Card></div>;\n}"),
+                    "range": fake_range_for_text(
+                        content,
+                        'export function App() {\n  return <div role="main" count={1}><Header title="Welcome" enabled /><UI.Card><span /></UI.Card></div>;\n}',
+                    ),
                     "name_range": fake_range_for_text(content, "App"),
                 },
                 {
@@ -1817,7 +1827,7 @@ class FakeTypeScriptJSXIndex:
                     "source_symbol_id": 0,
                     "parent_jsx_element_id": None,
                     "name": "div",
-                    "range": fake_range_for_text(content, "<div><Header /><UI.Card><span /></UI.Card></div>"),
+                    "range": fake_range_for_text(content, '<div role="main" count={1}><Header title="Welcome" enabled /><UI.Card><span /></UI.Card></div>'),
                     "name_range": fake_range_for_text(content, "div"),
                 },
                 {
@@ -1826,7 +1836,7 @@ class FakeTypeScriptJSXIndex:
                     "source_symbol_id": 0,
                     "parent_jsx_element_id": 0,
                     "name": "Header",
-                    "range": fake_range_for_text(content, "<Header />"),
+                    "range": fake_range_for_text(content, '<Header title="Welcome" enabled />'),
                     "name_range": fake_range_for_text(content, "Header"),
                 },
                 {
@@ -1849,6 +1859,64 @@ class FakeTypeScriptJSXIndex:
                 },
             ]
         )
+
+    def jsx_props_json(self):
+        content = FAKE_TYPESCRIPT_JSX_CONTENT
+        return json.dumps(
+            [
+                {
+                    "id": 0,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": 0,
+                    "name": "role",
+                    "value": '"main"',
+                    "value_is_expression": False,
+                    "range": fake_range_for_text(content, 'role="main"'),
+                    "name_range": fake_range_for_text(content, "role"),
+                    "value_range": fake_range_for_text(content, '"main"'),
+                },
+                {
+                    "id": 1,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": 0,
+                    "name": "count",
+                    "value": "{1}",
+                    "value_is_expression": True,
+                    "range": fake_range_for_text(content, "count={1}"),
+                    "name_range": fake_range_for_text(content, "count"),
+                    "value_range": fake_range_for_text(content, "{1}"),
+                },
+                {
+                    "id": 2,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": 1,
+                    "name": "title",
+                    "value": '"Welcome"',
+                    "value_is_expression": False,
+                    "range": fake_range_for_text(content, 'title="Welcome"'),
+                    "name_range": fake_range_for_text(content, "title"),
+                    "value_range": fake_range_for_text(content, '"Welcome"'),
+                },
+                {
+                    "id": 3,
+                    "source_file_id": 0,
+                    "source_symbol_id": 0,
+                    "parent_jsx_element_id": 1,
+                    "name": "enabled",
+                    "value": None,
+                    "value_is_expression": False,
+                    "range": fake_range_for_text(content, "enabled"),
+                    "name_range": fake_range_for_text(content, "enabled"),
+                    "value_range": None,
+                },
+            ]
+        )
+
+    def jsx_props_for_element_json(self, parent_element_id: int):
+        return json.dumps([prop for prop in json.loads(self.jsx_props_json()) if prop["parent_jsx_element_id"] == parent_element_id])
 
     def jsx_element_by_id_json(self, element_id: int):
         return json.dumps(next((element for element in json.loads(self.jsx_elements_json()) if element["id"] == element_id), None))
@@ -3178,7 +3246,7 @@ def test_rust_compact_typescript_jsx_elements_do_not_materialize_python_graph(mo
         elements = file.jsx_elements
         assert [element.name for element in elements] == ["div", "Header", "UI.Card", "span"]
         root = elements[0]
-        assert root.source == "<div><Header /><UI.Card><span /></UI.Card></div>"
+        assert root.source == '<div role="main" count={1}><Header title="Welcome" enabled /><UI.Card><span /></UI.Card></div>'
         assert root.file == file
         assert root.parent_symbol == app
         assert root.parent == app
@@ -3196,14 +3264,51 @@ def test_rust_compact_typescript_jsx_elements_do_not_materialize_python_graph(mo
         assert [element.name for element in app.jsx_elements] == ["div", "Header", "UI.Card", "span"]
         assert app.get_component("Header").name == "Header"
         assert not helper.is_jsx
+
+        assert backend._jsx_props is None
+        assert backend._jsx_prop_handles is None
+        assert backend._jsx_props_by_parent_id is None
+        root_props = root.props
+        assert [prop.name for prop in root_props] == ["role", "count"]
+        assert root.attributes == root_props
+        role_prop = root.get_prop("role")
+        count_prop = root.get_prop("count")
+        assert role_prop is not None
+        assert count_prop is not None
+        assert role_prop.source == 'role="main"'
+        assert role_prop.value is not None
+        assert role_prop.value.source == '"main"'
+        assert role_prop.expression is None
+        assert count_prop.value is not None
+        assert count_prop.value.source == "{1}"
+        assert count_prop.expression is not None
+        assert count_prop.expression.source == "{1}"
+        assert root.get_prop("missing") is None
+
+        header = root.get_component("Header")
+        assert header is not None
+        header_props = header.props
+        assert [prop.name for prop in header_props] == ["title", "enabled"]
+        title_prop = header.get_prop("title")
+        enabled_prop = header.get_prop("enabled")
+        assert title_prop is not None
+        assert enabled_prop is not None
+        assert title_prop.value is not None
+        assert title_prop.value.source == '"Welcome"'
+        assert title_prop.parent == header
+        assert enabled_prop.value is None
         with pytest.raises(RustBackendUnsupportedError):
-            root.props
+            title_prop.set_value('"Other"')
 
         assert backend._jsx_elements is None
         assert backend._jsx_element_handles is None
+        assert backend._jsx_props is None
+        assert backend._jsx_prop_handles is None
         assert backend._jsx_elements_by_file_id == {0: elements}
         assert backend._jsx_elements_by_source_symbol_id == {0: elements, 1: []}
         assert backend._jsx_elements_by_parent_id == {0: [elements[1], elements[2]], 1: [], 2: [elements[3]], 3: []}
+        assert backend._jsx_props_by_parent_id == {0: root_props, 1: header_props}
+        assert sorted(backend._jsx_prop_handles_by_id) == [0, 1, 2, 3]
         assert backend._symbols is None
         assert backend._symbol_handles is None
 

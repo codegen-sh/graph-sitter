@@ -162,6 +162,7 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "function_calls": False,
     "promise_chains": False,
     "jsx_elements": False,
+    "jsx_props": False,
     "dependencies": False,
     "subclass_edges": False,
     "file_handles": False,
@@ -172,6 +173,7 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "function_call_handles": False,
     "promise_chain_handles": False,
     "jsx_element_handles": False,
+    "jsx_prop_handles": False,
     "function_call_handles_by_id": True,
     "promise_chain_handles_by_id": True,
     "exports_by_file": False,
@@ -182,6 +184,7 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "jsx_elements_by_file": False,
     "jsx_elements_by_symbol": False,
     "jsx_elements_by_parent": False,
+    "jsx_props_by_parent": False,
     "subclass_edges_by_source_symbol": False,
     "subclass_edges_by_target_symbol": False,
 }
@@ -197,6 +200,7 @@ EXPECTED_LARGE_CACHE_MATERIALIZATION = {
     "function_calls": False,
     "promise_chains": False,
     "jsx_elements": False,
+    "jsx_props": False,
     "dependencies": False,
     "subclass_edges": False,
 }
@@ -327,6 +331,7 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "function_calls": backend._function_calls is not None,
         "promise_chains": backend._promise_chains is not None,
         "jsx_elements": backend._jsx_elements is not None,
+        "jsx_props": backend._jsx_props is not None,
         "dependencies": backend._dependencies is not None,
         "subclass_edges": backend._subclass_edges is not None,
     }
@@ -342,6 +347,7 @@ def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
     report["function_call_handles"] = backend._function_call_handles is not None
     report["promise_chain_handles"] = backend._promise_chain_handles is not None
     report["jsx_element_handles"] = backend._jsx_element_handles is not None
+    report["jsx_prop_handles"] = backend._jsx_prop_handles is not None
     report["function_call_handles_by_id"] = backend._function_call_handles_by_id is not None
     report["promise_chain_handles_by_id"] = backend._promise_chain_handles_by_id is not None
     report["exports_by_file"] = backend._exports_by_file_id is not None
@@ -352,6 +358,7 @@ def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
     report["jsx_elements_by_file"] = backend._jsx_elements_by_file_id is not None
     report["jsx_elements_by_symbol"] = backend._jsx_elements_by_source_symbol_id is not None
     report["jsx_elements_by_parent"] = backend._jsx_elements_by_parent_id is not None
+    report["jsx_props_by_parent"] = backend._jsx_props_by_parent_id is not None
     report["subclass_edges_by_source_symbol"] = backend._subclass_edges_by_source_symbol_id is not None
     report["subclass_edges_by_target_symbol"] = backend._subclass_edges_by_target_symbol_id is not None
     return report

@@ -330,6 +330,37 @@ class RustJsxElementRecord:
 
 
 @dataclass(frozen=True)
+class RustJsxPropRecord:
+    id: int
+    source_file_id: int
+    source_symbol_id: int | None
+    parent_jsx_element_id: int
+    name: str
+    value: str | None
+    value_is_expression: bool
+    range: RustSourceRange
+    name_range: RustSourceRange
+    value_range: RustSourceRange | None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> RustJsxPropRecord:
+        source_symbol_id = data["source_symbol_id"]
+        value_range = data["value_range"]
+        return cls(
+            id=int(data["id"]),
+            source_file_id=int(data["source_file_id"]),
+            source_symbol_id=None if source_symbol_id is None else int(source_symbol_id),
+            parent_jsx_element_id=int(data["parent_jsx_element_id"]),
+            name=str(data["name"]),
+            value=data["value"],
+            value_is_expression=bool(data["value_is_expression"]),
+            range=RustSourceRange.from_dict(data["range"]),
+            name_range=RustSourceRange.from_dict(data["name_range"]),
+            value_range=None if value_range is None else RustSourceRange.from_dict(value_range),
+        )
+
+
+@dataclass(frozen=True)
 class RustDependencyRecord:
     id: int
     source_symbol_id: int
@@ -426,6 +457,7 @@ class RustIndexBackend:
     _function_calls: list[RustFunctionCallRecord] | None = None
     _promise_chains: list[RustPromiseChainRecord] | None = None
     _jsx_elements: list[RustJsxElementRecord] | None = None
+    _jsx_props: list[RustJsxPropRecord] | None = None
     _dependencies: list[RustDependencyRecord] | None = None
     _subclass_edges: list[RustSubclassRecord] | None = None
     _file_handles: list[RustCompactFile] | None = None
@@ -436,6 +468,7 @@ class RustIndexBackend:
     _function_call_handles: list[RustCompactFunctionCall] | None = None
     _promise_chain_handles: list[RustCompactPromiseChain] | None = None
     _jsx_element_handles: list[RustCompactJSXElement] | None = None
+    _jsx_prop_handles: list[RustCompactJSXProp] | None = None
     _file_handles_by_id: dict[int, RustCompactFile] | None = None
     _file_handles_by_path: dict[str, RustCompactFile] | None = None
     _symbol_handles_by_id: dict[int, RustCompactSymbol] | None = None
@@ -445,6 +478,7 @@ class RustIndexBackend:
     _function_call_handles_by_id: dict[int, RustCompactFunctionCall] | None = None
     _promise_chain_handles_by_id: dict[int, RustCompactPromiseChain] | None = None
     _jsx_element_handles_by_id: dict[int, RustCompactJSXElement] | None = None
+    _jsx_prop_handles_by_id: dict[int, RustCompactJSXProp] | None = None
     _symbols_by_file_id: dict[int, list[RustCompactSymbol]] | None = None
     _symbols_by_file_id_and_byte_range: dict[tuple[int, int, int], list[RustCompactSymbol]] | None = None
     _imports_by_file_id_and_lookup: dict[tuple[int, str], list[RustCompactImport]] | None = None
@@ -471,6 +505,7 @@ class RustIndexBackend:
     _jsx_elements_by_file_id: dict[int, list[RustCompactJSXElement]] | None = None
     _jsx_elements_by_source_symbol_id: dict[int, list[RustCompactJSXElement]] | None = None
     _jsx_elements_by_parent_id: dict[int, list[RustCompactJSXElement]] | None = None
+    _jsx_props_by_parent_id: dict[int, list[RustCompactJSXProp]] | None = None
     _dependencies_by_source_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_target_symbol_id: dict[int, list[RustDependencyRecord]] | None = None
     _dependencies_by_source_file_id: dict[int, list[RustDependencyRecord]] | None = None
@@ -722,6 +757,16 @@ class RustIndexBackend:
         self._jsx_element_handles_by_id[record.id] = handle
         return handle
 
+    def _jsx_prop_handle_from_record(self, record: RustJsxPropRecord) -> RustCompactJSXProp:
+        if self._jsx_prop_handles_by_id is None:
+            self._jsx_prop_handles_by_id = {}
+        handle = self._jsx_prop_handles_by_id.get(record.id)
+        if handle is None:
+            handle = RustCompactJSXProp(self, record)
+        self._bind_handle(handle)
+        self._jsx_prop_handles_by_id[record.id] = handle
+        return handle
+
     def compact_record_counts(self) -> dict[str, int]:
         def count_attr(name: str, fallback: int) -> int:
             value = getattr(self.index, name, None)
@@ -890,6 +935,16 @@ class RustIndexBackend:
         return self._jsx_elements
 
     @property
+    def jsx_props(self) -> list[RustJsxPropRecord]:
+        if self._jsx_props is None:
+            jsx_props_json = getattr(self.index, "jsx_props_json", None)
+            if jsx_props_json is None:
+                self._jsx_props = []
+            else:
+                self._jsx_props = [RustJsxPropRecord.from_dict(record) for record in json.loads(jsx_props_json())]
+        return self._jsx_props
+
+    @property
     def dependencies(self) -> list[RustDependencyRecord]:
         if self._dependencies is None:
             self._dependencies = [RustDependencyRecord.from_dict(record) for record in json.loads(self.index.dependencies_json())]
@@ -960,6 +1015,12 @@ class RustIndexBackend:
             self._jsx_element_handles = [self._jsx_element_handle_from_record(record) for record in self.jsx_elements]
         return self._jsx_element_handles
 
+    @property
+    def jsx_prop_handles(self) -> list[RustCompactJSXProp]:
+        if self._jsx_prop_handles is None:
+            self._jsx_prop_handles = [self._jsx_prop_handle_from_record(record) for record in self.jsx_props]
+        return self._jsx_prop_handles
+
     def bind_context(self, ctx: CodebaseContext) -> None:
         self._ctx = ctx
         directory_handles = list(self._directory_handles_by_path.values()) if self._directory_handles_by_path is not None else None
@@ -972,6 +1033,7 @@ class RustIndexBackend:
             self._function_call_handles,
             self._promise_chain_handles,
             self._jsx_element_handles,
+            self._jsx_prop_handles,
             directory_handles,
         ):
             if handles is None:
@@ -988,6 +1050,7 @@ class RustIndexBackend:
             self._function_call_handles_by_id,
             self._promise_chain_handles_by_id,
             self._jsx_element_handles_by_id,
+            self._jsx_prop_handles_by_id,
         ):
             if handles_by_key is None:
                 continue
@@ -1172,6 +1235,8 @@ class RustIndexBackend:
             self._promise_chains = [chain for chain in self._promise_chains if chain.source_file_id != file_id]
         if self._jsx_elements is not None:
             self._jsx_elements = [element for element in self._jsx_elements if element.source_file_id != file_id]
+        if self._jsx_props is not None:
+            self._jsx_props = [prop for prop in self._jsx_props if prop.source_file_id != file_id]
         if self._dependencies is not None:
             self._dependencies = [dependency for dependency in self._dependencies if dependency.source_file_id != file_id and dependency.target_file_id != file_id]
         if self._subclass_edges is not None:
@@ -1185,11 +1250,13 @@ class RustIndexBackend:
         self._function_call_handles = None
         self._promise_chain_handles = None
         self._jsx_element_handles = None
+        self._jsx_prop_handles = None
         self._external_module_handles_by_import_id = None
         self._export_handles_by_id = None
         self._function_call_handles_by_id = None
         self._promise_chain_handles_by_id = None
         self._jsx_element_handles_by_id = None
+        self._jsx_prop_handles_by_id = None
         self._symbols_by_file_id = None
         self._symbols_by_file_id_and_byte_range = None
         self._imports_by_file_id_and_lookup = None
@@ -1216,6 +1283,7 @@ class RustIndexBackend:
         self._jsx_elements_by_file_id = None
         self._jsx_elements_by_source_symbol_id = None
         self._jsx_elements_by_parent_id = None
+        self._jsx_props_by_parent_id = None
         self._dependencies_by_source_symbol_id = None
         self._dependencies_by_target_symbol_id = None
         self._dependencies_by_source_file_id = None
@@ -1991,6 +2059,23 @@ class RustIndexBackend:
                     elements_by_parent_id.setdefault(element.record.parent_jsx_element_id, []).append(element)
             self._jsx_elements_by_parent_id = elements_by_parent_id
         return self._jsx_elements_by_parent_id.get(parent_element_id, [])
+
+    def jsx_props_for_element(self, parent_element_id: int) -> list[RustCompactJSXProp]:
+        if self._jsx_prop_handles is None and hasattr(self.index, "jsx_props_for_element_json"):
+            if self._jsx_props_by_parent_id is None:
+                self._jsx_props_by_parent_id = {}
+            if parent_element_id not in self._jsx_props_by_parent_id:
+                records = self._records_from_json_method("jsx_props_for_element_json", RustJsxPropRecord.from_dict, parent_element_id)
+                if records is not None:
+                    self._jsx_props_by_parent_id[parent_element_id] = [self._jsx_prop_handle_from_record(record) for record in records]
+            if parent_element_id in self._jsx_props_by_parent_id:
+                return self._jsx_props_by_parent_id[parent_element_id]
+        if self._jsx_props_by_parent_id is None:
+            props_by_parent_id: dict[int, list[RustCompactJSXProp]] = {}
+            for prop in self.jsx_prop_handles:
+                props_by_parent_id.setdefault(prop.record.parent_jsx_element_id, []).append(prop)
+            self._jsx_props_by_parent_id = props_by_parent_id
+        return self._jsx_props_by_parent_id.get(parent_element_id, [])
 
     def dependencies_from_symbol(self, symbol_id: int) -> list[RustDependencyRecord]:
         if self._dependencies is None and hasattr(self.index, "dependencies_from_symbol_json"):
@@ -2803,23 +2888,20 @@ class RustCompactJSXElement(RustCompactHandle):
         return self._name_node
 
     @property
-    def props(self) -> list[object]:
-        method = "RustCompactJSXElement.props"
-        raise self._unsupported(method)
+    def props(self) -> list[RustCompactJSXProp]:
+        return self.backend.jsx_props_for_element(self.record.id)
 
     @property
-    def attributes(self) -> list[object]:
-        method = "RustCompactJSXElement.attributes"
-        raise self._unsupported(method)
+    def attributes(self) -> list[RustCompactJSXProp]:
+        return self.props
 
     @property
     def expressions(self) -> list[object]:
         method = "RustCompactJSXElement.expressions"
         raise self._unsupported(method)
 
-    def get_prop(self, name: str) -> object | None:
-        method = "RustCompactJSXElement.get_prop"
-        raise self._unsupported(method)
+    def get_prop(self, name: str) -> RustCompactJSXProp | None:
+        return next((prop for prop in self.props if prop.name == name), None)
 
     def set_name(self, name: str) -> None:
         method = "RustCompactJSXElement.set_name"
@@ -2831,6 +2913,104 @@ class RustCompactJSXElement(RustCompactHandle):
 
     def wrap(self, opening_tag: str, closing_tag: str) -> None:
         method = "RustCompactJSXElement.wrap"
+        raise self._unsupported(method)
+
+
+class RustCompactJSXPropValue(RustCompactHandle):
+    node_type = NodeType.EXPRESSION
+
+    def __init__(self, backend: RustIndexBackend, prop: RustCompactJSXProp, range: RustSourceRange, source: str) -> None:
+        self.prop = prop
+        self._source = source
+        super().__init__(backend, prop.record.id, range)
+
+    @property
+    def file(self) -> RustCompactFile:
+        return self.prop.file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def parent(self) -> RustCompactJSXProp:
+        return self.prop
+
+    @property
+    def source(self) -> str:
+        return self._source
+
+
+class RustCompactJSXProp(RustCompactHandle):
+    node_type = NodeType.EXPRESSION
+
+    def __init__(self, backend: RustIndexBackend, record: RustJsxPropRecord) -> None:
+        self.record = record
+        self.name = record.name
+        self._name_node = RustCompactName(record.name)
+        super().__init__(backend, record.id, record.range)
+
+    def __repr__(self) -> str:
+        return f"RustCompactJSXProp(name={self.name!r}, filepath={self.filepath!r})"
+
+    @property
+    def file(self) -> RustCompactFile:
+        file = self.backend.file_handle_by_id(self.record.source_file_id)
+        if file is None:
+            msg = f"Rust compact JSX prop {self.record.id} references missing file {self.record.source_file_id}"
+            raise RuntimeError(msg)
+        return file
+
+    @property
+    def filepath(self) -> str:
+        return self.file.filepath
+
+    @property
+    def source(self) -> str:
+        return self.file.content_bytes[self.start_byte : self.end_byte].decode("utf-8")
+
+    @property
+    def parent(self) -> RustCompactJSXElement | RustCompactSymbol | RustCompactFile:
+        parent = self.backend.jsx_element_by_id(self.record.parent_jsx_element_id)
+        if parent is not None:
+            return parent
+        if self.record.source_symbol_id is not None:
+            symbol = self.backend.symbol_handle_by_id(self.record.source_symbol_id)
+            if symbol is not None:
+                return symbol
+        return self.file
+
+    @property
+    def parent_symbol(self) -> RustCompactSymbol | RustCompactFile:
+        if self.record.source_symbol_id is not None:
+            symbol = self.backend.symbol_handle_by_id(self.record.source_symbol_id)
+            if symbol is not None:
+                return symbol
+        return self.file
+
+    def get_name(self) -> RustCompactName:
+        return self._name_node
+
+    @property
+    def value(self) -> RustCompactJSXPropValue | None:
+        if self.record.value is None or self.record.value_range is None:
+            return None
+        return RustCompactJSXPropValue(self.backend, self, self.record.value_range, self.record.value)
+
+    @property
+    def expression(self) -> RustCompactJSXPropValue | None:
+        return self.value if self.record.value_is_expression else None
+
+    def set_value(self, value: str) -> None:
+        method = "RustCompactJSXProp.set_value"
+        raise self._unsupported(method)
+
+    def insert_after(self, new_src: str, fix_indentation: bool = False, newline: bool = True, priority: int = 0, dedupe: bool = True) -> None:
+        method = "RustCompactJSXProp.insert_after"
+        raise self._unsupported(method)
+
+    def insert_before(self, new_src: str, fix_indentation: bool = False, newline: bool = True, priority: int = 0, dedupe: bool = True) -> None:
+        method = "RustCompactJSXProp.insert_before"
         raise self._unsupported(method)
 
 

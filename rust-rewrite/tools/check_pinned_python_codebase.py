@@ -195,6 +195,7 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "function_calls": False,
     "promise_chains": False,
     "jsx_elements": False,
+    "jsx_props": False,
     "dependencies": False,
     "subclass_edges": False,
     "file_handles": False,
@@ -205,6 +206,7 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "function_call_handles": False,
     "promise_chain_handles": False,
     "jsx_element_handles": False,
+    "jsx_prop_handles": False,
     "symbols_by_file": False,
     "imports_by_file": False,
 }
@@ -255,6 +257,7 @@ EXPECTED_LARGE_CACHE_MATERIALIZATION = {
     "function_calls": False,
     "promise_chains": False,
     "jsx_elements": False,
+    "jsx_props": False,
     "dependencies": False,
     "subclass_edges": False,
     "file_handles": False,
@@ -265,6 +268,7 @@ EXPECTED_LARGE_CACHE_MATERIALIZATION = {
     "function_call_handles": False,
     "promise_chain_handles": False,
     "jsx_element_handles": False,
+    "jsx_prop_handles": False,
 }
 
 RECORDED_PYTHON_BASELINE = {
@@ -439,6 +443,7 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "function_calls": backend._function_calls is not None,
         "promise_chains": backend._promise_chains is not None,
         "jsx_elements": backend._jsx_elements is not None,
+        "jsx_props": backend._jsx_props is not None,
         "dependencies": backend._dependencies is not None,
         "subclass_edges": backend._subclass_edges is not None,
         "file_handles": backend._file_handles is not None,
@@ -449,6 +454,7 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "function_call_handles": backend._function_call_handles is not None,
         "promise_chain_handles": backend._promise_chain_handles is not None,
         "jsx_element_handles": backend._jsx_element_handles is not None,
+        "jsx_prop_handles": backend._jsx_prop_handles is not None,
     }
 
 

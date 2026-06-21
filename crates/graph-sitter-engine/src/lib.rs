@@ -361,6 +361,7 @@ pub struct TypeScriptIndex {
     pub function_calls: Vec<FunctionCallRecord>,
     pub promise_chains: Vec<PromiseChainRecord>,
     pub jsx_elements: Vec<JsxElementRecord>,
+    pub jsx_props: Vec<JsxPropRecord>,
     pub dependencies: Vec<DependencyRecord>,
     pub subclass_edges: Vec<SubclassRecord>,
     #[serde(skip)]
@@ -681,6 +682,20 @@ pub struct JsxElementRecord {
     pub name: InternedString,
     pub range: SourceRange,
     pub name_range: SourceRange,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct JsxPropRecord {
+    pub id: u32,
+    pub source_file_id: u32,
+    pub source_symbol_id: Option<u32>,
+    pub parent_jsx_element_id: u32,
+    pub name: InternedString,
+    pub value: Option<InternedString>,
+    pub value_is_expression: bool,
+    pub range: SourceRange,
+    pub name_range: SourceRange,
+    pub value_range: Option<SourceRange>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -1213,6 +1228,7 @@ impl TypeScriptIndexer {
             function_calls: Vec::new(),
             promise_chains: Vec::new(),
             jsx_elements: Vec::new(),
+            jsx_props: Vec::new(),
             dependencies: Vec::new(),
             subclass_edges: Vec::new(),
             strings: StringInterner::default(),
@@ -2902,6 +2918,14 @@ fn collect_typescript_jsx_elements_from_node(
                     range,
                     name_range,
                 });
+                collect_typescript_jsx_props_for_element(
+                    file_id,
+                    source,
+                    node,
+                    record_id,
+                    source_symbol_id,
+                    index,
+                );
                 parent_stack.push(record_id);
                 pushed_parent = true;
             }
@@ -2922,6 +2946,76 @@ fn collect_typescript_jsx_elements_from_node(
 
     if pushed_parent {
         parent_stack.pop();
+    }
+}
+
+fn collect_typescript_jsx_props_for_element(
+    file_id: u32,
+    source: &str,
+    element_node: Node<'_>,
+    parent_jsx_element_id: u32,
+    source_symbol_id: Option<u32>,
+    index: &mut TypeScriptIndex,
+) {
+    let tag_node = match element_node.kind() {
+        "jsx_element" => element_node.child_by_field_name("open_tag"),
+        "jsx_self_closing_element" => Some(element_node),
+        _ => None,
+    };
+    let Some(tag_node) = tag_node else {
+        return;
+    };
+
+    let mut cursor = tag_node.walk();
+    for attribute in tag_node.named_children(&mut cursor) {
+        if attribute.kind() != "jsx_attribute" {
+            continue;
+        }
+        let Some(name_node) = attribute
+            .child_by_field_name("name")
+            .or_else(|| first_named_child(attribute))
+        else {
+            continue;
+        };
+        let Ok(name) = name_node.utf8_text(source.as_bytes()) else {
+            continue;
+        };
+        let value_node = attribute.child_by_field_name("value").or_else(|| {
+            let name_range = SourceRange::from(name_node.range());
+            let mut cursor = attribute.walk();
+            let mut found = None;
+            for child in attribute.named_children(&mut cursor) {
+                if SourceRange::from(child.range()) != name_range {
+                    found = Some(child);
+                    break;
+                }
+            }
+            found
+        });
+        let value = value_node.and_then(|value_node| {
+            value_node
+                .utf8_text(source.as_bytes())
+                .ok()
+                .map(|value| value.to_owned())
+        });
+        let value_range = value_node.map(|value_node| value_node.range().into());
+        let value_is_expression =
+            value_node.is_some_and(|value_node| value_node.kind() == "jsx_expression");
+        let record_id = index.jsx_props.len() as u32;
+        let name = index.intern(name);
+        let value = value.map(|value| index.intern(value));
+        index.jsx_props.push(JsxPropRecord {
+            id: record_id,
+            source_file_id: file_id,
+            source_symbol_id,
+            parent_jsx_element_id,
+            name,
+            value,
+            value_is_expression,
+            range: attribute.range().into(),
+            name_range: name_node.range().into(),
+            value_range,
+        });
     }
 }
 
@@ -9115,7 +9209,7 @@ export namespace UI { export function Card() { return null; } }\n",
             "import { Button, UI, div } from './components';\n\n\
 export function App() {\n\
   const local = Button;\n\
-  return <main Button={Button}><Button /><UI.Card /><div /></main>;\n\
+  return <main Button={Button} enabled label=\"root\"><Button /><UI.Card /><div /></main>;\n\
 }\n",
         )
         .unwrap();
@@ -9177,6 +9271,32 @@ export function App() {\n\
         assert_eq!(
             button_references, 3,
             "local assignment, prop expression, and component tag should resolve without counting the prop name"
+        );
+        let main_element_id = index
+            .jsx_elements
+            .iter()
+            .find(|element| element.name == "main")
+            .unwrap()
+            .id;
+        let main_props = index
+            .jsx_props
+            .iter()
+            .filter(|prop| prop.parent_jsx_element_id == main_element_id)
+            .map(|prop| {
+                (
+                    prop.name.to_string(),
+                    prop.value.as_ref().map(ToString::to_string),
+                    prop.value_is_expression,
+                )
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(
+            main_props,
+            vec![
+                ("Button".to_owned(), Some("{Button}".to_owned()), true),
+                ("enabled".to_owned(), None, false),
+                ("label".to_owned(), Some("\"root\"".to_owned()), false),
+            ]
         );
         assert!(index.references.iter().any(|reference| {
             reference.source_symbol_id == Some(app_symbol_id)
