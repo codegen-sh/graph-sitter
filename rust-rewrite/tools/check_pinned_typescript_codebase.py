@@ -155,18 +155,23 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
     "imports": False,
+    "external_modules": False,
     "exports": False,
     "references": False,
     "external_references": False,
     "function_calls": False,
     "promise_chains": False,
+    "jsx_elements": False,
     "dependencies": False,
+    "subclass_edges": False,
     "file_handles": False,
     "symbol_handles": False,
     "import_handles": False,
+    "external_module_handles": False,
     "export_handles": False,
     "function_call_handles": False,
     "promise_chain_handles": False,
+    "jsx_element_handles": False,
     "function_call_handles_by_id": True,
     "promise_chain_handles_by_id": True,
     "exports_by_file": False,
@@ -174,18 +179,26 @@ EXPECTED_TARGETED_CACHE_MATERIALIZATION = {
     "promise_chains_by_file": True,
     "function_calls_by_symbol": True,
     "promise_chains_by_symbol": True,
+    "jsx_elements_by_file": False,
+    "jsx_elements_by_symbol": False,
+    "jsx_elements_by_parent": False,
+    "subclass_edges_by_source_symbol": False,
+    "subclass_edges_by_target_symbol": False,
 }
 
 EXPECTED_LARGE_CACHE_MATERIALIZATION = {
     "files": False,
     "symbols": False,
     "imports": False,
+    "external_modules": False,
     "exports": False,
     "references": False,
     "external_references": False,
     "function_calls": False,
     "promise_chains": False,
+    "jsx_elements": False,
     "dependencies": False,
+    "subclass_edges": False,
 }
 
 RECORDED_PYTHON_BASELINE = {
@@ -307,12 +320,15 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "files": backend._files is not None,
         "symbols": backend._symbols is not None,
         "imports": backend._imports is not None,
+        "external_modules": backend._external_modules is not None,
         "exports": backend._exports is not None,
         "references": backend._references is not None,
         "external_references": backend._external_references is not None,
         "function_calls": backend._function_calls is not None,
         "promise_chains": backend._promise_chains is not None,
+        "jsx_elements": backend._jsx_elements is not None,
         "dependencies": backend._dependencies is not None,
+        "subclass_edges": backend._subclass_edges is not None,
     }
 
 
@@ -321,9 +337,11 @@ def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
     report["file_handles"] = backend._file_handles is not None
     report["symbol_handles"] = backend._symbol_handles is not None
     report["import_handles"] = backend._import_handles is not None
+    report["external_module_handles"] = backend._external_module_handles is not None
     report["export_handles"] = backend._export_handles is not None
     report["function_call_handles"] = backend._function_call_handles is not None
     report["promise_chain_handles"] = backend._promise_chain_handles is not None
+    report["jsx_element_handles"] = backend._jsx_element_handles is not None
     report["function_call_handles_by_id"] = backend._function_call_handles_by_id is not None
     report["promise_chain_handles_by_id"] = backend._promise_chain_handles_by_id is not None
     report["exports_by_file"] = backend._exports_by_file_id is not None
@@ -331,6 +349,11 @@ def targeted_cache_materialization_report(backend: Any) -> dict[str, bool]:
     report["promise_chains_by_file"] = backend._promise_chains_by_file_id is not None
     report["function_calls_by_symbol"] = backend._function_calls_by_source_symbol_id is not None
     report["promise_chains_by_symbol"] = backend._promise_chains_by_source_symbol_id is not None
+    report["jsx_elements_by_file"] = backend._jsx_elements_by_file_id is not None
+    report["jsx_elements_by_symbol"] = backend._jsx_elements_by_source_symbol_id is not None
+    report["jsx_elements_by_parent"] = backend._jsx_elements_by_parent_id is not None
+    report["subclass_edges_by_source_symbol"] = backend._subclass_edges_by_source_symbol_id is not None
+    report["subclass_edges_by_target_symbol"] = backend._subclass_edges_by_target_symbol_id is not None
     return report
 
 

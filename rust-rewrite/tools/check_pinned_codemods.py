@@ -82,15 +82,23 @@ def large_cache_materialization_report(backend: Any) -> dict[str, bool]:
         "files": backend._files is not None,
         "symbols": backend._symbols is not None,
         "imports": backend._imports is not None,
+        "external_modules": backend._external_modules is not None,
         "exports": backend._exports is not None,
         "references": backend._references is not None,
         "external_references": backend._external_references is not None,
+        "function_calls": backend._function_calls is not None,
+        "promise_chains": backend._promise_chains is not None,
+        "jsx_elements": backend._jsx_elements is not None,
         "dependencies": backend._dependencies is not None,
+        "subclass_edges": backend._subclass_edges is not None,
         "file_handles": backend._file_handles is not None,
         "symbol_handles": backend._symbol_handles is not None,
         "import_handles": backend._import_handles is not None,
         "export_handles": backend._export_handles is not None,
         "external_module_handles": backend._external_module_handles is not None,
+        "function_call_handles": backend._function_call_handles is not None,
+        "promise_chain_handles": backend._promise_chain_handles is not None,
+        "jsx_element_handles": backend._jsx_element_handles is not None,
     }
 
 
