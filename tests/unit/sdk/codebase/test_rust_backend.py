@@ -1691,12 +1691,7 @@ class FakeTypeScriptPromiseChainIndex:
 
 
 FAKE_TYPESCRIPT_JSX_CONTENT = (
-    "export function App() {\n"
-    '  return <div role="main" count={1}><Header title="Welcome" enabled /><UI.Card><span /></UI.Card></div>;\n'
-    "}\n\n"
-    "export function helper() {\n"
-    "  return 1;\n"
-    "}\n"
+    'export function App() {\n  return <div role="main" count={1}><Header title="Welcome" enabled /><UI.Card><span /></UI.Card></div>;\n}\n\nexport function helper() {\n  return 1;\n}\n'
 )
 
 
