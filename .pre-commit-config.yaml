@@ -6,7 +6,7 @@ repos:
     hooks:
       - id: taplo-format
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.0
+    rev: v0.14.14
     hooks:
       # Run the linter.
       - id: ruff
