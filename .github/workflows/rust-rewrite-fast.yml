@@ -67,7 +67,7 @@ jobs:
           enable-cache: true
           prune-cache: false
           python-version: "3.13"
-          version: "0.9.1"
+          version: "0.9.30"
           cache-suffix: rust-rewrite-fast
 
       - name: Install Python dependencies
