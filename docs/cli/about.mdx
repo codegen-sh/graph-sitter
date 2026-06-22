@@ -8,6 +8,7 @@ iconType: "solid"
 The Graph-sitter CLI helps you:
 
 - Parse a local repository into graph summary data
+- Diagnose parse time, memory use, and graph size for a local repository
 - Initialize Graph-sitter in your repository
 - Create and run codemods
 - Run one-shot transformations by import path
@@ -35,13 +36,19 @@ uvx --python 3.13 graph-sitter parse . --format json
 See [uvx workflows](/cli/uvx) for branch-built wheel validation and release
 gate details.
 
-2. **Initialize Graph-sitter** in your repository:
+2. **Diagnose a repository** with timing and memory stats:
+
+```bash
+uvx --python 3.13 graph-sitter diagnose .
+```
+
+3. **Initialize Graph-sitter** in your repository:
 
 ```bash
 graph-sitter init
 ```
 
-3. **Create your first codemod**:
+4. **Create your first codemod**:
 
 ```bash
 graph-sitter create my-codemod --description "What you want to accomplish"
@@ -63,6 +70,9 @@ The `--description` flag enables AI assistance to help generate your codemod. Be
   </Card>
   <Card title="parse" icon="diagram-project" href="/cli/parse">
     Parse a repository and print graph summary counts.
+  </Card>
+  <Card title="diagnose" icon="gauge" href="/cli/diagnose">
+    Report parse time, memory use, and graph size for a repository.
   </Card>
   <Card title="create" icon="plus" href="/cli/create">
     Create new codemods with optional AI assistance.

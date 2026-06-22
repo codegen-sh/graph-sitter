@@ -1,0 +1,70 @@
+---
+title: "Diagnose Command"
+sidebarTitle: "diagnose"
+icon: "gauge"
+iconType: "solid"
+---
+
+The `diagnose` command parses a local repository and reports performance,
+memory, and graph-size diagnostics.
+
+```bash
+graph-sitter diagnose .
+```
+
+## Usage
+
+```bash
+graph-sitter diagnose [PATH] [OPTIONS]
+```
+
+`PATH` defaults to the current directory. The command does not require
+`.codegen` initialization or an active session.
+
+## Options
+
+- `--backend python|rust|auto`: Choose the graph backend. Defaults to `auto`.
+- `--fallback python|error`: Choose fallback behavior when the Rust backend is
+  unavailable. Defaults to `python`.
+- `--language auto|python|typescript`: Choose the repository language. Defaults
+  to `auto`.
+- `--json`: Print machine-readable diagnostics.
+- `--output FILE`: Write JSON diagnostics to a file. Requires `--json`.
+- `--subdir PATH`: Limit parsing to a repository-relative subdirectory or file.
+  Pass this option more than once to include multiple paths.
+
+## Output
+
+Human-readable output includes:
+
+- Parse time
+- File count
+- Memory after parse
+- Peak memory
+- Memory delta
+- Core graph counts such as symbols, imports, exports, and dependencies
+
+Use JSON output in CI or agent workflows:
+
+```bash
+graph-sitter diagnose . --language python --backend rust --fallback error --json
+```
+
+The JSON payload includes `schema_version`, requested and selected backend,
+language, parse time, selected subdirectories, graph count fields, and a
+structured `memory` object with RSS samples.
+
+## With uvx
+
+Published package form:
+
+```bash
+uvx --python 3.13 graph-sitter diagnose .
+uvx --python 3.13 graph-sitter diagnose . --json --output graph-sitter-diagnostics.json
+```
+
+Strict Rust validation form:
+
+```bash
+uvx --python 3.13 graph-sitter diagnose . --backend rust --fallback error --json
+```
