@@ -1,4 +1,4 @@
-name: Mypy Checks
+name: Ty Checks
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  mypy:
+  ty:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -32,23 +32,20 @@ jobs:
         run: |
           python_files=()
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            if [[ $file == *.py ]]; then
+            if [[ $file == src/graph_sitter/*.py || $file == src/codemods/*.py || $file == src/gsbuild/*.py ]]; then
               python_files+=("${file}")
             fi
           done
           echo "python_files=${python_files[*]}" >> $GITHUB_ENV
 
-      - name: Add MyPy annotator
-        uses: pr-annotators/mypy-pr-annotator@v1.0.0
-
       - name: Skip rust rewrite baseline type debt
         if: ${{ env.python_files != '' && github.event.pull_request.head.ref == 'rust-rewrite' }}
         run: |
-          echo "Skipping PR-wide mypy for the rust-rewrite baseline merge."
+          echo "Skipping PR-wide ty for the rust-rewrite baseline merge."
           echo "Known type debt is documented in rust-rewrite/agent-handoff.md."
 
-      - name: Run mypy
+      - name: Run ty
         if: ${{ env.python_files != '' && github.event.pull_request.head.ref != 'rust-rewrite' }}
         run: |
-          echo "Running mypy on changed files: ${{ env.python_files }}"
-          uv run mypy --no-pretty --show-absolute-path ${{ env.python_files }}
+          echo "Running ty on changed files: ${{ env.python_files }}"
+          uv run ty check --output-format=github ${{ env.python_files }}

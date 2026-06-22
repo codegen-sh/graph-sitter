@@ -130,7 +130,6 @@ dev-dependencies = [
   "pytest>=8.3.3",
   "pytest-cov>=6.3.0,<6.3.1",
   "ruff>=0.6.8",
-  "mypy[mypyc,faster-cache]>=1.13.0",
   "pre-commit>=4.0.1",
   "pytest-xdist>=3.6.1,<4.0.0",
   "pytest-mock<4.0.0,>=3.14.0",
@@ -162,6 +161,7 @@ dev-dependencies = [
   "pytest-lsp>=1.0.0b1",
   "cython>=3.0.11",
   "pytest-split>=0.10.0",
+  "ty>=0.0.51",
 ]
 
 [tool.uv.workspace]
@@ -202,6 +202,27 @@ show_contexts = true
 [tool.pyright]
 pythonVersion = "3.12"
 enableExperimentalFeatures = true
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.src]
+include = [
+  "src/graph_sitter",
+  "src/codemods",
+  "src/gsbuild",
+]
+exclude = [
+  ".idea/**",
+  ".vscode/**",
+  "**/codegen_tests/**",
+  "tests/**",
+  "scripts/**",
+  "**/codemods/**/test_*/**",
+  "expected/**",
+  "tests/unit/skills/snapshots/**",
+]
+
 [tool.pytest.ini_options]
 # addopts = -v
 pythonpath = "."

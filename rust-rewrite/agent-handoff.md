@@ -58,7 +58,7 @@ Hosted checks on the current branch are the stronger merge signal for large-repo
 - Complete mutable expression object parity.
 - Promise-chain async conversion parity.
 - Rust backend readiness as a default backend for production without explicit rollout gates.
-- Clean branch-wide mypy. The rust-rewrite baseline PR intentionally skips PR-wide mypy because the branch changes a large Python surface with known type debt; future focused PRs should restore normal mypy expectations for the files they touch.
+- Clean branch-wide ty. The rust-rewrite baseline PR intentionally skips PR-wide ty because the branch changes a large Python surface with known type debt; future focused PRs should restore normal ty expectations for the files they touch.
 
 ## High-Value Fanout Lanes
 

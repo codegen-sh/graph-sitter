@@ -5,7 +5,7 @@ from typing import Generic
 from typing_extensions import TypeVar
 
 from graph_sitter.codebase.codebase_context import CodebaseContext
-from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
+from graph_sitter.core.dataclasses.usage import UsageKind as UsageKind, UsageType
 from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.has_name import HasName
 
