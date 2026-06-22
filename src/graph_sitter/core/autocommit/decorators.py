@@ -39,10 +39,18 @@ def writer(
         commit: Whether to commit if there is an update. Do not set this to False unless you are absolutely sure the method can be retried with commit as True safely.
     """
     if wrapped is None:
-        return cast(Callable[[Callable[P, T]], Callable[P, T]], functools.partial(writer, commit=commit))
+        return cast(
+            Callable[[Callable[P, T]], Callable[P, T]],
+            functools.partial(writer, commit=commit),
+        )
 
     @wrapt.decorator(enabled=enabled)
-    def wrapper(wrapped: Callable[P, T], instance: Any, args: tuple[Any, ...], kwargs: dict[str, Any]) -> T:
+    def wrapper(
+        wrapped: Callable[P, T],
+        instance: Any,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> T:
         if instance is None:
             instance = args[0]
         if instance.removed:

@@ -207,11 +207,7 @@ enableExperimentalFeatures = true
 python-version = "3.12"
 
 [tool.ty.src]
-include = [
-  "src/graph_sitter",
-  "src/codemods",
-  "src/gsbuild",
-]
+include = ["src/graph_sitter", "src/codemods", "src/gsbuild"]
 exclude = [
   ".idea/**",
   ".vscode/**",
