@@ -224,9 +224,9 @@ export default function Home() {
 								<span className="font-mono">uvx graph-sitter</span>.
 							</h2>
 							<p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
-								Run it with no install. Start with fast parse summaries, then run
-								codemods in explicit check and write modes — with the heaviest
-								indexes moving into Rust for scale.
+								Run it with no install. Start with fast parse summaries, then
+								run codemods in explicit check and write modes — with the
+								heaviest indexes moving into Rust for scale.
 							</p>
 							<Button asChild size="lg" variant="outline" className="mt-6">
 								<Link href={`${docsUrl}/introduction/installation`}>
@@ -289,13 +289,15 @@ function HeroTerminal() {
 						</span>
 						<span className="block">
 							<span className="text-muted-foreground">$</span>{" "}
-							<span className="text-aura-green">uvx</span> graph-sitter transform
-							delete_dead_code.py:run . <span className="text-aura-purple">--check</span>
+							<span className="text-aura-green">uvx</span> graph-sitter
+							transform delete_dead_code.py:run .{" "}
+							<span className="text-aura-purple">--check</span>
 						</span>
 						<span className="block">
 							<span className="text-muted-foreground">$</span>{" "}
-							<span className="text-aura-green">uvx</span> graph-sitter transform
-							delete_dead_code.py:run . <span className="text-aura-purple">--write</span>
+							<span className="text-aura-green">uvx</span> graph-sitter
+							transform delete_dead_code.py:run .{" "}
+							<span className="text-aura-purple">--write</span>
 						</span>
 					</code>
 				</pre>
@@ -328,7 +330,7 @@ function DeadCodeExample() {
 							<span className="text-aura-purple">import</span>{" "}
 							<span className="text-aura-blue">Codebase</span>
 						</span>
-						<span className="block">{" "}</span>
+						<span className="block"> </span>
 						<span className="block text-muted-foreground">
 							# Parse the repo into a fast, in-memory index
 						</span>
@@ -337,7 +339,7 @@ function DeadCodeExample() {
 							<span className="text-aura-blue">Codebase</span>(
 							<span className="text-aura-green">&quot;./&quot;</span>)
 						</span>
-						<span className="block">{" "}</span>
+						<span className="block"> </span>
 						<span className="block text-muted-foreground">
 							# Delete functions with no usages anywhere
 						</span>
@@ -354,7 +356,7 @@ function DeadCodeExample() {
 						<span className="block pl-[8ch]">
 							function.<span className="text-aura-orange">remove</span>()
 						</span>
-						<span className="block">{" "}</span>
+						<span className="block"> </span>
 						<span className="block">
 							codebase.<span className="text-aura-orange">commit</span>()
 						</span>
@@ -384,17 +386,19 @@ function CommandSurface() {
 						<span className="block pl-[2ch] text-muted-foreground">
 							--language auto --backend rust --format summary
 						</span>
-						<span className="block">{" "}</span>
+						<span className="block"> </span>
 						<span className="block text-muted-foreground">
 							# run a codemod in check mode, then write
 						</span>
 						<span className="block">
-							<span className="text-aura-green">uvx</span> graph-sitter transform
-							delete_dead_code.py:run . <span className="text-aura-purple">--check</span>
+							<span className="text-aura-green">uvx</span> graph-sitter
+							transform delete_dead_code.py:run .{" "}
+							<span className="text-aura-purple">--check</span>
 						</span>
 						<span className="block">
-							<span className="text-aura-green">uvx</span> graph-sitter transform
-							delete_dead_code.py:run . <span className="text-aura-purple">--write</span>
+							<span className="text-aura-green">uvx</span> graph-sitter
+							transform delete_dead_code.py:run .{" "}
+							<span className="text-aura-purple">--write</span>
 						</span>
 					</code>
 				</pre>
