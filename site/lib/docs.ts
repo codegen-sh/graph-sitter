@@ -263,9 +263,6 @@ const docsSectionOrder = [
 	["blog", "Blog"],
 	["api-reference", "API Reference"],
 	["graph-sitter", "Graph-sitter"],
-	["use-cases", "Use Cases"],
-	["organizations", "Organizations"],
-	["users", "Users"],
 ] as const;
 
 const sectionTitleBySlug = new Map<string, string>(docsSectionOrder);
@@ -320,7 +317,14 @@ function buildDocsNavItems(
 	}
 
 	return [...bySegment.entries()]
-		.sort(([left], [right]) => sortNavSegments(left, right))
+		.sort(([left], [right]) => {
+			const leftOrder = navOrder(parentSlug, left);
+			const rightOrder = navOrder(parentSlug, right);
+			if (leftOrder !== rightOrder) {
+				return leftOrder - rightOrder;
+			}
+			return sortNavSegments(left, right);
+		})
 		.map(([segment, segmentSlugs]) => {
 			if (!segment) {
 				return navLeaf(parentSlug, section);
@@ -354,6 +358,22 @@ function navLeaf(slug: string, section: string): DocsNavItem {
 		title: meta.navTitle,
 		href: meta.href,
 	};
+}
+
+function navOrder(parentSlug: string, segment: string) {
+	// The section's own index page always leads its group.
+	if (!segment) {
+		return Number.NEGATIVE_INFINITY;
+	}
+
+	const filePath = findDocFile(`${parentSlug}/${segment}`);
+	if (!filePath) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	const parsed = matter(fs.readFileSync(filePath, "utf8"));
+	const order = parsed.data.sidebarOrder;
+	return typeof order === "number" ? order : Number.POSITIVE_INFINITY;
 }
 
 function sortNavSegments(left: string, right: string) {

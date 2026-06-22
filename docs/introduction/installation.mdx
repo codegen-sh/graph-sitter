@@ -5,186 +5,72 @@ icon: "download"
 iconType: "solid"
 ---
 
-Install and set up Graph-sitter in your development environment.
+Graph-sitter runs as a single command with [`uvx`](https://docs.astral.sh/uv/) — no global install or project setup required.
 
 #### We currently support:
-- Running Graph-sitter in Python 3.12 - 3.13 (recommended: Python 3.13+)
-- macOS and Linux
-  - macOS is supported
-  - Linux is supported on x86_64 and aarch64 with glibc 2.34+
-  - Windows is supported via WSL. See [here](https://graph-sitter.com/building-with-graph-sitter/codegen-with-wsl) for more details.
-- Python, Typescript, Javascript and React codebases
+- Python 3.12 - 3.13 (recommended: Python 3.13+)
+- macOS and Linux (x86_64 and aarch64 with glibc 2.34+); Windows via WSL
+- Python, TypeScript, JavaScript, and React codebases
 
 ## Prerequisites
 
-We recommend using [uv](https://github.com/astral-sh/uv) for installation. If you haven't installed `uv` yet:
+Install [uv](https://github.com/astral-sh/uv) if you don't already have it:
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-## Installing Graph-sitter
+## Run with uvx
+
+`uvx` fetches and runs `graph-sitter` in an isolated environment, so there's nothing to install or keep up to date:
 
 ```bash
-uv tool install graph-sitter --python 3.13
-```
-
-
-<Note>
-This makes the `graph-sitter` command available globally in your terminal, while keeping its dependencies isolated.
-</Note>
-
-Verify the installation before parsing a large repository:
-
-```bash
-graph-sitter doctor --json
-graph-sitter parse . --language python --backend python --format summary
-```
-
-Use `--language typescript` for TypeScript, JavaScript, and React repositories.
-
-## One-Shot uvx Usage
-
-Use `uvx` when you want to run Graph-sitter without installing a global tool:
-
-```bash
+# Verify your environment
 uvx --python 3.13 graph-sitter doctor --json
-uvx --python 3.13 graph-sitter parse . --language auto --backend auto --fallback python --format json
+
+# Parse a repository into the codebase graph
+uvx --python 3.13 graph-sitter parse . --language auto --backend auto --fallback python --format summary
 ```
 
-For branch-built Rust wheel validation before a public release, point `uvx` at
-the wheel artifact:
+Use `--language typescript` for TypeScript, JavaScript, and React repositories, or `--language auto` to let graph-sitter detect it.
+
+## Transform
+
+Run a codemod in check mode, then write once the diff looks right:
 
 ```bash
-uvx --python 3.13 --from dist/<wheel>.whl graph-sitter doctor --backend rust --language python --json
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --check
+uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --write
+```
+
+## Rust backend (optional)
+
+Python remains the authoring shell. The Rust backend is an opt-in compact parse/index backend for supported graph and codemod surfaces. Use strict Rust mode when unsupported behavior should fail loudly:
+
+```bash
+uvx --python 3.13 graph-sitter parse . --language python --backend rust --fallback error --format json
+```
+
+To validate a branch-built Rust wheel before a release, point `uvx` at the wheel artifact:
+
+```bash
 uvx --python 3.13 --from dist/<wheel>.whl graph-sitter parse . --language python --backend rust --fallback error --format json
 ```
 
-See [uvx workflows](/cli/uvx) for parse, run, transform, `--subdir`, and
-release-gate examples.
-
-## Quick Start
-
-Let's walk through a minimal example of using Graph-sitter in a project:
-
-1. Navigate to your repository:
-   ```bash
-   cd path/to/your/project
-   ```
-
-2. Parse the repository without initialization:
-   ```bash
-   graph-sitter parse . --language python --backend python --format summary
-   ```
-
-   For TypeScript, JavaScript, and React repositories:
-   ```bash
-   graph-sitter parse . --language typescript --backend auto --fallback python --format summary
-   ```
-
-3. Initialize Graph-sitter in your project with [graph-sitter init](/cli/init):
-   ```bash
-   graph-sitter init
-   ```
-
-   This creates a `.codegen/` directory with:
-   ```bash
-   .codegen/
-   ├── .venv/            # Python virtual environment (gitignored)
-   ├── config.toml       # Project configuration
-   ├── codemods/         # Your codemod implementations
-   ├── jupyter/          # Jupyter notebooks for exploration
-   └── codegen-system-prompt.txt  # AI system prompt
-   ```
-
-4. Create your first codemod with [graph-sitter create](/cli/create):
-   ```bash
-   graph-sitter create organize-imports \
-     -d "Sort and organize imports according to PEP8"
-   ```
-    <Note>
-        The `-d` flag in `graph-sitter create` generates an AI-powered implementation. This requires a Github account registered on [codegen.sh](https://codegen.sh)
-    </Note>
-
-
-
-5. Preview your codemod with [graph-sitter run](/cli/run):
-   ```bash
-   graph-sitter run organize-imports . --check
-   ```
-
-6. Apply the codemod after reviewing the diff:
-   ```bash
-   graph-sitter run organize-imports . --write
-   ```
-
-7. Reset any filesystem changes (excluding `.codegen/*`) with [graph-sitter reset](/cli/reset):
-   ```bash
-   graph-sitter reset
-   ```
-
-## Rust Backend
-
-Python remains the authoring shell. The Rust backend is an opt-in compact
-parse/index backend for supported graph and codemod surfaces.
-
-Use strict Rust mode when unsupported behavior should fail loudly:
-
-```bash
-graph-sitter parse . --language python --backend rust --fallback error --format json
-```
-
-Use automatic mode with Python fallback when a working result is more important
-than proving the Rust path:
-
-```bash
-graph-sitter parse . --language auto --backend auto --fallback python --format json
-```
-
-Python API users can select the same backend behavior through
-`CodebaseConfig`:
-
-```python
-from graph_sitter.configs.models.codebase import (
-    CodebaseConfig,
-    GraphBackend,
-    RustFallbackMode,
-)
-from graph_sitter.core.codebase import Codebase
-
-codebase = Codebase(
-    "./",
-    config=CodebaseConfig(
-        graph_backend=GraphBackend.RUST,
-        rust_fallback=RustFallbackMode.ERROR,
-    ),
-)
-```
-
-Run [`doctor`](/cli/doctor) before relying on strict Rust mode in CI,
-benchmarks, or release validation.
+See [uvx workflows](/cli/uvx) for parse, run, transform, `--subdir`, and release-gate examples.
 
 ## Troubleshooting
 
-Having issues? Here are some common problems and their solutions:
-
-- **I'm hitting an UV error related to `[[ packages ]]`**: This means you're likely using an outdated version of UV. Try updating to the latest version with: `uv self update`.
-- **I'm hitting an error about `No module named 'graph_sitter.sdk.extensions.utils'`**: The compiled cython extensions are out of sync. Update them with `uv sync --reinstall-package graph-sitter`.
-- **I'm hitting a `RecursionError: maximum recursion depth exceeded` error while parsing my codebase**: If you are using python 3.12, try upgrading to 3.13. If you are already on 3.13, try upping the recursion limit with `sys.setrecursionlimit(10000)`.
+- **UV error related to `[[ packages ]]`**: you're likely on an outdated UV. Update with `uv self update`.
+- **`RecursionError: maximum recursion depth exceeded` while parsing**: upgrade to Python 3.13, or raise the limit with `sys.setrecursionlimit(10000)`.
 
 <Note>
-For more help, join our [community Slack](/introduction/community) or check the [FAQ](/introduction/faq).
+For more help, check the [FAQ](/introduction/faq).
 </Note>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card
-    title="IDE Integration"
-    icon="window"
-    href="/introduction/ide-usage"
-  >
-    Learn how to use Graph-sitter effectively in VSCode, Cursor, and other IDEs.
-  </Card>
   <Card
     title="Tutorials"
     icon="graduation-cap"
@@ -193,18 +79,10 @@ For more help, join our [community Slack](/introduction/community) or check the 
     Follow step-by-step tutorials for common code transformation tasks.
   </Card>
   <Card
-    title="Work with AI"
-    icon="microchip"
-    href="/introduction/work-with-ai"
-  >
-    Leverage AI assistants like Copilot, Cursor and Devin
-    </Card>
-  <Card
     title="Guides"
     icon="hammer"
     href="/building-with-graph-sitter/at-a-glance"
   >
-    Learn more about building with Graph-sitter
-    </Card>
-
+    Learn more about building with Graph-sitter.
+  </Card>
 </CardGroup>
