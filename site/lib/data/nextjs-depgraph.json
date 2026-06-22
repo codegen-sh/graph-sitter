@@ -1,4403 +1,4403 @@
 {
-  "meta": {
-    "source": "vercel/next.js \u00b7 packages/next/src",
-    "parser": "graph-sitter (rust backend)",
-    "parse_seconds": 4.89,
-    "files": 1680,
-    "modules": 91,
-    "edges": 710,
-    "symbols": 16004
-  },
-  "groups": [
-    "(root)",
-    "api",
-    "bin",
-    "build",
-    "bundles",
-    "cli",
-    "client",
-    "diagnostics",
-    "experimental",
-    "export",
-    "lib",
-    "next-devtools",
-    "pages",
-    "server",
-    "shared",
-    "telemetry",
-    "trace"
-  ],
-  "nodes": [
-    {
-      "id": "(root)",
-      "group": "(root)",
-      "files": 1,
-      "loc": 327,
-      "symbols": 20,
-      "inbound": 42,
-      "outbound": 24
-    },
-    {
-      "id": "api",
-      "group": "api",
-      "files": 18,
-      "loc": 39,
-      "symbols": 1,
-      "inbound": 1,
-      "outbound": 33
-    },
-    {
-      "id": "bin",
-      "group": "bin",
-      "files": 1,
-      "loc": 763,
-      "symbols": 11,
-      "inbound": 0,
-      "outbound": 10
-    },
-    {
-      "id": "build",
-      "group": "build",
-      "files": 43,
-      "loc": 16061,
-      "symbols": 978,
-      "inbound": 164,
-      "outbound": 491
-    },
-    {
-      "id": "build/adapter",
-      "group": "build",
-      "files": 2,
-      "loc": 2427,
-      "symbols": 60,
-      "inbound": 6,
-      "outbound": 39
-    },
-    {
-      "id": "build/analysis",
-      "group": "build",
-      "files": 4,
-      "loc": 1280,
-      "symbols": 63,
-      "inbound": 29,
-      "outbound": 36
-    },
-    {
-      "id": "build/analyze",
-      "group": "build",
-      "files": 1,
-      "loc": 234,
-      "symbols": 10,
-      "inbound": 1,
-      "outbound": 20
-    },
-    {
-      "id": "build/babel",
-      "group": "build",
-      "files": 14,
-      "loc": 2353,
-      "symbols": 114,
-      "inbound": 1,
-      "outbound": 10
-    },
-    {
-      "id": "build/jest",
-      "group": "build",
-      "files": 6,
-      "loc": 286,
-      "symbols": 26,
-      "inbound": 0,
-      "outbound": 8
-    },
-    {
-      "id": "build/manifests",
-      "group": "build",
-      "files": 1,
-      "loc": 8,
-      "symbols": 1,
-      "inbound": 2,
-      "outbound": 0
-    },
-    {
-      "id": "build/next-config-ts",
-      "group": "build",
-      "files": 2,
-      "loc": 297,
-      "symbols": 16,
-      "inbound": 1,
-      "outbound": 3
-    },
-    {
-      "id": "build/output",
-      "group": "build",
-      "files": 4,
-      "loc": 566,
-      "symbols": 45,
-      "inbound": 87,
-      "outbound": 15
-    },
-    {
-      "id": "build/polyfills",
-      "group": "build",
-      "files": 10,
-      "loc": 36,
-      "symbols": 4,
-      "inbound": 2,
-      "outbound": 0
-    },
-    {
-      "id": "build/segment-config",
-      "group": "build",
-      "files": 5,
-      "loc": 805,
-      "symbols": 41,
-      "inbound": 38,
-      "outbound": 21
-    },
-    {
-      "id": "build/static-paths",
-      "group": "build",
-      "files": 8,
-      "loc": 5709,
-      "symbols": 62,
-      "inbound": 16,
-      "outbound": 58
-    },
-    {
-      "id": "build/swc",
-      "group": "build",
-      "files": 9,
-      "loc": 3974,
-      "symbols": 239,
-      "inbound": 95,
-      "outbound": 25
-    },
-    {
-      "id": "build/templates",
-      "group": "build",
-      "files": 11,
-      "loc": 4190,
-      "symbols": 188,
-      "inbound": 0,
-      "outbound": 189
-    },
-    {
-      "id": "build/turbopack-analyze",
-      "group": "build",
-      "files": 1,
-      "loc": 130,
-      "symbols": 4,
-      "inbound": 2,
-      "outbound": 11
-    },
-    {
-      "id": "build/turbopack-build",
-      "group": "build",
-      "files": 2,
-      "loc": 467,
-      "symbols": 8,
-      "inbound": 1,
-      "outbound": 33
-    },
-    {
-      "id": "build/turborepo-access-trace",
-      "group": "build",
-      "files": 6,
-      "loc": 289,
-      "symbols": 14,
-      "inbound": 8,
-      "outbound": 0
-    },
-    {
-      "id": "build/webpack",
-      "group": "build",
-      "files": 140,
-      "loc": 21358,
-      "symbols": 1965,
-      "inbound": 113,
-      "outbound": 285
-    },
-    {
-      "id": "build/webpack-build",
-      "group": "build",
-      "files": 2,
-      "loc": 623,
-      "symbols": 33,
-      "inbound": 1,
-      "outbound": 45
-    },
-    {
-      "id": "build/webpack-config-rules",
-      "group": "build",
-      "files": 1,
-      "loc": 30,
-      "symbols": 3,
-      "inbound": 2,
-      "outbound": 2
-    },
-    {
-      "id": "bundles",
-      "group": "bundles",
-      "files": 1,
-      "loc": 7,
-      "symbols": 1,
-      "inbound": 0,
-      "outbound": 0
-    },
-    {
-      "id": "bundles/babel",
-      "group": "bundles",
-      "files": 29,
-      "loc": 255,
-      "symbols": 44,
-      "inbound": 0,
-      "outbound": 0
-    },
-    {
-      "id": "bundles/cssnano-simple",
-      "group": "bundles",
-      "files": 3,
-      "loc": 203,
-      "symbols": 7,
-      "inbound": 0,
-      "outbound": 0
-    },
-    {
-      "id": "bundles/postcss-plugin-stub",
-      "group": "bundles",
-      "files": 1,
-      "loc": 25,
-      "symbols": 1,
-      "inbound": 0,
-      "outbound": 0
-    },
-    {
-      "id": "bundles/webpack",
-      "group": "bundles",
-      "files": 26,
-      "loc": 1114,
-      "symbols": 40,
-      "inbound": 0,
-      "outbound": 0
-    },
-    {
-      "id": "cli",
-      "group": "cli",
-      "files": 11,
-      "loc": 1981,
-      "symbols": 208,
-      "inbound": 2,
-      "outbound": 114
-    },
-    {
-      "id": "cli/internal",
-      "group": "cli",
-      "files": 4,
-      "loc": 1819,
-      "symbols": 104,
-      "inbound": 0,
-      "outbound": 4
-    },
-    {
-      "id": "client",
-      "group": "client",
-      "files": 53,
-      "loc": 6685,
-      "symbols": 470,
-      "inbound": 92,
-      "outbound": 167
-    },
-    {
-      "id": "client/app-dir",
-      "group": "client",
-      "files": 3,
-      "loc": 1090,
-      "symbols": 25,
-      "inbound": 0,
-      "outbound": 30
-    },
-    {
-      "id": "client/compat",
-      "group": "client",
-      "files": 1,
-      "loc": 17,
-      "symbols": 1,
-      "inbound": 0,
-      "outbound": 2
-    },
-    {
-      "id": "client/components",
-      "group": "client",
-      "files": 103,
-      "loc": 20577,
-      "symbols": 786,
-      "inbound": 215,
-      "outbound": 244
-    },
-    {
-      "id": "client/dev",
-      "group": "client",
-      "files": 15,
-      "loc": 2544,
-      "symbols": 154,
-      "inbound": 14,
-      "outbound": 49
-    },
-    {
-      "id": "client/legacy",
-      "group": "client",
-      "files": 1,
-      "loc": 1202,
-      "symbols": 57,
-      "inbound": 0,
-      "outbound": 12
-    },
-    {
-      "id": "client/lib",
-      "group": "client",
-      "files": 3,
-      "loc": 225,
-      "symbols": 9,
-      "inbound": 9,
-      "outbound": 2
-    },
-    {
-      "id": "client/portal",
-      "group": "client",
-      "files": 1,
-      "loc": 22,
-      "symbols": 5,
-      "inbound": 1,
-      "outbound": 0
-    },
-    {
-      "id": "client/react-client-callbacks",
-      "group": "client",
-      "files": 3,
-      "loc": 170,
-      "symbols": 12,
-      "inbound": 7,
-      "outbound": 7
-    },
-    {
-      "id": "client/request",
-      "group": "client",
-      "files": 7,
-      "loc": 262,
-      "symbols": 27,
-      "inbound": 0,
-      "outbound": 11
-    },
-    {
-      "id": "client/tracing",
-      "group": "client",
-      "files": 2,
-      "loc": 97,
-      "symbols": 6,
-      "inbound": 1,
-      "outbound": 3
-    },
-    {
-      "id": "diagnostics",
-      "group": "diagnostics",
-      "files": 2,
-      "loc": 183,
-      "symbols": 13,
-      "inbound": 3,
-      "outbound": 4
-    },
-    {
-      "id": "experimental/testing",
-      "group": "experimental",
-      "files": 6,
-      "loc": 902,
-      "symbols": 12,
-      "inbound": 0,
-      "outbound": 25
-    },
-    {
-      "id": "experimental/testmode",
-      "group": "experimental",
-      "files": 18,
-      "loc": 1035,
-      "symbols": 95,
-      "inbound": 0,
-      "outbound": 2
-    },
-    {
-      "id": "export",
-      "group": "export",
-      "files": 4,
-      "loc": 1951,
-      "symbols": 80,
-      "inbound": 8,
-      "outbound": 112
-    },
-    {
-      "id": "export/helpers",
-      "group": "export",
-      "files": 3,
-      "loc": 130,
-      "symbols": 4,
-      "inbound": 9,
-      "outbound": 14
-    },
-    {
-      "id": "export/routes",
-      "group": "export",
-      "files": 4,
-      "loc": 626,
-      "symbols": 6,
-      "inbound": 5,
-      "outbound": 66
-    },
-    {
-      "id": "lib",
-      "group": "lib",
-      "files": 79,
-      "loc": 8684,
-      "symbols": 432,
-      "inbound": 694,
-      "outbound": 68
-    },
-    {
-      "id": "lib/framework",
-      "group": "lib",
-      "files": 2,
-      "loc": 56,
-      "symbols": 9,
-      "inbound": 9,
-      "outbound": 0
-    },
-    {
-      "id": "lib/fs",
-      "group": "lib",
-      "files": 2,
-      "loc": 130,
-      "symbols": 3,
-      "inbound": 1,
-      "outbound": 0
-    },
-    {
-      "id": "lib/helpers",
-      "group": "lib",
-      "files": 8,
-      "loc": 413,
-      "symbols": 17,
-      "inbound": 20,
-      "outbound": 2
-    },
-    {
-      "id": "lib/memory",
-      "group": "lib",
-      "files": 4,
-      "loc": 240,
-      "symbols": 19,
-      "inbound": 4,
-      "outbound": 14
-    },
-    {
-      "id": "lib/metadata",
-      "group": "lib",
-      "files": 29,
-      "loc": 8357,
-      "symbols": 303,
-      "inbound": 47,
-      "outbound": 51
-    },
-    {
-      "id": "lib/typescript",
-      "group": "lib",
-      "files": 9,
-      "loc": 1624,
-      "symbols": 53,
-      "inbound": 6,
-      "outbound": 21
-    },
-    {
-      "id": "next-devtools",
-      "group": "next-devtools",
-      "files": 4,
-      "loc": 494,
-      "symbols": 24,
-      "inbound": 14,
-      "outbound": 39
-    },
-    {
-      "id": "next-devtools/dev-overlay",
-      "group": "next-devtools",
-      "files": 158,
-      "loc": 19418,
-      "symbols": 1100,
-      "inbound": 48,
-      "outbound": 93
-    },
-    {
-      "id": "next-devtools/server",
-      "group": "next-devtools",
-      "files": 11,
-      "loc": 1090,
-      "symbols": 65,
-      "inbound": 41,
-      "outbound": 18
-    },
-    {
-      "id": "next-devtools/shared",
-      "group": "next-devtools",
-      "files": 12,
-      "loc": 658,
-      "symbols": 47,
-      "inbound": 55,
-      "outbound": 7
-    },
-    {
-      "id": "next-devtools/userspace",
-      "group": "next-devtools",
-      "files": 17,
-      "loc": 1573,
-      "symbols": 144,
-      "inbound": 18,
-      "outbound": 39
-    },
-    {
-      "id": "pages",
-      "group": "pages",
-      "files": 3,
-      "loc": 1211,
-      "symbols": 120,
-      "inbound": 9,
-      "outbound": 28
-    },
-    {
-      "id": "server",
-      "group": "server",
-      "files": 55,
-      "loc": 20000,
-      "symbols": 994,
-      "inbound": 447,
-      "outbound": 497
-    },
-    {
-      "id": "server/after",
-      "group": "server",
-      "files": 8,
-      "loc": 1176,
-      "symbols": 32,
-      "inbound": 16,
-      "outbound": 19
-    },
-    {
-      "id": "server/api-utils",
-      "group": "server",
-      "files": 6,
-      "loc": 932,
-      "symbols": 37,
-      "inbound": 38,
-      "outbound": 28
-    },
-    {
-      "id": "server/app-render",
-      "group": "server",
-      "files": 88,
-      "loc": 26740,
-      "symbols": 1371,
-      "inbound": 322,
-      "outbound": 437
-    },
-    {
-      "id": "server/async-storage",
-      "group": "server",
-      "files": 4,
-      "loc": 629,
-      "symbols": 22,
-      "inbound": 13,
-      "outbound": 43
-    },
-    {
-      "id": "server/base-http",
-      "group": "server",
-      "files": 5,
-      "loc": 504,
-      "symbols": 23,
-      "inbound": 66,
-      "outbound": 14
-    },
-    {
-      "id": "server/dev",
-      "group": "server",
-      "files": 31,
-      "loc": 12369,
-      "symbols": 782,
-      "inbound": 63,
-      "outbound": 401
-    },
-    {
-      "id": "server/instrumentation",
-      "group": "server",
-      "files": 2,
-      "loc": 42,
-      "symbols": 6,
-      "inbound": 16,
-      "outbound": 0
-    },
-    {
-      "id": "server/lib",
-      "group": "server",
-      "files": 94,
-      "loc": 17745,
-      "symbols": 1208,
-      "inbound": 378,
-      "outbound": 354
-    },
-    {
-      "id": "server/mcp",
-      "group": "server",
-      "files": 17,
-      "loc": 1780,
-      "symbols": 112,
-      "inbound": 13,
-      "outbound": 26
-    },
-    {
-      "id": "server/node-environment-extensions",
-      "group": "server",
-      "files": 17,
-      "loc": 6111,
-      "symbols": 176,
-      "inbound": 16,
-      "outbound": 30
-    },
-    {
-      "id": "server/normalizers",
-      "group": "server",
-      "files": 30,
-      "loc": 745,
-      "symbols": 38,
-      "inbound": 27,
-      "outbound": 18
-    },
-    {
-      "id": "server/og",
-      "group": "server",
-      "files": 1,
-      "loc": 64,
-      "symbols": 12,
-      "inbound": 1,
-      "outbound": 0
-    },
-    {
-      "id": "server/request",
-      "group": "server",
-      "files": 12,
-      "loc": 4140,
-      "symbols": 132,
-      "inbound": 89,
-      "outbound": 172
-    },
-    {
-      "id": "server/response-cache",
-      "group": "server",
-      "files": 5,
-      "loc": 1142,
-      "symbols": 78,
-      "inbound": 63,
-      "outbound": 16
-    },
-    {
-      "id": "server/resume-data-cache",
-      "group": "server",
-      "files": 3,
-      "loc": 654,
-      "symbols": 22,
-      "inbound": 21,
-      "outbound": 7
-    },
-    {
-      "id": "server/route-definitions",
-      "group": "server",
-      "files": 6,
-      "loc": 66,
-      "symbols": 7,
-      "inbound": 38,
-      "outbound": 6
-    },
-    {
-      "id": "server/route-matcher-managers",
-      "group": "server",
-      "files": 4,
-      "loc": 796,
-      "symbols": 33,
-      "inbound": 7,
-      "outbound": 27
-    },
-    {
-      "id": "server/route-matcher-providers",
-      "group": "server",
-      "files": 27,
-      "loc": 1863,
-      "symbols": 98,
-      "inbound": 15,
-      "outbound": 81
-    },
-    {
-      "id": "server/route-matchers",
-      "group": "server",
-      "files": 6,
-      "loc": 177,
-      "symbols": 13,
-      "inbound": 22,
-      "outbound": 14
-    },
-    {
-      "id": "server/route-matches",
-      "group": "server",
-      "files": 6,
-      "loc": 56,
-      "symbols": 7,
-      "inbound": 10,
-      "outbound": 8
-    },
-    {
-      "id": "server/route-modules",
-      "group": "server",
-      "files": 64,
-      "loc": 4996,
-      "symbols": 371,
-      "inbound": 64,
-      "outbound": 246
-    },
-    {
-      "id": "server/stream-utils",
-      "group": "server",
-      "files": 4,
-      "loc": 1471,
-      "symbols": 141,
-      "inbound": 40,
-      "outbound": 13
-    },
-    {
-      "id": "server/typescript",
-      "group": "server",
-      "files": 10,
-      "loc": 2140,
-      "symbols": 240,
-      "inbound": 1,
-      "outbound": 1
-    },
-    {
-      "id": "server/use-cache",
-      "group": "server",
-      "files": 10,
-      "loc": 4423,
-      "symbols": 142,
-      "inbound": 27,
-      "outbound": 68
-    },
-    {
-      "id": "server/web",
-      "group": "server",
-      "files": 36,
-      "loc": 4955,
-      "symbols": 283,
-      "inbound": 119,
-      "outbound": 114
-    },
-    {
-      "id": "shared/lib",
-      "group": "shared",
-      "files": 164,
-      "loc": 17875,
-      "symbols": 1037,
-      "inbound": 1393,
-      "outbound": 123
-    },
-    {
-      "id": "telemetry",
-      "group": "telemetry",
-      "files": 8,
-      "loc": 714,
-      "symbols": 40,
-      "inbound": 22,
-      "outbound": 9
-    },
-    {
-      "id": "telemetry/events",
-      "group": "telemetry",
-      "files": 10,
-      "loc": 889,
-      "symbols": 57,
-      "inbound": 22,
-      "outbound": 8
-    },
-    {
-      "id": "trace",
-      "group": "trace",
-      "files": 7,
-      "loc": 769,
-      "symbols": 56,
-      "inbound": 88,
-      "outbound": 4
-    },
-    {
-      "id": "trace/report",
-      "group": "trace",
-      "files": 6,
-      "loc": 325,
-      "symbols": 25,
-      "inbound": 1,
-      "outbound": 12
-    }
-  ],
-  "edges": [
-    {
-      "source": "server",
-      "target": "shared/lib",
-      "weight": 175
-    },
-    {
-      "source": "client/components",
-      "target": "shared/lib",
-      "weight": 171
-    },
-    {
-      "source": "server/app-render",
-      "target": "shared/lib",
-      "weight": 133
-    },
-    {
-      "source": "build",
-      "target": "lib",
-      "weight": 128
-    },
-    {
-      "source": "build",
-      "target": "shared/lib",
-      "weight": 114
-    },
-    {
-      "source": "client",
-      "target": "shared/lib",
-      "weight": 114
-    },
-    {
-      "source": "server/lib",
-      "target": "shared/lib",
-      "weight": 107
-    },
-    {
-      "source": "server/request",
-      "target": "server/app-render",
-      "weight": 100
-    },
-    {
-      "source": "build/webpack",
-      "target": "shared/lib",
-      "weight": 94
-    },
-    {
-      "source": "server/dev",
-      "target": "shared/lib",
-      "weight": 78
-    },
-    {
-      "source": "server",
-      "target": "server/lib",
-      "weight": 72
-    },
-    {
-      "source": "build/webpack",
-      "target": "lib",
-      "weight": 71
-    },
-    {
-      "source": "server",
-      "target": "lib",
-      "weight": 68
-    },
-    {
-      "source": "server/app-render",
-      "target": "client/components",
-      "weight": 64
-    },
-    {
-      "source": "server/lib",
-      "target": "lib",
-      "weight": 61
-    },
-    {
-      "source": "server/route-modules",
-      "target": "shared/lib",
-      "weight": 58
-    },
-    {
-      "source": "build",
-      "target": "build/webpack",
-      "weight": 50
-    },
-    {
-      "source": "server/lib",
-      "target": "server",
-      "weight": 47
-    },
-    {
-      "source": "build",
-      "target": "server",
-      "weight": 46
-    },
-    {
-      "source": "server/dev",
-      "target": "lib",
-      "weight": 46
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/lib",
-      "weight": 43
-    },
-    {
-      "source": "build/templates",
-      "target": "server/lib",
-      "weight": 42
-    },
-    {
-      "source": "cli",
-      "target": "lib",
-      "weight": 40
-    },
-    {
-      "source": "client/components",
-      "target": "client",
-      "weight": 40
-    },
-    {
-      "source": "server/dev",
-      "target": "server",
-      "weight": 39
-    },
-    {
-      "source": "server/app-render",
-      "target": "server",
-      "weight": 34
-    },
-    {
-      "source": "server/dev",
-      "target": "server/lib",
-      "weight": 34
-    },
-    {
-      "source": "server/dev",
-      "target": "build",
-      "weight": 34
-    },
-    {
-      "source": "server/dev",
-      "target": "next-devtools/server",
-      "weight": 34
-    },
-    {
-      "source": "server/use-cache",
-      "target": "server/app-render",
-      "weight": 34
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server",
-      "weight": 33
-    },
-    {
-      "source": "cli",
-      "target": "server/lib",
-      "weight": 32
-    },
-    {
-      "source": "next-devtools",
-      "target": "next-devtools/dev-overlay",
-      "weight": 32
-    },
-    {
-      "source": "build/webpack",
-      "target": "build",
-      "weight": 31
-    },
-    {
-      "source": "server/request",
-      "target": "server",
-      "weight": 31
-    },
-    {
-      "source": "build/templates",
-      "target": "server/web",
-      "weight": 30
-    },
-    {
-      "source": "export",
-      "target": "shared/lib",
-      "weight": 28
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "next-devtools/shared",
-      "weight": 28
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/stream-utils",
-      "weight": 28
-    },
-    {
-      "source": "build/templates",
-      "target": "server",
-      "weight": 27
-    },
-    {
-      "source": "server/dev",
-      "target": "build/swc",
-      "weight": 26
-    },
-    {
-      "source": "server/lib",
-      "target": "build",
-      "weight": 26
-    },
-    {
-      "source": "build/static-paths",
-      "target": "shared/lib",
-      "weight": 25
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "server/app-render",
-      "weight": 25
-    },
-    {
-      "source": "build",
-      "target": "server/lib",
-      "weight": 24
-    },
-    {
-      "source": "server/lib",
-      "target": "server/response-cache",
-      "weight": 24
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/app-render",
-      "weight": 23
-    },
-    {
-      "source": "shared/lib",
-      "target": "lib",
-      "weight": 23
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/lib",
-      "weight": 22
-    },
-    {
-      "source": "server/route-modules",
-      "target": "client/components",
-      "weight": 22
-    },
-    {
-      "source": "client/dev",
-      "target": "server/dev",
-      "weight": 20
-    },
-    {
-      "source": "export",
-      "target": "server",
-      "weight": 20
-    },
-    {
-      "source": "pages",
-      "target": "shared/lib",
-      "weight": 20
-    },
-    {
-      "source": "server/app-render",
-      "target": "lib",
-      "weight": 20
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/request",
-      "weight": 20
-    },
-    {
-      "source": "server/web",
-      "target": "server/app-render",
-      "weight": 19
-    },
-    {
-      "source": "build/webpack",
-      "target": "server",
-      "weight": 18
-    },
-    {
-      "source": "export",
-      "target": "lib",
-      "weight": 18
-    },
-    {
-      "source": "server/node-environment-extensions",
-      "target": "server/app-render",
-      "weight": 18
-    },
-    {
-      "source": "server/request",
-      "target": "shared/lib",
-      "weight": 18
-    },
-    {
-      "source": "lib",
-      "target": "shared/lib",
-      "weight": 17
-    },
-    {
-      "source": "lib/typescript",
-      "target": "lib",
-      "weight": 17
-    },
-    {
-      "source": "server/lib",
-      "target": "server/app-render",
-      "weight": 17
-    },
-    {
-      "source": "shared/lib",
-      "target": "client",
-      "weight": 17
-    },
-    {
-      "source": "build",
-      "target": "client/components",
-      "weight": 16
-    },
-    {
-      "source": "client",
-      "target": "client/components",
-      "weight": 16
-    },
-    {
-      "source": "client/components",
-      "target": "server/app-render",
-      "weight": 16
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/web",
-      "weight": 16
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "server",
-      "weight": 16
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "server/route-matchers",
-      "weight": 16
-    },
-    {
-      "source": "server/web",
-      "target": "shared/lib",
-      "weight": 16
-    },
-    {
-      "source": "server/web",
-      "target": "server",
-      "weight": 16
-    },
-    {
-      "source": "export/routes",
-      "target": "lib",
-      "weight": 15
-    },
-    {
-      "source": "lib/metadata",
-      "target": "shared/lib",
-      "weight": 15
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "next-devtools/shared",
-      "weight": 15
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "shared/lib",
-      "weight": 15
-    },
-    {
-      "source": "build/templates",
-      "target": "lib",
-      "weight": 14
-    },
-    {
-      "source": "build/webpack",
-      "target": "build/analysis",
-      "weight": 14
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "next-devtools",
-      "weight": 14
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/resume-data-cache",
-      "weight": 14
-    },
-    {
-      "source": "server",
-      "target": "server/app-render",
-      "weight": 14
-    },
-    {
-      "source": "server/web",
-      "target": "server/lib",
-      "weight": 14
-    },
-    {
-      "source": "build",
-      "target": "trace",
-      "weight": 13
-    },
-    {
-      "source": "build",
-      "target": "build/output",
-      "weight": 13
-    },
-    {
-      "source": "build/swc",
-      "target": "server",
-      "weight": 13
-    },
-    {
-      "source": "build/templates",
-      "target": "shared/lib",
-      "weight": 13
-    },
-    {
-      "source": "client/app-dir",
-      "target": "client/components",
-      "weight": 13
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/web",
-      "weight": 13
-    },
-    {
-      "source": "server",
-      "target": "server/base-http",
-      "weight": 13
-    },
-    {
-      "source": "shared/lib",
-      "target": "build/swc",
-      "weight": 13
-    },
-    {
-      "source": "build/adapter",
-      "target": "lib",
-      "weight": 12
-    },
-    {
-      "source": "build",
-      "target": "telemetry/events",
-      "weight": 12
-    },
-    {
-      "source": "build/analysis",
-      "target": "lib",
-      "weight": 12
-    },
-    {
-      "source": "build",
-      "target": "build/swc",
-      "weight": 12
-    },
-    {
-      "source": "build/templates",
-      "target": "server/route-modules",
-      "weight": 12
-    },
-    {
-      "source": "build/webpack",
-      "target": "build/swc",
-      "weight": 12
-    },
-    {
-      "source": "client/dev",
-      "target": "shared/lib",
-      "weight": 12
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "shared/lib",
-      "weight": 12
-    },
-    {
-      "source": "server",
-      "target": "server/response-cache",
-      "weight": 12
-    },
-    {
-      "source": "server",
-      "target": "build/webpack",
-      "weight": 12
-    },
-    {
-      "source": "server",
-      "target": "client/components",
-      "weight": 12
-    },
-    {
-      "source": "server",
-      "target": "server/web",
-      "weight": 12
-    },
-    {
-      "source": "server",
-      "target": "(root)",
-      "weight": 12
-    },
-    {
-      "source": "server/dev",
-      "target": "server/mcp",
-      "weight": 12
-    },
-    {
-      "source": "server",
-      "target": "server/node-environment-extensions",
-      "weight": 12
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/web",
-      "weight": 12
-    },
-    {
-      "source": "build/webpack",
-      "target": "lib/metadata",
-      "weight": 11
-    },
-    {
-      "source": "build/webpack",
-      "target": "server/dev",
-      "weight": 11
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "build",
-      "weight": 11
-    },
-    {
-      "source": "client/app-dir",
-      "target": "client",
-      "weight": 11
-    },
-    {
-      "source": "lib",
-      "target": "build/output",
-      "weight": 11
-    },
-    {
-      "source": "server",
-      "target": "server/route-modules",
-      "weight": 11
-    },
-    {
-      "source": "server/dev",
-      "target": "server/app-render",
-      "weight": 11
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "server/normalizers",
-      "weight": 11
-    },
-    {
-      "source": "server/route-modules",
-      "target": "lib",
-      "weight": 11
-    },
-    {
-      "source": "server/use-cache",
-      "target": "server/lib",
-      "weight": 11
-    },
-    {
-      "source": "shared/lib",
-      "target": "server/request",
-      "weight": 11
-    },
-    {
-      "source": "shared/lib",
-      "target": "server",
-      "weight": 11
-    },
-    {
-      "source": "shared/lib",
-      "target": "build/webpack",
-      "weight": 11
-    },
-    {
-      "source": "build/adapter",
-      "target": "shared/lib",
-      "weight": 10
-    },
-    {
-      "source": "build/analysis",
-      "target": "build/segment-config",
-      "weight": 10
-    },
-    {
-      "source": "client",
-      "target": "client/dev",
-      "weight": 10
-    },
-    {
-      "source": "client/legacy",
-      "target": "shared/lib",
-      "weight": 10
-    },
-    {
-      "source": "export/routes",
-      "target": "server",
-      "weight": 10
-    },
-    {
-      "source": "server/app-render",
-      "target": "build/segment-config",
-      "weight": 10
-    },
-    {
-      "source": "server/lib",
-      "target": "trace",
-      "weight": 10
-    },
-    {
-      "source": "server/route-modules",
-      "target": "(root)",
-      "weight": 10
-    },
-    {
-      "source": "api",
-      "target": "shared/lib",
-      "weight": 9
-    },
-    {
-      "source": "build/adapter",
-      "target": "build",
-      "weight": 9
-    },
-    {
-      "source": "build",
-      "target": "build/analysis",
-      "weight": 9
-    },
-    {
-      "source": "build/templates",
-      "target": "client/components",
-      "weight": 9
-    },
-    {
-      "source": "build/templates",
-      "target": "server/response-cache",
-      "weight": 9
-    },
-    {
-      "source": "cli",
-      "target": "lib/helpers",
-      "weight": 9
-    },
-    {
-      "source": "lib",
-      "target": "server",
-      "weight": 9
-    },
-    {
-      "source": "server/after",
-      "target": "server/app-render",
-      "weight": 9
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/base-http",
-      "weight": 9
-    },
-    {
-      "source": "server/normalizers",
-      "target": "shared/lib",
-      "weight": 9
-    },
-    {
-      "source": "server/request",
-      "target": "server/web",
-      "weight": 9
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/response-cache",
-      "weight": 9
-    },
-    {
-      "source": "trace/report",
-      "target": "trace",
-      "weight": 9
-    },
-    {
-      "source": "api",
-      "target": "client",
-      "weight": 8
-    },
-    {
-      "source": "build/segment-config",
-      "target": "server/route-modules",
-      "weight": 8
-    },
-    {
-      "source": "build/templates",
-      "target": "server/base-http",
-      "weight": 8
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "trace",
-      "weight": 8
-    },
-    {
-      "source": "client",
-      "target": "lib",
-      "weight": 8
-    },
-    {
-      "source": "lib",
-      "target": "lib/helpers",
-      "weight": 8
-    },
-    {
-      "source": "lib",
-      "target": "server/lib",
-      "weight": 8
-    },
-    {
-      "source": "lib/metadata",
-      "target": "server/lib",
-      "weight": 8
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "client/components",
-      "weight": 8
-    },
-    {
-      "source": "server/api-utils",
-      "target": "lib",
-      "weight": 8
-    },
-    {
-      "source": "server/dev",
-      "target": "server/route-definitions",
-      "weight": 8
-    },
-    {
-      "source": "server/dev",
-      "target": "build/output",
-      "weight": 8
-    },
-    {
-      "source": "server/dev",
-      "target": "trace",
-      "weight": 8
-    },
-    {
-      "source": "server/lib",
-      "target": "build/output",
-      "weight": 8
-    },
-    {
-      "source": "server/normalizers",
-      "target": "lib",
-      "weight": 8
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "server/route-definitions",
-      "weight": 8
-    },
-    {
-      "source": "server/route-modules",
-      "target": "build",
-      "weight": 8
-    },
-    {
-      "source": "server/web",
-      "target": "lib",
-      "weight": 8
-    },
-    {
-      "source": "build",
-      "target": "lib/metadata",
-      "weight": 7
-    },
-    {
-      "source": "build/segment-config",
-      "target": "shared/lib",
-      "weight": 7
-    },
-    {
-      "source": "build/templates",
-      "target": "server/app-render",
-      "weight": 7
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "trace",
-      "weight": 7
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "lib",
-      "weight": 7
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "shared/lib",
-      "weight": 7
-    },
-    {
-      "source": "export/routes",
-      "target": "server/lib",
-      "weight": 7
-    },
-    {
-      "source": "lib/metadata",
-      "target": "server/request",
-      "weight": 7
-    },
-    {
-      "source": "server/app-render",
-      "target": "build/webpack",
-      "weight": 7
-    },
-    {
-      "source": "server/dev",
-      "target": "server/route-matcher-providers",
-      "weight": 7
-    },
-    {
-      "source": "server/lib",
-      "target": "server/dev",
-      "weight": 7
-    },
-    {
-      "source": "server/lib",
-      "target": "lib/metadata",
-      "weight": 7
-    },
-    {
-      "source": "server/mcp",
-      "target": "server/dev",
-      "weight": 7
-    },
-    {
-      "source": "server/response-cache",
-      "target": "server",
-      "weight": 7
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "lib",
-      "weight": 7
-    },
-    {
-      "source": "server/web",
-      "target": "client/components",
-      "weight": 7
-    },
-    {
-      "source": "server/web",
-      "target": "server/base-http",
-      "weight": 7
-    },
-    {
-      "source": "(root)",
-      "target": "lib/metadata",
-      "weight": 7
-    },
-    {
-      "source": "api",
-      "target": "pages",
-      "weight": 6
-    },
-    {
-      "source": "build/output",
-      "target": "lib",
-      "weight": 6
-    },
-    {
-      "source": "build/static-paths",
-      "target": "server/request",
-      "weight": 6
-    },
-    {
-      "source": "build/swc",
-      "target": "build",
-      "weight": 6
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "build",
-      "weight": 6
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "build/swc",
-      "weight": 6
-    },
-    {
-      "source": "build/webpack",
-      "target": "trace",
-      "weight": 6
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "build/webpack",
-      "weight": 6
-    },
-    {
-      "source": "cli",
-      "target": "build/output",
-      "weight": 6
-    },
-    {
-      "source": "cli",
-      "target": "trace",
-      "weight": 6
-    },
-    {
-      "source": "client/app-dir",
-      "target": "shared/lib",
-      "weight": 6
-    },
-    {
-      "source": "client",
-      "target": "client/react-client-callbacks",
-      "weight": 6
-    },
-    {
-      "source": "client/components",
-      "target": "server/request",
-      "weight": 6
-    },
-    {
-      "source": "client/dev",
-      "target": "next-devtools/userspace",
-      "weight": 6
-    },
-    {
-      "source": "export/routes",
-      "target": "shared/lib",
-      "weight": 6
-    },
-    {
-      "source": "lib/memory",
-      "target": "build/output",
-      "weight": 6
-    },
-    {
-      "source": "server",
-      "target": "server/api-utils",
-      "weight": 6
-    },
-    {
-      "source": "server/dev",
-      "target": "next-devtools/shared",
-      "weight": 6
-    },
-    {
-      "source": "server/dev",
-      "target": "next-devtools/dev-overlay",
-      "weight": 6
-    },
-    {
-      "source": "server/dev",
-      "target": "server/base-http",
-      "weight": 6
-    },
-    {
-      "source": "server/dev",
-      "target": "server/route-modules",
-      "weight": 6
-    },
-    {
-      "source": "server/lib",
-      "target": "server/web",
-      "weight": 6
-    },
-    {
-      "source": "server",
-      "target": "server/stream-utils",
-      "weight": 6
-    },
-    {
-      "source": "server/request",
-      "target": "client/components",
-      "weight": 6
-    },
-    {
-      "source": "server/route-definitions",
-      "target": "server",
-      "weight": 6
-    },
-    {
-      "source": "server/route-matchers",
-      "target": "server/route-definitions",
-      "weight": 6
-    },
-    {
-      "source": "server/route-matches",
-      "target": "server/route-definitions",
-      "weight": 6
-    },
-    {
-      "source": "server/use-cache",
-      "target": "server",
-      "weight": 6
-    },
-    {
-      "source": "server/web",
-      "target": "server/after",
-      "weight": 6
-    },
-    {
-      "source": "api",
-      "target": "client/components",
-      "weight": 5
-    },
-    {
-      "source": "bin",
-      "target": "lib",
-      "weight": 5
-    },
-    {
-      "source": "build/analysis",
-      "target": "shared/lib",
-      "weight": 5
-    },
-    {
-      "source": "build",
-      "target": "server/api-utils",
-      "weight": 5
-    },
-    {
-      "source": "build",
-      "target": "build/static-paths",
-      "weight": 5
-    },
-    {
-      "source": "build",
-      "target": "build/segment-config",
-      "weight": 5
-    },
-    {
-      "source": "build/static-paths",
-      "target": "server/lib",
-      "weight": 5
-    },
-    {
-      "source": "build/static-paths",
-      "target": "server/app-render",
-      "weight": 5
-    },
-    {
-      "source": "build/static-paths",
-      "target": "server/route-modules",
-      "weight": 5
-    },
-    {
-      "source": "build/templates",
-      "target": "server/request",
-      "weight": 5
-    },
-    {
-      "source": "cli",
-      "target": "server",
-      "weight": 5
-    },
-    {
-      "source": "client/components",
-      "target": "lib",
-      "weight": 5
-    },
-    {
-      "source": "client/dev",
-      "target": "client/components",
-      "weight": 5
-    },
-    {
-      "source": "client/request",
-      "target": "shared/lib",
-      "weight": 5
-    },
-    {
-      "source": "experimental/testing",
-      "target": "lib",
-      "weight": 5
-    },
-    {
-      "source": "export",
-      "target": "build",
-      "weight": 5
-    },
-    {
-      "source": "export",
-      "target": "build/turborepo-access-trace",
-      "weight": 5
-    },
-    {
-      "source": "export/routes",
-      "target": "server/route-modules",
-      "weight": 5
-    },
-    {
-      "source": "lib/memory",
-      "target": "lib",
-      "weight": 5
-    },
-    {
-      "source": "lib/metadata",
-      "target": "server/app-render",
-      "weight": 5
-    },
-    {
-      "source": "lib",
-      "target": "lib/typescript",
-      "weight": 5
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "next-devtools/userspace",
-      "weight": 5
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "shared/lib",
-      "weight": 5
-    },
-    {
-      "source": "server/api-utils",
-      "target": "shared/lib",
-      "weight": 5
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/async-storage",
-      "weight": 5
-    },
-    {
-      "source": "server/app-render",
-      "target": "lib/framework",
-      "weight": 5
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/app-render",
-      "weight": 5
-    },
-    {
-      "source": "server",
-      "target": "build",
-      "weight": 5
-    },
-    {
-      "source": "server",
-      "target": "server/route-matches",
-      "weight": 5
-    },
-    {
-      "source": "server",
-      "target": "server/normalizers",
-      "weight": 5
-    },
-    {
-      "source": "server",
-      "target": "build/output",
-      "weight": 5
-    },
-    {
-      "source": "server",
-      "target": "server/route-matcher-providers",
-      "weight": 5
-    },
-    {
-      "source": "server/lib",
-      "target": "client/components",
-      "weight": 5
-    },
-    {
-      "source": "server/node-environment-extensions",
-      "target": "server",
-      "weight": 5
-    },
-    {
-      "source": "server/response-cache",
-      "target": "lib",
-      "weight": 5
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "server/route-definitions",
-      "weight": 5
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "server/route-matchers",
-      "weight": 5
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/route-definitions",
-      "weight": 5
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/api-utils",
-      "weight": 5
-    },
-    {
-      "source": "server/web",
-      "target": "build/webpack",
-      "weight": 5
-    },
-    {
-      "source": "(root)",
-      "target": "shared/lib",
-      "weight": 5
-    },
-    {
-      "source": "build",
-      "target": "telemetry",
-      "weight": 4
-    },
-    {
-      "source": "build/analyze",
-      "target": "build",
-      "weight": 4
-    },
-    {
-      "source": "build/static-paths",
-      "target": "lib",
-      "weight": 4
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "lib",
-      "weight": 4
-    },
-    {
-      "source": "build",
-      "target": "server/route-modules",
-      "weight": 4
-    },
-    {
-      "source": "cli",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "client/request",
-      "target": "server/request",
-      "weight": 4
-    },
-    {
-      "source": "experimental/testing",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "export/helpers",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "export",
-      "target": "export/helpers",
-      "weight": 4
-    },
-    {
-      "source": "export",
-      "target": "server/request",
-      "weight": 4
-    },
-    {
-      "source": "export/routes",
-      "target": "server/base-http",
-      "weight": 4
-    },
-    {
-      "source": "export",
-      "target": "server/lib",
-      "weight": 4
-    },
-    {
-      "source": "export",
-      "target": "export/routes",
-      "weight": 4
-    },
-    {
-      "source": "lib",
-      "target": "build",
-      "weight": 4
-    },
-    {
-      "source": "lib",
-      "target": "client/components",
-      "weight": 4
-    },
-    {
-      "source": "lib/metadata",
-      "target": "lib",
-      "weight": 4
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "server/dev",
-      "weight": 4
-    },
-    {
-      "source": "next-devtools/shared",
-      "target": "next-devtools/server",
-      "weight": 4
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "lib",
-      "weight": 4
-    },
-    {
-      "source": "server/after",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "server/api-utils",
-      "target": "server/lib",
-      "weight": 4
-    },
-    {
-      "source": "server/api-utils",
-      "target": "(root)",
-      "weight": 4
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/use-cache",
-      "weight": 4
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/api-utils",
-      "weight": 4
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/lib",
-      "weight": 4
-    },
-    {
-      "source": "server/base-http",
-      "target": "server/api-utils",
-      "weight": 4
-    },
-    {
-      "source": "server/base-http",
-      "target": "server/web",
-      "weight": 4
-    },
-    {
-      "source": "server",
-      "target": "server/request",
-      "weight": 4
-    },
-    {
-      "source": "server",
-      "target": "server/route-matcher-managers",
-      "weight": 4
-    },
-    {
-      "source": "server",
-      "target": "server/after",
-      "weight": 4
-    },
-    {
-      "source": "server/dev",
-      "target": "build/static-paths",
-      "weight": 4
-    },
-    {
-      "source": "server/lib",
-      "target": "build/webpack",
-      "weight": 4
-    },
-    {
-      "source": "server/mcp",
-      "target": "build/swc",
-      "weight": 4
-    },
-    {
-      "source": "server/mcp",
-      "target": "next-devtools/dev-overlay",
-      "weight": 4
-    },
-    {
-      "source": "server/mcp",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "server/request",
-      "target": "build/static-paths",
-      "weight": 4
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "lib/metadata",
-      "weight": 4
-    },
-    {
-      "source": "server/route-matchers",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/base-http",
-      "weight": 4
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/normalizers",
-      "weight": 4
-    },
-    {
-      "source": "server/stream-utils",
-      "target": "lib",
-      "weight": 4
-    },
-    {
-      "source": "server/stream-utils",
-      "target": "client/components",
-      "weight": 4
-    },
-    {
-      "source": "server/use-cache",
-      "target": "shared/lib",
-      "weight": 4
-    },
-    {
-      "source": "server/use-cache",
-      "target": "server/request",
-      "weight": 4
-    },
-    {
-      "source": "server/web",
-      "target": "server/response-cache",
-      "weight": 4
-    },
-    {
-      "source": "shared/lib",
-      "target": "build/output",
-      "weight": 4
-    },
-    {
-      "source": "shared/lib",
-      "target": "server/lib",
-      "weight": 4
-    },
-    {
-      "source": "shared/lib",
-      "target": "server/dev",
-      "weight": 4
-    },
-    {
-      "source": "telemetry",
-      "target": "lib",
-      "weight": 4
-    },
-    {
-      "source": "(root)",
-      "target": "client",
-      "weight": 4
-    },
-    {
-      "source": "api",
-      "target": "server/request",
-      "weight": 3
-    },
-    {
-      "source": "bin",
-      "target": "server/lib",
-      "weight": 3
-    },
-    {
-      "source": "build/analysis",
-      "target": "build",
-      "weight": 3
-    },
-    {
-      "source": "build/analyze",
-      "target": "lib",
-      "weight": 3
-    },
-    {
-      "source": "build/babel",
-      "target": "trace",
-      "weight": 3
-    },
-    {
-      "source": "build",
-      "target": "build/turborepo-access-trace",
-      "weight": 3
-    },
-    {
-      "source": "build",
-      "target": "diagnostics",
-      "weight": 3
-    },
-    {
-      "source": "build",
-      "target": "export",
-      "weight": 3
-    },
-    {
-      "source": "build/jest",
-      "target": "build/swc",
-      "weight": 3
-    },
-    {
-      "source": "build/output",
-      "target": "shared/lib",
-      "weight": 3
-    },
-    {
-      "source": "build/output",
-      "target": "trace",
-      "weight": 3
-    },
-    {
-      "source": "build/segment-config",
-      "target": "lib",
-      "weight": 3
-    },
-    {
-      "source": "build/static-paths",
-      "target": "build/segment-config",
-      "weight": 3
-    },
-    {
-      "source": "build/swc",
-      "target": "lib",
-      "weight": 3
-    },
-    {
-      "source": "build/templates",
-      "target": "server/instrumentation",
-      "weight": 3
-    },
-    {
-      "source": "build/templates",
-      "target": "server/api-utils",
-      "weight": 3
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "shared/lib",
-      "weight": 3
-    },
-    {
-      "source": "build/webpack",
-      "target": "server/normalizers",
-      "weight": 3
-    },
-    {
-      "source": "client/react-client-callbacks",
-      "target": "client/components",
-      "weight": 3
-    },
-    {
-      "source": "experimental/testing",
-      "target": "server",
-      "weight": 3
-    },
-    {
-      "source": "experimental/testing",
-      "target": "build",
-      "weight": 3
-    },
-    {
-      "source": "experimental/testing",
-      "target": "server/base-http",
-      "weight": 3
-    },
-    {
-      "source": "export",
-      "target": "build/webpack",
-      "weight": 3
-    },
-    {
-      "source": "export/routes",
-      "target": "export",
-      "weight": 3
-    },
-    {
-      "source": "export/routes",
-      "target": "server/app-render",
-      "weight": 3
-    },
-    {
-      "source": "export/routes",
-      "target": "server/request",
-      "weight": 3
-    },
-    {
-      "source": "export/routes",
-      "target": "server/web",
-      "weight": 3
-    },
-    {
-      "source": "export",
-      "target": "server/route-modules",
-      "weight": 3
-    },
-    {
-      "source": "lib/memory",
-      "target": "trace",
-      "weight": 3
-    },
-    {
-      "source": "lib/metadata",
-      "target": "lib/framework",
-      "weight": 3
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "lib",
-      "weight": 3
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "server/lib",
-      "weight": 3
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "client/lib",
-      "weight": 3
-    },
-    {
-      "source": "server/after",
-      "target": "lib",
-      "weight": 3
-    },
-    {
-      "source": "server/api-utils",
-      "target": "server/web",
-      "weight": 3
-    },
-    {
-      "source": "server/app-render",
-      "target": "(root)",
-      "weight": 3
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/route-modules",
-      "weight": 3
-    },
-    {
-      "source": "server/app-render",
-      "target": "build/output",
-      "weight": 3
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/node-environment-extensions",
-      "weight": 3
-    },
-    {
-      "source": "server/app-render",
-      "target": "lib/metadata",
-      "weight": 3
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/instrumentation",
-      "weight": 3
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/base-http",
-      "weight": 3
-    },
-    {
-      "source": "server/async-storage",
-      "target": "client/components",
-      "weight": 3
-    },
-    {
-      "source": "server/base-http",
-      "target": "server",
-      "weight": 3
-    },
-    {
-      "source": "server/dev",
-      "target": "server/stream-utils",
-      "weight": 3
-    },
-    {
-      "source": "server/dev",
-      "target": "build/webpack",
-      "weight": 3
-    },
-    {
-      "source": "server/dev",
-      "target": "server/route-matcher-managers",
-      "weight": 3
-    },
-    {
-      "source": "server/dev",
-      "target": "server/use-cache",
-      "weight": 3
-    },
-    {
-      "source": "server/lib",
-      "target": "server/base-http",
-      "weight": 3
-    },
-    {
-      "source": "server/lib",
-      "target": "server/normalizers",
-      "weight": 3
-    },
-    {
-      "source": "server",
-      "target": "server/use-cache",
-      "weight": 3
-    },
-    {
-      "source": "server/node-environment-extensions",
-      "target": "shared/lib",
-      "weight": 3
-    },
-    {
-      "source": "server/response-cache",
-      "target": "server/lib",
-      "weight": 3
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "server",
-      "weight": 3
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "server/route-matcher-providers",
-      "weight": 3
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "server/route-matches",
-      "weight": 3
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "server/lib",
-      "weight": 3
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/async-storage",
-      "weight": 3
-    },
-    {
-      "source": "server/route-modules",
-      "target": "pages",
-      "weight": 3
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/instrumentation",
-      "weight": 3
-    },
-    {
-      "source": "shared/lib",
-      "target": "client/components",
-      "weight": 3
-    },
-    {
-      "source": "shared/lib",
-      "target": "(root)",
-      "weight": 3
-    },
-    {
-      "source": "shared/lib",
-      "target": "server/app-render",
-      "weight": 3
-    },
-    {
-      "source": "shared/lib",
-      "target": "trace",
-      "weight": 3
-    },
-    {
-      "source": "telemetry",
-      "target": "server",
-      "weight": 3
-    },
-    {
-      "source": "telemetry/events",
-      "target": "build/webpack",
-      "weight": 3
-    },
-    {
-      "source": "build/adapter",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "build/adapter",
-      "target": "build/webpack",
-      "weight": 2
-    },
-    {
-      "source": "build/adapter",
-      "target": "lib/metadata",
-      "weight": 2
-    },
-    {
-      "source": "build/analysis",
-      "target": "server/lib",
-      "weight": 2
-    },
-    {
-      "source": "build/analyze",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "build/analyze",
-      "target": "trace",
-      "weight": 2
-    },
-    {
-      "source": "build/analyze",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "build/analyze",
-      "target": "build/turbopack-analyze",
-      "weight": 2
-    },
-    {
-      "source": "build/babel",
-      "target": "build/swc",
-      "weight": 2
-    },
-    {
-      "source": "build/babel",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "build",
-      "target": "(root)",
-      "weight": 2
-    },
-    {
-      "source": "build/next-config-ts",
-      "target": "build/output",
-      "weight": 2
-    },
-    {
-      "source": "build/output",
-      "target": "server/lib",
-      "weight": 2
-    },
-    {
-      "source": "build/segment-config",
-      "target": "server/lib",
-      "weight": 2
-    },
-    {
-      "source": "build/templates",
-      "target": "server/stream-utils",
-      "weight": 2
-    },
-    {
-      "source": "build/templates",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "build/turbopack-analyze",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "build/turbopack-analyze",
-      "target": "lib",
-      "weight": 2
-    },
-    {
-      "source": "build/turbopack-analyze",
-      "target": "build/swc",
-      "weight": 2
-    },
-    {
-      "source": "build/turbopack-analyze",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "telemetry",
-      "weight": 2
-    },
-    {
-      "source": "build/webpack",
-      "target": "client/components",
-      "weight": 2
-    },
-    {
-      "source": "build/webpack",
-      "target": "(root)",
-      "weight": 2
-    },
-    {
-      "source": "build/webpack",
-      "target": "client",
-      "weight": 2
-    },
-    {
-      "source": "build/webpack",
-      "target": "server/web",
-      "weight": 2
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "build/output",
-      "weight": 2
-    },
-    {
-      "source": "build/webpack-config-rules",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "build",
-      "target": "build/webpack-config-rules",
-      "weight": 2
-    },
-    {
-      "source": "cli/internal",
-      "target": "build/swc",
-      "weight": 2
-    },
-    {
-      "source": "cli",
-      "target": "build",
-      "weight": 2
-    },
-    {
-      "source": "cli",
-      "target": "lib/memory",
-      "weight": 2
-    },
-    {
-      "source": "cli",
-      "target": "telemetry",
-      "weight": 2
-    },
-    {
-      "source": "cli",
-      "target": "build/swc",
-      "weight": 2
-    },
-    {
-      "source": "client",
-      "target": "build/polyfills",
-      "weight": 2
-    },
-    {
-      "source": "client/components",
-      "target": "client/lib",
-      "weight": 2
-    },
-    {
-      "source": "client/dev",
-      "target": "client",
-      "weight": 2
-    },
-    {
-      "source": "client/dev",
-      "target": "lib",
-      "weight": 2
-    },
-    {
-      "source": "client/legacy",
-      "target": "client",
-      "weight": 2
-    },
-    {
-      "source": "client",
-      "target": "server/dev",
-      "weight": 2
-    },
-    {
-      "source": "client",
-      "target": "build/analysis",
-      "weight": 2
-    },
-    {
-      "source": "client",
-      "target": "client/lib",
-      "weight": 2
-    },
-    {
-      "source": "client/react-client-callbacks",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "client/request",
-      "target": "server/web",
-      "weight": 2
-    },
-    {
-      "source": "client/tracing",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "diagnostics",
-      "target": "trace",
-      "weight": 2
-    },
-    {
-      "source": "experimental/testing",
-      "target": "server/web",
-      "weight": 2
-    },
-    {
-      "source": "export/helpers",
-      "target": "server/lib",
-      "weight": 2
-    },
-    {
-      "source": "export/helpers",
-      "target": "lib",
-      "weight": 2
-    },
-    {
-      "source": "export/helpers",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "export/helpers",
-      "target": "client/components",
-      "weight": 2
-    },
-    {
-      "source": "export",
-      "target": "trace",
-      "weight": 2
-    },
-    {
-      "source": "export/routes",
-      "target": "export/helpers",
-      "weight": 2
-    },
-    {
-      "source": "export/routes",
-      "target": "server/after",
-      "weight": 2
-    },
-    {
-      "source": "export",
-      "target": "server/app-render",
-      "weight": 2
-    },
-    {
-      "source": "export",
-      "target": "server/resume-data-cache",
-      "weight": 2
-    },
-    {
-      "source": "lib",
-      "target": "(root)",
-      "weight": 2
-    },
-    {
-      "source": "lib/metadata",
-      "target": "build/webpack",
-      "weight": 2
-    },
-    {
-      "source": "lib/metadata",
-      "target": "build/output",
-      "weight": 2
-    },
-    {
-      "source": "lib/metadata",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "lib/typescript",
-      "target": "build/output",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "server/lib",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools",
-      "target": "next-devtools/shared",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools",
-      "target": "server/dev",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "build/output",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "next-devtools/shared",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "telemetry",
-      "weight": 2
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "client/dev",
-      "weight": 2
-    },
-    {
-      "source": "pages",
-      "target": "client",
-      "weight": 2
-    },
-    {
-      "source": "pages",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "pages",
-      "target": "server/lib",
-      "weight": 2
-    },
-    {
-      "source": "server/after",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "server/api-utils",
-      "target": "server/base-http",
-      "weight": 2
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/response-cache",
-      "weight": 2
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/request",
-      "weight": 2
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "server",
-      "target": "build/static-paths",
-      "weight": 2
-    },
-    {
-      "source": "server",
-      "target": "cli",
-      "weight": 2
-    },
-    {
-      "source": "server",
-      "target": "build/swc",
-      "weight": 2
-    },
-    {
-      "source": "server/dev",
-      "target": "server/api-utils",
-      "weight": 2
-    },
-    {
-      "source": "server/dev",
-      "target": "lib/metadata",
-      "weight": 2
-    },
-    {
-      "source": "server/dev",
-      "target": "telemetry",
-      "weight": 2
-    },
-    {
-      "source": "server/dev",
-      "target": "next-devtools/userspace",
-      "weight": 2
-    },
-    {
-      "source": "server/dev",
-      "target": "build/segment-config",
-      "weight": 2
-    },
-    {
-      "source": "server/lib",
-      "target": "telemetry",
-      "weight": 2
-    },
-    {
-      "source": "server/lib",
-      "target": "server/request",
-      "weight": 2
-    },
-    {
-      "source": "server/lib",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "server/lib",
-      "target": "(root)",
-      "weight": 2
-    },
-    {
-      "source": "server/lib",
-      "target": "server/instrumentation",
-      "weight": 2
-    },
-    {
-      "source": "server/lib",
-      "target": "build/swc",
-      "weight": 2
-    },
-    {
-      "source": "server/lib",
-      "target": "telemetry/events",
-      "weight": 2
-    },
-    {
-      "source": "server/mcp",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "server/mcp",
-      "target": "next-devtools/server",
-      "weight": 2
-    },
-    {
-      "source": "server",
-      "target": "next-devtools/userspace",
-      "weight": 2
-    },
-    {
-      "source": "server/request",
-      "target": "server/route-modules",
-      "weight": 2
-    },
-    {
-      "source": "server/resume-data-cache",
-      "target": "server/app-render",
-      "weight": 2
-    },
-    {
-      "source": "server/resume-data-cache",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "lib",
-      "weight": 2
-    },
-    {
-      "source": "server/route-matchers",
-      "target": "server/route-matches",
-      "weight": 2
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/request",
-      "weight": 2
-    },
-    {
-      "source": "server/route-modules",
-      "target": "build/segment-config",
-      "weight": 2
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "server/stream-utils",
-      "target": "server/lib",
-      "weight": 2
-    },
-    {
-      "source": "server/stream-utils",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "server/use-cache",
-      "target": "lib",
-      "weight": 2
-    },
-    {
-      "source": "server/use-cache",
-      "target": "client/components",
-      "weight": 2
-    },
-    {
-      "source": "server/use-cache",
-      "target": "server/web",
-      "weight": 2
-    },
-    {
-      "source": "server/web",
-      "target": "server/async-storage",
-      "weight": 2
-    },
-    {
-      "source": "server/web",
-      "target": "server/route-modules",
-      "weight": 2
-    },
-    {
-      "source": "server/web",
-      "target": "server/use-cache",
-      "weight": 2
-    },
-    {
-      "source": "server/web",
-      "target": "server/instrumentation",
-      "weight": 2
-    },
-    {
-      "source": "server/web",
-      "target": "build/segment-config",
-      "weight": 2
-    },
-    {
-      "source": "shared/lib",
-      "target": "server/api-utils",
-      "weight": 2
-    },
-    {
-      "source": "shared/lib",
-      "target": "next-devtools/dev-overlay",
-      "weight": 2
-    },
-    {
-      "source": "shared/lib",
-      "target": "server/base-http",
-      "weight": 2
-    },
-    {
-      "source": "telemetry/events",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "trace/report",
-      "target": "shared/lib",
-      "weight": 2
-    },
-    {
-      "source": "trace",
-      "target": "lib/helpers",
-      "weight": 2
-    },
-    {
-      "source": "(root)",
-      "target": "server",
-      "weight": 2
-    },
-    {
-      "source": "(root)",
-      "target": "build/adapter",
-      "weight": 2
-    },
-    {
-      "source": "api",
-      "target": "server/og",
-      "weight": 1
-    },
-    {
-      "source": "api",
-      "target": "server/web",
-      "weight": 1
-    },
-    {
-      "source": "bin",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "bin",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/adapter",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/adapter",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "build/analysis",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "build/analysis",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/analysis",
-      "target": "build/webpack",
-      "weight": 1
-    },
-    {
-      "source": "build/analysis",
-      "target": "build/swc",
-      "weight": 1
-    },
-    {
-      "source": "build/analyze",
-      "target": "server/api-utils",
-      "weight": 1
-    },
-    {
-      "source": "build/analyze",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/analyze",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "build/analyze",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "build/analyze",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "build/babel",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/babel",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "build/babel",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "build/babel",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "build/webpack-build",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "build/manifests",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "lib/memory",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "server/app-render",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "build/turbopack-build",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "build/adapter",
-      "weight": 1
-    },
-    {
-      "source": "build/jest",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "build/jest",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "build/jest",
-      "target": "build",
-      "weight": 1
-    },
-    {
-      "source": "build/jest",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/jest",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "lib/typescript",
-      "weight": 1
-    },
-    {
-      "source": "build/next-config-ts",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "server/normalizers",
-      "weight": 1
-    },
-    {
-      "source": "build/output",
-      "target": "build/swc",
-      "weight": 1
-    },
-    {
-      "source": "build/segment-config",
-      "target": "server/request",
-      "weight": 1
-    },
-    {
-      "source": "build/static-paths",
-      "target": "server/after",
-      "weight": 1
-    },
-    {
-      "source": "build/static-paths",
-      "target": "server/async-storage",
-      "weight": 1
-    },
-    {
-      "source": "build/static-paths",
-      "target": "export/helpers",
-      "weight": 1
-    },
-    {
-      "source": "build/static-paths",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "build/static-paths",
-      "target": "(root)",
-      "weight": 1
-    },
-    {
-      "source": "build/swc",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/swc",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "build/swc",
-      "target": "server/api-utils",
-      "weight": 1
-    },
-    {
-      "source": "build/templates",
-      "target": "build/static-paths",
-      "weight": 1
-    },
-    {
-      "source": "build/templates",
-      "target": "build/adapter",
-      "weight": 1
-    },
-    {
-      "source": "build/templates",
-      "target": "(root)",
-      "weight": 1
-    },
-    {
-      "source": "build/turbopack-analyze",
-      "target": "server/api-utils",
-      "weight": 1
-    },
-    {
-      "source": "build/turbopack-analyze",
-      "target": "build",
-      "weight": 1
-    },
-    {
-      "source": "build/turbopack-analyze",
-      "target": "trace",
-      "weight": 1
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "export",
-      "weight": 1
-    },
-    {
-      "source": "build/turbopack-build",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "server/web",
-      "weight": 1
-    },
-    {
-      "source": "build",
-      "target": "export/helpers",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack",
-      "target": "server/route-modules",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack",
-      "target": "server/use-cache",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack",
-      "target": "server/app-render",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "build/webpack-build",
-      "target": "build/swc",
-      "weight": 1
-    },
-    {
-      "source": "cli/internal",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "cli/internal",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "cli",
-      "target": "build/analyze",
-      "weight": 1
-    },
-    {
-      "source": "cli",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "cli",
-      "target": "server/dev",
-      "weight": 1
-    },
-    {
-      "source": "cli",
-      "target": "next-devtools/shared",
-      "weight": 1
-    },
-    {
-      "source": "client",
-      "target": "next-devtools/userspace",
-      "weight": 1
-    },
-    {
-      "source": "client/compat",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "client/compat",
-      "target": "client",
-      "weight": 1
-    },
-    {
-      "source": "client/components",
-      "target": "lib/framework",
-      "weight": 1
-    },
-    {
-      "source": "client/components",
-      "target": "client/dev",
-      "weight": 1
-    },
-    {
-      "source": "client/components",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "client/components",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "client/dev",
-      "target": "next-devtools/shared",
-      "weight": 1
-    },
-    {
-      "source": "client/dev",
-      "target": "build/swc",
-      "weight": 1
-    },
-    {
-      "source": "client",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "client",
-      "target": "client/portal",
-      "weight": 1
-    },
-    {
-      "source": "client",
-      "target": "client/tracing",
-      "weight": 1
-    },
-    {
-      "source": "client/lib",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "client/lib",
-      "target": "client",
-      "weight": 1
-    },
-    {
-      "source": "client/react-client-callbacks",
-      "target": "next-devtools/userspace",
-      "weight": 1
-    },
-    {
-      "source": "client/react-client-callbacks",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "client",
-      "target": "build",
-      "weight": 1
-    },
-    {
-      "source": "client/tracing",
-      "target": "client/dev",
-      "weight": 1
-    },
-    {
-      "source": "diagnostics",
-      "target": "export",
-      "weight": 1
-    },
-    {
-      "source": "diagnostics",
-      "target": "server/base-http",
-      "weight": 1
-    },
-    {
-      "source": "experimental/testing",
-      "target": "server/request",
-      "weight": 1
-    },
-    {
-      "source": "experimental/testing",
-      "target": "server/route-modules",
-      "weight": 1
-    },
-    {
-      "source": "experimental/testing",
-      "target": "build/analysis",
-      "weight": 1
-    },
-    {
-      "source": "experimental/testing",
-      "target": "build/segment-config",
-      "weight": 1
-    },
-    {
-      "source": "experimental/testing",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "experimental/testmode",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "experimental/testmode",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "export/helpers",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "export/helpers",
-      "target": "server/app-render",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "build/manifests",
-      "weight": 1
-    },
-    {
-      "source": "export/routes",
-      "target": "client/components",
-      "weight": 1
-    },
-    {
-      "source": "export/routes",
-      "target": "server/resume-data-cache",
-      "weight": 1
-    },
-    {
-      "source": "export/routes",
-      "target": "lib/metadata",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "server/base-http",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "build/swc",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "client/components",
-      "weight": 1
-    },
-    {
-      "source": "export",
-      "target": "server/node-environment-extensions",
-      "weight": 1
-    },
-    {
-      "source": "lib/helpers",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "lib/helpers",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "lib/metadata",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "lib/metadata",
-      "target": "build",
-      "weight": 1
-    },
-    {
-      "source": "lib/metadata",
-      "target": "client/components",
-      "weight": 1
-    },
-    {
-      "source": "lib/typescript",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "lib/typescript",
-      "target": "lib/helpers",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/dev-overlay",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools",
-      "target": "next-devtools/userspace",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "server/dev",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "next-devtools/dev-overlay",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "build/swc",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "build/webpack",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/server",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/shared",
-      "target": "next-devtools/dev-overlay",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/shared",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/shared",
-      "target": "server/dev",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "client",
-      "weight": 1
-    },
-    {
-      "source": "next-devtools/userspace",
-      "target": "client/react-client-callbacks",
-      "weight": 1
-    },
-    {
-      "source": "pages",
-      "target": "build/webpack",
-      "weight": 1
-    },
-    {
-      "source": "pages",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "server/after",
-      "target": "server/web",
-      "weight": 1
-    },
-    {
-      "source": "server/api-utils",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "server/api-utils",
-      "target": "server/instrumentation",
-      "weight": 1
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/dev",
-      "weight": 1
-    },
-    {
-      "source": "server/app-render",
-      "target": "build/swc",
-      "weight": 1
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/api-utils",
-      "weight": 1
-    },
-    {
-      "source": "server/app-render",
-      "target": "next-devtools/dev-overlay",
-      "weight": 1
-    },
-    {
-      "source": "server/app-render",
-      "target": "server/after",
-      "weight": 1
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/response-cache",
-      "weight": 1
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/resume-data-cache",
-      "weight": 1
-    },
-    {
-      "source": "server/async-storage",
-      "target": "build/segment-config",
-      "weight": 1
-    },
-    {
-      "source": "server/async-storage",
-      "target": "server/after",
-      "weight": 1
-    },
-    {
-      "source": "server/async-storage",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "server/base-http",
-      "target": "client/components",
-      "weight": 1
-    },
-    {
-      "source": "server/base-http",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "server/base-http",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "build/analysis",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "server/instrumentation",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "api",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "build/next-config-ts",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "build/adapter",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "server/mcp",
-      "weight": 1
-    },
-    {
-      "source": "server/dev",
-      "target": "server/request",
-      "weight": 1
-    },
-    {
-      "source": "server/dev",
-      "target": "server/response-cache",
-      "weight": 1
-    },
-    {
-      "source": "server/dev",
-      "target": "client",
-      "weight": 1
-    },
-    {
-      "source": "server/dev",
-      "target": "export/helpers",
-      "weight": 1
-    },
-    {
-      "source": "server/dev",
-      "target": "server/after",
-      "weight": 1
-    },
-    {
-      "source": "server/dev",
-      "target": "server/async-storage",
-      "weight": 1
-    },
-    {
-      "source": "server/lib",
-      "target": "export/routes",
-      "weight": 1
-    },
-    {
-      "source": "server/lib",
-      "target": "server/route-modules",
-      "weight": 1
-    },
-    {
-      "source": "server/lib",
-      "target": "server/api-utils",
-      "weight": 1
-    },
-    {
-      "source": "server/lib",
-      "target": "next-devtools/dev-overlay",
-      "weight": 1
-    },
-    {
-      "source": "server/lib",
-      "target": "build/analysis",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "lib/metadata",
-      "weight": 1
-    },
-    {
-      "source": "server/mcp",
-      "target": "server/api-utils",
-      "weight": 1
-    },
-    {
-      "source": "server/mcp",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "server/mcp",
-      "target": "build",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "server/typescript",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "server/dev",
-      "weight": 1
-    },
-    {
-      "source": "server/node-environment-extensions",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "server/node-environment-extensions",
-      "target": "server/dev",
-      "weight": 1
-    },
-    {
-      "source": "server/node-environment-extensions",
-      "target": "client/lib",
-      "weight": 1
-    },
-    {
-      "source": "server/node-environment-extensions",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "server/normalizers",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "next-devtools/server",
-      "weight": 1
-    },
-    {
-      "source": "server",
-      "target": "server/resume-data-cache",
-      "weight": 1
-    },
-    {
-      "source": "server/request",
-      "target": "server/async-storage",
-      "weight": 1
-    },
-    {
-      "source": "server/request",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "server/response-cache",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "server/resume-data-cache",
-      "target": "server/response-cache",
-      "weight": 1
-    },
-    {
-      "source": "server/resume-data-cache",
-      "target": "server/stream-utils",
-      "weight": 1
-    },
-    {
-      "source": "server/resume-data-cache",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "server/route-matcher-managers",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "server/route-matcher-providers",
-      "target": "build",
-      "weight": 1
-    },
-    {
-      "source": "server/route-matchers",
-      "target": "server/lib",
-      "weight": 1
-    },
-    {
-      "source": "server/route-matchers",
-      "target": "server/request",
-      "weight": 1
-    },
-    {
-      "source": "server/route-matches",
-      "target": "server",
-      "weight": 1
-    },
-    {
-      "source": "server/route-matches",
-      "target": "server/request",
-      "weight": 1
-    },
-    {
-      "source": "server/route-modules",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "server/route-modules",
-      "target": "server/resume-data-cache",
-      "weight": 1
-    },
-    {
-      "source": "server/route-modules",
-      "target": "build/adapter",
-      "weight": 1
-    },
-    {
-      "source": "server/route-modules",
-      "target": "build/webpack",
-      "weight": 1
-    },
-    {
-      "source": "server/route-modules",
-      "target": "lib/metadata",
-      "weight": 1
-    },
-    {
-      "source": "server/stream-utils",
-      "target": "server/app-render",
-      "weight": 1
-    },
-    {
-      "source": "server/typescript",
-      "target": "build/segment-config",
-      "weight": 1
-    },
-    {
-      "source": "server/use-cache",
-      "target": "build/webpack",
-      "weight": 1
-    },
-    {
-      "source": "server/use-cache",
-      "target": "server/resume-data-cache",
-      "weight": 1
-    },
-    {
-      "source": "server/use-cache",
-      "target": "build/output",
-      "weight": 1
-    },
-    {
-      "source": "server/web",
-      "target": "server/route-matchers",
-      "weight": 1
-    },
-    {
-      "source": "server/web",
-      "target": "server/request",
-      "weight": 1
-    },
-    {
-      "source": "shared/lib",
-      "target": "lib/metadata",
-      "weight": 1
-    },
-    {
-      "source": "shared/lib",
-      "target": "client/lib",
-      "weight": 1
-    },
-    {
-      "source": "shared/lib",
-      "target": "build/analysis",
-      "weight": 1
-    },
-    {
-      "source": "shared/lib",
-      "target": "lib/memory",
-      "weight": 1
-    },
-    {
-      "source": "shared/lib",
-      "target": "telemetry/events",
-      "weight": 1
-    },
-    {
-      "source": "shared/lib",
-      "target": "lib/fs",
-      "weight": 1
-    },
-    {
-      "source": "shared/lib",
-      "target": "build",
-      "weight": 1
-    },
-    {
-      "source": "telemetry",
-      "target": "shared/lib",
-      "weight": 1
-    },
-    {
-      "source": "telemetry/events",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "telemetry/events",
-      "target": "trace",
-      "weight": 1
-    },
-    {
-      "source": "telemetry/events",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "telemetry",
-      "target": "trace",
-      "weight": 1
-    },
-    {
-      "source": "trace/report",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "trace",
-      "target": "trace/report",
-      "weight": 1
-    },
-    {
-      "source": "trace",
-      "target": "telemetry",
-      "weight": 1
-    },
-    {
-      "source": "(root)",
-      "target": "lib",
-      "weight": 1
-    },
-    {
-      "source": "(root)",
-      "target": "server/api-utils",
-      "weight": 1
-    },
-    {
-      "source": "(root)",
-      "target": "build/segment-config",
-      "weight": 1
-    },
-    {
-      "source": "(root)",
-      "target": "server/instrumentation",
-      "weight": 1
-    }
-  ]
+	"meta": {
+		"source": "vercel/next.js \u00b7 packages/next/src",
+		"parser": "graph-sitter (rust backend)",
+		"parse_seconds": 4.89,
+		"files": 1680,
+		"modules": 91,
+		"edges": 710,
+		"symbols": 16004
+	},
+	"groups": [
+		"(root)",
+		"api",
+		"bin",
+		"build",
+		"bundles",
+		"cli",
+		"client",
+		"diagnostics",
+		"experimental",
+		"export",
+		"lib",
+		"next-devtools",
+		"pages",
+		"server",
+		"shared",
+		"telemetry",
+		"trace"
+	],
+	"nodes": [
+		{
+			"id": "(root)",
+			"group": "(root)",
+			"files": 1,
+			"loc": 327,
+			"symbols": 20,
+			"inbound": 42,
+			"outbound": 24
+		},
+		{
+			"id": "api",
+			"group": "api",
+			"files": 18,
+			"loc": 39,
+			"symbols": 1,
+			"inbound": 1,
+			"outbound": 33
+		},
+		{
+			"id": "bin",
+			"group": "bin",
+			"files": 1,
+			"loc": 763,
+			"symbols": 11,
+			"inbound": 0,
+			"outbound": 10
+		},
+		{
+			"id": "build",
+			"group": "build",
+			"files": 43,
+			"loc": 16061,
+			"symbols": 978,
+			"inbound": 164,
+			"outbound": 491
+		},
+		{
+			"id": "build/adapter",
+			"group": "build",
+			"files": 2,
+			"loc": 2427,
+			"symbols": 60,
+			"inbound": 6,
+			"outbound": 39
+		},
+		{
+			"id": "build/analysis",
+			"group": "build",
+			"files": 4,
+			"loc": 1280,
+			"symbols": 63,
+			"inbound": 29,
+			"outbound": 36
+		},
+		{
+			"id": "build/analyze",
+			"group": "build",
+			"files": 1,
+			"loc": 234,
+			"symbols": 10,
+			"inbound": 1,
+			"outbound": 20
+		},
+		{
+			"id": "build/babel",
+			"group": "build",
+			"files": 14,
+			"loc": 2353,
+			"symbols": 114,
+			"inbound": 1,
+			"outbound": 10
+		},
+		{
+			"id": "build/jest",
+			"group": "build",
+			"files": 6,
+			"loc": 286,
+			"symbols": 26,
+			"inbound": 0,
+			"outbound": 8
+		},
+		{
+			"id": "build/manifests",
+			"group": "build",
+			"files": 1,
+			"loc": 8,
+			"symbols": 1,
+			"inbound": 2,
+			"outbound": 0
+		},
+		{
+			"id": "build/next-config-ts",
+			"group": "build",
+			"files": 2,
+			"loc": 297,
+			"symbols": 16,
+			"inbound": 1,
+			"outbound": 3
+		},
+		{
+			"id": "build/output",
+			"group": "build",
+			"files": 4,
+			"loc": 566,
+			"symbols": 45,
+			"inbound": 87,
+			"outbound": 15
+		},
+		{
+			"id": "build/polyfills",
+			"group": "build",
+			"files": 10,
+			"loc": 36,
+			"symbols": 4,
+			"inbound": 2,
+			"outbound": 0
+		},
+		{
+			"id": "build/segment-config",
+			"group": "build",
+			"files": 5,
+			"loc": 805,
+			"symbols": 41,
+			"inbound": 38,
+			"outbound": 21
+		},
+		{
+			"id": "build/static-paths",
+			"group": "build",
+			"files": 8,
+			"loc": 5709,
+			"symbols": 62,
+			"inbound": 16,
+			"outbound": 58
+		},
+		{
+			"id": "build/swc",
+			"group": "build",
+			"files": 9,
+			"loc": 3974,
+			"symbols": 239,
+			"inbound": 95,
+			"outbound": 25
+		},
+		{
+			"id": "build/templates",
+			"group": "build",
+			"files": 11,
+			"loc": 4190,
+			"symbols": 188,
+			"inbound": 0,
+			"outbound": 189
+		},
+		{
+			"id": "build/turbopack-analyze",
+			"group": "build",
+			"files": 1,
+			"loc": 130,
+			"symbols": 4,
+			"inbound": 2,
+			"outbound": 11
+		},
+		{
+			"id": "build/turbopack-build",
+			"group": "build",
+			"files": 2,
+			"loc": 467,
+			"symbols": 8,
+			"inbound": 1,
+			"outbound": 33
+		},
+		{
+			"id": "build/turborepo-access-trace",
+			"group": "build",
+			"files": 6,
+			"loc": 289,
+			"symbols": 14,
+			"inbound": 8,
+			"outbound": 0
+		},
+		{
+			"id": "build/webpack",
+			"group": "build",
+			"files": 140,
+			"loc": 21358,
+			"symbols": 1965,
+			"inbound": 113,
+			"outbound": 285
+		},
+		{
+			"id": "build/webpack-build",
+			"group": "build",
+			"files": 2,
+			"loc": 623,
+			"symbols": 33,
+			"inbound": 1,
+			"outbound": 45
+		},
+		{
+			"id": "build/webpack-config-rules",
+			"group": "build",
+			"files": 1,
+			"loc": 30,
+			"symbols": 3,
+			"inbound": 2,
+			"outbound": 2
+		},
+		{
+			"id": "bundles",
+			"group": "bundles",
+			"files": 1,
+			"loc": 7,
+			"symbols": 1,
+			"inbound": 0,
+			"outbound": 0
+		},
+		{
+			"id": "bundles/babel",
+			"group": "bundles",
+			"files": 29,
+			"loc": 255,
+			"symbols": 44,
+			"inbound": 0,
+			"outbound": 0
+		},
+		{
+			"id": "bundles/cssnano-simple",
+			"group": "bundles",
+			"files": 3,
+			"loc": 203,
+			"symbols": 7,
+			"inbound": 0,
+			"outbound": 0
+		},
+		{
+			"id": "bundles/postcss-plugin-stub",
+			"group": "bundles",
+			"files": 1,
+			"loc": 25,
+			"symbols": 1,
+			"inbound": 0,
+			"outbound": 0
+		},
+		{
+			"id": "bundles/webpack",
+			"group": "bundles",
+			"files": 26,
+			"loc": 1114,
+			"symbols": 40,
+			"inbound": 0,
+			"outbound": 0
+		},
+		{
+			"id": "cli",
+			"group": "cli",
+			"files": 11,
+			"loc": 1981,
+			"symbols": 208,
+			"inbound": 2,
+			"outbound": 114
+		},
+		{
+			"id": "cli/internal",
+			"group": "cli",
+			"files": 4,
+			"loc": 1819,
+			"symbols": 104,
+			"inbound": 0,
+			"outbound": 4
+		},
+		{
+			"id": "client",
+			"group": "client",
+			"files": 53,
+			"loc": 6685,
+			"symbols": 470,
+			"inbound": 92,
+			"outbound": 167
+		},
+		{
+			"id": "client/app-dir",
+			"group": "client",
+			"files": 3,
+			"loc": 1090,
+			"symbols": 25,
+			"inbound": 0,
+			"outbound": 30
+		},
+		{
+			"id": "client/compat",
+			"group": "client",
+			"files": 1,
+			"loc": 17,
+			"symbols": 1,
+			"inbound": 0,
+			"outbound": 2
+		},
+		{
+			"id": "client/components",
+			"group": "client",
+			"files": 103,
+			"loc": 20577,
+			"symbols": 786,
+			"inbound": 215,
+			"outbound": 244
+		},
+		{
+			"id": "client/dev",
+			"group": "client",
+			"files": 15,
+			"loc": 2544,
+			"symbols": 154,
+			"inbound": 14,
+			"outbound": 49
+		},
+		{
+			"id": "client/legacy",
+			"group": "client",
+			"files": 1,
+			"loc": 1202,
+			"symbols": 57,
+			"inbound": 0,
+			"outbound": 12
+		},
+		{
+			"id": "client/lib",
+			"group": "client",
+			"files": 3,
+			"loc": 225,
+			"symbols": 9,
+			"inbound": 9,
+			"outbound": 2
+		},
+		{
+			"id": "client/portal",
+			"group": "client",
+			"files": 1,
+			"loc": 22,
+			"symbols": 5,
+			"inbound": 1,
+			"outbound": 0
+		},
+		{
+			"id": "client/react-client-callbacks",
+			"group": "client",
+			"files": 3,
+			"loc": 170,
+			"symbols": 12,
+			"inbound": 7,
+			"outbound": 7
+		},
+		{
+			"id": "client/request",
+			"group": "client",
+			"files": 7,
+			"loc": 262,
+			"symbols": 27,
+			"inbound": 0,
+			"outbound": 11
+		},
+		{
+			"id": "client/tracing",
+			"group": "client",
+			"files": 2,
+			"loc": 97,
+			"symbols": 6,
+			"inbound": 1,
+			"outbound": 3
+		},
+		{
+			"id": "diagnostics",
+			"group": "diagnostics",
+			"files": 2,
+			"loc": 183,
+			"symbols": 13,
+			"inbound": 3,
+			"outbound": 4
+		},
+		{
+			"id": "experimental/testing",
+			"group": "experimental",
+			"files": 6,
+			"loc": 902,
+			"symbols": 12,
+			"inbound": 0,
+			"outbound": 25
+		},
+		{
+			"id": "experimental/testmode",
+			"group": "experimental",
+			"files": 18,
+			"loc": 1035,
+			"symbols": 95,
+			"inbound": 0,
+			"outbound": 2
+		},
+		{
+			"id": "export",
+			"group": "export",
+			"files": 4,
+			"loc": 1951,
+			"symbols": 80,
+			"inbound": 8,
+			"outbound": 112
+		},
+		{
+			"id": "export/helpers",
+			"group": "export",
+			"files": 3,
+			"loc": 130,
+			"symbols": 4,
+			"inbound": 9,
+			"outbound": 14
+		},
+		{
+			"id": "export/routes",
+			"group": "export",
+			"files": 4,
+			"loc": 626,
+			"symbols": 6,
+			"inbound": 5,
+			"outbound": 66
+		},
+		{
+			"id": "lib",
+			"group": "lib",
+			"files": 79,
+			"loc": 8684,
+			"symbols": 432,
+			"inbound": 694,
+			"outbound": 68
+		},
+		{
+			"id": "lib/framework",
+			"group": "lib",
+			"files": 2,
+			"loc": 56,
+			"symbols": 9,
+			"inbound": 9,
+			"outbound": 0
+		},
+		{
+			"id": "lib/fs",
+			"group": "lib",
+			"files": 2,
+			"loc": 130,
+			"symbols": 3,
+			"inbound": 1,
+			"outbound": 0
+		},
+		{
+			"id": "lib/helpers",
+			"group": "lib",
+			"files": 8,
+			"loc": 413,
+			"symbols": 17,
+			"inbound": 20,
+			"outbound": 2
+		},
+		{
+			"id": "lib/memory",
+			"group": "lib",
+			"files": 4,
+			"loc": 240,
+			"symbols": 19,
+			"inbound": 4,
+			"outbound": 14
+		},
+		{
+			"id": "lib/metadata",
+			"group": "lib",
+			"files": 29,
+			"loc": 8357,
+			"symbols": 303,
+			"inbound": 47,
+			"outbound": 51
+		},
+		{
+			"id": "lib/typescript",
+			"group": "lib",
+			"files": 9,
+			"loc": 1624,
+			"symbols": 53,
+			"inbound": 6,
+			"outbound": 21
+		},
+		{
+			"id": "next-devtools",
+			"group": "next-devtools",
+			"files": 4,
+			"loc": 494,
+			"symbols": 24,
+			"inbound": 14,
+			"outbound": 39
+		},
+		{
+			"id": "next-devtools/dev-overlay",
+			"group": "next-devtools",
+			"files": 158,
+			"loc": 19418,
+			"symbols": 1100,
+			"inbound": 48,
+			"outbound": 93
+		},
+		{
+			"id": "next-devtools/server",
+			"group": "next-devtools",
+			"files": 11,
+			"loc": 1090,
+			"symbols": 65,
+			"inbound": 41,
+			"outbound": 18
+		},
+		{
+			"id": "next-devtools/shared",
+			"group": "next-devtools",
+			"files": 12,
+			"loc": 658,
+			"symbols": 47,
+			"inbound": 55,
+			"outbound": 7
+		},
+		{
+			"id": "next-devtools/userspace",
+			"group": "next-devtools",
+			"files": 17,
+			"loc": 1573,
+			"symbols": 144,
+			"inbound": 18,
+			"outbound": 39
+		},
+		{
+			"id": "pages",
+			"group": "pages",
+			"files": 3,
+			"loc": 1211,
+			"symbols": 120,
+			"inbound": 9,
+			"outbound": 28
+		},
+		{
+			"id": "server",
+			"group": "server",
+			"files": 55,
+			"loc": 20000,
+			"symbols": 994,
+			"inbound": 447,
+			"outbound": 497
+		},
+		{
+			"id": "server/after",
+			"group": "server",
+			"files": 8,
+			"loc": 1176,
+			"symbols": 32,
+			"inbound": 16,
+			"outbound": 19
+		},
+		{
+			"id": "server/api-utils",
+			"group": "server",
+			"files": 6,
+			"loc": 932,
+			"symbols": 37,
+			"inbound": 38,
+			"outbound": 28
+		},
+		{
+			"id": "server/app-render",
+			"group": "server",
+			"files": 88,
+			"loc": 26740,
+			"symbols": 1371,
+			"inbound": 322,
+			"outbound": 437
+		},
+		{
+			"id": "server/async-storage",
+			"group": "server",
+			"files": 4,
+			"loc": 629,
+			"symbols": 22,
+			"inbound": 13,
+			"outbound": 43
+		},
+		{
+			"id": "server/base-http",
+			"group": "server",
+			"files": 5,
+			"loc": 504,
+			"symbols": 23,
+			"inbound": 66,
+			"outbound": 14
+		},
+		{
+			"id": "server/dev",
+			"group": "server",
+			"files": 31,
+			"loc": 12369,
+			"symbols": 782,
+			"inbound": 63,
+			"outbound": 401
+		},
+		{
+			"id": "server/instrumentation",
+			"group": "server",
+			"files": 2,
+			"loc": 42,
+			"symbols": 6,
+			"inbound": 16,
+			"outbound": 0
+		},
+		{
+			"id": "server/lib",
+			"group": "server",
+			"files": 94,
+			"loc": 17745,
+			"symbols": 1208,
+			"inbound": 378,
+			"outbound": 354
+		},
+		{
+			"id": "server/mcp",
+			"group": "server",
+			"files": 17,
+			"loc": 1780,
+			"symbols": 112,
+			"inbound": 13,
+			"outbound": 26
+		},
+		{
+			"id": "server/node-environment-extensions",
+			"group": "server",
+			"files": 17,
+			"loc": 6111,
+			"symbols": 176,
+			"inbound": 16,
+			"outbound": 30
+		},
+		{
+			"id": "server/normalizers",
+			"group": "server",
+			"files": 30,
+			"loc": 745,
+			"symbols": 38,
+			"inbound": 27,
+			"outbound": 18
+		},
+		{
+			"id": "server/og",
+			"group": "server",
+			"files": 1,
+			"loc": 64,
+			"symbols": 12,
+			"inbound": 1,
+			"outbound": 0
+		},
+		{
+			"id": "server/request",
+			"group": "server",
+			"files": 12,
+			"loc": 4140,
+			"symbols": 132,
+			"inbound": 89,
+			"outbound": 172
+		},
+		{
+			"id": "server/response-cache",
+			"group": "server",
+			"files": 5,
+			"loc": 1142,
+			"symbols": 78,
+			"inbound": 63,
+			"outbound": 16
+		},
+		{
+			"id": "server/resume-data-cache",
+			"group": "server",
+			"files": 3,
+			"loc": 654,
+			"symbols": 22,
+			"inbound": 21,
+			"outbound": 7
+		},
+		{
+			"id": "server/route-definitions",
+			"group": "server",
+			"files": 6,
+			"loc": 66,
+			"symbols": 7,
+			"inbound": 38,
+			"outbound": 6
+		},
+		{
+			"id": "server/route-matcher-managers",
+			"group": "server",
+			"files": 4,
+			"loc": 796,
+			"symbols": 33,
+			"inbound": 7,
+			"outbound": 27
+		},
+		{
+			"id": "server/route-matcher-providers",
+			"group": "server",
+			"files": 27,
+			"loc": 1863,
+			"symbols": 98,
+			"inbound": 15,
+			"outbound": 81
+		},
+		{
+			"id": "server/route-matchers",
+			"group": "server",
+			"files": 6,
+			"loc": 177,
+			"symbols": 13,
+			"inbound": 22,
+			"outbound": 14
+		},
+		{
+			"id": "server/route-matches",
+			"group": "server",
+			"files": 6,
+			"loc": 56,
+			"symbols": 7,
+			"inbound": 10,
+			"outbound": 8
+		},
+		{
+			"id": "server/route-modules",
+			"group": "server",
+			"files": 64,
+			"loc": 4996,
+			"symbols": 371,
+			"inbound": 64,
+			"outbound": 246
+		},
+		{
+			"id": "server/stream-utils",
+			"group": "server",
+			"files": 4,
+			"loc": 1471,
+			"symbols": 141,
+			"inbound": 40,
+			"outbound": 13
+		},
+		{
+			"id": "server/typescript",
+			"group": "server",
+			"files": 10,
+			"loc": 2140,
+			"symbols": 240,
+			"inbound": 1,
+			"outbound": 1
+		},
+		{
+			"id": "server/use-cache",
+			"group": "server",
+			"files": 10,
+			"loc": 4423,
+			"symbols": 142,
+			"inbound": 27,
+			"outbound": 68
+		},
+		{
+			"id": "server/web",
+			"group": "server",
+			"files": 36,
+			"loc": 4955,
+			"symbols": 283,
+			"inbound": 119,
+			"outbound": 114
+		},
+		{
+			"id": "shared/lib",
+			"group": "shared",
+			"files": 164,
+			"loc": 17875,
+			"symbols": 1037,
+			"inbound": 1393,
+			"outbound": 123
+		},
+		{
+			"id": "telemetry",
+			"group": "telemetry",
+			"files": 8,
+			"loc": 714,
+			"symbols": 40,
+			"inbound": 22,
+			"outbound": 9
+		},
+		{
+			"id": "telemetry/events",
+			"group": "telemetry",
+			"files": 10,
+			"loc": 889,
+			"symbols": 57,
+			"inbound": 22,
+			"outbound": 8
+		},
+		{
+			"id": "trace",
+			"group": "trace",
+			"files": 7,
+			"loc": 769,
+			"symbols": 56,
+			"inbound": 88,
+			"outbound": 4
+		},
+		{
+			"id": "trace/report",
+			"group": "trace",
+			"files": 6,
+			"loc": 325,
+			"symbols": 25,
+			"inbound": 1,
+			"outbound": 12
+		}
+	],
+	"edges": [
+		{
+			"source": "server",
+			"target": "shared/lib",
+			"weight": 175
+		},
+		{
+			"source": "client/components",
+			"target": "shared/lib",
+			"weight": 171
+		},
+		{
+			"source": "server/app-render",
+			"target": "shared/lib",
+			"weight": 133
+		},
+		{
+			"source": "build",
+			"target": "lib",
+			"weight": 128
+		},
+		{
+			"source": "build",
+			"target": "shared/lib",
+			"weight": 114
+		},
+		{
+			"source": "client",
+			"target": "shared/lib",
+			"weight": 114
+		},
+		{
+			"source": "server/lib",
+			"target": "shared/lib",
+			"weight": 107
+		},
+		{
+			"source": "server/request",
+			"target": "server/app-render",
+			"weight": 100
+		},
+		{
+			"source": "build/webpack",
+			"target": "shared/lib",
+			"weight": 94
+		},
+		{
+			"source": "server/dev",
+			"target": "shared/lib",
+			"weight": 78
+		},
+		{
+			"source": "server",
+			"target": "server/lib",
+			"weight": 72
+		},
+		{
+			"source": "build/webpack",
+			"target": "lib",
+			"weight": 71
+		},
+		{
+			"source": "server",
+			"target": "lib",
+			"weight": 68
+		},
+		{
+			"source": "server/app-render",
+			"target": "client/components",
+			"weight": 64
+		},
+		{
+			"source": "server/lib",
+			"target": "lib",
+			"weight": 61
+		},
+		{
+			"source": "server/route-modules",
+			"target": "shared/lib",
+			"weight": 58
+		},
+		{
+			"source": "build",
+			"target": "build/webpack",
+			"weight": 50
+		},
+		{
+			"source": "server/lib",
+			"target": "server",
+			"weight": 47
+		},
+		{
+			"source": "build",
+			"target": "server",
+			"weight": 46
+		},
+		{
+			"source": "server/dev",
+			"target": "lib",
+			"weight": 46
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/lib",
+			"weight": 43
+		},
+		{
+			"source": "build/templates",
+			"target": "server/lib",
+			"weight": 42
+		},
+		{
+			"source": "cli",
+			"target": "lib",
+			"weight": 40
+		},
+		{
+			"source": "client/components",
+			"target": "client",
+			"weight": 40
+		},
+		{
+			"source": "server/dev",
+			"target": "server",
+			"weight": 39
+		},
+		{
+			"source": "server/app-render",
+			"target": "server",
+			"weight": 34
+		},
+		{
+			"source": "server/dev",
+			"target": "server/lib",
+			"weight": 34
+		},
+		{
+			"source": "server/dev",
+			"target": "build",
+			"weight": 34
+		},
+		{
+			"source": "server/dev",
+			"target": "next-devtools/server",
+			"weight": 34
+		},
+		{
+			"source": "server/use-cache",
+			"target": "server/app-render",
+			"weight": 34
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server",
+			"weight": 33
+		},
+		{
+			"source": "cli",
+			"target": "server/lib",
+			"weight": 32
+		},
+		{
+			"source": "next-devtools",
+			"target": "next-devtools/dev-overlay",
+			"weight": 32
+		},
+		{
+			"source": "build/webpack",
+			"target": "build",
+			"weight": 31
+		},
+		{
+			"source": "server/request",
+			"target": "server",
+			"weight": 31
+		},
+		{
+			"source": "build/templates",
+			"target": "server/web",
+			"weight": 30
+		},
+		{
+			"source": "export",
+			"target": "shared/lib",
+			"weight": 28
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "next-devtools/shared",
+			"weight": 28
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/stream-utils",
+			"weight": 28
+		},
+		{
+			"source": "build/templates",
+			"target": "server",
+			"weight": 27
+		},
+		{
+			"source": "server/dev",
+			"target": "build/swc",
+			"weight": 26
+		},
+		{
+			"source": "server/lib",
+			"target": "build",
+			"weight": 26
+		},
+		{
+			"source": "build/static-paths",
+			"target": "shared/lib",
+			"weight": 25
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "server/app-render",
+			"weight": 25
+		},
+		{
+			"source": "build",
+			"target": "server/lib",
+			"weight": 24
+		},
+		{
+			"source": "server/lib",
+			"target": "server/response-cache",
+			"weight": 24
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/app-render",
+			"weight": 23
+		},
+		{
+			"source": "shared/lib",
+			"target": "lib",
+			"weight": 23
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/lib",
+			"weight": 22
+		},
+		{
+			"source": "server/route-modules",
+			"target": "client/components",
+			"weight": 22
+		},
+		{
+			"source": "client/dev",
+			"target": "server/dev",
+			"weight": 20
+		},
+		{
+			"source": "export",
+			"target": "server",
+			"weight": 20
+		},
+		{
+			"source": "pages",
+			"target": "shared/lib",
+			"weight": 20
+		},
+		{
+			"source": "server/app-render",
+			"target": "lib",
+			"weight": 20
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/request",
+			"weight": 20
+		},
+		{
+			"source": "server/web",
+			"target": "server/app-render",
+			"weight": 19
+		},
+		{
+			"source": "build/webpack",
+			"target": "server",
+			"weight": 18
+		},
+		{
+			"source": "export",
+			"target": "lib",
+			"weight": 18
+		},
+		{
+			"source": "server/node-environment-extensions",
+			"target": "server/app-render",
+			"weight": 18
+		},
+		{
+			"source": "server/request",
+			"target": "shared/lib",
+			"weight": 18
+		},
+		{
+			"source": "lib",
+			"target": "shared/lib",
+			"weight": 17
+		},
+		{
+			"source": "lib/typescript",
+			"target": "lib",
+			"weight": 17
+		},
+		{
+			"source": "server/lib",
+			"target": "server/app-render",
+			"weight": 17
+		},
+		{
+			"source": "shared/lib",
+			"target": "client",
+			"weight": 17
+		},
+		{
+			"source": "build",
+			"target": "client/components",
+			"weight": 16
+		},
+		{
+			"source": "client",
+			"target": "client/components",
+			"weight": 16
+		},
+		{
+			"source": "client/components",
+			"target": "server/app-render",
+			"weight": 16
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/web",
+			"weight": 16
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "server",
+			"weight": 16
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "server/route-matchers",
+			"weight": 16
+		},
+		{
+			"source": "server/web",
+			"target": "shared/lib",
+			"weight": 16
+		},
+		{
+			"source": "server/web",
+			"target": "server",
+			"weight": 16
+		},
+		{
+			"source": "export/routes",
+			"target": "lib",
+			"weight": 15
+		},
+		{
+			"source": "lib/metadata",
+			"target": "shared/lib",
+			"weight": 15
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "next-devtools/shared",
+			"weight": 15
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "shared/lib",
+			"weight": 15
+		},
+		{
+			"source": "build/templates",
+			"target": "lib",
+			"weight": 14
+		},
+		{
+			"source": "build/webpack",
+			"target": "build/analysis",
+			"weight": 14
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "next-devtools",
+			"weight": 14
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/resume-data-cache",
+			"weight": 14
+		},
+		{
+			"source": "server",
+			"target": "server/app-render",
+			"weight": 14
+		},
+		{
+			"source": "server/web",
+			"target": "server/lib",
+			"weight": 14
+		},
+		{
+			"source": "build",
+			"target": "trace",
+			"weight": 13
+		},
+		{
+			"source": "build",
+			"target": "build/output",
+			"weight": 13
+		},
+		{
+			"source": "build/swc",
+			"target": "server",
+			"weight": 13
+		},
+		{
+			"source": "build/templates",
+			"target": "shared/lib",
+			"weight": 13
+		},
+		{
+			"source": "client/app-dir",
+			"target": "client/components",
+			"weight": 13
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/web",
+			"weight": 13
+		},
+		{
+			"source": "server",
+			"target": "server/base-http",
+			"weight": 13
+		},
+		{
+			"source": "shared/lib",
+			"target": "build/swc",
+			"weight": 13
+		},
+		{
+			"source": "build/adapter",
+			"target": "lib",
+			"weight": 12
+		},
+		{
+			"source": "build",
+			"target": "telemetry/events",
+			"weight": 12
+		},
+		{
+			"source": "build/analysis",
+			"target": "lib",
+			"weight": 12
+		},
+		{
+			"source": "build",
+			"target": "build/swc",
+			"weight": 12
+		},
+		{
+			"source": "build/templates",
+			"target": "server/route-modules",
+			"weight": 12
+		},
+		{
+			"source": "build/webpack",
+			"target": "build/swc",
+			"weight": 12
+		},
+		{
+			"source": "client/dev",
+			"target": "shared/lib",
+			"weight": 12
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "shared/lib",
+			"weight": 12
+		},
+		{
+			"source": "server",
+			"target": "server/response-cache",
+			"weight": 12
+		},
+		{
+			"source": "server",
+			"target": "build/webpack",
+			"weight": 12
+		},
+		{
+			"source": "server",
+			"target": "client/components",
+			"weight": 12
+		},
+		{
+			"source": "server",
+			"target": "server/web",
+			"weight": 12
+		},
+		{
+			"source": "server",
+			"target": "(root)",
+			"weight": 12
+		},
+		{
+			"source": "server/dev",
+			"target": "server/mcp",
+			"weight": 12
+		},
+		{
+			"source": "server",
+			"target": "server/node-environment-extensions",
+			"weight": 12
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/web",
+			"weight": 12
+		},
+		{
+			"source": "build/webpack",
+			"target": "lib/metadata",
+			"weight": 11
+		},
+		{
+			"source": "build/webpack",
+			"target": "server/dev",
+			"weight": 11
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "build",
+			"weight": 11
+		},
+		{
+			"source": "client/app-dir",
+			"target": "client",
+			"weight": 11
+		},
+		{
+			"source": "lib",
+			"target": "build/output",
+			"weight": 11
+		},
+		{
+			"source": "server",
+			"target": "server/route-modules",
+			"weight": 11
+		},
+		{
+			"source": "server/dev",
+			"target": "server/app-render",
+			"weight": 11
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "server/normalizers",
+			"weight": 11
+		},
+		{
+			"source": "server/route-modules",
+			"target": "lib",
+			"weight": 11
+		},
+		{
+			"source": "server/use-cache",
+			"target": "server/lib",
+			"weight": 11
+		},
+		{
+			"source": "shared/lib",
+			"target": "server/request",
+			"weight": 11
+		},
+		{
+			"source": "shared/lib",
+			"target": "server",
+			"weight": 11
+		},
+		{
+			"source": "shared/lib",
+			"target": "build/webpack",
+			"weight": 11
+		},
+		{
+			"source": "build/adapter",
+			"target": "shared/lib",
+			"weight": 10
+		},
+		{
+			"source": "build/analysis",
+			"target": "build/segment-config",
+			"weight": 10
+		},
+		{
+			"source": "client",
+			"target": "client/dev",
+			"weight": 10
+		},
+		{
+			"source": "client/legacy",
+			"target": "shared/lib",
+			"weight": 10
+		},
+		{
+			"source": "export/routes",
+			"target": "server",
+			"weight": 10
+		},
+		{
+			"source": "server/app-render",
+			"target": "build/segment-config",
+			"weight": 10
+		},
+		{
+			"source": "server/lib",
+			"target": "trace",
+			"weight": 10
+		},
+		{
+			"source": "server/route-modules",
+			"target": "(root)",
+			"weight": 10
+		},
+		{
+			"source": "api",
+			"target": "shared/lib",
+			"weight": 9
+		},
+		{
+			"source": "build/adapter",
+			"target": "build",
+			"weight": 9
+		},
+		{
+			"source": "build",
+			"target": "build/analysis",
+			"weight": 9
+		},
+		{
+			"source": "build/templates",
+			"target": "client/components",
+			"weight": 9
+		},
+		{
+			"source": "build/templates",
+			"target": "server/response-cache",
+			"weight": 9
+		},
+		{
+			"source": "cli",
+			"target": "lib/helpers",
+			"weight": 9
+		},
+		{
+			"source": "lib",
+			"target": "server",
+			"weight": 9
+		},
+		{
+			"source": "server/after",
+			"target": "server/app-render",
+			"weight": 9
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/base-http",
+			"weight": 9
+		},
+		{
+			"source": "server/normalizers",
+			"target": "shared/lib",
+			"weight": 9
+		},
+		{
+			"source": "server/request",
+			"target": "server/web",
+			"weight": 9
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/response-cache",
+			"weight": 9
+		},
+		{
+			"source": "trace/report",
+			"target": "trace",
+			"weight": 9
+		},
+		{
+			"source": "api",
+			"target": "client",
+			"weight": 8
+		},
+		{
+			"source": "build/segment-config",
+			"target": "server/route-modules",
+			"weight": 8
+		},
+		{
+			"source": "build/templates",
+			"target": "server/base-http",
+			"weight": 8
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "trace",
+			"weight": 8
+		},
+		{
+			"source": "client",
+			"target": "lib",
+			"weight": 8
+		},
+		{
+			"source": "lib",
+			"target": "lib/helpers",
+			"weight": 8
+		},
+		{
+			"source": "lib",
+			"target": "server/lib",
+			"weight": 8
+		},
+		{
+			"source": "lib/metadata",
+			"target": "server/lib",
+			"weight": 8
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "client/components",
+			"weight": 8
+		},
+		{
+			"source": "server/api-utils",
+			"target": "lib",
+			"weight": 8
+		},
+		{
+			"source": "server/dev",
+			"target": "server/route-definitions",
+			"weight": 8
+		},
+		{
+			"source": "server/dev",
+			"target": "build/output",
+			"weight": 8
+		},
+		{
+			"source": "server/dev",
+			"target": "trace",
+			"weight": 8
+		},
+		{
+			"source": "server/lib",
+			"target": "build/output",
+			"weight": 8
+		},
+		{
+			"source": "server/normalizers",
+			"target": "lib",
+			"weight": 8
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "server/route-definitions",
+			"weight": 8
+		},
+		{
+			"source": "server/route-modules",
+			"target": "build",
+			"weight": 8
+		},
+		{
+			"source": "server/web",
+			"target": "lib",
+			"weight": 8
+		},
+		{
+			"source": "build",
+			"target": "lib/metadata",
+			"weight": 7
+		},
+		{
+			"source": "build/segment-config",
+			"target": "shared/lib",
+			"weight": 7
+		},
+		{
+			"source": "build/templates",
+			"target": "server/app-render",
+			"weight": 7
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "trace",
+			"weight": 7
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "lib",
+			"weight": 7
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "shared/lib",
+			"weight": 7
+		},
+		{
+			"source": "export/routes",
+			"target": "server/lib",
+			"weight": 7
+		},
+		{
+			"source": "lib/metadata",
+			"target": "server/request",
+			"weight": 7
+		},
+		{
+			"source": "server/app-render",
+			"target": "build/webpack",
+			"weight": 7
+		},
+		{
+			"source": "server/dev",
+			"target": "server/route-matcher-providers",
+			"weight": 7
+		},
+		{
+			"source": "server/lib",
+			"target": "server/dev",
+			"weight": 7
+		},
+		{
+			"source": "server/lib",
+			"target": "lib/metadata",
+			"weight": 7
+		},
+		{
+			"source": "server/mcp",
+			"target": "server/dev",
+			"weight": 7
+		},
+		{
+			"source": "server/response-cache",
+			"target": "server",
+			"weight": 7
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "lib",
+			"weight": 7
+		},
+		{
+			"source": "server/web",
+			"target": "client/components",
+			"weight": 7
+		},
+		{
+			"source": "server/web",
+			"target": "server/base-http",
+			"weight": 7
+		},
+		{
+			"source": "(root)",
+			"target": "lib/metadata",
+			"weight": 7
+		},
+		{
+			"source": "api",
+			"target": "pages",
+			"weight": 6
+		},
+		{
+			"source": "build/output",
+			"target": "lib",
+			"weight": 6
+		},
+		{
+			"source": "build/static-paths",
+			"target": "server/request",
+			"weight": 6
+		},
+		{
+			"source": "build/swc",
+			"target": "build",
+			"weight": 6
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "build",
+			"weight": 6
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "build/swc",
+			"weight": 6
+		},
+		{
+			"source": "build/webpack",
+			"target": "trace",
+			"weight": 6
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "build/webpack",
+			"weight": 6
+		},
+		{
+			"source": "cli",
+			"target": "build/output",
+			"weight": 6
+		},
+		{
+			"source": "cli",
+			"target": "trace",
+			"weight": 6
+		},
+		{
+			"source": "client/app-dir",
+			"target": "shared/lib",
+			"weight": 6
+		},
+		{
+			"source": "client",
+			"target": "client/react-client-callbacks",
+			"weight": 6
+		},
+		{
+			"source": "client/components",
+			"target": "server/request",
+			"weight": 6
+		},
+		{
+			"source": "client/dev",
+			"target": "next-devtools/userspace",
+			"weight": 6
+		},
+		{
+			"source": "export/routes",
+			"target": "shared/lib",
+			"weight": 6
+		},
+		{
+			"source": "lib/memory",
+			"target": "build/output",
+			"weight": 6
+		},
+		{
+			"source": "server",
+			"target": "server/api-utils",
+			"weight": 6
+		},
+		{
+			"source": "server/dev",
+			"target": "next-devtools/shared",
+			"weight": 6
+		},
+		{
+			"source": "server/dev",
+			"target": "next-devtools/dev-overlay",
+			"weight": 6
+		},
+		{
+			"source": "server/dev",
+			"target": "server/base-http",
+			"weight": 6
+		},
+		{
+			"source": "server/dev",
+			"target": "server/route-modules",
+			"weight": 6
+		},
+		{
+			"source": "server/lib",
+			"target": "server/web",
+			"weight": 6
+		},
+		{
+			"source": "server",
+			"target": "server/stream-utils",
+			"weight": 6
+		},
+		{
+			"source": "server/request",
+			"target": "client/components",
+			"weight": 6
+		},
+		{
+			"source": "server/route-definitions",
+			"target": "server",
+			"weight": 6
+		},
+		{
+			"source": "server/route-matchers",
+			"target": "server/route-definitions",
+			"weight": 6
+		},
+		{
+			"source": "server/route-matches",
+			"target": "server/route-definitions",
+			"weight": 6
+		},
+		{
+			"source": "server/use-cache",
+			"target": "server",
+			"weight": 6
+		},
+		{
+			"source": "server/web",
+			"target": "server/after",
+			"weight": 6
+		},
+		{
+			"source": "api",
+			"target": "client/components",
+			"weight": 5
+		},
+		{
+			"source": "bin",
+			"target": "lib",
+			"weight": 5
+		},
+		{
+			"source": "build/analysis",
+			"target": "shared/lib",
+			"weight": 5
+		},
+		{
+			"source": "build",
+			"target": "server/api-utils",
+			"weight": 5
+		},
+		{
+			"source": "build",
+			"target": "build/static-paths",
+			"weight": 5
+		},
+		{
+			"source": "build",
+			"target": "build/segment-config",
+			"weight": 5
+		},
+		{
+			"source": "build/static-paths",
+			"target": "server/lib",
+			"weight": 5
+		},
+		{
+			"source": "build/static-paths",
+			"target": "server/app-render",
+			"weight": 5
+		},
+		{
+			"source": "build/static-paths",
+			"target": "server/route-modules",
+			"weight": 5
+		},
+		{
+			"source": "build/templates",
+			"target": "server/request",
+			"weight": 5
+		},
+		{
+			"source": "cli",
+			"target": "server",
+			"weight": 5
+		},
+		{
+			"source": "client/components",
+			"target": "lib",
+			"weight": 5
+		},
+		{
+			"source": "client/dev",
+			"target": "client/components",
+			"weight": 5
+		},
+		{
+			"source": "client/request",
+			"target": "shared/lib",
+			"weight": 5
+		},
+		{
+			"source": "experimental/testing",
+			"target": "lib",
+			"weight": 5
+		},
+		{
+			"source": "export",
+			"target": "build",
+			"weight": 5
+		},
+		{
+			"source": "export",
+			"target": "build/turborepo-access-trace",
+			"weight": 5
+		},
+		{
+			"source": "export/routes",
+			"target": "server/route-modules",
+			"weight": 5
+		},
+		{
+			"source": "lib/memory",
+			"target": "lib",
+			"weight": 5
+		},
+		{
+			"source": "lib/metadata",
+			"target": "server/app-render",
+			"weight": 5
+		},
+		{
+			"source": "lib",
+			"target": "lib/typescript",
+			"weight": 5
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "next-devtools/userspace",
+			"weight": 5
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "shared/lib",
+			"weight": 5
+		},
+		{
+			"source": "server/api-utils",
+			"target": "shared/lib",
+			"weight": 5
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/async-storage",
+			"weight": 5
+		},
+		{
+			"source": "server/app-render",
+			"target": "lib/framework",
+			"weight": 5
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/app-render",
+			"weight": 5
+		},
+		{
+			"source": "server",
+			"target": "build",
+			"weight": 5
+		},
+		{
+			"source": "server",
+			"target": "server/route-matches",
+			"weight": 5
+		},
+		{
+			"source": "server",
+			"target": "server/normalizers",
+			"weight": 5
+		},
+		{
+			"source": "server",
+			"target": "build/output",
+			"weight": 5
+		},
+		{
+			"source": "server",
+			"target": "server/route-matcher-providers",
+			"weight": 5
+		},
+		{
+			"source": "server/lib",
+			"target": "client/components",
+			"weight": 5
+		},
+		{
+			"source": "server/node-environment-extensions",
+			"target": "server",
+			"weight": 5
+		},
+		{
+			"source": "server/response-cache",
+			"target": "lib",
+			"weight": 5
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "server/route-definitions",
+			"weight": 5
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "server/route-matchers",
+			"weight": 5
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/route-definitions",
+			"weight": 5
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/api-utils",
+			"weight": 5
+		},
+		{
+			"source": "server/web",
+			"target": "build/webpack",
+			"weight": 5
+		},
+		{
+			"source": "(root)",
+			"target": "shared/lib",
+			"weight": 5
+		},
+		{
+			"source": "build",
+			"target": "telemetry",
+			"weight": 4
+		},
+		{
+			"source": "build/analyze",
+			"target": "build",
+			"weight": 4
+		},
+		{
+			"source": "build/static-paths",
+			"target": "lib",
+			"weight": 4
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "lib",
+			"weight": 4
+		},
+		{
+			"source": "build",
+			"target": "server/route-modules",
+			"weight": 4
+		},
+		{
+			"source": "cli",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "client/request",
+			"target": "server/request",
+			"weight": 4
+		},
+		{
+			"source": "experimental/testing",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "export/helpers",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "export",
+			"target": "export/helpers",
+			"weight": 4
+		},
+		{
+			"source": "export",
+			"target": "server/request",
+			"weight": 4
+		},
+		{
+			"source": "export/routes",
+			"target": "server/base-http",
+			"weight": 4
+		},
+		{
+			"source": "export",
+			"target": "server/lib",
+			"weight": 4
+		},
+		{
+			"source": "export",
+			"target": "export/routes",
+			"weight": 4
+		},
+		{
+			"source": "lib",
+			"target": "build",
+			"weight": 4
+		},
+		{
+			"source": "lib",
+			"target": "client/components",
+			"weight": 4
+		},
+		{
+			"source": "lib/metadata",
+			"target": "lib",
+			"weight": 4
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "server/dev",
+			"weight": 4
+		},
+		{
+			"source": "next-devtools/shared",
+			"target": "next-devtools/server",
+			"weight": 4
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "lib",
+			"weight": 4
+		},
+		{
+			"source": "server/after",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "server/api-utils",
+			"target": "server/lib",
+			"weight": 4
+		},
+		{
+			"source": "server/api-utils",
+			"target": "(root)",
+			"weight": 4
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/use-cache",
+			"weight": 4
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/api-utils",
+			"weight": 4
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/lib",
+			"weight": 4
+		},
+		{
+			"source": "server/base-http",
+			"target": "server/api-utils",
+			"weight": 4
+		},
+		{
+			"source": "server/base-http",
+			"target": "server/web",
+			"weight": 4
+		},
+		{
+			"source": "server",
+			"target": "server/request",
+			"weight": 4
+		},
+		{
+			"source": "server",
+			"target": "server/route-matcher-managers",
+			"weight": 4
+		},
+		{
+			"source": "server",
+			"target": "server/after",
+			"weight": 4
+		},
+		{
+			"source": "server/dev",
+			"target": "build/static-paths",
+			"weight": 4
+		},
+		{
+			"source": "server/lib",
+			"target": "build/webpack",
+			"weight": 4
+		},
+		{
+			"source": "server/mcp",
+			"target": "build/swc",
+			"weight": 4
+		},
+		{
+			"source": "server/mcp",
+			"target": "next-devtools/dev-overlay",
+			"weight": 4
+		},
+		{
+			"source": "server/mcp",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "server/request",
+			"target": "build/static-paths",
+			"weight": 4
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "lib/metadata",
+			"weight": 4
+		},
+		{
+			"source": "server/route-matchers",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/base-http",
+			"weight": 4
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/normalizers",
+			"weight": 4
+		},
+		{
+			"source": "server/stream-utils",
+			"target": "lib",
+			"weight": 4
+		},
+		{
+			"source": "server/stream-utils",
+			"target": "client/components",
+			"weight": 4
+		},
+		{
+			"source": "server/use-cache",
+			"target": "shared/lib",
+			"weight": 4
+		},
+		{
+			"source": "server/use-cache",
+			"target": "server/request",
+			"weight": 4
+		},
+		{
+			"source": "server/web",
+			"target": "server/response-cache",
+			"weight": 4
+		},
+		{
+			"source": "shared/lib",
+			"target": "build/output",
+			"weight": 4
+		},
+		{
+			"source": "shared/lib",
+			"target": "server/lib",
+			"weight": 4
+		},
+		{
+			"source": "shared/lib",
+			"target": "server/dev",
+			"weight": 4
+		},
+		{
+			"source": "telemetry",
+			"target": "lib",
+			"weight": 4
+		},
+		{
+			"source": "(root)",
+			"target": "client",
+			"weight": 4
+		},
+		{
+			"source": "api",
+			"target": "server/request",
+			"weight": 3
+		},
+		{
+			"source": "bin",
+			"target": "server/lib",
+			"weight": 3
+		},
+		{
+			"source": "build/analysis",
+			"target": "build",
+			"weight": 3
+		},
+		{
+			"source": "build/analyze",
+			"target": "lib",
+			"weight": 3
+		},
+		{
+			"source": "build/babel",
+			"target": "trace",
+			"weight": 3
+		},
+		{
+			"source": "build",
+			"target": "build/turborepo-access-trace",
+			"weight": 3
+		},
+		{
+			"source": "build",
+			"target": "diagnostics",
+			"weight": 3
+		},
+		{
+			"source": "build",
+			"target": "export",
+			"weight": 3
+		},
+		{
+			"source": "build/jest",
+			"target": "build/swc",
+			"weight": 3
+		},
+		{
+			"source": "build/output",
+			"target": "shared/lib",
+			"weight": 3
+		},
+		{
+			"source": "build/output",
+			"target": "trace",
+			"weight": 3
+		},
+		{
+			"source": "build/segment-config",
+			"target": "lib",
+			"weight": 3
+		},
+		{
+			"source": "build/static-paths",
+			"target": "build/segment-config",
+			"weight": 3
+		},
+		{
+			"source": "build/swc",
+			"target": "lib",
+			"weight": 3
+		},
+		{
+			"source": "build/templates",
+			"target": "server/instrumentation",
+			"weight": 3
+		},
+		{
+			"source": "build/templates",
+			"target": "server/api-utils",
+			"weight": 3
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "shared/lib",
+			"weight": 3
+		},
+		{
+			"source": "build/webpack",
+			"target": "server/normalizers",
+			"weight": 3
+		},
+		{
+			"source": "client/react-client-callbacks",
+			"target": "client/components",
+			"weight": 3
+		},
+		{
+			"source": "experimental/testing",
+			"target": "server",
+			"weight": 3
+		},
+		{
+			"source": "experimental/testing",
+			"target": "build",
+			"weight": 3
+		},
+		{
+			"source": "experimental/testing",
+			"target": "server/base-http",
+			"weight": 3
+		},
+		{
+			"source": "export",
+			"target": "build/webpack",
+			"weight": 3
+		},
+		{
+			"source": "export/routes",
+			"target": "export",
+			"weight": 3
+		},
+		{
+			"source": "export/routes",
+			"target": "server/app-render",
+			"weight": 3
+		},
+		{
+			"source": "export/routes",
+			"target": "server/request",
+			"weight": 3
+		},
+		{
+			"source": "export/routes",
+			"target": "server/web",
+			"weight": 3
+		},
+		{
+			"source": "export",
+			"target": "server/route-modules",
+			"weight": 3
+		},
+		{
+			"source": "lib/memory",
+			"target": "trace",
+			"weight": 3
+		},
+		{
+			"source": "lib/metadata",
+			"target": "lib/framework",
+			"weight": 3
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "lib",
+			"weight": 3
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "server/lib",
+			"weight": 3
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "client/lib",
+			"weight": 3
+		},
+		{
+			"source": "server/after",
+			"target": "lib",
+			"weight": 3
+		},
+		{
+			"source": "server/api-utils",
+			"target": "server/web",
+			"weight": 3
+		},
+		{
+			"source": "server/app-render",
+			"target": "(root)",
+			"weight": 3
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/route-modules",
+			"weight": 3
+		},
+		{
+			"source": "server/app-render",
+			"target": "build/output",
+			"weight": 3
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/node-environment-extensions",
+			"weight": 3
+		},
+		{
+			"source": "server/app-render",
+			"target": "lib/metadata",
+			"weight": 3
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/instrumentation",
+			"weight": 3
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/base-http",
+			"weight": 3
+		},
+		{
+			"source": "server/async-storage",
+			"target": "client/components",
+			"weight": 3
+		},
+		{
+			"source": "server/base-http",
+			"target": "server",
+			"weight": 3
+		},
+		{
+			"source": "server/dev",
+			"target": "server/stream-utils",
+			"weight": 3
+		},
+		{
+			"source": "server/dev",
+			"target": "build/webpack",
+			"weight": 3
+		},
+		{
+			"source": "server/dev",
+			"target": "server/route-matcher-managers",
+			"weight": 3
+		},
+		{
+			"source": "server/dev",
+			"target": "server/use-cache",
+			"weight": 3
+		},
+		{
+			"source": "server/lib",
+			"target": "server/base-http",
+			"weight": 3
+		},
+		{
+			"source": "server/lib",
+			"target": "server/normalizers",
+			"weight": 3
+		},
+		{
+			"source": "server",
+			"target": "server/use-cache",
+			"weight": 3
+		},
+		{
+			"source": "server/node-environment-extensions",
+			"target": "shared/lib",
+			"weight": 3
+		},
+		{
+			"source": "server/response-cache",
+			"target": "server/lib",
+			"weight": 3
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "server",
+			"weight": 3
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "server/route-matcher-providers",
+			"weight": 3
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "server/route-matches",
+			"weight": 3
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "server/lib",
+			"weight": 3
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/async-storage",
+			"weight": 3
+		},
+		{
+			"source": "server/route-modules",
+			"target": "pages",
+			"weight": 3
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/instrumentation",
+			"weight": 3
+		},
+		{
+			"source": "shared/lib",
+			"target": "client/components",
+			"weight": 3
+		},
+		{
+			"source": "shared/lib",
+			"target": "(root)",
+			"weight": 3
+		},
+		{
+			"source": "shared/lib",
+			"target": "server/app-render",
+			"weight": 3
+		},
+		{
+			"source": "shared/lib",
+			"target": "trace",
+			"weight": 3
+		},
+		{
+			"source": "telemetry",
+			"target": "server",
+			"weight": 3
+		},
+		{
+			"source": "telemetry/events",
+			"target": "build/webpack",
+			"weight": 3
+		},
+		{
+			"source": "build/adapter",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "build/adapter",
+			"target": "build/webpack",
+			"weight": 2
+		},
+		{
+			"source": "build/adapter",
+			"target": "lib/metadata",
+			"weight": 2
+		},
+		{
+			"source": "build/analysis",
+			"target": "server/lib",
+			"weight": 2
+		},
+		{
+			"source": "build/analyze",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "build/analyze",
+			"target": "trace",
+			"weight": 2
+		},
+		{
+			"source": "build/analyze",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "build/analyze",
+			"target": "build/turbopack-analyze",
+			"weight": 2
+		},
+		{
+			"source": "build/babel",
+			"target": "build/swc",
+			"weight": 2
+		},
+		{
+			"source": "build/babel",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "build",
+			"target": "(root)",
+			"weight": 2
+		},
+		{
+			"source": "build/next-config-ts",
+			"target": "build/output",
+			"weight": 2
+		},
+		{
+			"source": "build/output",
+			"target": "server/lib",
+			"weight": 2
+		},
+		{
+			"source": "build/segment-config",
+			"target": "server/lib",
+			"weight": 2
+		},
+		{
+			"source": "build/templates",
+			"target": "server/stream-utils",
+			"weight": 2
+		},
+		{
+			"source": "build/templates",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "build/turbopack-analyze",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "build/turbopack-analyze",
+			"target": "lib",
+			"weight": 2
+		},
+		{
+			"source": "build/turbopack-analyze",
+			"target": "build/swc",
+			"weight": 2
+		},
+		{
+			"source": "build/turbopack-analyze",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "telemetry",
+			"weight": 2
+		},
+		{
+			"source": "build/webpack",
+			"target": "client/components",
+			"weight": 2
+		},
+		{
+			"source": "build/webpack",
+			"target": "(root)",
+			"weight": 2
+		},
+		{
+			"source": "build/webpack",
+			"target": "client",
+			"weight": 2
+		},
+		{
+			"source": "build/webpack",
+			"target": "server/web",
+			"weight": 2
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "build/output",
+			"weight": 2
+		},
+		{
+			"source": "build/webpack-config-rules",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "build",
+			"target": "build/webpack-config-rules",
+			"weight": 2
+		},
+		{
+			"source": "cli/internal",
+			"target": "build/swc",
+			"weight": 2
+		},
+		{
+			"source": "cli",
+			"target": "build",
+			"weight": 2
+		},
+		{
+			"source": "cli",
+			"target": "lib/memory",
+			"weight": 2
+		},
+		{
+			"source": "cli",
+			"target": "telemetry",
+			"weight": 2
+		},
+		{
+			"source": "cli",
+			"target": "build/swc",
+			"weight": 2
+		},
+		{
+			"source": "client",
+			"target": "build/polyfills",
+			"weight": 2
+		},
+		{
+			"source": "client/components",
+			"target": "client/lib",
+			"weight": 2
+		},
+		{
+			"source": "client/dev",
+			"target": "client",
+			"weight": 2
+		},
+		{
+			"source": "client/dev",
+			"target": "lib",
+			"weight": 2
+		},
+		{
+			"source": "client/legacy",
+			"target": "client",
+			"weight": 2
+		},
+		{
+			"source": "client",
+			"target": "server/dev",
+			"weight": 2
+		},
+		{
+			"source": "client",
+			"target": "build/analysis",
+			"weight": 2
+		},
+		{
+			"source": "client",
+			"target": "client/lib",
+			"weight": 2
+		},
+		{
+			"source": "client/react-client-callbacks",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "client/request",
+			"target": "server/web",
+			"weight": 2
+		},
+		{
+			"source": "client/tracing",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "diagnostics",
+			"target": "trace",
+			"weight": 2
+		},
+		{
+			"source": "experimental/testing",
+			"target": "server/web",
+			"weight": 2
+		},
+		{
+			"source": "export/helpers",
+			"target": "server/lib",
+			"weight": 2
+		},
+		{
+			"source": "export/helpers",
+			"target": "lib",
+			"weight": 2
+		},
+		{
+			"source": "export/helpers",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "export/helpers",
+			"target": "client/components",
+			"weight": 2
+		},
+		{
+			"source": "export",
+			"target": "trace",
+			"weight": 2
+		},
+		{
+			"source": "export/routes",
+			"target": "export/helpers",
+			"weight": 2
+		},
+		{
+			"source": "export/routes",
+			"target": "server/after",
+			"weight": 2
+		},
+		{
+			"source": "export",
+			"target": "server/app-render",
+			"weight": 2
+		},
+		{
+			"source": "export",
+			"target": "server/resume-data-cache",
+			"weight": 2
+		},
+		{
+			"source": "lib",
+			"target": "(root)",
+			"weight": 2
+		},
+		{
+			"source": "lib/metadata",
+			"target": "build/webpack",
+			"weight": 2
+		},
+		{
+			"source": "lib/metadata",
+			"target": "build/output",
+			"weight": 2
+		},
+		{
+			"source": "lib/metadata",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "lib/typescript",
+			"target": "build/output",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "server/lib",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools",
+			"target": "next-devtools/shared",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools",
+			"target": "server/dev",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "build/output",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "next-devtools/shared",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "telemetry",
+			"weight": 2
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "client/dev",
+			"weight": 2
+		},
+		{
+			"source": "pages",
+			"target": "client",
+			"weight": 2
+		},
+		{
+			"source": "pages",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "pages",
+			"target": "server/lib",
+			"weight": 2
+		},
+		{
+			"source": "server/after",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "server/api-utils",
+			"target": "server/base-http",
+			"weight": 2
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/response-cache",
+			"weight": 2
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/request",
+			"weight": 2
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "server",
+			"target": "build/static-paths",
+			"weight": 2
+		},
+		{
+			"source": "server",
+			"target": "cli",
+			"weight": 2
+		},
+		{
+			"source": "server",
+			"target": "build/swc",
+			"weight": 2
+		},
+		{
+			"source": "server/dev",
+			"target": "server/api-utils",
+			"weight": 2
+		},
+		{
+			"source": "server/dev",
+			"target": "lib/metadata",
+			"weight": 2
+		},
+		{
+			"source": "server/dev",
+			"target": "telemetry",
+			"weight": 2
+		},
+		{
+			"source": "server/dev",
+			"target": "next-devtools/userspace",
+			"weight": 2
+		},
+		{
+			"source": "server/dev",
+			"target": "build/segment-config",
+			"weight": 2
+		},
+		{
+			"source": "server/lib",
+			"target": "telemetry",
+			"weight": 2
+		},
+		{
+			"source": "server/lib",
+			"target": "server/request",
+			"weight": 2
+		},
+		{
+			"source": "server/lib",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "server/lib",
+			"target": "(root)",
+			"weight": 2
+		},
+		{
+			"source": "server/lib",
+			"target": "server/instrumentation",
+			"weight": 2
+		},
+		{
+			"source": "server/lib",
+			"target": "build/swc",
+			"weight": 2
+		},
+		{
+			"source": "server/lib",
+			"target": "telemetry/events",
+			"weight": 2
+		},
+		{
+			"source": "server/mcp",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "server/mcp",
+			"target": "next-devtools/server",
+			"weight": 2
+		},
+		{
+			"source": "server",
+			"target": "next-devtools/userspace",
+			"weight": 2
+		},
+		{
+			"source": "server/request",
+			"target": "server/route-modules",
+			"weight": 2
+		},
+		{
+			"source": "server/resume-data-cache",
+			"target": "server/app-render",
+			"weight": 2
+		},
+		{
+			"source": "server/resume-data-cache",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "lib",
+			"weight": 2
+		},
+		{
+			"source": "server/route-matchers",
+			"target": "server/route-matches",
+			"weight": 2
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/request",
+			"weight": 2
+		},
+		{
+			"source": "server/route-modules",
+			"target": "build/segment-config",
+			"weight": 2
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "server/stream-utils",
+			"target": "server/lib",
+			"weight": 2
+		},
+		{
+			"source": "server/stream-utils",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "server/use-cache",
+			"target": "lib",
+			"weight": 2
+		},
+		{
+			"source": "server/use-cache",
+			"target": "client/components",
+			"weight": 2
+		},
+		{
+			"source": "server/use-cache",
+			"target": "server/web",
+			"weight": 2
+		},
+		{
+			"source": "server/web",
+			"target": "server/async-storage",
+			"weight": 2
+		},
+		{
+			"source": "server/web",
+			"target": "server/route-modules",
+			"weight": 2
+		},
+		{
+			"source": "server/web",
+			"target": "server/use-cache",
+			"weight": 2
+		},
+		{
+			"source": "server/web",
+			"target": "server/instrumentation",
+			"weight": 2
+		},
+		{
+			"source": "server/web",
+			"target": "build/segment-config",
+			"weight": 2
+		},
+		{
+			"source": "shared/lib",
+			"target": "server/api-utils",
+			"weight": 2
+		},
+		{
+			"source": "shared/lib",
+			"target": "next-devtools/dev-overlay",
+			"weight": 2
+		},
+		{
+			"source": "shared/lib",
+			"target": "server/base-http",
+			"weight": 2
+		},
+		{
+			"source": "telemetry/events",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "trace/report",
+			"target": "shared/lib",
+			"weight": 2
+		},
+		{
+			"source": "trace",
+			"target": "lib/helpers",
+			"weight": 2
+		},
+		{
+			"source": "(root)",
+			"target": "server",
+			"weight": 2
+		},
+		{
+			"source": "(root)",
+			"target": "build/adapter",
+			"weight": 2
+		},
+		{
+			"source": "api",
+			"target": "server/og",
+			"weight": 1
+		},
+		{
+			"source": "api",
+			"target": "server/web",
+			"weight": 1
+		},
+		{
+			"source": "bin",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "bin",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/adapter",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/adapter",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "build/analysis",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "build/analysis",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/analysis",
+			"target": "build/webpack",
+			"weight": 1
+		},
+		{
+			"source": "build/analysis",
+			"target": "build/swc",
+			"weight": 1
+		},
+		{
+			"source": "build/analyze",
+			"target": "server/api-utils",
+			"weight": 1
+		},
+		{
+			"source": "build/analyze",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/analyze",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "build/analyze",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "build/analyze",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "build/babel",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/babel",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "build/babel",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "build/babel",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "build/webpack-build",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "build/manifests",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "lib/memory",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "server/app-render",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "build/turbopack-build",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "build/adapter",
+			"weight": 1
+		},
+		{
+			"source": "build/jest",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "build/jest",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "build/jest",
+			"target": "build",
+			"weight": 1
+		},
+		{
+			"source": "build/jest",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/jest",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "lib/typescript",
+			"weight": 1
+		},
+		{
+			"source": "build/next-config-ts",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "server/normalizers",
+			"weight": 1
+		},
+		{
+			"source": "build/output",
+			"target": "build/swc",
+			"weight": 1
+		},
+		{
+			"source": "build/segment-config",
+			"target": "server/request",
+			"weight": 1
+		},
+		{
+			"source": "build/static-paths",
+			"target": "server/after",
+			"weight": 1
+		},
+		{
+			"source": "build/static-paths",
+			"target": "server/async-storage",
+			"weight": 1
+		},
+		{
+			"source": "build/static-paths",
+			"target": "export/helpers",
+			"weight": 1
+		},
+		{
+			"source": "build/static-paths",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "build/static-paths",
+			"target": "(root)",
+			"weight": 1
+		},
+		{
+			"source": "build/swc",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/swc",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "build/swc",
+			"target": "server/api-utils",
+			"weight": 1
+		},
+		{
+			"source": "build/templates",
+			"target": "build/static-paths",
+			"weight": 1
+		},
+		{
+			"source": "build/templates",
+			"target": "build/adapter",
+			"weight": 1
+		},
+		{
+			"source": "build/templates",
+			"target": "(root)",
+			"weight": 1
+		},
+		{
+			"source": "build/turbopack-analyze",
+			"target": "server/api-utils",
+			"weight": 1
+		},
+		{
+			"source": "build/turbopack-analyze",
+			"target": "build",
+			"weight": 1
+		},
+		{
+			"source": "build/turbopack-analyze",
+			"target": "trace",
+			"weight": 1
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "export",
+			"weight": 1
+		},
+		{
+			"source": "build/turbopack-build",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "server/web",
+			"weight": 1
+		},
+		{
+			"source": "build",
+			"target": "export/helpers",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack",
+			"target": "server/route-modules",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack",
+			"target": "server/use-cache",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack",
+			"target": "server/app-render",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "build/webpack-build",
+			"target": "build/swc",
+			"weight": 1
+		},
+		{
+			"source": "cli/internal",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "cli/internal",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "cli",
+			"target": "build/analyze",
+			"weight": 1
+		},
+		{
+			"source": "cli",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "cli",
+			"target": "server/dev",
+			"weight": 1
+		},
+		{
+			"source": "cli",
+			"target": "next-devtools/shared",
+			"weight": 1
+		},
+		{
+			"source": "client",
+			"target": "next-devtools/userspace",
+			"weight": 1
+		},
+		{
+			"source": "client/compat",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "client/compat",
+			"target": "client",
+			"weight": 1
+		},
+		{
+			"source": "client/components",
+			"target": "lib/framework",
+			"weight": 1
+		},
+		{
+			"source": "client/components",
+			"target": "client/dev",
+			"weight": 1
+		},
+		{
+			"source": "client/components",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "client/components",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "client/dev",
+			"target": "next-devtools/shared",
+			"weight": 1
+		},
+		{
+			"source": "client/dev",
+			"target": "build/swc",
+			"weight": 1
+		},
+		{
+			"source": "client",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "client",
+			"target": "client/portal",
+			"weight": 1
+		},
+		{
+			"source": "client",
+			"target": "client/tracing",
+			"weight": 1
+		},
+		{
+			"source": "client/lib",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "client/lib",
+			"target": "client",
+			"weight": 1
+		},
+		{
+			"source": "client/react-client-callbacks",
+			"target": "next-devtools/userspace",
+			"weight": 1
+		},
+		{
+			"source": "client/react-client-callbacks",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "client",
+			"target": "build",
+			"weight": 1
+		},
+		{
+			"source": "client/tracing",
+			"target": "client/dev",
+			"weight": 1
+		},
+		{
+			"source": "diagnostics",
+			"target": "export",
+			"weight": 1
+		},
+		{
+			"source": "diagnostics",
+			"target": "server/base-http",
+			"weight": 1
+		},
+		{
+			"source": "experimental/testing",
+			"target": "server/request",
+			"weight": 1
+		},
+		{
+			"source": "experimental/testing",
+			"target": "server/route-modules",
+			"weight": 1
+		},
+		{
+			"source": "experimental/testing",
+			"target": "build/analysis",
+			"weight": 1
+		},
+		{
+			"source": "experimental/testing",
+			"target": "build/segment-config",
+			"weight": 1
+		},
+		{
+			"source": "experimental/testing",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "experimental/testmode",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "experimental/testmode",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "export/helpers",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "export/helpers",
+			"target": "server/app-render",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "build/manifests",
+			"weight": 1
+		},
+		{
+			"source": "export/routes",
+			"target": "client/components",
+			"weight": 1
+		},
+		{
+			"source": "export/routes",
+			"target": "server/resume-data-cache",
+			"weight": 1
+		},
+		{
+			"source": "export/routes",
+			"target": "lib/metadata",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "server/base-http",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "build/swc",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "client/components",
+			"weight": 1
+		},
+		{
+			"source": "export",
+			"target": "server/node-environment-extensions",
+			"weight": 1
+		},
+		{
+			"source": "lib/helpers",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "lib/helpers",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "lib/metadata",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "lib/metadata",
+			"target": "build",
+			"weight": 1
+		},
+		{
+			"source": "lib/metadata",
+			"target": "client/components",
+			"weight": 1
+		},
+		{
+			"source": "lib/typescript",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "lib/typescript",
+			"target": "lib/helpers",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/dev-overlay",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools",
+			"target": "next-devtools/userspace",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "server/dev",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "next-devtools/dev-overlay",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "build/swc",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "build/webpack",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/server",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/shared",
+			"target": "next-devtools/dev-overlay",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/shared",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/shared",
+			"target": "server/dev",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "client",
+			"weight": 1
+		},
+		{
+			"source": "next-devtools/userspace",
+			"target": "client/react-client-callbacks",
+			"weight": 1
+		},
+		{
+			"source": "pages",
+			"target": "build/webpack",
+			"weight": 1
+		},
+		{
+			"source": "pages",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "server/after",
+			"target": "server/web",
+			"weight": 1
+		},
+		{
+			"source": "server/api-utils",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "server/api-utils",
+			"target": "server/instrumentation",
+			"weight": 1
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/dev",
+			"weight": 1
+		},
+		{
+			"source": "server/app-render",
+			"target": "build/swc",
+			"weight": 1
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/api-utils",
+			"weight": 1
+		},
+		{
+			"source": "server/app-render",
+			"target": "next-devtools/dev-overlay",
+			"weight": 1
+		},
+		{
+			"source": "server/app-render",
+			"target": "server/after",
+			"weight": 1
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/response-cache",
+			"weight": 1
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/resume-data-cache",
+			"weight": 1
+		},
+		{
+			"source": "server/async-storage",
+			"target": "build/segment-config",
+			"weight": 1
+		},
+		{
+			"source": "server/async-storage",
+			"target": "server/after",
+			"weight": 1
+		},
+		{
+			"source": "server/async-storage",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "server/base-http",
+			"target": "client/components",
+			"weight": 1
+		},
+		{
+			"source": "server/base-http",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "server/base-http",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "build/analysis",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "server/instrumentation",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "api",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "build/next-config-ts",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "build/adapter",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "server/mcp",
+			"weight": 1
+		},
+		{
+			"source": "server/dev",
+			"target": "server/request",
+			"weight": 1
+		},
+		{
+			"source": "server/dev",
+			"target": "server/response-cache",
+			"weight": 1
+		},
+		{
+			"source": "server/dev",
+			"target": "client",
+			"weight": 1
+		},
+		{
+			"source": "server/dev",
+			"target": "export/helpers",
+			"weight": 1
+		},
+		{
+			"source": "server/dev",
+			"target": "server/after",
+			"weight": 1
+		},
+		{
+			"source": "server/dev",
+			"target": "server/async-storage",
+			"weight": 1
+		},
+		{
+			"source": "server/lib",
+			"target": "export/routes",
+			"weight": 1
+		},
+		{
+			"source": "server/lib",
+			"target": "server/route-modules",
+			"weight": 1
+		},
+		{
+			"source": "server/lib",
+			"target": "server/api-utils",
+			"weight": 1
+		},
+		{
+			"source": "server/lib",
+			"target": "next-devtools/dev-overlay",
+			"weight": 1
+		},
+		{
+			"source": "server/lib",
+			"target": "build/analysis",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "lib/metadata",
+			"weight": 1
+		},
+		{
+			"source": "server/mcp",
+			"target": "server/api-utils",
+			"weight": 1
+		},
+		{
+			"source": "server/mcp",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "server/mcp",
+			"target": "build",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "server/typescript",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "server/dev",
+			"weight": 1
+		},
+		{
+			"source": "server/node-environment-extensions",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "server/node-environment-extensions",
+			"target": "server/dev",
+			"weight": 1
+		},
+		{
+			"source": "server/node-environment-extensions",
+			"target": "client/lib",
+			"weight": 1
+		},
+		{
+			"source": "server/node-environment-extensions",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "server/normalizers",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "next-devtools/server",
+			"weight": 1
+		},
+		{
+			"source": "server",
+			"target": "server/resume-data-cache",
+			"weight": 1
+		},
+		{
+			"source": "server/request",
+			"target": "server/async-storage",
+			"weight": 1
+		},
+		{
+			"source": "server/request",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "server/response-cache",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "server/resume-data-cache",
+			"target": "server/response-cache",
+			"weight": 1
+		},
+		{
+			"source": "server/resume-data-cache",
+			"target": "server/stream-utils",
+			"weight": 1
+		},
+		{
+			"source": "server/resume-data-cache",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "server/route-matcher-managers",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "server/route-matcher-providers",
+			"target": "build",
+			"weight": 1
+		},
+		{
+			"source": "server/route-matchers",
+			"target": "server/lib",
+			"weight": 1
+		},
+		{
+			"source": "server/route-matchers",
+			"target": "server/request",
+			"weight": 1
+		},
+		{
+			"source": "server/route-matches",
+			"target": "server",
+			"weight": 1
+		},
+		{
+			"source": "server/route-matches",
+			"target": "server/request",
+			"weight": 1
+		},
+		{
+			"source": "server/route-modules",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "server/route-modules",
+			"target": "server/resume-data-cache",
+			"weight": 1
+		},
+		{
+			"source": "server/route-modules",
+			"target": "build/adapter",
+			"weight": 1
+		},
+		{
+			"source": "server/route-modules",
+			"target": "build/webpack",
+			"weight": 1
+		},
+		{
+			"source": "server/route-modules",
+			"target": "lib/metadata",
+			"weight": 1
+		},
+		{
+			"source": "server/stream-utils",
+			"target": "server/app-render",
+			"weight": 1
+		},
+		{
+			"source": "server/typescript",
+			"target": "build/segment-config",
+			"weight": 1
+		},
+		{
+			"source": "server/use-cache",
+			"target": "build/webpack",
+			"weight": 1
+		},
+		{
+			"source": "server/use-cache",
+			"target": "server/resume-data-cache",
+			"weight": 1
+		},
+		{
+			"source": "server/use-cache",
+			"target": "build/output",
+			"weight": 1
+		},
+		{
+			"source": "server/web",
+			"target": "server/route-matchers",
+			"weight": 1
+		},
+		{
+			"source": "server/web",
+			"target": "server/request",
+			"weight": 1
+		},
+		{
+			"source": "shared/lib",
+			"target": "lib/metadata",
+			"weight": 1
+		},
+		{
+			"source": "shared/lib",
+			"target": "client/lib",
+			"weight": 1
+		},
+		{
+			"source": "shared/lib",
+			"target": "build/analysis",
+			"weight": 1
+		},
+		{
+			"source": "shared/lib",
+			"target": "lib/memory",
+			"weight": 1
+		},
+		{
+			"source": "shared/lib",
+			"target": "telemetry/events",
+			"weight": 1
+		},
+		{
+			"source": "shared/lib",
+			"target": "lib/fs",
+			"weight": 1
+		},
+		{
+			"source": "shared/lib",
+			"target": "build",
+			"weight": 1
+		},
+		{
+			"source": "telemetry",
+			"target": "shared/lib",
+			"weight": 1
+		},
+		{
+			"source": "telemetry/events",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "telemetry/events",
+			"target": "trace",
+			"weight": 1
+		},
+		{
+			"source": "telemetry/events",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "telemetry",
+			"target": "trace",
+			"weight": 1
+		},
+		{
+			"source": "trace/report",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "trace",
+			"target": "trace/report",
+			"weight": 1
+		},
+		{
+			"source": "trace",
+			"target": "telemetry",
+			"weight": 1
+		},
+		{
+			"source": "(root)",
+			"target": "lib",
+			"weight": 1
+		},
+		{
+			"source": "(root)",
+			"target": "server/api-utils",
+			"weight": 1
+		},
+		{
+			"source": "(root)",
+			"target": "build/segment-config",
+			"weight": 1
+		},
+		{
+			"source": "(root)",
+			"target": "server/instrumentation",
+			"weight": 1
+		}
+	]
 }

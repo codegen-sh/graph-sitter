@@ -6,6 +6,7 @@ graph (modules as nodes, aggregated import edges) for the docs visualization.
 Run from the repo root:
     uv run python site/scripts/gen-nextjs-depgraph.py
 """
+
 import json
 import os
 import time
@@ -50,7 +51,7 @@ def main() -> None:
         p = files[fid].path if fid in files else None
         if not p or not p.startswith(PREFIX):
             return None
-        return p[len(PREFIX):]
+        return p[len(PREFIX) :]
 
     # Aggregate file metrics into modules
     mod_files = defaultdict(int)
@@ -102,10 +103,7 @@ def main() -> None:
             }
         )
 
-    edges = [
-        {"source": sm, "target": tm, "weight": w}
-        for (sm, tm), w in sorted(edge_w.items(), key=lambda kv: -kv[1])
-    ]
+    edges = [{"source": sm, "target": tm, "weight": w} for (sm, tm), w in sorted(edge_w.items(), key=lambda kv: -kv[1])]
 
     groups = sorted({n["group"] for n in nodes})
 
