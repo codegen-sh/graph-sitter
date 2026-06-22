@@ -48,7 +48,7 @@ def _memory_payload(samples: list[dict[str, float | str]]) -> dict[str, float | 
     start_rss = float(samples[0]["rss_mb"])
     after_parse_rss = float(samples[1]["rss_mb"])
     after_stats_rss = float(samples[-1]["rss_mb"])
-    peak_rss = max(float(sample["max_rss_mb"]) for sample in samples)
+    peak_rss = max(max(float(sample["rss_mb"]), float(sample["max_rss_mb"])) for sample in samples)
     return {
         "rss_start_mb": round(start_rss, 3),
         "rss_after_parse_mb": round(after_parse_rss, 3),

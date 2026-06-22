@@ -1,0 +1,44 @@
+name: Required CI
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow_ref }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  required-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5.4
+        with:
+          enable-cache: true
+          prune-cache: false
+          python-version: "3.13"
+          version: "0.9.30"
+          cache-suffix: required-ci
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      - name: Run required checks
+        run: |
+          uv run pytest \
+            -n auto \
+            --timeout 15 \
+            tests/unit/cli/commands \
+            tests/unit/sdk/codebase/test_rust_backend.py \
+            tests/unit/sdk/codebase/test_rust_rewrite_readiness.py \
+            -q

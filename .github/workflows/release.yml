@@ -61,7 +61,7 @@ jobs:
           enable-cache: false
           prune-cache: false
           python-version: 3.${{ matrix.python }}
-          version: "0.9.1"
+          version: "0.9.30"
           cache-suffix: 3.${{ matrix.python }}
 
       - name: Fetch tags

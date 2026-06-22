@@ -1,4 +1,5 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"framework": "nextjs",
 	"ignoreCommand": "node scripts/ignore-build.mjs"
 }
