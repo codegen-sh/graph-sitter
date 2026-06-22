@@ -4,6 +4,7 @@ from rich.traceback import install
 # Removed reference to non-existent agent module
 from graph_sitter.cli.commands.config.main import config_command
 from graph_sitter.cli.commands.create.main import create_command
+from graph_sitter.cli.commands.diagnose.main import diagnose_command
 from graph_sitter.cli.commands.doctor.main import doctor_command
 from graph_sitter.cli.commands.init.main import init_command
 from graph_sitter.cli.commands.list.main import list_command
@@ -31,6 +32,7 @@ def main():
 # Removed reference to non-existent agent_command
 main.add_command(init_command)
 main.add_command(doctor_command)
+main.add_command(diagnose_command)
 main.add_command(parse_command)
 main.add_command(run_command)
 main.add_command(transform_command)
