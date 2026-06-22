@@ -35,10 +35,10 @@ type DocsPageProps = {
 	}>;
 };
 
-export const dynamicParams = false;
+const shouldPrerenderDocs = process.env.GRAPH_SITTER_PRERENDER_DOCS !== "0";
 
 export function generateStaticParams() {
-	return getDocsStaticParams();
+	return shouldPrerenderDocs ? getDocsStaticParams() : [];
 }
 
 export async function generateMetadata({

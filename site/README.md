@@ -57,15 +57,20 @@ Recommended project settings:
 ```text
 Framework Preset: Next.js
 Root Directory: site
-Build Command: default
+Build Command: checked in via `site/vercel.json`
 Output Directory: default
 Install Command: default
 Ignored Build Step: node scripts/ignore-build.mjs
 Production Branch: the integrator-approved trunk branch
 ```
 
-The ignored build step is checked in via `site/vercel.json`. It skips Vercel
-builds when a commit does not change `site/` or `docs/`, using
+The Vercel build command is checked in via `site/vercel.json`. Preview builds
+set `GRAPH_SITTER_PRERENDER_DOCS=0`, so the docs route renders pages on demand
+instead of prerendering every MD/MDX page during deployment. Production and
+local `npm run build` builds still prerender the full docs tree.
+
+The ignored build step is also checked in via `site/vercel.json`. It skips
+Vercel builds when a commit does not change `site/` or `docs/`, using
 `VERCEL_GIT_PREVIOUS_SHA` when Vercel exposes system environment variables and
 falling back to `HEAD^` otherwise.
 
