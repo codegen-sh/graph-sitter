@@ -10,7 +10,7 @@ This branch is intended to become the new development baseline, not the final Ru
 - Public API stance: keep the Python shell for users and codemods.
 - Backend stance: Rust compact mode is opt-in and covers the supported subset documented in `supported-subset.json`.
 - Python backend stance: keep it after this merge. Delete it only after the deletion gates below pass.
-- CI stance: fast Rust checks, extension builds, wheel smokes, docs/site checks, and large-repo opt-in checks are the meaningful signal for this baseline. Branch-wide mypy is intentionally skipped for the baseline PR because the branch carries known type debt across a large changed Python surface. The legacy GitHub fixture-push integration tests are also skipped only for the `rust-rewrite` baseline PR because they push branches to an external fixture repo and require a writable PAT; restore or replace that lane after merge. Current `pull_request_target` runs get this through test-level `GITHUB_HEAD_REF == "rust-rewrite"` skips because workflow edits in this PR are not used until they land on `develop`. General release wheels still build `macos-13` on tags/workflow calls, but PRs skip that queue-heavy duplicate and rely on `macos-latest` for macOS smoke.
+- CI stance: fast Rust checks, extension builds, wheel smokes, docs/site checks, and large-repo opt-in checks are the meaningful signal for this baseline. Branch-wide ty is intentionally skipped for the baseline PR because the branch carries known type debt across a large changed Python surface. The legacy GitHub fixture-push integration tests are also skipped only for the `rust-rewrite` baseline PR because they push branches to an external fixture repo and require a writable PAT; restore or replace that lane after merge. Current `pull_request_target` runs get this through test-level `GITHUB_HEAD_REF == "rust-rewrite"` skips because workflow edits in this PR are not used until they land on `develop`. General release wheels still build `macos-13` on tags/workflow calls, but PRs skip that queue-heavy duplicate and rely on `macos-latest` for macOS smoke.
 
 ## What Future Agents Should Trust
 
@@ -27,7 +27,7 @@ This branch is intended to become the new development baseline, not the final Ru
 - Full TypeScript type-system, namespace, JSX prop, and mutable expression-object parity.
 - Python backend deletion readiness.
 - Published-package `uvx graph-sitter ...` claims until a real released artifact is validated.
-- Branch-wide mypy cleanliness.
+- Branch-wide ty cleanliness.
 - Legacy GitHub push integration coverage on the baseline PR; the Rust merge signal comes from unit, fast, extension, wheel, docs/site, and large-repo proof lanes.
 
 ## Python Backend Deletion Gates
@@ -40,7 +40,7 @@ The Python backend can be removed only after these are complete:
 - [ ] Add full graph-wide parity harnesses for pinned Airflow and Next.js. Evidence: file, import, export, reference, dependency, external-reference, subclass, and deterministic ordering comparisons.
 - [ ] Expand codemod parity beyond smoke flows. Evidence: real codemods on pinned large repos assert exact file-byte diffs, changed-file sets, wall time, and RSS.
 - [ ] Replace or remove Python-only graph internals. Evidence: no required public path depends on `rustworkx.PyDiGraph`, eager `SourceFile._nodes`, persistent `tree_sitter.Node` wrappers, or Python object graph traversal.
-- [ ] Restore normal mypy and external integration expectations. Evidence: remove the `rust-rewrite` PR skip in `.github/workflows/mypy.yml`, remove the baseline-only `integration-tests` skip in `.github/workflows/test.yml`, or replace the fixture-push tests with hermetic/local equivalents.
+- [ ] Restore normal ty and external integration expectations. Evidence: remove the `rust-rewrite` PR skip in `.github/workflows/ty.yml`, remove the baseline-only `integration-tests` skip in `.github/workflows/test.yml`, or replace the fixture-push tests with hermetic/local equivalents.
 - [ ] Validate released `uvx graph-sitter ...` package behavior. Evidence: `uvx graph-sitter doctor`, `parse`, `run`, and `transform` work from a clean environment with a published version.
 
 ## Highest-Value Fanout Work
