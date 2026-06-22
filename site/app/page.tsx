@@ -115,6 +115,14 @@ export default function Home() {
               asChild
               variant="ghost"
               size="sm"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Link href="/explore">Explore</Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
               className="hidden text-muted-foreground hover:text-foreground sm:inline-flex"
             >
               <a href={githubUrl} target="_blank" rel="noreferrer">
