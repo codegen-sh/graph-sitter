@@ -27,7 +27,9 @@ if (diff.status === 0) {
 }
 
 if (diff.status === 1) {
-	console.log(`Detected site/docs changes since ${baseRef}; running Vercel build.`);
+	console.log(
+		`Detected site/docs changes since ${baseRef}; running Vercel build.`,
+	);
 	process.exit(1);
 }
 
