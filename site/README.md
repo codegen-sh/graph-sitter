@@ -60,8 +60,14 @@ Root Directory: site
 Build Command: default
 Output Directory: default
 Install Command: default
+Ignored Build Step: node scripts/ignore-build.mjs
 Production Branch: the integrator-approved trunk branch
 ```
+
+The ignored build step is checked in via `site/vercel.json`. It skips Vercel
+builds when a commit does not change `site/` or `docs/`, using
+`VERCEL_GIT_PREVIOUS_SHA` when Vercel exposes system environment variables and
+falling back to `HEAD^` otherwise.
 
 From an authenticated Vercel CLI session:
 
