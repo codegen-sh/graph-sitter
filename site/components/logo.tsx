@@ -4,7 +4,7 @@ export function Logo({ className }: { className?: string }) {
 	return (
 		<svg
 			viewBox="0 0 80.87 80.87"
-			className={cn("size-7 text-foreground", className)}
+			className={cn("size-5 text-foreground", className)}
 			fill="currentColor"
 			aria-hidden="true"
 		>

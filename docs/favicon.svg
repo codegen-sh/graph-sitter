@@ -7,7 +7,7 @@
         stroke-width: 0px;
       }
       .background {
-        fill: #2700E5;
+        fill: #0a0a0f;
       }
     </style>
   </defs>
