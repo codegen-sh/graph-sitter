@@ -4,6 +4,8 @@ from functools import lru_cache as functools_lru_cache
 
 from tree_sitter import Node as TSNode
 
+TSNode = TSNode
+
 def get_all_identifiers(node: TSNode) -> list[TSNode]:
     """Get all the identifiers in a tree-sitter node. Recursive implementation"""
 

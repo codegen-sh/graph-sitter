@@ -1,18 +1,18 @@
 from dataclasses import dataclass, field
 from functools import cached_property as cached_property
-from typing import Generic
 
 from typing_extensions import TypeVar
 
 from graph_sitter.codebase.codebase_context import CodebaseContext
-from graph_sitter.core.dataclasses.usage import UsageKind, UsageType
+from graph_sitter.core.dataclasses.usage import UsageKind as UsageKind
+from graph_sitter.core.dataclasses.usage import UsageType
 from graph_sitter.core.interfaces.editable import Editable
 from graph_sitter.core.interfaces.has_name import HasName
 
 NodeType = TypeVar("NodeType")
 
 @dataclass
-class ResolutionStack(Generic[NodeType]):
+class ResolutionStack[NodeType]:
     """Represents the resolution stack from a symbol to a usage
 
     Symbol
