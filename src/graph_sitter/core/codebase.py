@@ -1,7 +1,5 @@
 """Codebase - main interface for Codemods to interact with the codebase"""
 
-import codecs
-import json
 import os
 import re
 import tempfile
@@ -18,13 +16,10 @@ from git import Diff
 from git.remote import PushInfoList
 from github.PullRequest import PullRequest
 from networkx import Graph
-from openai import OpenAI
 from rich.console import Console
 from typing_extensions import TypeVar, deprecated
 
 from graph_sitter._proxy import proxy_property
-from graph_sitter.ai.client import get_openai_client
-from graph_sitter.codebase.codebase_ai import generate_system_prompt, generate_tools
 from graph_sitter.codebase.codebase_context import (
     GLOBAL_FILE_IGNORE_LIST,
     CodebaseContext,
@@ -74,7 +69,6 @@ from graph_sitter.python.statements.import_statement import PyImportStatement
 from graph_sitter.python.symbol import PySymbol
 from graph_sitter.shared.decorators.docs import apidoc, noapidoc, py_noapidoc
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
-from graph_sitter.shared.exceptions.control_flow import MaxAIRequestsError
 from graph_sitter.shared.logging.get_logger import get_logger
 from graph_sitter.shared.performance.stopwatch_utils import stopwatch
 from graph_sitter.typescript.assignment import TSAssignment
@@ -1008,7 +1002,7 @@ class Codebase(
     def reset(self, git_reset: bool = False) -> None:
         """Resets the codebase by:
         - Discarding any staged/unstaged changes
-        - Resetting stop codemod limits: (max seconds, max transactions, max AI requests)
+        - Resetting stop codemod limits: (max seconds, max transactions)
         - Clearing logs
         - Clearing pending transactions + pending files
         - Syncing graph to synced_commit
@@ -1335,123 +1329,6 @@ class Codebase(
             self.ctx.language_engine.wait_until_ready(ignore_error=False)
             logger.info("Language engine ready")
 
-    ####################################################################################################################
-    # AI
-    ####################################################################################################################
-
-    _ai_helper: OpenAI = None
-    _num_ai_requests: int = 0
-
-    @property
-    @noapidoc
-    def ai_client(self) -> OpenAI:
-        """Enables calling AI/LLM APIs - re-export of the initialized `openai` module"""
-        # Create a singleton AIHelper instance
-        if self._ai_helper is None:
-            if self.ctx.secrets.openai_api_key is None:
-                msg = "OpenAI key is not set"
-                raise ValueError(msg)
-
-            self._ai_helper = get_openai_client(key=self.ctx.secrets.openai_api_key)
-        return self._ai_helper
-
-    def ai(
-        self,
-        prompt: str,
-        target: Editable | None = None,
-        context: Editable | list[Editable] | dict[str, Editable | list[Editable]] | None = None,
-        model: str = "gpt-4o",
-    ) -> str:
-        """Generates a response from the AI based on the provided prompt, target, and context.
-
-        A method that sends a prompt to the AI client along with optional target and context information to generate a response.
-        Used for tasks like code generation, refactoring suggestions, and documentation improvements.
-
-        Args:
-            prompt (str): The text prompt to send to the AI.
-            target (Editable | None): An optional editable object (like a function, class, etc.) that provides the main focus for the AI's response.
-            context (Editable | list[Editable] | dict[str, Editable | list[Editable]] | None): Additional context to help inform the AI's response.
-            model (str): The AI model to use for generating the response. Defaults to "gpt-4o".
-
-        Returns:
-            str: The generated response from the AI.
-
-        Raises:
-            MaxAIRequestsError: If the maximum number of allowed AI requests (default 150) has been exceeded.
-        """
-        # Check max transactions
-        logger.info("Creating call to OpenAI...")
-        self._num_ai_requests += 1
-        if self.ctx.session_options.max_ai_requests is not None and self._num_ai_requests > self.ctx.session_options.max_ai_requests:
-            logger.info(f"Max AI requests reached: {self.ctx.session_options.max_ai_requests}. Stopping codemod.")
-            msg = f"Maximum number of AI requests reached: {self.ctx.session_options.max_ai_requests}"
-            raise MaxAIRequestsError(msg, threshold=self.ctx.session_options.max_ai_requests)
-
-        params = {
-            "messages": [
-                {"role": "system", "content": generate_system_prompt(target, context)},
-                {"role": "user", "content": prompt},
-            ],
-            "model": model,
-            "functions": generate_tools(),
-            "temperature": 0,
-        }
-        if model.startswith("gpt"):
-            params["tool_choice"] = "required"
-
-        # Make the AI request
-        response = self.ai_client.chat.completions.create(
-            model=model,
-            messages=params["messages"],
-            tools=params["functions"],  # type: ignore
-            temperature=params["temperature"],
-            tool_choice=params["tool_choice"],
-        )
-
-        # Handle finish reasons
-        # First check if there is a response
-        if response.choices:
-            # Check response reason
-            choice = response.choices[0]
-            if choice.finish_reason == "tool_calls" or choice.finish_reason == "function_call" or choice.finish_reason == "stop":
-                # Check if there is a tool call
-                if choice.message.tool_calls:
-                    tool_call = choice.message.tool_calls[0]
-                    response_answer = json.loads(tool_call.function.arguments)
-                    if "answer" in response_answer:
-                        response_answer = response_answer["answer"]
-                    else:
-                        msg = "No answer found in tool call. (tool_call.function.arguments does not contain answer)"
-                        raise ValueError(msg)
-                else:
-                    msg = "No tool call found in AI response. (choice.message.tool_calls is empty)"
-                    raise ValueError(msg)
-            elif choice.finish_reason == "length":
-                msg = "AI response too long / ran out of tokens. (choice.finish_reason == length)"
-                raise ValueError(msg)
-            elif choice.finish_reason == "content_filter":
-                msg = "AI response was blocked by OpenAI's content filter. (choice.finish_reason == content_filter)"
-                raise ValueError(msg)
-            else:
-                msg = f"Unknown finish reason from AI: {choice.finish_reason}"
-                raise ValueError(msg)
-        else:
-            msg = "No response from AI Provider. (response.choices is empty)"
-            raise ValueError(msg)
-
-        # Agent sometimes fucks up and does \\\\n for some reason.
-        response_answer = codecs.decode(response_answer, "unicode_escape")
-        logger.info(f"OpenAI response: {response_answer}")
-        return response_answer
-
-    def set_ai_key(self, key: str) -> None:
-        """Sets the OpenAI key for the current Codebase instance."""
-        # Reset the AI client
-        self._ai_helper = None
-
-        # Set the AI key
-        self.ctx.secrets.openai_api_key = key
-
     def find_by_span(self, span: Span) -> list[Editable]:
         """Finds editable objects that overlap with the given source code span.
 
@@ -1482,8 +1359,6 @@ class Codebase(
               allowed in a session.
             - max_seconds (int, optional): The maximum duration in seconds for a session
               before it times out.
-            - max_ai_requests (int, optional): The maximum number of AI requests
-              allowed in a session.
         """
         self.ctx.session_options = self.ctx.session_options.model_copy(update=kwargs)
         self.ctx.transaction_manager.set_max_transactions(self.ctx.session_options.max_transactions)

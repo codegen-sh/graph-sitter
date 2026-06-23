@@ -22,7 +22,7 @@ apidoc_objects: list[DocumentedObject] = []
 
 
 def apidoc(obj):
-    """Decorator for objects that will be used as API documentation for AI-agent prompts."""
+    """Decorator for objects that will be included in API documentation."""
     obj._apidoc = True
     obj._api_doc_lang = "core"
     if doc_obj := get_documented_object(obj):
@@ -34,7 +34,7 @@ py_apidoc_objects: list[DocumentedObject] = []
 
 
 def py_apidoc(obj):
-    """Decorator for objects that will be used as Python API documentation for AI-agent prompts."""
+    """Decorator for objects that will be included in Python API documentation."""
     obj._py_apidoc = True
     obj._api_doc_lang = "python"
     if doc_obj := get_documented_object(obj):
@@ -46,7 +46,7 @@ ts_apidoc_objects: list[DocumentedObject] = []
 
 
 def ts_apidoc(obj):
-    """Decorator for objects that will be used as Typescript API documentation for AI-agent prompts."""
+    """Decorator for objects that will be included in TypeScript API documentation."""
     obj._ts_apidoc = True
     obj._api_doc_lang = "typescript"
     if doc_obj := get_documented_object(obj):
@@ -61,7 +61,7 @@ T = TypeVar("T", bound=Callable)
 
 
 def noapidoc(obj: T) -> T:
-    """Decorator for things that are hidden from the API documentation for AI-agent prompts."""
+    """Decorator for things that are hidden from API documentation."""
     obj._apidoc = False
     obj._api_doc_lang = None
     if doc_obj := get_documented_object(obj):
@@ -75,7 +75,7 @@ py_no_apidoc_signatures: set[str] = set()
 
 
 def py_noapidoc(obj: T) -> T:
-    """Decorator for things that are hidden from the Python API documentation for AI-agent prompts."""
+    """Decorator for things that are hidden from Python API documentation."""
     obj._py_apidoc = False
     obj._api_doc_lang = "python"
     if doc_obj := get_documented_object(obj):

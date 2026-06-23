@@ -5,14 +5,10 @@ import shutil
 import click
 from termcolor import colored
 
-import graph_sitter as sdk
-from graph_sitter.ai.client import get_openai_client
-from graph_sitter.code_generation.changelog_generation import generate_changelog
 from graph_sitter.code_generation.codegen_sdk_codebase import get_codegen_sdk_codebase
 from graph_sitter.code_generation.doc_utils.generate_docs_json import generate_docs_json
 from graph_sitter.code_generation.mdx_docs_generation import render_mdx_page_for_class
 from graph_sitter.gscli.generate.runner_imports import _generate_runner_imports
-from graph_sitter.gscli.generate.system_prompt import get_system_prompt
 from graph_sitter.gscli.generate.utils import LanguageType, generate_builtins_file
 from graph_sitter.shared.logging.get_logger import get_logger
 
@@ -109,16 +105,6 @@ def generate_docs(docs_dir: str) -> None:
     generate_codegen_sdk_docs(docs_dir)
 
 
-@generate.command()
-@click.argument("filepath", default=sdk.__path__[0] + "/system-prompt.txt", required=False)
-def system_prompt(filepath: str) -> None:
-    print(f"Generating system prompt and writing to {filepath}...")
-    new_system_prompt = get_system_prompt()
-    with open(filepath, "w") as f:
-        f.write(new_system_prompt)
-    print(f"Successfully wrote system prompt to {filepath}.")
-
-
 def get_snippet_pattern(target_name: str) -> str:
     pattern = rf"\[//\]: # \(--{re.escape(target_name)}--\)\s*(?:\[//\]: # \(--{re.escape(AUTO_GENERATED_COMMENT)}--\)\s*)?"
     pattern += CODE_SNIPPETS_REGEX
@@ -167,46 +153,3 @@ def generate_codegen_sdk_docs(docs_dir: str) -> None:
         with open(file_path, "w") as f:
             f.write(mdx_page)
     print(colored("Finished writing new .mdx files", "green"))
-
-
-@generate.command()
-@click.option("--docs-dir", default="docs", required=False)
-@click.option("--openai-key", required=True)
-@click.option("--complete", is_flag=True, help="Generate a complete changelog for the codegen_sdk API")
-def changelog(docs_dir: str, openai_key: str, complete: bool = False) -> None:
-    """Generate the changelog for the codegen_sdk API and update the changelog.mdx file"""
-    print(colored("Generating changelog", "green"))
-    header = """---
-title: "Graph-sitter Updates"
-icon: "clock"
-iconType: "solid"
----
-"""
-
-    client = get_openai_client(openai_key)
-
-    if complete:
-        entire_release_history = generate_changelog(client)
-        new_changelog = header + entire_release_history
-    else:
-        # Read existing changelog and append new releases
-        with open(os.path.join(docs_dir, "changelog/changelog.mdx")) as f:
-            # read the existing changelog
-            existing_changelog = f.read()
-            # Remove header from existing changelog
-            existing_changelog = existing_changelog.split(header)[1]
-            # find the latest existing version
-            latest_existing_version = re.search(r'label="(v[\d.]+)"', existing_changelog)
-            # if there is a latest existing version, generate new releases
-            if latest_existing_version:
-                # generate new releases
-                new_releases = generate_changelog(client, latest_existing_version.group(1))
-                # append new releases to the existing changelog
-                new_changelog = header + new_releases + existing_changelog
-            else:
-                # if there is no latest existing version, generate a complete changelog
-                new_releases = generate_changelog(client)
-                new_changelog = header + new_releases
-
-    with open(os.path.join(docs_dir, "changelog/changelog.mdx"), "w") as f:
-        f.write(new_changelog)

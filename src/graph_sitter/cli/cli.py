@@ -1,7 +1,6 @@
 import rich_click as click
 from rich.traceback import install
 
-# Removed reference to non-existent agent module
 from graph_sitter.cli.commands.config.main import config_command
 from graph_sitter.cli.commands.create.main import create_command
 from graph_sitter.cli.commands.diagnose.main import diagnose_command
@@ -25,11 +24,10 @@ install(show_locals=True)
 @click.group()
 @click.version_option(prog_name="graph-sitter")
 def main():
-    """graph_sitter.cli - Transform your code with AI."""
+    """graph_sitter.cli - Analyze and transform codebases."""
 
 
 # Wrap commands with error handler
-# Removed reference to non-existent agent_command
 main.add_command(init_command)
 main.add_command(doctor_command)
 main.add_command(diagnose_command)

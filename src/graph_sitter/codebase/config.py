@@ -3,7 +3,6 @@ from typing import Self
 
 from pydantic import BaseModel
 from pydantic.config import ConfigDict
-from pydantic.fields import Field
 
 from graph_sitter.configs.models.codebase import DefaultCodebaseConfig
 from graph_sitter.git.repo_operator.repo_operator import RepoOperator
@@ -12,8 +11,6 @@ from graph_sitter.git.utils.file_utils import split_git_path
 from graph_sitter.git.utils.language import determine_project_language
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
-HARD_MAX_AI_LIMIT = 500  # Global limit for AI requests
-
 
 class SessionOptions(BaseModel):
     """Options for a session. A session is a single codemod run."""
@@ -21,7 +18,6 @@ class SessionOptions(BaseModel):
     model_config = ConfigDict(frozen=True)
     max_seconds: int | None = None
     max_transactions: int | None = None
-    max_ai_requests: int = Field(default=150, le=HARD_MAX_AI_LIMIT)
 
 
 TestFlags = DefaultCodebaseConfig.model_copy(update=dict(debug=True, track_graph=True, verify_graph=True, full_range_index=True, sync_enabled=True, conditional_type_resolution=True))

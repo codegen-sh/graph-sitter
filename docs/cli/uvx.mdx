@@ -80,7 +80,7 @@ For large repositories, scope the parse to the files that matter:
 uvx --python 3.13 graph-sitter parse ./monorepo --language typescript --subdir packages/app --subdir packages/ui --format json
 ```
 
-Write JSON to a file when another tool or agent consumes the graph summary:
+Write JSON to a file when another tool consumes the graph summary:
 
 ```bash
 uvx --python 3.13 graph-sitter parse . --format json --output graph-sitter-index.json

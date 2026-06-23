@@ -60,8 +60,6 @@ const linkConstants: Record<string, string> = {
 	CODEGEN_SDK_GITHUB_URL: "https://github.com/codegen-sh/graph-sitter",
 	CODEGEN_SDK_EXAMPLES_GITHUB_URL:
 		"https://github.com/codegen-sh/graph-sitter-examples",
-	CODEGEN_SYSTEM_PROMPT:
-		"https://raw.githubusercontent.com/codegen-sh/graph-sitter/refs/heads/develop/src/codegen/sdk/system-prompt.txt",
 };
 
 let fileSlugCache: string[] | undefined;

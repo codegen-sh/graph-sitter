@@ -24,7 +24,7 @@ gs create NAME PATH [OPTIONS]
 
 ## Options
 
-- `--description`, `-d`: A description of what the codemod should do. This will be used to generate an AI-powered implementation.
+- `--overwrite`: Replace an existing codemod file with the same name.
 
 ## Generated Files
 
@@ -34,8 +34,7 @@ When you run `gs create rename-function .`, it creates:
 .codegen/
 └── codemods/
     └── rename_function/
-        ├── rename_function.py              # The codemod implementation
-        └── rename_function-system-prompt.txt  # System prompt (if --description used)
+        └── rename_function.py              # The codemod implementation
 ```
 
 The generated codemod will have this structure:

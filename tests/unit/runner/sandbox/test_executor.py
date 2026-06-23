@@ -97,18 +97,6 @@ codebase.files[0].edit("a = 2")
 
 
 @pytest.mark.asyncio
-async def test_run_max_ai_requests_error_sets_observation_meta(executor: SandboxExecutor):
-    mock_source = """
-codebase.ai("tell me a joke")
-"""
-    code_to_exec = create_execute_function_from_codeblock(codeblock=mock_source)
-    result = await executor.execute(code_to_exec, session_options=SessionOptions(max_ai_requests=0))
-
-    assert result.is_complete
-    assert result.observation_meta == {"flags": [], "stop_codemod_exception_type": "MaxAIRequestsError", "threshold": 0}
-
-
-@pytest.mark.asyncio
 async def test_run_max_transactions_exceeded_sets_observation_meta(executor: SandboxExecutor):
     mock_source = """
 codebase.files[0].edit("a = 2")

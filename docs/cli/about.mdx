@@ -12,7 +12,6 @@ The Graph-sitter CLI helps you:
 - Initialize Graph-sitter in your repository
 - Create and run codemods
 - Run one-shot transformations by import path
-- Work with AI assistance
 
 <Note>
   For installation instructions, see our [Getting
@@ -51,10 +50,8 @@ graph-sitter init
 4. **Create your first codemod**:
 
 ```bash
-graph-sitter create my-codemod --description "What you want to accomplish"
+graph-sitter create my-codemod .
 ```
-
-The `--description` flag enables AI assistance to help generate your codemod. Be as specific as possible about what you want to achieve.
 
 ## Available Commands
 
@@ -75,7 +72,7 @@ The `--description` flag enables AI assistance to help generate your codemod. Be
     Report parse time, memory use, and graph size for a repository.
   </Card>
   <Card title="create" icon="plus" href="/cli/create">
-    Create new codemods with optional AI assistance.
+    Scaffold new codemods.
   </Card>
   <Card title="run" icon="play" href="/cli/run">
     Execute registered codemods with check and write modes.
@@ -83,18 +80,4 @@ The `--description` flag enables AI assistance to help generate your codemod. Be
   <Card title="transform" icon="wand-magic-sparkles" href="/cli/transform">
     Run one-shot codemods by Python import path or file path.
   </Card>
-  <Card title="expert" icon="robot" href="/cli/expert">
-    Use Graph-sitter docs and project context with an AI assistant.
-  </Card>
 </CardGroup>
-
-## Working with AI
-
-When using Cursor, you can mention `@codegen-sh` in any chat or composer window to get:
-
-- Documentation about available APIs
-- Context about your active codemod
-- Examples of similar codemods
-- Relevant code snippets
-
-The AI uses this context to provide accurate and helpful responses about working with Codegen.

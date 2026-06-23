@@ -8,7 +8,6 @@ CODEGEN_REPO_ROOT = Path(__file__).parent.parent.parent.parent.parent
 CODEGEN_DIR_PATH = CODEGEN_REPO_ROOT / CODEGEN_DIR_NAME
 
 # ====[ User session config ]====
-PROMPTS_DIR = Path(CODEGEN_DIR_NAME) / "prompts"
 DOCS_DIR = Path(CODEGEN_DIR_NAME) / "docs"
 EXAMPLES_DIR = Path(CODEGEN_DIR_NAME) / "examples"
 

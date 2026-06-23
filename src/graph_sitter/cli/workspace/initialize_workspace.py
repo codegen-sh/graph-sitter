@@ -3,7 +3,7 @@ from pathlib import Path
 
 from rich.status import Status
 
-from graph_sitter.cli.auth.constants import CODEGEN_DIR, DOCS_DIR, EXAMPLES_DIR, PROMPTS_DIR
+from graph_sitter.cli.auth.constants import CODEGEN_DIR, DOCS_DIR, EXAMPLES_DIR
 from graph_sitter.cli.auth.session import CliSession
 from graph_sitter.cli.rich.spinners import create_spinner
 from graph_sitter.cli.utils.notebooks import create_notebook
@@ -22,7 +22,6 @@ def initialize_codegen(session: CliSession, status: Status | str = "Initializing
         Tuple of (codegen_folder, docs_folder, examples_folder)
     """
     CODEGEN_FOLDER = session.repo_path / CODEGEN_DIR
-    PROMPTS_FOLDER = session.repo_path / PROMPTS_DIR
     DOCS_FOLDER = session.repo_path / DOCS_DIR
     EXAMPLES_FOLDER = session.repo_path / EXAMPLES_DIR
     JUPYTER_DIR = CODEGEN_FOLDER / "jupyter"
@@ -36,7 +35,6 @@ def initialize_codegen(session: CliSession, status: Status | str = "Initializing
 
         # Create folders if they don't exist
         CODEGEN_FOLDER.mkdir(parents=True, exist_ok=True)
-        PROMPTS_FOLDER.mkdir(parents=True, exist_ok=True)
         JUPYTER_DIR.mkdir(parents=True, exist_ok=True)
         CODEMODS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -72,10 +70,8 @@ def modify_gitignore(codegen_folder: Path):
         "# Codegen",
         "docs/",
         "examples/",
-        "prompts/",
         "jupyter/",
         ".venv/",  # Add venv to gitignore
-        "codegen-system-prompt.txt",
         "",
         "# Python cache files",
         "**/__pycache__/",
