@@ -82,61 +82,59 @@ const markUri = `data:image/svg+xml,${encodeURIComponent(markSvg)}`;
 
 export default function OpengraphImage() {
 	return new ImageResponse(
-		(
+		<div
+			style={{
+				width: "100%",
+				height: "100%",
+				display: "flex",
+				position: "relative",
+				backgroundColor: "#0a0a0f",
+			}}
+		>
+			{/* biome-ignore lint/a11y/useAltText: decorative background in OG image */}
+			<img
+				src={networkDataUri()}
+				width={WIDTH}
+				height={HEIGHT}
+				style={{ position: "absolute", top: 0, left: 0 }}
+			/>
+
 			<div
 				style={{
-					width: "100%",
-					height: "100%",
 					display: "flex",
-					position: "relative",
-					backgroundColor: "#0a0a0f",
+					flexDirection: "column",
+					justifyContent: "center",
+					height: "100%",
+					padding: "0 96px",
 				}}
 			>
-				{/* biome-ignore lint/a11y/useAltText: decorative background in OG image */}
-				<img
-					src={networkDataUri()}
-					width={WIDTH}
-					height={HEIGHT}
-					style={{ position: "absolute", top: 0, left: 0 }}
-				/>
-
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						justifyContent: "center",
-						height: "100%",
-						padding: "0 96px",
-					}}
-				>
-					<div style={{ display: "flex", alignItems: "center" }}>
-						{/* biome-ignore lint/a11y/useAltText: decorative logo in OG image */}
-						<img src={markUri} width={104} height={104} />
-						<div
-							style={{
-								marginLeft: 36,
-								fontSize: 98,
-								fontWeight: 700,
-								color: "#ffffff",
-								letterSpacing: -3,
-							}}
-						>
-							Graph-sitter
-						</div>
-					</div>
+				<div style={{ display: "flex", alignItems: "center" }}>
+					{/* biome-ignore lint/a11y/useAltText: decorative logo in OG image */}
+					<img src={markUri} width={104} height={104} />
 					<div
 						style={{
-							marginTop: 26,
-							fontSize: 42,
-							color: "#c4c1cc",
-							letterSpacing: -0.5,
+							marginLeft: 36,
+							fontSize: 98,
+							fontWeight: 700,
+							color: "#ffffff",
+							letterSpacing: -3,
 						}}
 					>
-						Industrial-grade static analysis toolkit
+						Graph-sitter
 					</div>
 				</div>
+				<div
+					style={{
+						marginTop: 26,
+						fontSize: 42,
+						color: "#c4c1cc",
+						letterSpacing: -0.5,
+					}}
+				>
+					Industrial-grade static analysis toolkit
+				</div>
 			</div>
-		),
+		</div>,
 		{ ...size },
 	);
 }
