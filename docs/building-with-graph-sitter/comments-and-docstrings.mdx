@@ -185,12 +185,6 @@ new_docstring = codebase.ai(
 function.set_docstring(new_docstring)
 ```
 
-<Tip>
-  Learn more about AI documentation capabilities in our [Documentation
-  Guide](/tutorials/creating-documentation) and [LLM Integration
-  Guide](/building-with-graph-sitter/calling-out-to-llms).
-</Tip>
-
 ### Documentation Coverage
 
 You can analyze and improve documentation coverage across your codebase:
@@ -207,8 +201,3 @@ for function in codebase.functions:
 coverage = (documented / total * 100) if total > 0 else 0
 print(f"Documentation coverage: {coverage:.1f}%")
 ```
-
-<Note>
-  Check out the [Documentation Guide](/tutorials/creating-documentation) for
-  more advanced coverage analysis and bulk documentation generation.
-</Note>
