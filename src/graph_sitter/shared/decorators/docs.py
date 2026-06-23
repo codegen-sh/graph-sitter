@@ -60,7 +60,7 @@ no_apidoc_signatures: set[str] = set()
 T = TypeVar("T", bound=Callable)
 
 
-def noapidoc(obj: T) -> T:
+def noapidoc[T: Callable](obj: T) -> T:
     """Decorator for things that are hidden from API documentation."""
     obj._apidoc = False
     obj._api_doc_lang = None
@@ -74,7 +74,7 @@ py_no_apidoc_objects: list[DocumentedObject] = []
 py_no_apidoc_signatures: set[str] = set()
 
 
-def py_noapidoc(obj: T) -> T:
+def py_noapidoc[T: Callable](obj: T) -> T:
     """Decorator for things that are hidden from Python API documentation."""
     obj._py_apidoc = False
     obj._api_doc_lang = "python"
