@@ -7,6 +7,9 @@ export const metadata: Metadata = {
 	description:
 		"Write Python programs that understand and safely edit whole codebases.",
 	metadataBase: new URL("https://graph-sitter.com"),
+	icons: {
+		icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+	},
 	openGraph: {
 		title: "Graph-sitter",
 		description:
