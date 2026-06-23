@@ -14,8 +14,7 @@ The `.codegen` directory contains your project's Graph-sitter configuration, cod
 ├── .venv/            # Python virtual environment (gitignored)
 ├── config.toml       # Project configuration
 ├── codemods/         # Your codemod implementations
-├── jupyter/          # Jupyter notebooks for exploration
-└── codegen-system-prompt.txt  # AI system prompt
+└── jupyter/          # Jupyter notebooks for exploration
 ```
 
 ## Initialization
@@ -62,7 +61,6 @@ Graph-sitter automatically adds appropriate entries to your `.gitignore`:
 .codegen/.venv/
 .codegen/docs/
 .codegen/jupyter/
-.codegen/codegen-system-prompt.txt
 ```
 
 <Info>
@@ -75,13 +73,12 @@ Graph-sitter automatically adds appropriate entries to your `.gitignore`:
 The `codemods/` directory is where your transformation functions live. You can create new codemods using:
 
 ```bash
-gs create my-codemod PATH [--description "what it does"]
+gs create my-codemod PATH
 ```
 
 This will:
 1. Create a new file in `.codegen/codemods/`
-2. Generate a system prompt in `.codegen/prompts/` (if using `--description`)
-3. Set up the necessary imports and decorators
+2. Set up the necessary imports and decorators
 
 <Tip>
 Use `gs list` to see all codemods in your project.
@@ -112,11 +109,10 @@ After initializing your `.codegen` directory:
 
 1. Create your first codemod:
 ```bash
-gs create my-codemod . -d "describe what you want to do"
+gs create my-codemod .
 ```
 
 2. Run it:
 ```bash
 gs run my-codemod --apply-local
 ```
-

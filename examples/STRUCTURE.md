@@ -1,6 +1,6 @@
 # Structuring Graph-sitter Examples
 
-This guide explains how to structure examples for the Graph-sitter library. A well-structured example helps both humans and AI understand the code's purpose and how to use it effectively.
+This guide explains how to structure examples for the Graph-sitter library. A well-structured example helps readers understand the code's purpose and how to use it effectively.
 
 ## Core Principles
 
@@ -20,7 +20,7 @@ example-name/
 
 ## Code Organization in `run.py`
 
-Your `run.py` should follow this structure, demonstrated well in the `generate_training_data` example:
+Your `run.py` should follow this structure, demonstrated well in the `delete_dead_code` example:
 
 1. **Imports at the top**
 
@@ -126,7 +126,7 @@ Choose between these approaches based on:
 
 ## Example Reference Implementation
 
-The `generate_training_data` example demonstrates these principles well:
+The `delete_dead_code` example demonstrates these principles well:
 
 ```python
 # Focused utility function
@@ -136,14 +136,14 @@ def get_function_context(function) -> dict:
 
 
 # Main transformation with decorator
-@graph_sitter.function("generate-training-data")
+@graph_sitter.function("delete-dead-code")
 def run(codebase: Codebase):
-    """Generate training data using a node2vec-like approach...
+    """Delete unused symbols from a codebase.
 
     This codemod:
-    1. Finds all functions...
-    2. For each function...
-    3. Outputs structured JSON...
+    1. Finds symbols with no usages...
+    2. Removes the dead symbols...
+    3. Commits the change...
     """
     # Clear implementation with good structure...
 
@@ -177,4 +177,4 @@ Before submitting:
 1. Ensure the example runs with minimal setup
 1. Check that documentation is clear and accurate
 
-Remember: Your example might be used by both humans and AI to understand Graph-sitter's capabilities. Clear structure and documentation help everyone use your code effectively.
+Remember: Clear structure and documentation help everyone use your code effectively.

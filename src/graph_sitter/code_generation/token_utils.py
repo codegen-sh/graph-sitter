@@ -6,7 +6,7 @@ ENCODERS = {
 
 
 def count_tokens(s: str, model_name: str = "gpt-4o") -> int:
-    """Uses tiktoken"""
+    """Count tokens for a string using tiktoken."""
     if s is None:
         return 0
     enc = ENCODERS.get(model_name, None)

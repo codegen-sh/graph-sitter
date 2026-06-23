@@ -262,7 +262,7 @@ class TSSymbol(Symbol["TSHasBlock", "TSCodeBlock"], Exportable):
         include_dependencies: bool = True,
         strategy: Literal["add_back_edge", "update_all_imports", "duplicate_dependencies"] = "update_all_imports",
     ) -> tuple[NodeId, NodeId]:
-        # TODO: Prevent creation of import loops (!) - raise a ValueError and make the agent fix it
+        # TODO: Prevent creation of import loops (!) - raise a ValueError with recovery details
         # =====[ Arg checking ]=====
         if file == self.file:
             return file.file_node_id, self.node_id

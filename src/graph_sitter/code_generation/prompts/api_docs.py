@@ -6,7 +6,7 @@ from graph_sitter.shared.logging.get_logger import get_logger
 
 logger = get_logger(__name__)
 
-# TODO: the agent in codegen-backend and codegen-frontend does not use any of this. we have api_docs.py in codegen-backend!!!
+# TODO: codegen-backend and codegen-frontend do not use any of this. we have api_docs.py in codegen-backend!!!
 
 ########################################################################################################################
 # UTILS
@@ -172,7 +172,7 @@ As demonstrated, you can concisely express powerful transformations and analytic
 
 Traditional "codemods" are difficult to write and maintain due to the complexities of parsing, import resolution, and more.
 
-GraphSitter is specifically designed to enable AI agents to efficiently write code transformations and analytics. It enables agents to "act via code" and make powerful changes with guaranteed correctness and with minimal effort. Future additions to this library will enable agents to interact with other systems besides code via the GraphSitter API.
+GraphSitter is designed to make code transformations and analytics efficient to write and easy to review. It enables developers to express powerful changes through deterministic programs with guaranteed correctness and minimal effort.
 
 ## Architecture Overview
 

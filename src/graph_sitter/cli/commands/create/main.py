@@ -11,7 +11,7 @@ from graph_sitter.cli.utils.default_code import DEFAULT_CODEMOD
 from graph_sitter.cli.workspace.decorators import requires_init
 
 
-def get_target_paths(name: str, path: Path) -> tuple[Path, Path]:
+def get_target_path(name: str, path: Path) -> Path:
     """Get the target path for the new function file.
 
     Creates a directory structure like:
@@ -30,8 +30,7 @@ def get_target_paths(name: str, path: Path) -> tuple[Path, Path]:
     codemods_dir = base_dir / ".codegen" / "codemods"
     function_dir = codemods_dir / name_snake
     codemod_path = function_dir / f"{name_snake}.py"
-    prompt_path = function_dir / f"{name_snake}-system-prompt.txt"
-    return codemod_path, prompt_path
+    return codemod_path
 
 
 def make_relative(path: Path) -> str:
@@ -59,7 +58,7 @@ def create_command(session: CliSession, name: str, path: Path | None, overwrite:
     PATH is where to create the function (default: current directory)
     """
     # Get the target path for the function
-    codemod_path, prompt_path = get_target_paths(name, path or Path.cwd())
+    codemod_path = get_target_path(name, path or Path.cwd())
 
     # Check if file exists
     if codemod_path.exists() and not overwrite:

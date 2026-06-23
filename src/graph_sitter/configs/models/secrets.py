@@ -12,5 +12,4 @@ class SecretsConfig(BaseConfig):
         super().__init__(prefix=prefix, *args, **kwargs)
 
     github_token: str | None = None
-    openai_api_key: str | None = None
     linear_api_key: str | None = None

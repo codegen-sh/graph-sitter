@@ -32,19 +32,6 @@ def run(codebase: Codebase):
   Codemods are stored in `.codegen/codemods/name/name.py` and are tracked in Git for easy sharing.
 </Note>
 
-### AI-Powered Generation with `-d`
-
-You can use AI to generate an initial implementation by providing a description:
-
-```bash
-gs create rename-function . -d "Rename the getUserData function to fetchUserProfile"
-```
-
-This will:
-1. Generate an implementation based on your description
-2. Create a custom system prompt that you can provide to an IDE chat assistant
-3. Place both files in the codemod directory
-
 ## Running Codemods
 
 Once created, run your codemod using:
@@ -115,6 +102,5 @@ Your codemods live in a dedicated directory structure:
 .codegen/
 └── codemods/
     └── rename_function/
-        ├── rename_function.py       # The codemod implementation
-        └── rename_function_prompt.md  # System prompt (if using AI)
+        └── rename_function.py       # The codemod implementation
 ```
