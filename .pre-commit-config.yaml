@@ -73,7 +73,7 @@ repos:
       - id: deptry
         pass_filenames: false
         always_run: true
-        entry: bash -c "uv run --frozen --all-extras --dev deptry src --ignore DEP001 --extend-exclude 'codegen-examples/.*'"
+        entry: bash -c "uv run --frozen --all-extras --dev deptry src --ignore DEP001 --per-rule-ignores 'DEP002=pyright|mini-racer|hatch-vcs|pyinstrument|pip|python-levenshtein|python-semantic-release|pytest-snapshot|numpy|modal|langgraph-prebuilt' --extend-exclude 'codegen-examples/.*'"
 
   - repo: https://github.com/renovatebot/pre-commit-hooks
     rev: 39.264.0
