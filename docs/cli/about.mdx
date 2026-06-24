@@ -8,10 +8,11 @@ iconType: "solid"
 The Graph-sitter CLI helps you:
 
 - Parse a local repository into graph summary data
+- Inspect files and trace call relationships from the command line
 - Diagnose parse time, memory use, and graph size for a local repository
 - Initialize Graph-sitter in your repository
 - Create and run codemods
-- Run one-shot transformations by import path
+- Run one-shot transformations and focused renames
 
 <Note>
   For installation instructions, see our [Getting
@@ -67,6 +68,9 @@ graph-sitter create my-codemod .
   </Card>
   <Card title="parse" icon="diagram-project" href="/cli/parse">
     Parse a repository and print graph summary counts.
+  </Card>
+  <Card title="graph" icon="diagram-project" href="/cli/graph">
+    Inspect files, trace usages, trace callees, and rename symbols.
   </Card>
   <Card title="diagnose" icon="gauge" href="/cli/diagnose">
     Report parse time, memory use, and graph size for a repository.

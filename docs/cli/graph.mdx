@@ -1,0 +1,141 @@
+---
+title: "Graph Commands"
+sidebarTitle: "graph"
+icon: "diagram-project"
+iconType: "solid"
+---
+
+Graph-sitter includes high-level CLI commands for inspecting local code structure,
+tracing call relationships, and applying focused renames without writing custom
+codemods.
+
+```bash
+graph-sitter inspect src/app.py
+graph-sitter using src/app.py:handler --depth 2
+graph-sitter usages src/app.py:helper --depth 2
+graph-sitter rename src/app.py:helper --to execute_helper --write
+```
+
+## Target Syntax
+
+Use `FILE:SYMBOL` for functions, classes, methods, and other named symbols:
+
+```bash
+graph-sitter using src/app.py:handler
+graph-sitter usages src/app.py:Service.run
+graph-sitter rename src/app.py:handler --to run_handler --write
+```
+
+The CLI also accepts `FILE::SYMBOL` and dotted shorthand such as
+`src/app.py.handler` when it can resolve the file unambiguously.
+
+## inspect
+
+`inspect` prints source-file structure: line count, imports, classes, functions,
+and function call summaries.
+
+```bash
+graph-sitter inspect FILE [PATH] [OPTIONS]
+```
+
+Options:
+
+- `--level summary|functions|calls|full`: Choose how much detail to print.
+  Defaults to `functions`.
+- `--format summary|json`: Choose human-readable or machine-readable output.
+- `--max-functions N`: Limit function rows. Defaults to `200`.
+- `--max-calls N`: Limit call names per function. Defaults to `20`.
+
+Examples:
+
+```bash
+graph-sitter inspect src/app.py .
+graph-sitter inspect src/app.py . --level calls
+graph-sitter inspect src/app.py . --level full --format json
+```
+
+## using
+
+`using` traces outbound calls from a target. With `--depth 2`, the output
+includes the target's direct callees and the callees those functions call.
+
+```bash
+graph-sitter using TARGET [PATH] [OPTIONS]
+```
+
+Options:
+
+- `--depth N`: Recursion depth through resolved outbound calls. Defaults to `1`.
+- `--max-results N`: Maximum call edges to print. Defaults to `200`.
+- `--format summary|json`: Choose human-readable or machine-readable output.
+
+Example:
+
+```bash
+graph-sitter using src/app.py:handler . --depth 3 --format json
+```
+
+## usages
+
+`usages` traces inbound call sites for a target. With `--depth 2`, the output
+includes direct callers and callers of those callers.
+
+```bash
+graph-sitter usages TARGET [PATH] [OPTIONS]
+```
+
+Options:
+
+- `--depth N`: Recursion depth through inbound callers. Defaults to `1`.
+- `--max-results N`: Maximum call edges to print. Defaults to `200`.
+- `--format summary|json`: Choose human-readable or machine-readable output.
+
+Example:
+
+```bash
+graph-sitter usages src/app.py:helper . --depth 2
+```
+
+## rename
+
+`rename` resolves a target symbol and renames it across Graph-sitter's resolved
+references. A plain command is a dry run; pass `--write` to modify files.
+
+```bash
+graph-sitter rename TARGET [PATH] --to NEW_NAME [OPTIONS]
+```
+
+Options:
+
+- `--to NEW_NAME`: Required new symbol name.
+- `--check`: Preview target and reference counts without writing. This is the
+  default.
+- `--write`: Apply the rename and write files to disk.
+- `--format summary|json`: Choose human-readable or machine-readable output.
+
+Examples:
+
+```bash
+graph-sitter rename src/app.py:helper . --to execute_helper
+graph-sitter rename src/app.py:helper . --to execute_helper --write
+```
+
+## Shared Options
+
+All graph commands accept the same parse controls as `parse`:
+
+- `--backend python|rust|auto`: Choose the graph backend.
+- `--fallback python|error`: Choose fallback behavior when the Rust backend is
+  unavailable. Defaults to `python` for these commands.
+- `--language auto|python|typescript`: Choose the repository language.
+- `--subdir PATH`: Limit parsing to a repository-relative subdirectory or file.
+  Repeat to include multiple paths.
+
+## With uvx
+
+```bash
+uvx --python 3.13 graph-sitter inspect src/app.py .
+uvx --python 3.13 graph-sitter using src/app.py:handler . --depth 2 --format json
+uvx --python 3.13 graph-sitter usages src/app.py:helper . --depth 2
+uvx --python 3.13 graph-sitter rename src/app.py:helper . --to execute_helper --write
+```
