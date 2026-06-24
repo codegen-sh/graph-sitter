@@ -10,6 +10,8 @@ temporary environment.
 
 ```bash
 uvx --python 3.13 graph-sitter parse .
+uvx --python 3.13 graph-sitter inspect src/app.py .
+uvx --python 3.13 graph-sitter usages src/app.py:handler . --depth 2
 uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --check
 uvx --python 3.13 graph-sitter run rename-function . --check
 ```
@@ -80,10 +82,27 @@ For large repositories, scope the parse to the files that matter:
 uvx --python 3.13 graph-sitter parse ./monorepo --language typescript --subdir packages/app --subdir packages/ui --format json
 ```
 
-Write JSON to a file when another tool or agent consumes the graph summary:
+Write JSON to a file when another tool consumes the graph summary:
 
 ```bash
 uvx --python 3.13 graph-sitter parse . --format json --output graph-sitter-index.json
+```
+
+## Graph Queries
+
+The high-level graph commands do not require `.codegen` initialization.
+
+```bash
+uvx --python 3.13 graph-sitter inspect src/app.py .
+uvx --python 3.13 graph-sitter using src/app.py:handler . --depth 2 --format json
+uvx --python 3.13 graph-sitter usages src/app.py:helper . --depth 2
+uvx --python 3.13 graph-sitter rename src/app.py:helper . --to execute_helper --write
+```
+
+Use `--subdir` for large repositories:
+
+```bash
+uvx --python 3.13 graph-sitter using src/app.py:handler ./monorepo --subdir packages/app --depth 2
 ```
 
 ## Transform

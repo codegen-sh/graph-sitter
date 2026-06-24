@@ -96,7 +96,7 @@ repository to a temporary Git repo before running the codemod, so codemods that
 call `codebase.commit()` internally do not mutate the original checkout.
 
 For compatibility, `run` may still apply changes when neither `--check` nor
-`--write` is supplied. New docs, CI, and agent workflows should always pass an
+`--write` is supplied. New docs, CI, and automation workflows should always pass an
 explicit mode.
 
 ## Execution Flow

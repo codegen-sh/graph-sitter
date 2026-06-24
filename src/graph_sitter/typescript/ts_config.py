@@ -1,7 +1,7 @@
 import os
 from functools import cache
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import pyjson5
 
@@ -29,7 +29,7 @@ class TSConfig:
 
     config_file: File
     config_parser: "TSConfigParser"
-    config: dict
+    config: dict[str, Any]
 
     # Base config values
     _base_config: "TSConfig | None" = None
@@ -46,7 +46,7 @@ class TSConfig:
     _self_root_dir: str | None = None
     _self_root_dirs: list[str] = []
     _self_paths: dict[str, list[str]] = {}
-    _self_references: list[Directory | File] = []
+    _self_references: list[tuple[str, Directory | File]] = []
 
     # Precomputed import aliases
     _computed_path_import_aliases: bool = False
@@ -77,10 +77,16 @@ class TSConfig:
         """Precomputes the base config, base url, paths, and references."""
         # Precompute the base config
         self._base_config = None
+        compiler_options = self.config.get("compilerOptions", {})
+        if not isinstance(compiler_options, dict):
+            compiler_options = {}
+
         extends = self.config.get("extends", None)
         if isinstance(extends, list):
             # TODO: Support multiple extends
             extends = extends[0]  # Grab the first config in the list
+        if not isinstance(extends, str):
+            extends = None
         base_config_path = self._parse_parent_config_path(extends)
 
         if base_config_path and base_config_path.exists():
@@ -89,57 +95,67 @@ class TSConfig:
         # Precompute the base url
         self._base_url = None
         self._self_base_url = None
-        if base_url := self.config.get("compilerOptions", {}).get("baseUrl", None):
+        base_url = compiler_options.get("baseUrl", None)
+        if isinstance(base_url, str) and base_url:
             self._base_url = base_url
             self._self_base_url = base_url
-        elif base_url := {} if self.base_config is None else self.base_config.base_url:
+        elif self.base_config is not None and self.base_config.base_url:
+            base_url = self.base_config.base_url
             self._base_url = base_url
 
         # Precompute the outDir
         self._out_dir = None
         self._self_out_dir = None
-        if out_dir := self.config.get("compilerOptions", {}).get("outDir", None):
+        out_dir = compiler_options.get("outDir", None)
+        if isinstance(out_dir, str) and out_dir:
             self._out_dir = out_dir
             self._self_out_dir = out_dir
-        elif out_dir := {} if self.base_config is None else self.base_config.out_dir:
+        elif self.base_config is not None and self.base_config.out_dir:
+            out_dir = self.base_config.out_dir
             self._out_dir = out_dir
 
         # Precompute the rootDir
         self._root_dir = None
         self._self_root_dir = None
-        if root_dir := self.config.get("compilerOptions", {}).get("rootDir", None):
+        root_dir = compiler_options.get("rootDir", None)
+        if isinstance(root_dir, str) and root_dir:
             self._root_dir = root_dir
             self._self_root_dir = root_dir
-        elif root_dir := {} if self.base_config is None else self.base_config.root_dir:
+        elif self.base_config is not None and self.base_config.root_dir:
+            root_dir = self.base_config.root_dir
             self._root_dir = root_dir
 
         # Precompute the rootDirs
         self._root_dirs = []
         self._self_root_dirs = []
-        if root_dirs := self.config.get("compilerOptions", {}).get("rootDirs", None):
+        root_dirs = compiler_options.get("rootDirs", None)
+        if isinstance(root_dirs, list):
+            root_dirs = [root_dir for root_dir in root_dirs if isinstance(root_dir, str)]
             self._root_dirs = root_dirs
             self._self_root_dirs = root_dirs
-        elif root_dirs := [] if self.base_config is None else self.base_config.root_dirs:
+        elif self.base_config is not None and self.base_config.root_dirs:
+            root_dirs = self.base_config.root_dirs
             self._root_dirs = root_dirs
 
         # Precompute the paths
         base_paths = {} if self.base_config is None else self.base_config.paths
-        self_paths = self.config.get("compilerOptions", {}).get("paths", {})
+        raw_self_paths = compiler_options.get("paths", {})
+        self_paths = raw_self_paths if isinstance(raw_self_paths, dict) else {}
         self._paths = {**base_paths, **self_paths}
         self._self_paths = self_paths
 
         # Precompute the references
-        self_references = []
+        self_references: list[tuple[str, Directory | File]] = []
         references = self.config.get("references", None)
-        if references is not None:
+        if isinstance(references, list):
             for reference in references:
-                if ref_path := reference.get("path", None):
+                if isinstance(reference, dict) and isinstance(ref_path := reference.get("path", None), str):
                     abs_ref_path = str(self.config_file.ctx.to_relative(self._relative_to_absolute_directory_path(ref_path)))
                     if directory := self.config_file.ctx.get_directory(self.config_file.ctx.to_absolute(abs_ref_path)):
                         self_references.append((ref_path, directory))
                     elif ts_config := self.config_parser.get_config(abs_ref_path):
                         self_references.append((ref_path, ts_config.config_file))
-                    elif file := self.config_file.ctx.get_file(abs_ref_path):
+                    elif file := self.config_file.ctx.get_file(Path(abs_ref_path)):
                         self_references.append((ref_path, file))
         self._references = [*self_references]  # MAYBE add base references here? This breaks the reference chain though.
         self._self_references = self_references
@@ -180,7 +196,7 @@ class TSConfig:
             # TODO: THIS ENTIRE PROCESS IS KINDA HACKY.
             # If the reference is a file, get its directory.
             if isinstance(reference, File):
-                reference_dir = self.config_file.ctx.get_directory(os.path.dirname(reference.filepath))
+                reference_dir = self.config_file.ctx.get_directory(Path(os.path.dirname(reference.filepath)))
             elif isinstance(reference, Directory):
                 reference_dir = reference
             else:
@@ -188,14 +204,21 @@ class TSConfig:
                 continue
 
             # With the directory, try to grab the next available file and get its tsconfig.
-            if reference_dir and reference_dir.files(recursive=True):
-                next_file: TSFile = reference_dir.files(recursive=True)[0]
+            if reference_dir is None:
+                reference_files = []
             else:
-                logger.warning(f"No next file found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference.dirpath}")
+                reference_files = cast("list[TSFile]", reference_dir.files(recursive=True))  # ty: ignore[missing-argument]
+            if reference_files:
+                next_file = reference_files[0]
+            else:
+                reference_path = getattr(reference, "dirpath", getattr(reference, "filepath", reference))
+                logger.warning(f"No next file found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference_path}")
                 continue
+            assert reference_dir is not None
             target_ts_config = next_file.ts_config
             if target_ts_config is None:
-                logger.warning(f"No tsconfig found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference.dirpath}")
+                reference_path = getattr(reference, "dirpath", getattr(reference, "filepath", reference))
+                logger.warning(f"No tsconfig found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference_path}")
                 continue
 
             # With the tsconfig, grab its rootDirs and outDir
@@ -447,7 +470,7 @@ class TSConfig:
         return self._paths
 
     @property
-    def references(self) -> list[Directory | File]:
+    def references(self) -> list[tuple[str, Directory | File]]:
         """Returns a list of directories that this TypeScript configuration file depends on.
 
         The references are defined in the 'references' field of the tsconfig.json file. These directories

@@ -21,14 +21,3 @@ class Codemod:
         text = self.path.read_text()
         text = text.strip()
         return text
-
-    def get_system_prompt_path(self) -> Path:
-        """Get the path to the system prompt for this codemod."""
-        return self.path.parent / "system-prompt.md"
-
-    def get_system_prompt(self) -> str:
-        """Get the system prompt for this codemod."""
-        path = self.get_system_prompt_path()
-        if not path.exists():
-            return ""
-        return path.read_text()

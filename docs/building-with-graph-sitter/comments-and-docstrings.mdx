@@ -147,7 +147,7 @@ for file in codebase.files:
   indentation and maintains the existing comment style.
 </Note>
 
-## Special APIs and AI Integration
+## Special APIs
 
 ### Google Style Docstrings
 
@@ -158,31 +158,6 @@ Graph-sitter supports Google-style docstrings and can handle their specific form
 symbol_a = file.get_symbol("SymbolA")
 func_b = symbol_a.get_method("funcB")
 func_b.docstring.to_google_docstring(func_b)
-```
-
-### Using AI for Documentation
-
-Graph-sitter integrates with LLMs to help generate and improve documentation. You can use the [Codebase.ai(...)](/api-reference/core/Codebase#ai) method to:
-
-- Generate comprehensive docstrings
-- Update existing documentation
-- Convert between documentation styles
-- Add parameter descriptions
-
-```python
-# Generate a docstring using AI
-function = codebase.get_function("my_function")
-
-new_docstring = codebase.ai(
-    "Generate a comprehensive docstring in Google style",
-    target=function
-    context={
-        # provide additional context to the LLM
-        'usages': function.usages,
-        'dependencies': function.dependencies
-    }
-)
-function.set_docstring(new_docstring)
 ```
 
 ### Documentation Coverage

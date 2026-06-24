@@ -24,11 +24,8 @@ def test_verified_codemods(
     tmp_path: Path,
     diff_folder: Path,
     snapshot: Snapshot,
-    monkeypatch,
 ) -> None:
     set_recursion_limit()
-    # Patch Codebase.ai to always return "<ai-response>"
-    monkeypatch.setattr(codebase, "ai", lambda *args, **kwargs: "<ai-response>")
     verified_codemod.execute(codebase)
     # Codebase logging not functioning, creating an empty file to avoid error
     codebase.create_file(".codemod_logs.txt")

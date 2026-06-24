@@ -27,11 +27,8 @@ When you run `init`, gs creates a `.codegen` directory in your repository with t
 ├── config.toml         # Configuration file with repo and org info
 ├── codemods/          # Your codemods live here
 │   └── my_codemod.py  # Created via `gs create my-codemod`
-├── docs/              # Local documentation for offline access
-│   ├── api/
-│   ├── examples/
-│   └── tutorials/
-└── prompts/           # Generated system prompts for AI assistance
+├── jupyter/           # Local notebooks for exploration
+└── .venv/             # Python virtual environment
 ```
 
 <Note>
@@ -58,7 +55,6 @@ We recommend keeping your Graph-sitter codemods in the `.codegen/codemods/` dire
 Graph-sitter pulls documentation and examples locally to:
 
 - Provide offline access to guides and references
-- Enable AI to give contextual help about your codebase
 - Allow searching through examples and tutorials
 
 ## Requirements
@@ -92,7 +88,7 @@ After initializing:
 1. Create your first codemod:
 
 ```bash
-gs create my-function . -d "describe what you want to do"
+gs create my-function .
 ```
 
 Note: The second parameter (`.`) specifies the path where the codemod should be created. This is required.

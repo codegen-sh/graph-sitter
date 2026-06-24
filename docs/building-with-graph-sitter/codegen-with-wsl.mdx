@@ -58,13 +58,9 @@ To use WSL with VSCode:
 
 You can read more about Developing in WSL [here](https://code.visualstudio.com/docs/remote/wsl).
 
-<Tip>
-If you plan on using Codegen's MCP (Model Context Protocol) or LSP (Language Server Protocol) features, running VSCode through WSL is highly recommended.
-</Tip>
-
 ## Troubleshooting
 
-- **I have trouble connecting to MCP or LSP from VSCode**: Windows and WSL run on two different network environments. WSL does come with a compatibility layer called [NAT (Network Address Translation)](https://learn.microsoft.com/en-us/windows/wsl/networking#default-networking-mode-nat) as a translation layer between the two environments, but it can sometimes cause issues. On machines running Windows 11 22H2 and higher, try switching to [Mirrored mode networking](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking) to see if that fixes the issue.
+- **I have trouble connecting development tools from VSCode**: Windows and WSL run on two different network environments. WSL does come with a compatibility layer called [NAT (Network Address Translation)](https://learn.microsoft.com/en-us/windows/wsl/networking#default-networking-mode-nat) as a translation layer between the two environments, but it can sometimes cause issues. On machines running Windows 11 22H2 and higher, try switching to [Mirrored mode networking](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking) to see if that fixes the issue.
 - **WSL takes up too much memory after running Codegen**: This is a known issue with WSL. Memory does not get properly released after running a memory-intensive process like Codegen. Try killing the WSL process using `wsl --shutdown` to free up memory. ([GitHub Issue for WSL](https://github.com/microsoft/WSL/issues/4166))
 - **WSL hangs and pins the CPU at 100% when I try to run Codegen**: This could be because of WSL running out of memory. Try killing the WSL process using `wsl --shutdown` and then try running Graph-sitter again. If that doesn't work, try [downloading more RAM](https://downloadmoreram.com/).
 

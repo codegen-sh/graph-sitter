@@ -1,6 +1,6 @@
 from typing import Self
 
-from openai import BaseModel
+from pydantic import BaseModel
 from pydantic.config import ConfigDict
 
 from graph_sitter.codebase.span import Span

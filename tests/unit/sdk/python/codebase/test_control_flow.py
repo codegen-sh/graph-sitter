@@ -3,7 +3,6 @@ import pytest
 from graph_sitter.codebase.config import SessionOptions
 from graph_sitter.codebase.factory.get_session import get_codebase_session
 from graph_sitter.codebase.transaction_manager import MaxPreviewTimeExceeded, MaxTransactionsExceeded
-from graph_sitter.core.codebase import MaxAIRequestsError
 from graph_sitter.shared.enums.programming_language import ProgrammingLanguage
 
 
@@ -70,17 +69,4 @@ def test_max_preview_time_exceeded_reached(tmpdir):
             codebase.get_file("file_a.py").insert_after("a = 2")
             codebase.get_file("file_b.py").insert_after("a = 3")
     assert str(exc_info.value) == "Max preview time exceeded: True"
-    assert exc_info.value.threshold == 0
-
-
-def test_max_ai_requests_error_reached(tmpdir):
-    with pytest.raises(MaxAIRequestsError) as exc_info:
-        with get_codebase_session(
-            tmpdir=tmpdir,
-            files={"file_a.py": "a = 1", "file_b": "b = 1"},
-            programming_language=ProgrammingLanguage.PYTHON,
-        ) as codebase:
-            codebase.set_session_options(max_ai_requests=0)
-            codebase.ai("tell me a joke")
-    assert str(exc_info.value) == "Maximum number of AI requests reached: 0"
     assert exc_info.value.threshold == 0

@@ -87,41 +87,6 @@ import {Attribute} from '/snippets/Attribute.mdx';
 
 ## Methods
 <HorizontalDivider />
-### <span className="text-primary">ai</span>
-Generates a response from the AI based on the provided prompt, target, and context.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/codebase.py#L1196-L1283" />
-
-<ParameterWrapper>
-<Parameter
-    name="prompt"
-    type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">str</code> }
-    description="The text prompt to send to the AI."
-    defaultValue=""
-/>
-<Parameter
-    name="target"
-    type={ <><a href="/api-reference/core/Editable" style={ {fontWeight: "inherit", fontSize: "inherit"} }>Editable</a> <span>| None</span></> }
-    description="An optional editable object (like a function, class, etc.) that provides the main focus for the AI's response."
-    defaultValue="None"
-/>
-<Parameter
-    name="context"
-    type={ <><a href="/api-reference/core/Editable" style={ {fontWeight: "inherit", fontSize: "inherit"} }>Editable</a> <span>| list[</span> <a href="/api-reference/core/Editable" style={ {fontWeight: "inherit", fontSize: "inherit"} }>Editable</a> <span>] | dict[str,</span> <a href="/api-reference/core/Editable" style={ {fontWeight: "inherit", fontSize: "inherit"} }>Editable</a> <span>| list[</span> <a href="/api-reference/core/Editable" style={ {fontWeight: "inherit", fontSize: "inherit"} }>Editable</a> <span>]] | None</span></> }
-    description="Additional context to help inform the AI's response."
-    defaultValue="None"
-/>
-<Parameter
-    name="model"
-    type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">str</code> }
-    description="The AI model to use for generating the response. Defaults to &quot;gpt-4o&quot;."
-    defaultValue="&quot;gpt-4o&quot;"
-/>
-</ParameterWrapper>
-
-
-<Return return_type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">str</code> } description="The generated response from the AI."/>
-
-
 ### <span className="text-primary">checkout</span>
 Checks out a git branch or commit and syncs the codebase graph to the new state.
 <GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/codebase.py#L865-L909" />
@@ -622,14 +587,6 @@ Resets the codebase by
 <Return return_type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">None</code> } description=""/>
 
 
-### <span className="text-primary">set_ai_key</span>
-Sets the OpenAI key for the current Codebase instance.
-<GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/codebase.py#L1285-L1291" />
-
-
-<Return return_type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">None</code> } description=""/>
-
-
 ### <span className="text-primary">set_session_options</span>
 Sets the session options for the current codebase.
 <GithubLinkNote link="https://github.com/codegen-sh/graph-sitter/blob/develop/src/graph_sitter/core/codebase.py#L1310-L1328" />
@@ -645,12 +602,6 @@ Sets the session options for the current codebase.
     name="max_seconds"
     type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">int, optional</code> }
     description="The maximum duration in seconds for a session"
-    defaultValue=""
-/>
-<Parameter
-    name="max_ai_requests"
-    type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">int, optional</code> }
-    description="The maximum number of AI requests"
     defaultValue=""
 />
 </ParameterWrapper>
@@ -697,6 +648,5 @@ Visualizes a NetworkX graph or Plotly figure.
 
 
 <Return return_type={ <code className="text-sm bg-gray-100 px-2 py-0.5 rounded">None</code> } description=""/>
-
 
 
