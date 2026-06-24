@@ -92,6 +92,62 @@ def test_using_command_traces_outbound_call_graph(tmp_path):
     assert ("helper", "leaf", 2) in edges
 
 
+def test_using_command_can_filter_to_resolved_deduped_edges(tmp_path):
+    _write_call_graph_repo(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "using",
+            "app.py:entry",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "python",
+            "--format",
+            "json",
+            "--depth",
+            "2",
+            "--resolved-only",
+            "--dedupe",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["filters"]["resolved_only"] is True
+    edges = {(edge["source"]["name"], edge["target"]["name"], edge["depth"]) for edge in payload["edges"]}
+    assert edges == {("entry", "helper", 1), ("helper", "leaf", 2)}
+
+
+def test_callgraph_command_defaults_to_clean_resolved_edges(tmp_path):
+    _write_call_graph_repo(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "callgraph",
+            "app.py.entry",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "python",
+            "--format",
+            "json",
+            "--depth",
+            "2",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["raw"] is False
+    edges = {(edge["source"]["name"], edge["target"]["name"], edge["depth"]) for edge in payload["edges"]}
+    assert edges == {("entry", "helper", 1), ("helper", "leaf", 2)}
+
+
 def test_usages_command_traces_inbound_call_graph(tmp_path):
     _write_call_graph_repo(tmp_path)
 
@@ -119,6 +175,31 @@ def test_usages_command_traces_inbound_call_graph(tmp_path):
     assert ("entry", "helper", 2) in edges
 
 
+def test_symbols_command_lists_copyable_targets(tmp_path):
+    _write_call_graph_repo(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "symbols",
+            "help",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "python",
+            "--format",
+            "json",
+            "--kind",
+            "function",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert [symbol["target"] for symbol in payload["symbols"]] == ["app.py.helper"]
+
+
 def test_rename_command_applies_function_rename_when_write_is_passed(tmp_path):
     app = _write_call_graph_repo(tmp_path)
 
@@ -142,6 +223,7 @@ def test_rename_command_applies_function_rename_when_write_is_passed(tmp_path):
     assert dry_run.exit_code == 0, dry_run.output
     dry_run_payload = json.loads(dry_run.output)
     assert dry_run_payload["applied"] is False
+    assert dry_run_payload["affected_files"] == ["app.py"]
     assert "def leaf()" in app.read_text()
 
     result = CliRunner().invoke(

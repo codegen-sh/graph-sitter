@@ -1,17 +1,17 @@
 from pathlib import Path
-from typing import Any
 
-import rich
 import rich_click as click
-from rich.table import Table
 
 from graph_sitter.cli.commands.graph.common import (
     GRAPH_COMMAND_JSON_SCHEMA_VERSION,
     emit_json,
+    filter_edge_records,
     graph_options,
     load_codebase,
+    print_edge_table,
     resolve_target,
     trace_edges,
+    trace_filter_options,
 )
 
 
@@ -21,6 +21,7 @@ from graph_sitter.cli.commands.graph.common import (
 @click.option("--depth", type=click.IntRange(min=0), default=1, show_default=True, help="Recursion depth through inbound callers.")
 @click.option("--max-results", type=click.IntRange(min=1), default=200, show_default=True, help="Maximum call edges to print.")
 @click.option("--format", "output_format", type=click.Choice(["summary", "json"]), default="summary", show_default=True, help="Output format.")
+@trace_filter_options
 @graph_options
 def usages_command(
     target: str,
@@ -28,6 +29,10 @@ def usages_command(
     depth: int,
     max_results: int,
     output_format: str,
+    resolved_only: bool,
+    local_only: bool,
+    hide_runtime: bool,
+    dedupe: bool,
     backend: str,
     fallback: str,
     language: str,
@@ -36,13 +41,21 @@ def usages_command(
     """Trace call sites that use a target."""
     codebase = load_codebase(path, backend, fallback, language, subdirectories, quiet=output_format == "json")
     resolved = resolve_target(codebase, target)
-    edges = trace_edges(resolved.symbol, direction="inbound", depth=depth, max_results=max_results)
+    trace_limit = max_results * 5 if resolved_only or local_only or hide_runtime or dedupe else max_results
+    edges = trace_edges(resolved.symbol, direction="inbound", depth=depth, max_results=trace_limit)
+    edges = filter_edge_records(edges, resolved_only=resolved_only, local_only=local_only, hide_runtime=hide_runtime, dedupe=dedupe)[:max_results]
     payload = {
         "schema_version": GRAPH_COMMAND_JSON_SCHEMA_VERSION,
         "direction": "inbound",
         "target": target,
         "depth": depth,
         "max_results": max_results,
+        "filters": {
+            "resolved_only": resolved_only,
+            "local_only": local_only,
+            "hide_runtime": hide_runtime,
+            "dedupe": dedupe,
+        },
         "edges": edges,
     }
 
@@ -50,30 +63,4 @@ def usages_command(
         emit_json(payload)
         return
 
-    _print_edges("Graph-sitter usages", target, edges)
-
-
-def _print_edges(title: str, target: str, edges: list[dict[str, Any]]) -> None:
-    rich.print(f"[bold]{title}[/bold] {target}")
-    if not edges:
-        rich.print("No inbound call edges found.")
-        return
-
-    table = Table(show_header=True, header_style="bold")
-    table.add_column("Depth", justify="right")
-    table.add_column("Caller")
-    table.add_column("Target")
-    table.add_column("Call")
-    table.add_column("Location")
-    for edge in edges:
-        source = edge.get("source") or {}
-        target_record = edge.get("target") or {}
-        call = edge.get("call") or {}
-        table.add_row(
-            str(edge.get("depth", "")),
-            str(source.get("qualified_name") or source.get("name") or source.get("file") or ""),
-            str(target_record.get("qualified_name") or target_record.get("name") or ""),
-            str(call.get("name") or ""),
-            str(call.get("location") or ""),
-        )
-    rich.print(table)
+    print_edge_table("Graph-sitter usages", target, edges, inbound=True)

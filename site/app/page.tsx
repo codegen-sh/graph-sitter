@@ -82,6 +82,14 @@ export default function Home() {
 							size="sm"
 							className="text-muted-foreground hover:text-foreground"
 						>
+							<Link href="/cli">CLI</Link>
+						</Button>
+						<Button
+							asChild
+							variant="ghost"
+							size="sm"
+							className="text-muted-foreground hover:text-foreground"
+						>
 							<Link href={docsUrl}>Docs</Link>
 						</Button>
 						<Button
@@ -229,9 +237,9 @@ export default function Home() {
 								heaviest indexes moving into Rust for scale.
 							</p>
 							<Button asChild size="lg" variant="outline" className="mt-6">
-								<Link href={`${docsUrl}/introduction/installation`}>
+								<Link href="/cli">
 									<TerminalSquare />
-									Get started with uvx
+									Open CLI reference
 								</Link>
 							</Button>
 						</div>
@@ -253,6 +261,9 @@ export default function Home() {
 						</div>
 					</div>
 					<nav className="flex items-center gap-6 text-sm text-muted-foreground">
+						<Link href="/cli" className="hover:text-foreground">
+							CLI
+						</Link>
 						<Link href={docsUrl} className="hover:text-foreground">
 							Docs
 						</Link>

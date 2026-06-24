@@ -13,14 +13,14 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
+from graph_sitter.codebase.config import ProjectConfig
+from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
+from graph_sitter.core.codebase import Codebase
+
 REPO = os.environ.get("NEXTJS_REPO", "/Users/jayhack/.codex/worktrees/0554/nextjs-sample")
 SUBDIR = "packages/next/src/"
 PREFIX = "packages/next/src/"
 OUT = Path(__file__).resolve().parents[1] / "lib" / "data" / "nextjs-depgraph.json"
-
-from graph_sitter.codebase.config import ProjectConfig
-from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
-from graph_sitter.core.codebase import Codebase
 
 
 def module_of(rel: str) -> str:
