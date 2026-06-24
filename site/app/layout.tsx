@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 	title: "Graph-sitter",
 	description:
 		"Write Python programs that understand and safely edit whole codebases.",
-	metadataBase: new URL("https://graph-sitter.com"),
+	metadataBase: new URL("https://graph-sitter.dev"),
 	icons: {
 		icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
 	},
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 		title: "Graph-sitter",
 		description:
 			"Graph files, symbols, imports, calls, and usages so codebase automation can make targeted edits.",
-		url: "https://graph-sitter.com",
+		url: "https://graph-sitter.dev",
 		siteName: "Graph-sitter",
 		type: "website",
 	},
