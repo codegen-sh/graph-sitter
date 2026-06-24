@@ -91,6 +91,7 @@ repos:
     hooks:
       - id: mdformat
         language: python
+        exclude: ^skills/[^/]+/SKILL\.md$
         # Optionally add plugins
         additional_dependencies:
           - mdformat-gfm

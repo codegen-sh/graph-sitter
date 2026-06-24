@@ -1,0 +1,11 @@
+{
+	"$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+	"notGrouped": "bottom",
+	"groupings": [
+		{
+			"title": "Code Graphs",
+			"description": "Skills for codebase graph inspection and safe codemods.",
+			"skills": ["graph-sitter"]
+		}
+	]
+}

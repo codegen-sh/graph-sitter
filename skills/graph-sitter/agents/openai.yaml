@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graph-sitter"
+  short_description: "Map and codemod codebase graphs"
+  default_prompt: "Use $graph-sitter to inspect this repository's call graph and plan the safest change."
