@@ -5,13 +5,63 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import rich
 import rich_click as click
+from rich.table import Table
 
 from graph_sitter.cli.commands.parse.main import _parse_language, _project_for_parse, _suppress_parse_logs
 from graph_sitter.configs.models.codebase import CodebaseConfig, GraphBackend, RustFallbackMode
 from graph_sitter.core.codebase import Codebase
 
 GRAPH_COMMAND_JSON_SCHEMA_VERSION = 1
+COMMON_RUNTIME_CALLS = {
+    "Any",
+    "Array",
+    "Boolean",
+    "Date",
+    "Error",
+    "Map",
+    "Number",
+    "Object",
+    "Promise",
+    "Set",
+    "String",
+    "append",
+    "assign",
+    "cast",
+    "entries",
+    "error",
+    "exit",
+    "filter",
+    "flat",
+    "forEach",
+    "fromEntries",
+    "getattr",
+    "has",
+    "hasattr",
+    "isArray",
+    "isinstance",
+    "items",
+    "join",
+    "keys",
+    "log",
+    "map",
+    "parseInt",
+    "push",
+    "repr",
+    "slice",
+    "sort",
+    "split",
+    "startsWith",
+    "str",
+    "stringify",
+    "toISOString",
+    "trim",
+    "tuple",
+    "type",
+    "values",
+    "warning",
+}
 
 
 @dataclass(frozen=True)
@@ -26,6 +76,14 @@ def graph_options(func: CallableType) -> CallableType:
     func = click.option("--language", type=click.Choice(["auto", "python", "typescript"]), default="auto", show_default=True, help="Project language.")(func)
     func = click.option("--fallback", type=click.Choice(["python", "error"]), default="python", show_default=True, help="Fallback behavior when the Rust backend is unavailable.")(func)
     func = click.option("--backend", type=click.Choice(["python", "rust", "auto"]), default="python", show_default=True, help="Graph backend to use.")(func)
+    return func
+
+
+def trace_filter_options(func: CallableType) -> CallableType:
+    func = click.option("--dedupe", is_flag=True, help="Collapse repeated edges with the same source, target, and call name.")(func)
+    func = click.option("--hide-runtime", is_flag=True, help="Hide unresolved calls to common language and runtime helpers.")(func)
+    func = click.option("--local-only", is_flag=True, help="Only include edges whose source and target are parsed local files.")(func)
+    func = click.option("--resolved-only", is_flag=True, help="Only include edges resolved to parsed symbols.")(func)
     return func
 
 
@@ -58,6 +116,11 @@ def safe_attr(obj: Any, name: str, default: Any = None) -> Any:
 def as_list(value: Any) -> list[Any]:
     if value is None:
         return []
+    if callable(value):
+        try:
+            value = value()
+        except TypeError:
+            return []
     try:
         return list(value)
     except TypeError:
@@ -106,6 +169,8 @@ def symbol_name(symbol: Any) -> str:
     name = safe_attr(symbol, "name")
     if name:
         return str(name)
+    if type(symbol).__name__.endswith("Function"):
+        return "anonymous"
     return type(symbol).__name__
 
 
@@ -137,6 +202,31 @@ def symbol_record(symbol: Any | None) -> dict[str, Any] | None:
         "line": line_number(symbol),
         "location": location_of(symbol),
     }
+
+
+def all_symbol_records(codebase: Codebase, *, query: str | None = None, kind: str = "all", max_results: int = 200) -> list[dict[str, Any]]:
+    query_lower = query.lower() if query else None
+    records: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for source_file in sorted(codebase.files, key=file_path_of):
+        for symbol in _symbols_for_kind(source_file, kind):
+            key = symbol_key(symbol)
+            if key in seen:
+                continue
+            record = symbol_record(symbol)
+            if record is None:
+                continue
+            record["target"] = target_string(symbol)
+            searchable = " ".join(str(record.get(field) or "") for field in ("name", "qualified_name", "kind", "file")).lower()
+            if query_lower and query_lower not in searchable:
+                continue
+            records.append(record)
+            seen.add(key)
+            if len(records) >= max_results:
+                return records
+
+    return records
 
 
 def call_record(call: Any) -> dict[str, Any]:
@@ -242,16 +332,87 @@ def inbound_edges(symbol: Any) -> list[dict[str, Any]]:
     edges: list[dict[str, Any]] = []
     for call in as_list(safe_attr(symbol, "call_sites")):
         edges.append({"source": caller_for_call(call), "target": symbol, "call": call})
+    if edges:
+        return edges
+    for usage in as_list(safe_attr(symbol, "usages")):
+        usage_file = safe_attr(usage, "file")
+        edges.append({"source": usage_file or usage, "target": symbol, "call": usage, "call_name": symbol_name(symbol)})
     return edges
 
 
 def edge_record(edge: dict[str, Any], depth: int) -> dict[str, Any]:
+    call = call_record(edge["call"])
+    if not call["name"] and edge.get("call_name"):
+        call["name"] = str(edge["call_name"])
     return {
         "depth": depth,
         "source": symbol_record(edge["source"]),
         "target": symbol_record(edge["target"]),
-        "call": call_record(edge["call"]),
+        "call": call,
     }
+
+
+def filter_edge_records(
+    edges: list[dict[str, Any]],
+    *,
+    resolved_only: bool = False,
+    local_only: bool = False,
+    hide_runtime: bool = False,
+    dedupe: bool = False,
+) -> list[dict[str, Any]]:
+    filtered: list[dict[str, Any]] = []
+    seen: set[tuple[int, str, str, str]] = set()
+
+    for edge in edges:
+        source = edge.get("source")
+        target = edge.get("target")
+        call = edge.get("call") or {}
+        call_name = str(call.get("name") or "")
+
+        if resolved_only and (source is None or target is None):
+            continue
+        if local_only and (not source or not target or not source.get("file") or not target.get("file")):
+            continue
+        if hide_runtime and target is None and call_name in COMMON_RUNTIME_CALLS:
+            continue
+
+        if dedupe:
+            source_name = _record_label(source)
+            target_name = _record_label(target) if target is not None else "unresolved"
+            key = (int(edge.get("depth") or 0), source_name, target_name, call_name)
+            if key in seen:
+                continue
+            seen.add(key)
+
+        filtered.append(edge)
+
+    return filtered
+
+
+def print_edge_table(title: str, target: str, edges: list[dict[str, Any]], *, inbound: bool = False) -> None:
+    rich.print(f"[bold]{title}[/bold] {target}")
+    if not edges:
+        rich.print("No call edges found.")
+        return
+
+    table = Table(show_header=True, header_style="bold", expand=True)
+    table.add_column("Depth", justify="right", no_wrap=True)
+    table.add_column("Caller" if inbound else "From", overflow="fold")
+    table.add_column("Target" if inbound else "To", overflow="fold")
+    table.add_column("Call", overflow="fold")
+    table.add_column("Location", overflow="fold")
+    for edge in edges:
+        source = edge.get("source") or {}
+        target_record = edge.get("target") or {}
+        call = edge.get("call") or {}
+        table.add_row(
+            str(edge.get("depth", "")),
+            _record_label(source),
+            _record_label(target_record) if target_record else "unresolved",
+            str(call.get("name") or ""),
+            str(call.get("location") or ""),
+        )
+    rich.print(table)
 
 
 def trace_edges(symbol: Any, *, direction: str, depth: int, max_results: int) -> list[dict[str, Any]]:
@@ -384,6 +545,18 @@ def _all_symbols_in_file(source_file: Any) -> list[Any]:
     return _dedupe_symbols(symbols)
 
 
+def _symbols_for_kind(source_file: Any, kind: str) -> list[Any]:
+    if kind == "function":
+        return all_functions_in_file(source_file)
+    if kind == "class":
+        return _dedupe_symbols(as_list(safe_attr(source_file, "classes")))
+    if kind == "symbol":
+        return _dedupe_symbols(as_list(safe_attr(source_file, "symbols")))
+    symbols = _all_symbols_in_file(source_file)
+    symbols.extend(as_list(safe_attr(source_file, "classes")))
+    return _dedupe_symbols(symbols)
+
+
 def _global_symbol_matches(codebase: Codebase, symbol_ref: str) -> list[Any]:
     matches: list[Any] = []
     for source_file in codebase.files:
@@ -411,6 +584,20 @@ def _dedupe_symbols(symbols: list[Any]) -> list[Any]:
 
 def _target_label(symbol: Any) -> str:
     return f"{file_path_of(symbol)}:{qualified_name(symbol)}"
+
+
+def target_string(symbol: Any) -> str:
+    filepath = file_path_of(symbol)
+    name = qualified_name(symbol)
+    if not filepath:
+        return name
+    return f"{filepath}.{name}"
+
+
+def _record_label(record: dict[str, Any] | None) -> str:
+    if not record:
+        return ""
+    return str(record.get("qualified_name") or record.get("name") or record.get("file") or "")
 
 
 def _canonical_function(function: Any, call: Any) -> Any | None:

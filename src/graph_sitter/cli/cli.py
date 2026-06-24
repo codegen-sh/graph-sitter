@@ -1,6 +1,7 @@
 import rich_click as click
 from rich.traceback import install
 
+from graph_sitter.cli.commands.callgraph.main import callgraph_command
 from graph_sitter.cli.commands.config.main import config_command
 from graph_sitter.cli.commands.create.main import create_command
 from graph_sitter.cli.commands.diagnose.main import diagnose_command
@@ -16,6 +17,7 @@ from graph_sitter.cli.commands.reset.main import reset_command
 from graph_sitter.cli.commands.run.main import run_command
 from graph_sitter.cli.commands.start.main import start_command
 from graph_sitter.cli.commands.style_debug.main import style_debug_command
+from graph_sitter.cli.commands.symbols.main import symbols_command
 from graph_sitter.cli.commands.transform.main import transform_command
 from graph_sitter.cli.commands.update.main import update_command
 from graph_sitter.cli.commands.usages.main import usages_command
@@ -37,6 +39,8 @@ main.add_command(doctor_command)
 main.add_command(diagnose_command)
 main.add_command(parse_command)
 main.add_command(inspect_command)
+main.add_command(symbols_command)
+main.add_command(callgraph_command)
 main.add_command(usages_command)
 main.add_command(using_command)
 main.add_command(rename_command)

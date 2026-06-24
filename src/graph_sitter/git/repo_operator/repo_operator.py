@@ -6,13 +6,14 @@ from collections.abc import Generator
 from datetime import UTC, datetime
 from functools import cached_property
 from time import perf_counter
-from typing import Self
+from typing import Literal, Self
 
 from codeowners import CodeOwners as CodeOwnersParser
 from git import Commit as GitCommit
 from git import Diff, GitCommandError, InvalidGitRepositoryError, Remote
 from git import Repo as GitCLI
 from git.remote import PushInfoList
+from github.GithubObject import NotSet
 from github.IssueComment import IssueComment
 from github.PullRequest import PullRequest
 
@@ -70,7 +71,10 @@ class RepoOperator:
 
         else:
             os.makedirs(self.repo_path, exist_ok=True)
-            GitCLI.init(self.repo_path)
+            try:
+                GitCLI(self.repo_path, search_parent_directories=True)
+            except InvalidGitRepositoryError:
+                GitCLI.init(self.repo_path)
             self._local_git_repo = LocalGitRepo(repo_path=repo_config.repo_path)
             if self.repo_config.full_name is None:
                 self.repo_config.full_name = self._local_git_repo.full_name
@@ -137,31 +141,20 @@ class RepoOperator:
     def git_cli(self) -> GitCLI:
         git_cli = GitCLI(self.repo_path)
         username = None
-        user_level = None
         email = None
-        email_level = None
-        levels = ["system", "global", "user", "repository"]
+        levels: tuple[Literal["system", "global", "user", "repository"], ...] = ("system", "global", "user", "repository")
         for level in levels:
             with git_cli.config_reader(level) as reader:
                 if reader.has_option("user", "name") and not username:
                     username = username or reader.get("user", "name")
-                    user_level = user_level or level
                 if reader.has_option("user", "email") and not email:
                     email = email or reader.get("user", "email")
-                    email_level = email_level or level
 
         # We need a username and email to commit, so if they're not set, set them to the bot's
         if not username or self.bot_commit:
             self._set_bot_username(git_cli)
         if not email or self.bot_commit:
             self._set_bot_email(git_cli)
-
-        # If user config is set at a level above the repo level: unset it
-        if not self.bot_commit:
-            if username and username != CODEGEN_BOT_NAME and user_level != "repository":
-                self._unset_bot_username(git_cli)
-            if email and email != CODEGEN_BOT_EMAIL and email_level != "repository":
-                self._unset_bot_email(git_cli)
 
         return git_cli
 
@@ -354,17 +347,18 @@ class RepoOperator:
         """Checks out the relevant commit
         TODO: handle the environment being dirty
         """
-        logger.info(f"Checking out commit: {commit_hash}")
-        if not self.git_cli.is_valid_object(commit_hash, "commit"):
-            self.fetch_remote(remote_name=remote_name, refspec=commit_hash)
-            if not self.git_cli.is_valid_object(commit_hash, "commit"):
+        commit_ref = commit_hash.hexsha if isinstance(commit_hash, GitCommit) else commit_hash
+        logger.info(f"Checking out commit: {commit_ref}")
+        if not self.git_cli.is_valid_object(commit_ref, "commit"):
+            self.fetch_remote(remote_name=remote_name, refspec=commit_ref)
+            if not self.git_cli.is_valid_object(commit_ref, "commit"):
                 return CheckoutResult.NOT_FOUND
 
         if self.git_cli.is_dirty():
-            logger.info(f"Environment is dirty, discarding changes before checking out commit: {commit_hash}")
+            logger.info(f"Environment is dirty, discarding changes before checking out commit: {commit_ref}")
             self.discard_changes()
 
-        self.git_cli.git.checkout(commit_hash)
+        self.git_cli.git.checkout(commit_ref)
         return CheckoutResult.SUCCESS
 
     def get_active_branch_or_commit(self) -> str:
@@ -580,7 +574,7 @@ class RepoOperator:
                     return content
             except UnicodeDecodeError:
                 print(f"Warning: Unable to decode file {file_path}. Skipping.")
-                return None
+                return ""
 
     def write_file(self, relpath: str, content: str) -> None:
         """Writes file content to disk"""
@@ -724,13 +718,14 @@ class RepoOperator:
             commit = repo.commit(commit_sha)
             files_changed = commit.stats.files
             for file, stats in files_changed.items():
+                file_path = os.fspath(file)
                 if stats["deletions"] == stats["lines"]:
-                    deleted_files.append(file)
-                    if file in modified_files:
-                        modified_files.remove(file)
+                    deleted_files.append(file_path)
+                    if file_path in modified_files:
+                        modified_files.remove(file_path)
                 else:
-                    if file not in modified_files and file[-3:] in allowed_extensions:
-                        modified_files.append(file)
+                    if file_path not in modified_files and file_path[-3:] in allowed_extensions:
+                        modified_files.append(file_path)
         return modified_files, deleted_files
 
     @cached_property
@@ -752,7 +747,8 @@ class RepoOperator:
 
     def get_pr_data(self, pr_number: int) -> dict:
         """Returns the data associated with a PR"""
-        return self.remote_git_repo.get_pr_data(pr_number)
+        pr = self.remote_git_repo.get_pull_safe(pr_number)
+        return pr.raw_data if pr is not None else {}
 
     def create_pr_comment(self, pr_number: int, body: str) -> IssueComment:
         """Create a general comment on a pull request.
@@ -765,6 +761,8 @@ class RepoOperator:
         if pr:
             comment = self.remote_git_repo.create_issue_comment(pr, body)
             return comment
+        msg = f"Pull request {pr_number} not found"
+        raise ValueError(msg)
 
     def create_pr_review_comment(
         self,
@@ -796,7 +794,7 @@ class RepoOperator:
                     body=body,
                     commit=commit,
                     path=path,
-                    line=line,
+                    line=line if line is not None else NotSet,
                     side=side,
                 )
 
