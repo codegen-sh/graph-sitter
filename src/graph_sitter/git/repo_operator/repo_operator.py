@@ -70,7 +70,10 @@ class RepoOperator:
 
         else:
             os.makedirs(self.repo_path, exist_ok=True)
-            GitCLI.init(self.repo_path)
+            try:
+                GitCLI(self.repo_path, search_parent_directories=True)
+            except InvalidGitRepositoryError:
+                GitCLI.init(self.repo_path)
             self._local_git_repo = LocalGitRepo(repo_path=repo_config.repo_path)
             if self.repo_config.full_name is None:
                 self.repo_config.full_name = self._local_git_repo.full_name

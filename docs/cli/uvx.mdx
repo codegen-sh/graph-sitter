@@ -11,6 +11,8 @@ temporary environment.
 ```bash
 uvx --python 3.13 graph-sitter parse .
 uvx --python 3.13 graph-sitter inspect src/app.py .
+uvx --python 3.13 graph-sitter symbols handler .
+uvx --python 3.13 graph-sitter callgraph src/app.py.handler . --depth 2
 uvx --python 3.13 graph-sitter usages src/app.py:handler . --depth 2
 uvx --python 3.13 graph-sitter transform ./codemods/rename.py:rename . --check
 uvx --python 3.13 graph-sitter run rename-function . --check
@@ -82,6 +84,13 @@ For large repositories, scope the parse to the files that matter:
 uvx --python 3.13 graph-sitter parse ./monorepo --language typescript --subdir packages/app --subdir packages/ui --format json
 ```
 
+For full TypeScript monorepos, use the Rust backend when available:
+
+```bash
+uvx --python 3.13 graph-sitter parse ./monorepo --language typescript --backend rust --fallback error --format json
+uvx --python 3.13 graph-sitter symbols handler ./monorepo --language typescript --backend rust --fallback error
+```
+
 Write JSON to a file when another tool consumes the graph summary:
 
 ```bash
@@ -94,6 +103,8 @@ The high-level graph commands do not require `.codegen` initialization.
 
 ```bash
 uvx --python 3.13 graph-sitter inspect src/app.py .
+uvx --python 3.13 graph-sitter symbols handler .
+uvx --python 3.13 graph-sitter callgraph src/app.py.handler . --depth 2
 uvx --python 3.13 graph-sitter using src/app.py:handler . --depth 2 --format json
 uvx --python 3.13 graph-sitter usages src/app.py:helper . --depth 2
 uvx --python 3.13 graph-sitter rename src/app.py:helper . --to execute_helper --write
@@ -103,7 +114,12 @@ Use `--subdir` for large repositories:
 
 ```bash
 uvx --python 3.13 graph-sitter using src/app.py:handler ./monorepo --subdir packages/app --depth 2
+uvx --python 3.13 graph-sitter callgraph src/app.py.handler ./monorepo --subdir packages/app --depth 2
 ```
+
+Use `--backend rust --fallback error` for full-repo TypeScript discovery and
+outbound call graph queries; use scoped Python when you need function-level
+inbound caller recursion.
 
 ## Transform
 

@@ -191,11 +191,13 @@ class TSConfig:
             if reference_dir and reference_dir.files(recursive=True):
                 next_file: TSFile = reference_dir.files(recursive=True)[0]
             else:
-                logger.warning(f"No next file found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference.dirpath}")
+                reference_path = getattr(reference, "dirpath", getattr(reference, "filepath", reference))
+                logger.warning(f"No next file found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference_path}")
                 continue
             target_ts_config = next_file.ts_config
             if target_ts_config is None:
-                logger.warning(f"No tsconfig found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference.dirpath}")
+                reference_path = getattr(reference, "dirpath", getattr(reference, "filepath", reference))
+                logger.warning(f"No tsconfig found for reference during self_reference_import_aliases computation in _precompute_import_aliases: {reference_path}")
                 continue
 
             # With the tsconfig, grab its rootDirs and outDir

@@ -8,6 +8,7 @@ from graph_sitter.cli.commands.graph.common import (
     GRAPH_COMMAND_JSON_SCHEMA_VERSION,
     as_list,
     emit_json,
+    file_path_of,
     graph_options,
     load_codebase,
     resolve_target,
@@ -47,6 +48,7 @@ def rename_command(
     old_name = str(safe_attr(symbol, "name", target))
     reference_count = len(as_list(safe_attr(symbol, "usages")))
     call_site_count = len(as_list(safe_attr(symbol, "call_sites")))
+    affected_files = _affected_files(symbol)
     applied = bool(write)
 
     if write:
@@ -64,6 +66,7 @@ def rename_command(
         symbol=symbol,
         reference_count=reference_count,
         call_site_count=call_site_count,
+        affected_files=affected_files,
         applied=applied,
     )
 
@@ -82,6 +85,7 @@ def _payload(
     symbol: Any,
     reference_count: int,
     call_site_count: int,
+    affected_files: list[str],
     applied: bool,
 ) -> dict[str, Any]:
     return {
@@ -92,8 +96,18 @@ def _payload(
         "symbol": symbol_record(symbol),
         "references": reference_count,
         "call_sites": call_site_count,
+        "affected_files": affected_files,
         "applied": applied,
     }
+
+
+def _affected_files(symbol: Any) -> list[str]:
+    paths = {file_path_of(symbol)}
+    for usage in as_list(safe_attr(symbol, "usages")):
+        paths.add(file_path_of(usage))
+    for call_site in as_list(safe_attr(symbol, "call_sites")):
+        paths.add(file_path_of(call_site))
+    return sorted(path for path in paths if path)
 
 
 def _print_summary(payload: dict[str, Any]) -> None:
@@ -103,5 +117,9 @@ def _print_summary(payload: dict[str, Any]) -> None:
     rich.print(f"Target: {symbol.get('location') or payload['target']}")
     rich.print(f"Rename: {payload['old_name']} -> {payload['new_name']}")
     rich.print(f"References: {payload['references']}  Call sites: {payload['call_sites']}")
+    if payload["affected_files"]:
+        rich.print("Affected files:")
+        for path in payload["affected_files"]:
+            rich.print(f"  - {path}")
     if not payload["applied"]:
         rich.print("Pass --write to apply this rename.")

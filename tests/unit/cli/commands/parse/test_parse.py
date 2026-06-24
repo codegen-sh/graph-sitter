@@ -307,6 +307,52 @@ def test_parse_command_summarizes_typescript_repo_as_json(tmp_path):
     assert payload["dependencies"] >= 1
 
 
+def test_parse_command_accepts_typescript_directory_project_references(tmp_path):
+    _init_repo(tmp_path)
+    (tmp_path / "packages" / "app" / "src").mkdir(parents=True)
+    (tmp_path / "packages" / "shared" / "src").mkdir(parents=True)
+    (tmp_path / "packages" / "app" / "tsconfig.json").write_text(
+        json.dumps(
+            {
+                "compilerOptions": {"rootDir": "src", "outDir": "dist"},
+                "include": ["src/**/*"],
+                "references": [{"path": "../shared"}],
+            }
+        )
+    )
+    (tmp_path / "packages" / "shared" / "tsconfig.json").write_text(
+        json.dumps(
+            {
+                "compilerOptions": {"rootDir": "src", "outDir": "dist"},
+                "include": ["src/**/*"],
+            }
+        )
+    )
+    (tmp_path / "packages" / "app" / "src" / "app.ts").write_text("export function run() {\n  return 1;\n}\n")
+    (tmp_path / "packages" / "shared" / "src" / "shared.ts").write_text("export function helper() {\n  return 1;\n}\n")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "parse",
+            str(tmp_path),
+            "--language",
+            "typescript",
+            "--backend",
+            "python",
+            "--subdir",
+            "packages/app/src",
+            "--format",
+            "json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["files"] == 1
+    assert payload["functions"] == 1
+
+
 def test_parse_command_json_stdout_is_machine_readable(tmp_path):
     _init_repo(tmp_path)
     (tmp_path / "app.py").write_text("import os\n\ndef run():\n    return os.getcwd()\n")

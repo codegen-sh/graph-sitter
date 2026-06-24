@@ -11,6 +11,8 @@ codemods.
 
 ```bash
 graph-sitter inspect src/app.py
+graph-sitter symbols handler
+graph-sitter callgraph src/app.py.handler --depth 2
 graph-sitter using src/app.py:handler --depth 2
 graph-sitter usages src/app.py:helper --depth 2
 graph-sitter rename src/app.py:helper --to execute_helper --write
@@ -28,6 +30,8 @@ graph-sitter rename src/app.py:handler --to run_handler --write
 
 The CLI also accepts `FILE::SYMBOL` and dotted shorthand such as
 `src/app.py.handler` when it can resolve the file unambiguously.
+
+Use `symbols` when you do not know the exact target string yet.
 
 ## inspect
 
@@ -54,6 +58,69 @@ graph-sitter inspect src/app.py . --level calls
 graph-sitter inspect src/app.py . --level full --format json
 ```
 
+## symbols
+
+`symbols` lists parsed functions, classes, and symbols with copyable target
+strings for the other graph commands.
+
+```bash
+graph-sitter symbols [QUERY] [PATH] [OPTIONS]
+```
+
+Options:
+
+- `--kind all|function|class|symbol`: Filter by symbol kind. Defaults to `all`.
+- `--max-results N`: Maximum symbols to print. Defaults to `200`.
+- `--format summary|json`: Choose human-readable or machine-readable output.
+
+Examples:
+
+```bash
+graph-sitter symbols handler .
+graph-sitter symbols Service ./monorepo --kind class --subdir packages/app
+graph-sitter symbols run . --kind function --format json
+```
+
+## callgraph
+
+`callgraph` traces a clean call graph for a target. By default it keeps only
+local, resolved, deduped edges, which is usually what agents want for codebase
+navigation and impact analysis. Pass `--raw` to include unresolved runtime and
+library calls.
+
+```bash
+graph-sitter callgraph TARGET [PATH] [OPTIONS]
+```
+
+Options:
+
+- `--direction outbound|inbound`: Trace callees or callers. Defaults to
+  `outbound`.
+- `--depth N`: Recursion depth through resolved call edges. Defaults to `2`.
+- `--max-results N`: Maximum call edges to print. Defaults to `200`.
+- `--raw`: Include external, unresolved runtime/library calls and repeated call
+  sites.
+- `--format summary|json`: Choose human-readable or machine-readable output.
+
+Examples:
+
+```bash
+graph-sitter callgraph src/app.py.handler . --depth 3
+graph-sitter callgraph src/app.py.helper . --direction inbound --depth 2
+graph-sitter callgraph src/app.py.handler . --raw --format json
+```
+
+For large TypeScript monorepos, prefer the Rust backend:
+
+```bash
+graph-sitter callgraph packages/app/src/index.ts.main ./monorepo --language typescript --backend rust --fallback error --depth 2
+graph-sitter callgraph packages/app/src/index.ts.main ./monorepo --language typescript --backend rust --fallback error --direction inbound
+```
+
+The Rust compact backend can return full-repo outbound call edges and file-level
+inbound usage edges quickly. Use `--backend python --subdir ...` when you need
+function-level inbound caller recursion in a focused package.
+
 ## using
 
 `using` traces outbound calls from a target. With `--depth 2`, the output
@@ -67,12 +134,20 @@ Options:
 
 - `--depth N`: Recursion depth through resolved outbound calls. Defaults to `1`.
 - `--max-results N`: Maximum call edges to print. Defaults to `200`.
+- `--resolved-only`: Only include edges resolved to parsed symbols.
+- `--local-only`: Only include edges whose source and target are parsed local
+  files.
+- `--hide-runtime`: Hide unresolved calls to common language and runtime
+  helpers.
+- `--dedupe`: Collapse repeated edges with the same source, target, and call
+  name.
 - `--format summary|json`: Choose human-readable or machine-readable output.
 
 Example:
 
 ```bash
 graph-sitter using src/app.py:handler . --depth 3 --format json
+graph-sitter using src/app.py:handler . --depth 3 --resolved-only --dedupe
 ```
 
 ## usages
@@ -88,6 +163,13 @@ Options:
 
 - `--depth N`: Recursion depth through inbound callers. Defaults to `1`.
 - `--max-results N`: Maximum call edges to print. Defaults to `200`.
+- `--resolved-only`: Only include edges resolved to parsed symbols.
+- `--local-only`: Only include edges whose source and target are parsed local
+  files.
+- `--hide-runtime`: Hide unresolved calls to common language and runtime
+  helpers.
+- `--dedupe`: Collapse repeated edges with the same source, target, and call
+  name.
 - `--format summary|json`: Choose human-readable or machine-readable output.
 
 Example:
@@ -135,6 +217,8 @@ All graph commands accept the same parse controls as `parse`:
 
 ```bash
 uvx --python 3.13 graph-sitter inspect src/app.py .
+uvx --python 3.13 graph-sitter symbols handler .
+uvx --python 3.13 graph-sitter callgraph src/app.py.handler . --depth 2
 uvx --python 3.13 graph-sitter using src/app.py:handler . --depth 2 --format json
 uvx --python 3.13 graph-sitter usages src/app.py:helper . --depth 2
 uvx --python 3.13 graph-sitter rename src/app.py:helper . --to execute_helper --write

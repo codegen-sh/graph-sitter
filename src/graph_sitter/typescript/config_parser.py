@@ -26,13 +26,27 @@ class TSConfigParser(ConfigParser):
         self.default_config_name = default_config_name
 
     def get_config(self, config_path: os.PathLike) -> TSConfig | None:
-        path = self.ctx.to_absolute(config_path)
+        path = self._normalize_config_path(self.ctx.to_absolute(config_path))
+        if path is None:
+            return None
         if path in self.config_files:
             return self.config_files[path]
         if path.exists():
-            self.config_files[path] = TSConfig(File.from_content(config_path, path.read_text(), self.ctx, sync=False), self)
+            self.config_files[path] = TSConfig(File.from_content(path, path.read_text(), self.ctx, sync=False), self)
             return self.config_files.get(path)
         return None
+
+    def _normalize_config_path(self, path: Path) -> Path | None:
+        if path.is_dir():
+            path = path / self.default_config_name
+        elif not path.exists() and path.suffix != ".json":
+            json_path = path.with_suffix(".json")
+            if json_path.exists():
+                path = json_path
+
+        if path.exists() and not path.is_file():
+            return None
+        return path
 
     def parse_configs(self):
         # This only yields a 0.05s speedup, but its funny writing dynamic programming code
