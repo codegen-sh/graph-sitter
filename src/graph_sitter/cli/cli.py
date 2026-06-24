@@ -12,6 +12,7 @@ from graph_sitter.cli.commands.list.main import list_command
 from graph_sitter.cli.commands.lsp.lsp import lsp_command
 from graph_sitter.cli.commands.notebook.main import notebook_command
 from graph_sitter.cli.commands.parse.main import parse_command
+from graph_sitter.cli.commands.query.main import query_command, query_server_command
 from graph_sitter.cli.commands.rename.main import rename_command
 from graph_sitter.cli.commands.reset.main import reset_command
 from graph_sitter.cli.commands.run.main import run_command
@@ -38,6 +39,8 @@ main.add_command(init_command)
 main.add_command(doctor_command)
 main.add_command(diagnose_command)
 main.add_command(parse_command)
+main.add_command(query_command)
+main.add_command(query_server_command)
 main.add_command(inspect_command)
 main.add_command(symbols_command)
 main.add_command(callgraph_command)
