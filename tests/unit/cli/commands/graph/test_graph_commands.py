@@ -1,10 +1,18 @@
 import json
 import subprocess
+import threading
 from pathlib import Path
 
 from click.testing import CliRunner
 
 from graph_sitter.cli.cli import main
+from graph_sitter.cli.commands.query.main import (
+    QueryHTTPServer,
+    QueryServerConfig,
+    QueryServerHandler,
+    QuerySession,
+    _post_json,
+)
 
 
 def _init_repo(path: Path) -> None:
@@ -198,6 +206,121 @@ def test_symbols_command_lists_copyable_targets(tmp_path):
     assert result.exit_code == 0, result.output
     payload = json.loads(result.output)
     assert [symbol["target"] for symbol in payload["symbols"]] == ["app.py.helper"]
+
+
+def test_query_command_reuses_one_parse_for_multiple_requests(tmp_path, monkeypatch):
+    _write_call_graph_repo(tmp_path)
+    from graph_sitter.cli.commands.query import main as query_main
+
+    load_calls = []
+    original_load_codebase = query_main.load_codebase
+
+    def counting_load_codebase(*args, **kwargs):
+        load_calls.append((args, kwargs))
+        return original_load_codebase(*args, **kwargs)
+
+    monkeypatch.setattr(query_main, "load_codebase", counting_load_codebase)
+    requests = "\n".join(
+        [
+            json.dumps({"id": "symbols", "op": "symbols", "query": "help", "kind": "function"}),
+            json.dumps({"id": "using", "op": "using", "target": "app.py:entry", "depth": 2}),
+            json.dumps({"id": "inspect", "op": "inspect", "file": "app.py", "level": "calls"}),
+            json.dumps({"id": "exit", "op": "exit"}),
+        ]
+    )
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "query",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "python",
+        ],
+        input=f"{requests}\n",
+    )
+
+    assert result.exit_code == 0, result.output
+    assert len(load_calls) == 1
+    payloads = [json.loads(line) for line in result.output.splitlines()]
+    assert payloads[0]["event"] == "ready"
+    assert payloads[0]["summary"]["files"] == 1
+
+    responses = {payload["id"]: payload for payload in payloads[1:]}
+    assert responses["symbols"]["ok"] is True
+    assert [symbol["target"] for symbol in responses["symbols"]["result"]["symbols"]] == ["app.py.helper"]
+
+    edges = {(edge["source"]["name"], edge["target"]["name"], edge["depth"]) for edge in responses["using"]["result"]["edges"]}
+    assert ("entry", "helper", 1) in edges
+    assert ("helper", "leaf", 2) in edges
+
+    functions = {function["name"]: function for function in responses["inspect"]["result"]["function_details"]}
+    assert functions["entry"]["uses"] == ["helper"]
+    assert responses["exit"]["event"] == "exit"
+
+
+def test_query_command_reports_request_errors_as_jsonl(tmp_path):
+    _write_call_graph_repo(tmp_path)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "query",
+            str(tmp_path),
+            "--language",
+            "python",
+            "--backend",
+            "python",
+        ],
+        input=json.dumps({"id": "missing-target", "op": "callgraph"}) + "\n",
+    )
+
+    assert result.exit_code == 0, result.output
+    payloads = [json.loads(line) for line in result.output.splitlines()]
+    assert payloads[0]["event"] == "ready"
+    assert payloads[1]["id"] == "missing-target"
+    assert payloads[1]["ok"] is False
+    assert payloads[1]["error"]["message"] == "Missing required field: target"
+
+
+def test_query_session_reports_stale_and_reload_after_edit(tmp_path):
+    app = _write_call_graph_repo(tmp_path)
+    session = QuerySession.load(path=tmp_path, backend="python", fallback="python", language="python", subdirectories=())
+
+    assert session.status_payload()["stale"] is False
+    app.write_text(app.read_text() + "\n\ndef new_leaf():\n    return leaf()\n")
+
+    assert session.status_payload()["stale"] is True
+    before_reload = session.handle_request({"id": "before", "op": "symbols", "query": "new_leaf", "kind": "function"})
+    assert before_reload["result"]["symbols"] == []
+
+    reload_response = session.handle_request({"id": "reload", "op": "reload"})
+    assert reload_response["ok"] is True
+    assert reload_response["result"]["stale"] is False
+
+    after_reload = session.handle_request({"id": "after", "op": "symbols", "query": "new_leaf", "kind": "function"})
+    assert [symbol["target"] for symbol in after_reload["result"]["symbols"]] == ["app.py.new_leaf"]
+
+
+def test_query_http_server_can_reload_if_stale(tmp_path):
+    app = _write_call_graph_repo(tmp_path)
+    config = QueryServerConfig(path=tmp_path, backend="python", fallback="python", language="python", subdirectories=())
+    session = QuerySession.load(path=tmp_path, backend="python", fallback="python", language="python", subdirectories=())
+    server = QueryHTTPServer(("127.0.0.1", 0), QueryServerHandler, session=session, config=config, state_file=tmp_path / "server.json")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        state = server.state_payload()
+        app.write_text(app.read_text() + "\n\ndef new_leaf():\n    return leaf()\n")
+        response = _post_json(state, "/query", {"id": "new", "op": "symbols", "query": "new_leaf", "kind": "function", "reload_if_stale": True})
+        assert response["ok"] is True
+        assert [symbol["target"] for symbol in response["result"]["symbols"]] == ["app.py.new_leaf"]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
 
 
 def test_rename_command_applies_function_rename_when_write_is_passed(tmp_path):

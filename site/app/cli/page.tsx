@@ -39,6 +39,22 @@ const graphCommands = [
 			"uvx graph-sitter symbols runInference ./repo --kind function --backend rust",
 	},
 	{
+		icon: TerminalSquare,
+		name: "query",
+		signature: "graph-sitter query [PATH]",
+		text: "Parses once, keeps the graph in memory, and answers JSONL graph queries over stdin/stdout.",
+		example:
+			'printf \'{"id":"1","op":"symbols","query":"runInference"}\\n\' | uvx graph-sitter query ./repo',
+	},
+	{
+		icon: TerminalSquare,
+		name: "query-server",
+		signature: "graph-sitter query-server start [PATH]",
+		text: "Starts a local background graph server so agents can query the same in-memory graph across shell commands.",
+		example:
+			'uvx graph-sitter query-server run ./repo --request \'{"op":"symbols","query":"runInference"}\'',
+	},
+	{
 		icon: Network,
 		name: "callgraph",
 		signature: "graph-sitter callgraph TARGET [PATH]",
@@ -139,6 +155,9 @@ export default function CliReferencePage() {
 						<CodeBlock
 							lines={[
 								"uvx graph-sitter parse ./repo --format json",
+								"uvx graph-sitter query-server start ./repo --backend rust --fallback error",
+								'uvx graph-sitter query-server run ./repo --request \'{"op":"symbols","query":"runInference"}\'',
+								'printf \'{"id":"1","op":"symbols","query":"runInference"}\\n{"id":"2","op":"exit"}\\n\' | uvx graph-sitter query ./repo',
 								"uvx graph-sitter symbols runInference ./repo --backend rust",
 								"uvx graph-sitter callgraph src/app.ts.main ./repo --depth 2",
 								"uvx graph-sitter rename src/app.py:helper ./repo --to execute_helper --check",
@@ -196,6 +215,53 @@ export default function CliReferencePage() {
 								</div>
 							))}
 						</div>
+					</div>
+				</section>
+
+				<section className="mx-auto w-full max-w-6xl px-6 py-12 lg:px-8 lg:py-16">
+					<div className="grid gap-8 lg:grid-cols-2">
+						<div>
+							<h2 className="text-2xl font-semibold tracking-tight">
+								Persistent query sessions
+							</h2>
+							<p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+								Use query mode when an agent needs several graph lookups from
+								the same repository. The command emits a ready event after the
+								initial parse, then returns one JSON response per JSON request.
+							</p>
+						</div>
+						<CodeBlock
+							lines={[
+								'{"id":"symbols","op":"symbols","query":"runInference","kind":"function"}',
+								'{"id":"trace","op":"callgraph","target":"packages/app/src/index.ts.runInference","depth":2}',
+								'{"id":"done","op":"exit"}',
+							]}
+						/>
+					</div>
+				</section>
+
+				<section className="border-y border-border/60 bg-muted/35">
+					<div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:px-8 lg:py-16">
+						<div>
+							<h2 className="text-2xl font-semibold tracking-tight">
+								Background query server
+							</h2>
+							<p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+								Use server mode when a coding agent needs to query, edit files,
+								then query again from separate shell commands. Client requests
+								reload automatically when the repository has changed since the
+								server parsed it.
+							</p>
+						</div>
+						<CodeBlock
+							lines={[
+								"uvx graph-sitter query-server start ./repo --language typescript --backend rust --fallback error",
+								'uvx graph-sitter query-server run ./repo --request \'{"op":"symbols","query":"runInference","kind":"function"}\'',
+								'uvx graph-sitter query-server run ./repo --request \'{"op":"callgraph","target":"packages/app/src/index.ts.runInference","depth":2}\'',
+								"uvx graph-sitter query-server status ./repo",
+								"uvx graph-sitter query-server stop ./repo",
+							]}
+						/>
 					</div>
 				</section>
 
