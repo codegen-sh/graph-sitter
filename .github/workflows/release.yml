@@ -87,7 +87,7 @@ jobs:
           fi
           rust-rewrite/tools/check_wheel_rust_backend.sh --wheel "$WHEEL"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.os }}-3.${{ matrix.python }}
           path: ./wheelhouse/*.whl
@@ -107,7 +107,7 @@ jobs:
         uses: ./.github/actions/setup-environment
 
       - name: Download All Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
